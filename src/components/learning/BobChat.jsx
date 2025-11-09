@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSend, FiX } from 'react-icons/fi';
+import { FiSend, FiX, FiMessageCircle, FiMessageSquare, FiUser } from 'react-icons/fi';
 
 const BobChat = ({ isOpen, onClose, isMobile = false }) => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hey there! I'm Bob, your friendly AI study buddy. How can I help you understand this topic today? 😊",
+      text: "Hey there! I'm Bob, your friendly AI study buddy. How can I help you understand this topic today?",
       sender: 'bob',
       timestamp: Date.now()
     }
@@ -26,11 +26,11 @@ const BobChat = ({ isOpen, onClose, isMobile = false }) => {
 
   const generateBobResponse = (userMessage) => {
     const responses = [
-      "That's a great question! While I'm just a prototype right now, I can tell you that this concept builds on what you learned in the previous section. Keep going, you're doing awesome! 🌟",
+      "That's a great question! While I'm just a prototype right now, I can tell you that this concept builds on what you learned in the previous section. Keep going, you're doing awesome!",
       "I love your curiosity! This topic is super important because it connects to everything else you'll learn. Want to go over any specific part again?",
-      "Hmm, interesting question! The key thing to remember here is that practice makes perfect. Try working through another example and it'll start to click! 💡",
+      "Hmm, interesting question! The key thing to remember here is that practice makes perfect. Try working through another example and it'll start to click!",
       "Great thinking! That's exactly the kind of question that shows you're really understanding the material. Keep it up!",
-      "I'm here to help! While I'm a prototype AI, I can tell you that breaking down complex problems into smaller steps is always a good strategy. You've got this! 🚀"
+      "I'm here to help! While I'm a prototype AI, I can tell you that breaking down complex problems into smaller steps is always a good strategy. You've got this!"
     ];
 
     return responses[Math.floor(Math.random() * responses.length)];
@@ -72,25 +72,30 @@ const BobChat = ({ isOpen, onClose, isMobile = false }) => {
   };
 
   const chatContent = (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b-2 border-gray-200 bg-white">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🤖</span>
-          <h3 className="font-semibold text-gray-900">Ask Studly (Bob)</h3>
+    <div className="flex flex-col h-full bg-white">
+      {/* Enhanced Header */}
+      <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-white">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+            <FiMessageSquare className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900">Ask Studly</h3>
+            <p className="text-sm text-slate-500">Your AI Study Buddy</p>
+          </div>
         </div>
         {isMobile && (
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-slate-100 rounded-xl transition-all duration-300"
           >
-            <FiX className="text-gray-600" />
+            <FiX className="text-slate-600 w-5 h-5" />
           </button>
         )}
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin bg-gray-50">
+      {/* Enhanced Messages Area */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin bg-slate-50/50">
         {messages.map((message) => (
           <motion.div
             key={message.id}
@@ -98,41 +103,74 @@ const BobChat = ({ isOpen, onClose, isMobile = false }) => {
             animate={{ opacity: 1, y: 0 }}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <div
-              className={`max-w-[80%] p-3 rounded-lg ${
-                message.sender === 'bob'
-                  ? 'bg-blue-50 border-2 border-blue-200 text-gray-800'
-                  : 'bg-white border-2 border-gray-200 text-gray-800'
-              }`}
-            >
-              <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+            <div className="flex items-start gap-3 max-w-[85%]">
+              {/* Bob's Avatar */}
+              {message.sender === 'bob' && (
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <FiMessageSquare className="w-4 h-4 text-white" />
+                </div>
+              )}
+              
+              {/* Message Bubble */}
+              <div
+                className={`p-4 rounded-2xl ${
+                  message.sender === 'bob'
+                    ? 'bg-white border border-slate-200 text-slate-800'
+                    : 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
+                }`}
+              >
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {message.text}
+                </p>
+                <div className={`text-xs mt-2 ${
+                  message.sender === 'bob' ? 'text-slate-500' : 'text-blue-100'
+                }`}>
+                  {new Date(message.timestamp).toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  })}
+                </div>
+              </div>
+
+              {/* User's Avatar */}
+              {message.sender === 'user' && (
+                <div className="w-8 h-8 bg-gradient-to-br from-slate-500 to-slate-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <FiUser className="w-4 h-4 text-white" />
+                </div>
+              )}
             </div>
           </motion.div>
         ))}
 
+        {/* Enhanced Typing Indicator */}
         {isTyping && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex justify-start"
           >
-            <div className="bg-blue-50 border-2 border-blue-200 p-3 rounded-lg">
-              <div className="flex gap-1">
-                <motion.div
-                  className="w-2 h-2 bg-blue-400 rounded-full"
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0 }}
-                />
-                <motion.div
-                  className="w-2 h-2 bg-blue-400 rounded-full"
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0, delay: 0.2 }}
-                />
-                <motion.div
-                  className="w-2 h-2 bg-blue-400 rounded-full"
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0, delay: 0.4 }}
-                />
+            <div className="flex items-start gap-3 max-w-[85%]">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <FiMessageSquare className="w-4 h-4 text-white" />
+              </div>
+              <div className="bg-white border border-slate-200 p-4 rounded-2xl">
+                <div className="flex gap-1.5">
+                  <motion.div
+                    className="w-2 h-2 bg-blue-500 rounded-full"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 0, delay: 0 }}
+                  />
+                  <motion.div
+                    className="w-2 h-2 bg-blue-500 rounded-full"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 0, delay: 0.2 }}
+                  />
+                  <motion.div
+                    className="w-2 h-2 bg-blue-500 rounded-full"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 0, delay: 0.4 }}
+                  />
+                </div>
               </div>
             </div>
           </motion.div>
@@ -140,26 +178,31 @@ const BobChat = ({ isOpen, onClose, isMobile = false }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="p-4 border-t-2 border-gray-200 bg-white">
-        <div className="flex gap-2">
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Ask Bob a question..."
-            className="flex-1 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-600 transition-colors"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!inputValue.trim()}
-            className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border-2 border-blue-600"
-          >
-            <FiSend />
-          </button>
+      {/* Enhanced Input Area */}
+      <div className="p-6 border-t border-slate-200 bg-white">
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Ask me anything about this topic..."
+              className="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 placeholder-slate-500 pr-12"
+            />
+            <button
+              onClick={handleSend}
+              disabled={!inputValue.trim()}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
+            >
+              <FiSend className="w-4 h-4" />
+            </button>
+          </div>
         </div>
+        <p className="text-xs text-slate-500 mt-3 text-center">
+          Bob can help explain concepts, provide examples, and answer your questions
+        </p>
       </div>
     </div>
   );
@@ -174,7 +217,7 @@ const BobChat = ({ isOpen, onClose, isMobile = false }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 z-40"
+              className="fixed inset-0 bg-black/40 z-40"
               onClick={onClose}
             />
 
@@ -183,7 +226,7 @@ const BobChat = ({ isOpen, onClose, isMobile = false }) => {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
-              className="fixed inset-x-4 bottom-4 top-20 bg-white rounded-2xl z-50 overflow-hidden"
+              className="fixed inset-x-4 bottom-4 top-20 bg-white rounded-2xl z-50 overflow-hidden border border-slate-200"
             >
               {chatContent}
             </motion.div>
@@ -194,7 +237,7 @@ const BobChat = ({ isOpen, onClose, isMobile = false }) => {
   }
 
   return (
-    <div className="h-full bg-white border-l-2 border-gray-200">
+    <div className="h-full bg-white border-l border-slate-200">
       {chatContent}
     </div>
   );

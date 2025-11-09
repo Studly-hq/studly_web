@@ -23,11 +23,12 @@ const Button = ({
     gradient: 'bg-gradient-to-r from-blue to-blue text-white border-transparent hover:from-blue hover:to-blue focus:ring-blue active:scale-95'
   };
 
-  const sizes = {
-    sm: 'px-3 py-2 text-sm',
-    md: 'px-4 py-3 text-base',
-    lg: 'px-6 py-4 text-lg'
-  };
+const sizes = {
+  sm: 'px-3 py-1.5 text-sm',
+  md: 'px-4 py-2 text-base',
+  lg: 'px-6 py-2.5 text-base'
+};
+
 
   const widthClass = fullWidth ? 'w-full' : '';
 
