@@ -8,7 +8,7 @@ const CategoryCard = ({ subject, onViewTopics }) => {
   const getCategoryColor = (category) => {
     const colors = {
       STEM: 'bg-gradient-to-br from-green-500 to-emerald-600',
-      Languages: 'bg-gradient-to-br from-blue to-cyan-600',
+      Languages: 'bg-gradient-to-br from-blue-400 to-cyan-600',
       Tech: 'bg-gradient-to-br from-purple-500 to-indigo-600',
       Arts: 'bg-gradient-to-br from-pink-500 to-rose-600',
       Business: 'bg-gradient-to-br from-orange-500 to-red-600',
@@ -20,7 +20,7 @@ const CategoryCard = ({ subject, onViewTopics }) => {
   const getCategoryBorderColor = (category) => {
     const colors = {
       STEM: 'border-green-200 hover:border-green-300',
-      Languages: 'border-blue-600 hover:border-blue-700',
+      Languages: 'border-blue-200 hover:border-blue-300',
       Tech: 'border-purple-200 hover:border-purple-300',
       Arts: 'border-pink-200 hover:border-pink-300',
       Business: 'border-orange-200 hover:border-orange-300',
@@ -81,19 +81,17 @@ const CategoryCard = ({ subject, onViewTopics }) => {
         </div>
 
         {/* Action Button - Enhanced with category-specific colors */}
-        <div className="mt-4 pt-4 border-t border-slate-100">
-          <Button
+          <div
             onClick={() => onViewTopics(subject.id)}
             variant="ghost"
             size="sm"
-            fullWidth
-            className={`group/btn justify-between transition-all duration-300 ${getCategoryButtonColor(subject.category)}`}
+
+            className={`group/btn transition-all duration-300 ${getCategoryButtonColor(subject.category)} flex justify-between items-center mt-4 py-2 px-2 border-t rounded-lg border`}
           >
             <span>Explore Topics</span>
             <FiArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-          </Button>
+          </div>
         </div>
-      </div>
     </motion.div>
   );
 };
