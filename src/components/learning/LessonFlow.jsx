@@ -180,7 +180,7 @@ const LessonFlow = () => {
 <Button
   onClick={handleStartSection}
   size="lg"
-  className="px-8 py-4 rounded-2xl bg-blue text-white font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 active:scale-95 transition-all duration-200 shadow-sm flex items-center gap-2"
+  className="px-8 py-4 rounded-2xl bg-blue-700 text-white font-medium hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 active:scale-95 transition-all duration-200 shadow-sm flex items-center gap-2"
   icon={<FiPlay className="w-5 h-5" />}
 >
   Start Section
