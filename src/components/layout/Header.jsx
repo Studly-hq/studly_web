@@ -49,9 +49,13 @@ const Header = ({ title, icon, showSearch = false, showFilters = false, onSearch
             </div>
 
             {/* Avatar */}
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center border border-slate-100 shadow-sm">
+            {/* <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border border-slate-100 shadow-sm">
               <FiUser className="w-3.5 h-3.5 text-white" />
             </div>
+           */}
+           <div className="w-8 h-8 bg-blue-500">
+            HI
+           </div>
           </div>
         </div>
 
