@@ -26,7 +26,7 @@ const Header = ({ title, icon, showSearch = false, showFilters = false, onSearch
         <div className="flex items-center justify-between h-14">
           {/* Left: Title */}
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center justify-center w-7 h-7 bg-blue-600 rounded-md">
+            <div className="flex items-center justify-center w-7 h-7 bg-blue-400 rounded-md">
               {icon && React.cloneElement(icon, { className: "w-3.5 h-3.5 text-white" })}
             </div>
             <h1 className="text-lg font-semibold text-slate-900 leading-none">{title}</h1>
@@ -49,13 +49,11 @@ const Header = ({ title, icon, showSearch = false, showFilters = false, onSearch
             </div>
 
             {/* Avatar */}
-            {/* <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border border-slate-100 shadow-sm">
+            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border border-slate-100 shadow-sm">
               <FiUser className="w-3.5 h-3.5 text-white" />
             </div>
-           */}
-           <div className="w-8 h-8 bg-blue-500">
-            HI
-           </div>
+          
+     
           </div>
         </div>
 
