@@ -1,3 +1,4 @@
+<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -5,97 +6,20 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    
-    <!-- Primary Meta Tags -->
-    <meta name="title" content="Studly — Learn Anything. Understand Everything." />
-    <meta 
-      name="description" 
-      content="Studly makes learning simple and personal. Study any topic through interactive, line-by-line lessons — guided by AI that helps you truly understand." 
+    <meta
+      name="description"
+      content="Studly - Interactive E-Learning Platform"
     />
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://studly.app/" />
-    <meta property="og:title" content="Studly — Learn Anything. Understand Everything." />
-    <meta 
-      property="og:description" 
-      content="A smarter way to learn. Studly types your lessons line by line and lets you ask questions as you go — making studying effortless and fun." 
-    />
-    <meta property="og:image" content="%PUBLIC_URL%/social-preview.png" />
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://studly.app/" />
-    <meta property="twitter:title" content="Studly — Learn Anything. Understand Everything." />
-    <meta 
-      property="twitter:description" 
-      content="Study interactively with AI that teaches you one line at a time. Understand deeply, not just memorize." 
-    />
-    <meta property="twitter:image" content="%PUBLIC_URL%/social-preview.png" />
-    
-    <!-- Preload critical fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <!-- Manifest & Icons -->
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
-    <title>Studly — Learn Anything. Understand Everything.</title>
+    <!-- KaTeX CSS for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
     
-    <style>
-      /* Critical CSS for initial load */
-      .loading-fallback {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
-      }
-    </style>
+    <title>Studly - Learn Smarter</title>
   </head>
   <body>
-    <noscript>
-      <div class="loading-fallback" style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        text-align: center;
-        padding: 2rem;
-        background: #000;
-        color: #fff;
-      ">
-        <div>
-          <h1 style="font-size: 2rem; margin-bottom: 1rem;">Studly</h1>
-          <p>You need to enable JavaScript to run this app.</p>
-        </div>
-      </div>
-    </noscript>
-    
-    <div id="root">
-      <!-- Loading fallback -->
-      <div class="loading-fallback" style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background: #fff;
-      ">
-        <div style="text-align: center;">
-          <img src="%PUBLIC_URL%/logo192.png" alt="Studly logo" style="width:64px;height:64px;animation: spin 3s linear infinite;" />
-          <p style="margin-top: 1rem; font-size: 1rem; color: #444;">Loading Studly...</p>
-        </div>
-      </div>
-    </div>
-    
-    <style>
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    </style>
-    
-    <!--
-      This HTML file is a template for the Studly web app.
-      To start development, run `npm start` or `yarn start`.
-      For production, run `npm run build` or `yarn build`.
-    -->
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
   </body>
 </html>

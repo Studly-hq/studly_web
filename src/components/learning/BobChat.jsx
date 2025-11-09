@@ -1,162 +1,203 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot } from 'lucide-react';
-import { Button } from '../ui/Button';
+import { FiSend, FiX } from 'react-icons/fi';
 
-export const BobChat = ({ lessonContext }) => {
+const BobChat = ({ isOpen, onClose, isMobile = false }) => {
   const [messages, setMessages] = useState([
     {
       id: 1,
+      text: "Hey there! I'm Bob, your friendly AI study buddy. How can I help you understand this topic today? 😊",
       sender: 'bob',
-      text: `Hey there! How can I help you understand ${lessonContext?.title || 'this topic'} today?`
+      timestamp: Date.now()
     }
   ]);
-  const [input, setInput] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
-  
+  const inputRef = useRef(null);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-  
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-  
-  const handleSend = async () => {
-    if (!input.trim()) return;
-    
+
+  const generateBobResponse = (userMessage) => {
+    const responses = [
+      "That's a great question! While I'm just a prototype right now, I can tell you that this concept builds on what you learned in the previous section. Keep going, you're doing awesome! 🌟",
+      "I love your curiosity! This topic is super important because it connects to everything else you'll learn. Want to go over any specific part again?",
+      "Hmm, interesting question! The key thing to remember here is that practice makes perfect. Try working through another example and it'll start to click! 💡",
+      "Great thinking! That's exactly the kind of question that shows you're really understanding the material. Keep it up!",
+      "I'm here to help! While I'm a prototype AI, I can tell you that breaking down complex problems into smaller steps is always a good strategy. You've got this! 🚀"
+    ];
+
+    return responses[Math.floor(Math.random() * responses.length)];
+  };
+
+  const handleSend = () => {
+    if (!inputValue.trim()) return;
+
     // Add user message
     const userMessage = {
       id: Date.now(),
+      text: inputValue,
       sender: 'user',
-      text: input
+      timestamp: Date.now()
     };
-    
-    setMessages([...messages, userMessage]);
-    setInput('');
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
     setIsTyping(true);
-    
-    // Simulate AI response (replace with actual API call)
+
+    // Simulate Bob thinking and responding
     setTimeout(() => {
       const bobResponse = {
         id: Date.now() + 1,
+        text: generateBobResponse(inputValue),
         sender: 'bob',
-        text: `That's a great question! Let me explain it in simpler terms. ${lessonContext?.title} is all about understanding the fundamentals. Would you like me to provide an example?`
+        timestamp: Date.now()
       };
-      
       setMessages(prev => [...prev, bobResponse]);
       setIsTyping(false);
-    }, 1500);
+    }, 1000);
   };
-  
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
-  
-  return (
-    <div className="w-80 h-full bg-dark-gray border-l border-white/5 flex flex-col">
+
+  const chatContent = (
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-white/5">
+      <div className="flex items-center justify-between p-4 border-b-2 border-gray-200 bg-white">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-            <Bot className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-white">Ask Studly (Bob)</h3>
-            <p className="text-xs text-gray-400">AI Learning Assistant</p>
-          </div>
+          <span className="text-2xl">🤖</span>
+          <h3 className="font-semibold text-gray-900">Ask Studly (Bob)</h3>
         </div>
+        {isMobile && (
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <FiX className="text-gray-600" />
+          </button>
+        )}
       </div>
-      
+
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
-        <AnimatePresence>
-          {messages.map((message) => (
-            <motion.div
-              key={message.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin bg-gray-50">
+        {messages.map((message) => (
+          <motion.div
+            key={message.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-[80%] p-3 rounded-lg ${
+                message.sender === 'bob'
+                  ? 'bg-blue-50 border-2 border-blue-200 text-gray-800'
+                  : 'bg-white border-2 border-gray-200 text-gray-800'
+              }`}
             >
-              <div
-                className={`
-                  max-w-[80%] p-3 rounded-lg
-                  ${message.sender === 'user'
-                    ? 'bg-primary text-white'
-                    : 'bg-white/5 text-gray-300'
-                  }
-                `}
-              >
-                <p className="text-sm leading-relaxed">{message.text}</p>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-        
-        {/* Typing indicator */}
+              <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+            </div>
+          </motion.div>
+        ))}
+
         {isTyping && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex justify-start"
           >
-            <div className="bg-white/5 p-3 rounded-lg">
+            <div className="bg-blue-50 border-2 border-blue-200 p-3 rounded-lg">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <motion.div
+                  className="w-2 h-2 bg-blue-400 rounded-full"
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0 }}
+                />
+                <motion.div
+                  className="w-2 h-2 bg-blue-400 rounded-full"
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0, delay: 0.2 }}
+                />
+                <motion.div
+                  className="w-2 h-2 bg-blue-400 rounded-full"
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0, delay: 0.4 }}
+                />
               </div>
             </div>
           </motion.div>
         )}
-        
         <div ref={messagesEndRef} />
       </div>
-      
+
       {/* Input */}
-      <div className="p-4 border-t border-white/5">
+      <div className="p-4 border-t-2 border-gray-200 bg-white">
         <div className="flex gap-2">
           <input
+            ref={inputRef}
             type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask Bob anything..."
-            className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-lg
-                     text-white placeholder-gray-500 focus:outline-none focus:border-primary
-                     transition-smooth"
+            placeholder="Ask Bob a question..."
+            className="flex-1 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-600 transition-colors"
           />
-          <Button
+          <button
             onClick={handleSend}
-            disabled={!input.trim()}
-            size="sm"
-            className="px-3"
+            disabled={!inputValue.trim()}
+            className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border-2 border-blue-600"
           >
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
-        
-        {/* Quick actions */}
-        <div className="flex gap-2 mt-2">
-          <button
-            onClick={() => setInput('Explain simpler')}
-            className="text-xs px-2 py-1 rounded bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-smooth"
-          >
-            Explain simpler
-          </button>
-          <button
-            onClick={() => setInput('Give me an example')}
-            className="text-xs px-2 py-1 rounded bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-smooth"
-          >
-            Give example
+            <FiSend />
           </button>
         </div>
       </div>
     </div>
   );
+
+  if (isMobile) {
+    return (
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-40"
+              onClick={onClose}
+            />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="fixed inset-x-4 bottom-4 top-20 bg-white rounded-2xl z-50 overflow-hidden"
+            >
+              {chatContent}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    );
+  }
+
+  return (
+    <div className="h-full bg-white border-l-2 border-gray-200">
+      {chatContent}
+    </div>
+  );
 };
+
+export default BobChat;

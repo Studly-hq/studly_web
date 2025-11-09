@@ -1,116 +1,151 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { CourseOutline } from '../components/learning/CourseOutline';
-import { LessonContent } from '../components/learning/LessonContent';
-import { BobChat } from '../components/learning/BobChat';
-import { CompletionModal } from '../components/learning/CompletionModal';
-import { ProgressBar } from '../components/ui/ProgressBar';
-import { getCourseById } from '../data/courses';
-import { lessons } from '../data/lessons';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiMenu, FiMessageCircle, FiX } from 'react-icons/fi';
+import { useApp } from '../context/AppContext';
+import CourseOutline from '../components/learning/CourseOutline';
+import LessonFlow from '../components/learning/LessonFlow';
+import BobChat from '../components/learning/BobChat';
 
-export const LearningInterface = () => {
-  const { courseId } = useParams();
-  const [course, setCourse] = useState(null);
-  const [currentSection, setCurrentSection] = useState(1);
-  const [completionModalOpen, setCompletionModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  
+const LearningInterface = () => {
+  const { selectedLesson, currentSectionIndex, navigateToSection, lessonProgress } = useApp();
+  const [isMobile, setIsMobile] = useState(false);
+  const [showOutline, setShowOutline] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+
   useEffect(() => {
-    // Load course data
-    const courseData = getCourseById(courseId);
-    setCourse(courseData);
-    setLoading(false);
-  }, [courseId]);
-  
-  const currentLesson = lessons[courseId]?.[currentSection];
-  const progress = course ? ((currentSection - 1) / course.totalSections) * 100 : 0;
-  
-  const handleSectionClick = (sectionId) => {
-    setCurrentSection(sectionId);
-  };
-  
-  const handleSectionComplete = () => {
-    const isLastSection = currentSection === course?.totalSections;
-    
-    if (isLastSection) {
-      setCompletionModalOpen(true);
-    } else {
-      // Move to next section
-      setCurrentSection(currentSection + 1);
-    }
-  };
-  
-  const handleRewind = () => {
-    // Reset to beginning of current section
-    setCurrentSection(currentSection);
-  };
-  
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-white text-lg">Loading lesson...</div>
-      </div>
-    );
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (!selectedLesson) {
+    return null;
   }
-  
-  if (!course || !currentLesson) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-white text-lg">Course not found</div>
-      </div>
-    );
-  }
-  
+
   return (
-    <div className="flex h-full">
-      {/* Left: Course Outline */}
-      <CourseOutline
-        sections={course.sections}
-        currentSection={currentSection}
-        onSectionClick={handleSectionClick}
-      />
-      
-      {/* Center: Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Progress Bar */}
-        <div className="bg-dark-gray border-b border-white/5 px-6 py-3">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold text-white">
-              {course.title}
-            </h2>
-            <span className="text-sm text-gray-400">
-              Section {currentSection} of {course.totalSections}
-            </span>
-          </div>
-          <ProgressBar progress={progress} height="h-1" />
+    <div className="h-screen flex flex-col overflow-hidden bg-slate-100">
+      {/* Mobile Header */}
+      {isMobile && (
+        <div className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+          <button
+            onClick={() => setShowOutline(true)}
+            className="p-2 hover:bg-slate-100 rounded-xl transition-all duration-300 border border-slate-300"
+          >
+            <FiMenu className="text-slate-700 text-lg" />
+          </button>
+          <h2 className="text-base font-semibold text-slate-900 flex-1 text-center truncate px-2">
+            {selectedLesson.title}
+          </h2>
+          <button
+            onClick={() => setShowChat(true)}
+            className="p-2 hover:bg-slate-100 rounded-xl transition-all duration-300 border border-slate-300"
+          >
+            <FiMessageCircle className="text-slate-700 text-lg" />
+          </button>
         </div>
-        
-        {/* Lesson Content */}
-        <LessonContent
-          lesson={currentLesson}
-          onComplete={handleSectionComplete}
-          onRewind={handleRewind}
+      )}
+
+      {/* Desktop Layout - Three Columns */}
+      {!isMobile && (
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Panel - Course Outline */}
+          <div className="w-80 flex-shrink-0 border-r border-slate-200 bg-white">
+            <CourseOutline
+              lesson={selectedLesson}
+              currentSectionIndex={currentSectionIndex}
+              onNavigate={navigateToSection}
+              lessonProgress={lessonProgress}
+            />
+          </div>
+
+          {/* Center Panel - Lesson Flow */}
+          <div className="flex-1 overflow-hidden bg-white">
+            <LessonFlow />
+          </div>
+
+          {/* Right Panel - Bob Chat */}
+          <div className="w-96 flex-shrink-0 border-l border-slate-200 bg-white">
+            <BobChat isOpen={true} isMobile={false} />
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Layout - Full Width Center */}
+      {isMobile && (
+        <div className="flex-1 overflow-hidden bg-white">
+          <LessonFlow />
+        </div>
+      )}
+
+      {/* Mobile - Outline Modal */}
+      <AnimatePresence>
+        {isMobile && showOutline && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 z-40"
+              onClick={() => setShowOutline(false)}
+            />
+            <motion.div
+              initial={{ x: -300 }}
+              animate={{ x: 0 }}
+              exit={{ x: -300 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed left-0 top-0 bottom-0 w-80 bg-white z-50 border-r border-slate-200"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-slate-200">
+                <h3 className="font-semibold text-slate-900">Course Outline</h3>
+                <button
+                  onClick={() => setShowOutline(false)}
+                  className="p-2 hover:bg-slate-100 rounded-xl transition-all duration-300"
+                >
+                  <FiX className="text-slate-600" />
+                </button>
+              </div>
+              <CourseOutline
+                lesson={selectedLesson}
+                currentSectionIndex={currentSectionIndex}
+                onNavigate={(index) => {
+                  navigateToSection(index);
+                  setShowOutline(false);
+                }}
+                lessonProgress={lessonProgress}
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile - Bob Chat Modal */}
+      {isMobile && (
+        <BobChat
+          isOpen={showChat}
+          onClose={() => setShowChat(false)}
+          isMobile={true}
         />
-      </div>
-      
-      {/* Right: Bob Chat */}
-      <BobChat lessonContext={currentLesson} />
-      
-      {/* Completion Modal */}
-      <CompletionModal
-        isOpen={completionModalOpen}
-        onClose={() => setCompletionModalOpen(false)}
-        sectionData={{
-          title: currentLesson.title,
-          auraPoints: course.sections[currentSection - 1]?.auraPoints,
-          isLast: currentSection === course.totalSections
-        }}
-        courseData={{
-          title: course.title,
-          sectionsRemaining: course.totalSections - currentSection
-        }}
-      />
+      )}
+
+      {/* Mobile - FAB for Bob Chat */}
+      {isMobile && !showChat && (
+        <motion.button
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setShowChat(true)}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-2xl flex items-center justify-center z-30 border border-blue-700"
+        >
+          <FiMessageCircle className="text-xl" />
+        </motion.button>
+      )}
     </div>
   );
 };
+
+export default LearningInterface;

@@ -1,25 +1,27 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AppLayout } from './components/layout/AppLayout';
-import { Dashboard } from './pages/Dashboard';
-import { CourseBank } from './pages/CourseBank';
-import { LearningInterface } from './pages/LearningInterface';
-import { Settings } from './pages/Settings';
+import { AppProvider, useApp } from './context/AppContext';
+import CourseBank from './pages/CourseBank';
+import TopicExplorer from './pages/TopicExplorer';
+import LearningInterface from './pages/LearningInterface';
 import './App.css';
+
+function AppContent() {
+  const { currentView } = useApp();
+
+  return (
+    <div className="app">
+      {currentView === 'course-bank' && <CourseBank />}
+      {currentView === 'topic-explorer' && <TopicExplorer />}
+      {currentView === 'learning' && <LearningInterface />}
+    </div>
+  );
+}
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<AppLayout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="courses" element={<CourseBank />} />
-          <Route path="learn/:courseId" element={<LearningInterface />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
   );
 }
 
