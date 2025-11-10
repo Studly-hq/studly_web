@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSend, FiX, FiMessageCircle, FiMessageSquare, FiUser } from 'react-icons/fi';
+import { FiSend, FiX, FiMessageSquare, FiUser } from 'react-icons/fi';
 
 const BobChat = ({ isOpen, onClose, isMobile = false }) => {
   const [messages, setMessages] = useState([

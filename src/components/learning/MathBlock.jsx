@@ -19,7 +19,7 @@ const MathBlock = ({ content, inline = false, onComplete, shouldAnimate = true, 
     setDisplayedMath('');
     setIsComplete(false);
     setCurrentIndex(0);
-  }, [content, shouldAnimate]);
+}, [content, shouldAnimate, onComplete]); 
 
   useEffect(() => {
     if (!shouldAnimate || isComplete) return;

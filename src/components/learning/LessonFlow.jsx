@@ -113,16 +113,6 @@ const LessonFlow = () => {
   const progress = ((currentSectionIndex + 1) / selectedLesson.sections.length) * 100;
   const isLastSection = currentSectionIndex === selectedLesson.sections.length - 1;
 
-  const getSectionTypeLabel = (type) => {
-    const labels = {
-      text: 'Learning Content',
-      code: 'Code Exercise',
-      math: 'Math Concepts',
-      checkpoint: 'Understanding Check',
-      quiz: 'Knowledge Quiz'
-    };
-    return labels[type] || 'Learning Section';
-  };
 
   return (
     <div className="flex flex-col h-full bg-white">
