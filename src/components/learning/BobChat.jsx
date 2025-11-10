@@ -25,14 +25,13 @@ const BobChat = ({ isOpen, onClose, isMobile = false }) => {
   }, [messages]);
 
   const generateBobResponse = (userMessage) => {
-    const responses = [
-      "That's a great question! While I'm just a prototype right now, I can tell you that this concept builds on what you learned in the previous section. Keep going, you're doing awesome!",
-      "I love your curiosity! This topic is super important because it connects to everything else you'll learn. Want to go over any specific part again?",
-      "Hmm, interesting question! The key thing to remember here is that practice makes perfect. Try working through another example and it'll start to click!",
-      "Great thinking! That's exactly the kind of question that shows you're really understanding the material. Keep it up!",
-      "I'm here to help! While I'm a prototype AI, I can tell you that breaking down complex problems into smaller steps is always a good strategy. You've got this!"
+const responses = [
+      "That's a great question! In Python, understanding this concept is crucial because it's used everywhere - from web apps to data science. The syntax might seem new now, but once you practice with a few examples, it'll become second nature. Keep coding!",
+      "I love your curiosity! Python is designed to be readable and intuitive, so if something seems confusing, try reading the code out loud or running it in a Python interpreter. Experimenting is the best way to learn - you're doing awesome!",
+      "Hmm, interesting question! The beauty of Python is that there are often multiple ways to solve a problem. The key is understanding WHY your code works, not just memorizing syntax. Try modifying the examples and see what happens - that's how you truly learn Python!",
+      "Great thinking! That's exactly the kind of question that shows you're developing a programmer's mindset. Python rewards this curiosity - don't be afraid to experiment and break things (that's what error messages are for!). Keep it up!",
+      "I'm here to help! While I'm a prototype AI, I can tell you that every Python expert started exactly where you are. The Pythonic way is to write code that's clear and simple. Break down complex problems into functions, test each part, and you'll master this in no time!"
     ];
-
     return responses[Math.floor(Math.random() * responses.length)];
   };
 
