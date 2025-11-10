@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
-const TextBlock = ({ content, onComplete, shouldAnimate = true, speed = 50 }) => { // Default speed: 40ms
+const TextBlock = ({ content, onComplete, shouldAnimate = true, speed = 40 }) => { // Default speed: 40ms
   const [displayedText, setDisplayedText] = useState('');
   const [isComplete, setIsComplete] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
