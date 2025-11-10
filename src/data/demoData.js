@@ -916,7 +916,7 @@ export const demoData = {
                   id: "code34",
                   type: "code",
                   language: "python",
-                  content: '# Regular function\ndef square(x):\n    return x ** 2\n\n# Lambda equivalent\nsquare = lambda x: x ** 2\n\nprint(square(5))  # 25\n\n# Lambdas are useful with map, filter, sorted\nnumbers = [1, 2, 3, 4, 5]\nsquared = list(map(lambda x: x ** 2, numbers))\nprint(squared)  # [1, 4, 9, 16, 25]\n\n# Filter even numbers\nevens = list(filter(lambda x: x % 2 == 0, numbers))\nprint(evens)  # [2, 4]\n\n# Sort by custom key\nstudents = [(\"Alex\", 85), (\"Bob\", 92), (\"Charlie\", 78)]\nsorted_students = sorted(students, key=lambda x: x[1], reverse=True)\nprint(sorted_students)  # Sorted by score'
+content: '# Regular function\ndef square(x):\n    return x ** 2\n\n# Lambda equivalent\nsquare = lambda x: x ** 2\n\nprint(square(5))  # 25\n\n# Lambdas are useful with map, filter, sorted\nnumbers = [1, 2, 3, 4, 5]\nsquared = list(map(lambda x: x ** 2, numbers))\nprint(squared)  # [1, 4, 9, 16, 25]\n\n# Filter even numbers\nevens = list(filter(lambda x: x % 2 == 0, numbers))\nprint(evens)  # [2, 4]\n\n# Sort by custom key\nstudents = [("Alex", 85), ("Bob", 92), ("Charlie", 78)]\nsorted_students = sorted(students, key=lambda x: x[1], reverse=True)\nprint(sorted_students)  # Sorted by score'
                 },
                 {
                   id: "checkpoint11",
