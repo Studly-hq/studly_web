@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FiArrowRight, FiBookOpen } from 'react-icons/fi';
 import ProgressBar from './ProgressBar';
-import Button from './Button';
+
 
 const CategoryCard = ({ subject, onViewTopics }) => {
   const getCategoryColor = (category) => {

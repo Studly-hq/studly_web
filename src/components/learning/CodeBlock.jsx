@@ -8,18 +8,19 @@ const CodeBlock = ({ content, language = 'javascript', onComplete, shouldAnimate
   const [isComplete, setIsComplete] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  useEffect(() => {
-    if (!shouldAnimate) {
-      setDisplayedCode(content);
-      setIsComplete(true);
-      if (onComplete) onComplete();
-      return;
-    }
+useEffect(() => {
+  if (!shouldAnimate) {
+    setDisplayedCode(content);
+    setIsComplete(true);
+    if (onComplete) onComplete();
+    return;
+  }
 
-    setDisplayedCode('');
-    setIsComplete(false);
-    setCurrentIndex(0);
-  }, [content, shouldAnimate]);
+  setDisplayedCode('');
+  setIsComplete(false);
+  setCurrentIndex(0);
+}, [content, shouldAnimate, onComplete]); 
+
 
   useEffect(() => {
     if (!shouldAnimate || isComplete) return;
