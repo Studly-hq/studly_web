@@ -26,11 +26,7 @@ const BobChat = ({ isOpen, onClose, isMobile = false }) => {
 
   const generateBobResponse = (userMessage) => {
 const responses = [
-      "That's a great question! In Python, understanding this concept is crucial because it's used everywhere - from web apps to data science. The syntax might seem new now, but once you practice with a few examples, it'll become second nature. Keep coding!",
-      "I love your curiosity! Python is designed to be readable and intuitive, so if something seems confusing, try reading the code out loud or running it in a Python interpreter. Experimenting is the best way to learn - you're doing awesome!",
-      "Hmm, interesting question! The beauty of Python is that there are often multiple ways to solve a problem. The key is understanding WHY your code works, not just memorizing syntax. Try modifying the examples and see what happens - that's how you truly learn Python!",
-      "Great thinking! That's exactly the kind of question that shows you're developing a programmer's mindset. Python rewards this curiosity - don't be afraid to experiment and break things (that's what error messages are for!). Keep it up!",
-      "I'm here to help! While I'm a prototype AI, I can tell you that every Python expert started exactly where you are. The Pythonic way is to write code that's clear and simple. Break down complex problems into functions, test each part, and you'll master this in no time!"
+      "I love your curiosity! Python is designed to be readable and intuitive, so if something seems confusing, try reading the code out loud or running it in a Python interpreter. Experimenting is the best way to learn - you're doing awesome!"
     ];
     return responses[Math.floor(Math.random() * responses.length)];
   };
