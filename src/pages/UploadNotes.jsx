@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Upload,
-  Image as ImageIcon,
-  X,
   FileText,
-  Hash,
-  Type,
-  Sparkles
+  X,
+  Sparkles,
+  AlertCircle,
+  CheckCircle,
+  Loader
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useStudyGram } from '../context/StudyGramContext';
@@ -17,62 +17,135 @@ const UploadNotes = () => {
   const navigate = useNavigate();
   const { isAuthenticated, currentUser } = useStudyGram();
 
-  const [postType, setPostType] = useState('text'); // text, single-image, carousel
-  const [content, setContent] = useState('');
-  const [images, setImages] = useState([]);
-  const [tags, setTags] = useState([]);
-  const [tagInput, setTagInput] = useState('');
-  const [isPosting, setIsPosting] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [topic, setTopic] = useState('');
+  const [questionCount, setQuestionCount] = useState(10);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleDragEnter = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    setError('');
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+
+      // Validate file type
+      const validTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain'
+      ];
+
+      if (!validTypes.includes(file.type)) {
+        setError('Please upload a PDF, DOC, DOCX, or TXT file');
+        return;
+      }
+
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setError('File size must be less than 10MB');
+        return;
+      }
+
+      setUploadedFile(file);
+    }
+  }, []);
 
   if (!isAuthenticated) {
     navigate('/');
     return null;
   }
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const newImages = files.map(file => ({
-      file,
-      preview: URL.createObjectURL(file),
-      alt: ''
-    }));
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setError('');
 
-    if (postType === 'single-image') {
-      setImages([newImages[0]]);
-    } else {
-      setImages(prev => [...prev, ...newImages].slice(0, 10)); // Max 10 images
+      // Validate file type
+      const validTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain'
+      ];
+
+      if (!validTypes.includes(file.type)) {
+        setError('Please upload a PDF, DOC, DOCX, or TXT file');
+        return;
+      }
+
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setError('File size must be less than 10MB');
+        return;
+      }
+
+      setUploadedFile(file);
     }
   };
 
-  const removeImage = (index) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+  const handleRemoveFile = () => {
+    setUploadedFile(null);
+    setError('');
   };
 
-  const addTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim()) && tags.length < 5) {
-      setTags([...tags, tagInput.trim().toLowerCase()]);
-      setTagInput('');
+  const handleGenerate = async () => {
+    if (!uploadedFile || !topic.trim()) {
+      setError('Please upload a file and enter a topic');
+      return;
+    }
+
+    setIsGenerating(true);
+    setError('');
+
+    try {
+      // Simulate API call - replace with actual API integration
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // TODO: Integrate with quiz generation API
+      // const formData = new FormData();
+      // formData.append('file', uploadedFile);
+      // formData.append('topic', topic);
+      // formData.append('questionCount', questionCount);
+      // const response = await fetch('/api/generate-quiz', {
+      //   method: 'POST',
+      //   body: formData
+      // });
+      // const quizData = await response.json();
+
+      // Navigate to quiz feed after generation
+      navigate('/quiz-feed');
+    } catch (err) {
+      setError('Failed to generate quiz. Please try again.');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  const removeTag = (tagToRemove) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
-  };
-
-  const handlePost = async () => {
-    setIsPosting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsPosting(false);
-    // TODO: Create post in context
-    navigate('/');
-  };
-
-  const canPost = content.trim().length > 0 && (
-    postType === 'text' ||
-    (postType === 'single-image' && images.length === 1) ||
-    (postType === 'carousel' && images.length >= 2)
-  );
+  const canGenerate = uploadedFile && topic.trim() && questionCount > 0;
 
   return (
     <div className="min-h-screen bg-black pt-16">
@@ -89,27 +162,8 @@ const UploadNotes = () => {
               >
                 <ArrowLeft size={20} className="text-white" />
               </motion.button>
-              <h1 className="text-xl font-bold text-white">Upload Notes</h1>
+              <h1 className="text-xl font-bold text-white">Generate Quiz</h1>
             </div>
-            <motion.button
-              onClick={handlePost}
-              disabled={!canPost || isPosting}
-              whileHover={canPost && !isPosting ? { scale: 1.05 } : {}}
-              whileTap={canPost && !isPosting ? { scale: 0.95 } : {}}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/30 disabled:cursor-not-allowed text-white rounded-lg font-semibold flex items-center gap-2 transition-colors"
-            >
-              {isPosting ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Posting...
-                </>
-              ) : (
-                <>
-                  <Sparkles size={16} />
-                  Post
-                </>
-              )}
-            </motion.button>
           </div>
         </div>
       </div>
@@ -121,200 +175,185 @@ const UploadNotes = () => {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          {/* Post Type Selector */}
-          <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
-            <label className="block text-sm font-semibold text-gray-300 mb-3">
-              Post Type
-            </label>
-            <div className="flex gap-2">
-              {[
-                { value: 'text', label: 'Text Only', icon: Type },
-                { value: 'single-image', label: 'Single Image', icon: ImageIcon },
-                { value: 'carousel', label: 'Carousel', icon: FileText }
-              ].map(({ value, label, icon: Icon }) => (
-                <motion.button
-                  key={value}
-                  onClick={() => {
-                    setPostType(value);
-                    setImages([]);
-                  }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
-                    postType === value
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                  }`}
-                >
-                  <Icon size={18} />
-                  {label}
-                </motion.button>
-              ))}
+          {/* Info Card */}
+          <div className="bg-gradient-to-br from-blue-600/10 to-purple-600/10 backdrop-blur-sm border border-blue-600/20 rounded-2xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="bg-blue-600/20 p-3 rounded-xl">
+                <Sparkles size={24} className="text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white mb-2">
+                  AI-Powered Quiz Generation
+                </h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Upload your study notes and let AI generate personalized quizzes to test your knowledge.
+                  Perfect for exam prep and self-assessment!
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* User Info */}
-          <div className="flex items-center gap-3 bg-gray-900/50 rounded-xl p-4 border border-gray-800">
-            <img
-              src={currentUser?.avatar}
-              alt={currentUser?.displayName}
-              className="w-12 h-12 rounded-full border-2 border-blue-600"
-            />
-            <div>
-              <p className="text-white font-bold">{currentUser?.displayName}</p>
-              <p className="text-sm text-gray-400">@{currentUser?.username}</p>
-            </div>
-          </div>
-
-          {/* Content Input */}
-          <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
+          {/* File Upload */}
+          <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
             <label className="block text-sm font-semibold text-gray-300 mb-3">
-              Content
+              Upload Notes
             </label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Share your study notes, insights, or ask a question..."
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-600 transition-colors resize-none"
-              rows={6}
-            />
-            <p className="text-xs text-gray-500 mt-2">
-              {content.length} characters
-            </p>
-          </div>
 
-          {/* Image Upload */}
-          {postType !== 'text' && (
-            <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
-              <label className="block text-sm font-semibold text-gray-300 mb-3">
-                Images {postType === 'carousel' && `(${images.length}/10)`}
-              </label>
-
-              {/* Upload Button */}
-              <label className="block cursor-pointer">
+            {!uploadedFile ? (
+              <div
+                onDragEnter={handleDragEnter}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${
+                  isDragging
+                    ? 'border-blue-600 bg-blue-600/10'
+                    : 'border-gray-700 hover:border-gray-600 bg-gray-800/30'
+                }`}
+              >
                 <input
                   type="file"
-                  accept="image/*"
-                  multiple={postType === 'carousel'}
-                  onChange={handleImageUpload}
-                  className="hidden"
+                  onChange={handleFileSelect}
+                  accept=".pdf,.doc,.docx,.txt"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
+
                 <motion.div
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  className="border-2 border-dashed border-gray-700 hover:border-blue-600 rounded-lg p-8 text-center transition-colors"
+                  animate={isDragging ? { scale: 1.1 } : { scale: 1 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  <Upload size={32} className="text-gray-500 mx-auto mb-2" />
-                  <p className="text-gray-400 font-medium">
-                    Click to upload {postType === 'carousel' ? 'images' : 'an image'}
+                  <Upload size={48} className={`mx-auto mb-4 ${isDragging ? 'text-blue-400' : 'text-gray-500'}`} />
+                  <p className="text-white font-medium mb-2">
+                    {isDragging ? 'Drop your file here' : 'Drag & drop your notes'}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {postType === 'carousel'
-                      ? 'Upload 2-10 images for a carousel post'
-                      : 'Upload a single image'
-                    }
+                  <p className="text-sm text-gray-400 mb-4">
+                    or click to browse files
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    Supported: PDF, DOC, DOCX, TXT (Max 10MB)
                   </p>
                 </motion.div>
-              </label>
-
-              {/* Image Previews */}
-              {images.length > 0 && (
-                <div className={`mt-4 grid gap-3 ${
-                  postType === 'carousel' ? 'grid-cols-3' : 'grid-cols-1'
-                }`}>
-                  <AnimatePresence>
-                    {images.map((image, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        className="relative group"
-                      >
-                        <img
-                          src={image.preview}
-                          alt={`Upload ${index + 1}`}
-                          className="w-full h-40 object-cover rounded-lg"
-                        />
-                        <motion.button
-                          onClick={() => removeImage(index)}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X size={16} className="text-white" />
-                        </motion.button>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-              )}
-
-              {postType === 'carousel' && images.length > 0 && images.length < 2 && (
-                <p className="text-sm text-yellow-500 mt-2">
-                  Add at least one more image for a carousel post
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Tags */}
-          <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
-            <label className="block text-sm font-semibold text-gray-300 mb-3">
-              Tags (Optional)
-            </label>
-
-            {/* Tag Input */}
-            <div className="flex gap-2 mb-3">
-              <div className="relative flex-1">
-                <Hash size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                <input
-                  type="text"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  placeholder="Add a tag..."
-                  className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-600 transition-colors"
-                  disabled={tags.length >= 5}
-                />
               </div>
-              <motion.button
-                onClick={addTag}
-                disabled={!tagInput.trim() || tags.length >= 5}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/30 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-colors"
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-gray-800 border border-gray-700 rounded-xl p-4"
               >
-                Add
-              </motion.button>
-            </div>
-
-            {/* Tag List */}
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <motion.div
-                    key={tag}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="px-3 py-1.5 bg-blue-600/20 border border-blue-600/30 rounded-full text-blue-400 text-sm font-medium flex items-center gap-2"
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-600/20 p-3 rounded-lg">
+                      <FileText size={24} className="text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{uploadedFile.name}</p>
+                      <p className="text-sm text-gray-400">
+                        {(uploadedFile.size / 1024).toFixed(2)} KB
+                      </p>
+                    </div>
+                  </div>
+                  <motion.button
+                    onClick={handleRemoveFile}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
                   >
-                    #{tag}
-                    <button
-                      onClick={() => removeTag(tag)}
-                      className="hover:text-blue-300 transition-colors"
-                    >
-                      <X size={14} />
-                    </button>
-                  </motion.div>
-                ))}
-              </div>
+                    <X size={20} className="text-red-400" />
+                  </motion.button>
+                </div>
+              </motion.div>
             )}
 
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3 flex items-center gap-2 text-red-400 text-sm"
+              >
+                <AlertCircle size={16} />
+                <span>{error}</span>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Topic Input */}
+          <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
+            <label className="block text-sm font-semibold text-gray-300 mb-3">
+              Topic / Subject
+            </label>
+            <input
+              type="text"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g., Linear Algebra, World History, React Hooks..."
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-600 transition-colors"
+            />
             <p className="text-xs text-gray-500 mt-2">
-              Add up to 5 tags to help others discover your post
+              This helps AI generate more relevant questions
             </p>
+          </div>
+
+          {/* Question Count */}
+          <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
+            <label className="block text-sm font-semibold text-gray-300 mb-3">
+              Number of Questions
+            </label>
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                min="5"
+                max="30"
+                value={questionCount}
+                onChange={(e) => setQuestionCount(parseInt(e.target.value))}
+                className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              />
+              <div className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 min-w-[60px] text-center">
+                <span className="text-white font-bold text-lg">{questionCount}</span>
+              </div>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500 mt-2">
+              <span>5 questions</span>
+              <span>30 questions (max)</span>
+            </div>
+          </div>
+
+          {/* Generate Button */}
+          <motion.button
+            onClick={handleGenerate}
+            disabled={!canGenerate || isGenerating}
+            whileHover={canGenerate && !isGenerating ? { scale: 1.02 } : {}}
+            whileTap={canGenerate && !isGenerating ? { scale: 0.98 } : {}}
+            className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${
+              canGenerate && !isGenerating
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-600/20'
+                : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            {isGenerating ? (
+              <>
+                <Loader size={24} className="animate-spin" />
+                Generating Quiz...
+              </>
+            ) : (
+              <>
+                <Sparkles size={24} />
+                Generate Quiz
+              </>
+            )}
+          </motion.button>
+
+          {/* Tips */}
+          <div className="bg-gray-900/30 backdrop-blur-sm border border-gray-800 rounded-xl p-4">
+            <h4 className="text-white font-semibold mb-2 flex items-center gap-2">
+              <CheckCircle size={16} className="text-green-400" />
+              Tips for best results
+            </h4>
+            <ul className="space-y-1 text-sm text-gray-400">
+              <li>• Upload well-formatted notes with clear content</li>
+              <li>• Specify a clear topic for more focused questions</li>
+              <li>• Start with 10-15 questions for a comprehensive quiz</li>
+              <li>• Review explanations to deepen your understanding</li>
+            </ul>
           </div>
         </motion.div>
       </div>

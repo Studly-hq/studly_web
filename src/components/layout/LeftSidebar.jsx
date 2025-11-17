@@ -1,12 +1,29 @@
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, BookOpen, User } from 'lucide-react';
+import { Home, Compass, BookOpen, User, Brain } from 'lucide-react';
 
 const LeftSidebar = () => {
   const location = useLocation();
 
   const navItems = [
-
+    {
+      icon: Home,
+      label: 'Home',
+      path: '/',
+      id: 'home'
+    },
+    {
+      icon: Compass,
+      label: 'Explore',
+      path: '/explore',
+      id: 'explore'
+    },
+    {
+      icon: Brain,
+      label: 'Quiz Feed',
+      path: '/quiz-feed',
+      id: 'quiz-feed'
+    },
     {
       icon: BookOpen,
       label: 'Course Bank',

@@ -3,12 +3,12 @@ import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   Calendar,
-  MapPin,
+ 
   Link as LinkIcon,
   Edit3,
   Flame,
   Trophy,
-  Users,
+
   UserPlus,
   BookOpen
 } from 'lucide-react';

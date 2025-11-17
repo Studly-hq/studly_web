@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Search,
   Plus,
   Bell,
-  Menu,
   X,
   Home,
   Compass,
@@ -20,8 +19,6 @@ const Header = () => {
     isAuthenticated,
     currentUser,
     handleCreatePost,
-    isMobileMenuOpen,
-    setIsMobileMenuOpen,
     setShowAuthModal
   } = useStudyGram();
 
@@ -43,25 +40,16 @@ const Header = () => {
     >
       <div className="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden text-gray-400 hover:text-white transition-colors duration-200"
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-
-          <motion.div
-            onClick={() => navigate('/')}
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-            className="cursor-pointer"
-          >
-            <span className="text-white font-bold text-xl">
-              Studly
-            </span>
-          </motion.div>
-        </div>
+        <motion.div
+          onClick={() => navigate('/')}
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.2 }}
+          className="cursor-pointer"
+        >
+          <span className="text-white text-2xl" style={{ fontFamily: "'Pacifico', cursive" }}>
+            Studly
+          </span>
+        </motion.div>
 
         {/* Center - Navigation Tabs (Desktop) */}
         <div className="hidden md:flex items-center gap-1 flex-1 max-w-md">
@@ -197,53 +185,6 @@ const Header = () => {
           )}
         </div>
       </div>
-
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            className="lg:hidden bg-black border-t border-gray-900"
-          >
-            <div className="p-4 flex flex-col gap-2">
-              {navTabs.map((tab) => {
-                const isActive = location.pathname === tab.path;
-                return (
-                  <motion.button
-                    key={tab.id}
-                    onClick={() => {
-                      if (!tab.disabled) {
-                        navigate(tab.path);
-                        setIsMobileMenuOpen(false);
-                      }
-                    }}
-                    disabled={tab.disabled}
-                    whileTap={!tab.disabled ? { scale: 0.98 } : {}}
-                    transition={{ duration: 0.2 }}
-                    className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
-                      ${
-                        isActive && !tab.disabled
-                          ? 'bg-gray-900 text-white'
-                          : tab.disabled
-                          ? 'text-gray-600 cursor-not-allowed'
-                          : 'text-gray-400 hover:text-white hover:bg-gray-900/50'
-                      }
-                    `}
-                  >
-                    <tab.icon size={20} />
-                    <span className="font-medium">{tab.label}</span>
-                    {tab.disabled && <span className="ml-auto text-xs text-gray-600">Soon</span>}
-                  </motion.button>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.header>
   );
 };

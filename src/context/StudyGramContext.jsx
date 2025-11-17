@@ -7,6 +7,7 @@ import {
   getCommentsForPost,
   getUserById
 } from '../data/studygramData';
+import { mockQuizzes } from '../data/quizData';
 
 const StudyGramContext = createContext();
 
@@ -26,6 +27,9 @@ export const StudyGramProvider = ({ children }) => {
   // Posts & Comments State
   const [posts, setPosts] = useState(mockPosts);
   const [comments, setComments] = useState(mockComments);
+
+  // Quiz State
+  const [quizzes, setQuizzes] = useState(mockQuizzes);
 
   // UI State
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -297,6 +301,46 @@ export const StudyGramProvider = ({ children }) => {
     );
   };
 
+  // Quiz Functions
+  const handleLikeQuiz = (quizId, skipAuth = false) => {
+    if (!skipAuth && !requireAuth({ type: 'like-quiz', quizId })) return;
+
+    setQuizzes(prevQuizzes =>
+      prevQuizzes.map(quiz => {
+        if (quiz.id === quizId) {
+          const hasLiked = quiz.likes.includes(currentUser.id);
+          return {
+            ...quiz,
+            likes: hasLiked
+              ? quiz.likes.filter(id => id !== currentUser.id)
+              : [...quiz.likes, currentUser.id],
+            likeCount: hasLiked ? quiz.likeCount - 1 : quiz.likeCount + 1
+          };
+        }
+        return quiz;
+      })
+    );
+  };
+
+  const handleSaveQuiz = (quizId, skipAuth = false) => {
+    if (!skipAuth && !requireAuth({ type: 'save-quiz', quizId })) return;
+
+    setQuizzes(prevQuizzes =>
+      prevQuizzes.map(quiz => {
+        if (quiz.id === quizId) {
+          const hasSaved = quiz.savedBy.includes(currentUser.id);
+          return {
+            ...quiz,
+            savedBy: hasSaved
+              ? quiz.savedBy.filter(id => id !== currentUser.id)
+              : [...quiz.savedBy, currentUser.id]
+          };
+        }
+        return quiz;
+      })
+    );
+  };
+
   // Get feed posts with user data
   const feedPosts = posts
     .map(post => ({
@@ -327,6 +371,11 @@ export const StudyGramProvider = ({ children }) => {
     addComment,
     handleLikeComment,
     getCommentsForPost: (postId) => comments[postId] || [],
+
+    // Quizzes
+    quizzes,
+    handleLikeQuiz,
+    handleSaveQuiz,
 
     // UI State
     showAuthModal,
