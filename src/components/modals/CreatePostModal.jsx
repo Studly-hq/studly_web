@@ -97,17 +97,17 @@ const CreatePostModal = () => {
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-gray-900 border border-gray-800 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+          className="bg-reddit-card border border-reddit-border rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-800">
+          <div className="flex items-center justify-between p-6 border-b border-reddit-border">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-reddit-blue rounded flex items-center justify-center">
                 <Sparkles className="text-white" size={20} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Create Post</h2>
-                <p className="text-gray-400 text-sm">Share your knowledge</p>
+                <h2 className="text-xl font-bold text-reddit-text">Create Post</h2>
+                <p className="text-reddit-textMuted text-sm">Share your knowledge</p>
               </div>
             </div>
             <motion.button
@@ -115,7 +115,7 @@ const CreatePostModal = () => {
               whileTap={{ scale: 0.9 }}
               transition={{ duration: 0.2 }}
               onClick={handleClose}
-              className="text-gray-500 hover:text-white transition-colors duration-200 p-2 rounded-full hover:bg-gray-800"
+              className="text-reddit-textMuted hover:text-reddit-text transition-colors duration-200 p-2 rounded-full hover:bg-reddit-cardHover"
             >
               <X size={20} />
             </motion.button>
@@ -126,11 +126,11 @@ const CreatePostModal = () => {
             <img
               src={currentUser?.avatar}
               alt={currentUser?.displayName}
-              className="w-12 h-12 rounded-full border-2 border-blue-600"
+              className="w-12 h-12 rounded-full border-2 border-reddit-blue"
             />
             <div>
-              <h3 className="text-white font-semibold">{currentUser?.displayName}</h3>
-              <p className="text-gray-400 text-sm">@{currentUser?.username}</p>
+              <h3 className="text-reddit-text font-semibold">{currentUser?.displayName}</h3>
+              <p className="text-reddit-textMuted text-sm">@{currentUser?.username}</p>
             </div>
           </div>
 
@@ -141,7 +141,7 @@ const CreatePostModal = () => {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="What's on your mind? Share your study notes, tips, or questions... Use #hashtags to categorize!"
-              className="w-full bg-transparent text-white placeholder-gray-600 outline-none resize-none text-lg min-h-[120px]"
+              className="w-full bg-transparent text-reddit-text placeholder-reddit-textMuted outline-none resize-none text-lg min-h-[120px]"
               autoFocus
             />
 
@@ -230,7 +230,7 @@ const CreatePostModal = () => {
                     whileTap={{ scale: 0.99 }}
                     transition={{ duration: 0.2 }}
                     onClick={() => fileInputRef.current?.click()}
-                    className="mt-3 w-full bg-gray-800/50 hover:bg-gray-800 border border-gray-700 text-gray-300 py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+                    className="mt-3 w-full bg-reddit-cardHover hover:bg-reddit-border border border-reddit-border text-reddit-text py-3 rounded transition-all duration-200 flex items-center justify-center gap-2"
                   >
                     <Image size={18} />
                     <span>Add more images ({images.length}/10)</span>
@@ -241,7 +241,7 @@ const CreatePostModal = () => {
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-gray-800 bg-gray-900/50">
+          <div className="p-6 border-t border-reddit-border bg-reddit-card/50">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <motion.button
@@ -249,7 +249,7 @@ const CreatePostModal = () => {
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-200"
+                  className="flex items-center gap-2 px-4 py-2 rounded bg-reddit-cardHover hover:bg-reddit-border text-reddit-text transition-all duration-200"
                 >
                   <Image size={18} />
                   <span className="text-sm font-medium">Image</span>
@@ -265,12 +265,12 @@ const CreatePostModal = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                {postType === 'text' && <Type size={18} className="text-gray-500" />}
+                {postType === 'text' && <Type size={18} className="text-reddit-textMuted" />}
                 {postType === 'single-image' && (
-                  <Image size={18} className="text-blue-600" />
+                  <Image size={18} className="text-reddit-blue" />
                 )}
                 {postType === 'carousel' && (
-                  <div className="flex items-center gap-1 text-blue-600">
+                  <div className="flex items-center gap-1 text-reddit-blue">
                     <Image size={18} />
                     <span className="text-xs font-medium">×{images.length}</span>
                   </div>
@@ -289,10 +289,10 @@ const CreatePostModal = () => {
                 scale: content.trim() || images.length > 0 ? 0.99 : 1
               }}
               transition={{ duration: 0.2 }}
-              className={`w-full py-3 rounded-xl font-semibold transition-all duration-200 ${
+              className={`w-full py-3 rounded font-semibold transition-all duration-200 ${
                 content.trim() || images.length > 0
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                  ? 'bg-reddit-blue hover:bg-reddit-blue/90 text-white'
+                  : 'bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed'
               }`}
             >
               Post

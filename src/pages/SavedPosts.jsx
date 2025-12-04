@@ -10,15 +10,17 @@ const SavedPosts = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-black pt-20 px-4">
-        <div className="max-w-2xl mx-auto text-center py-20">
-          <Bookmark size={64} className="text-gray-700 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">
-            Login to View Saved Posts
-          </h2>
-          <p className="text-gray-400">
-            Sign in to access your bookmarked study materials
-          </p>
+      <div className="min-h-screen bg-reddit-bg pt-20 px-4">
+        <div className="max-w-[640px] mx-auto text-center py-16">
+          <div className="bg-reddit-card rounded-md p-12 border border-reddit-border">
+            <Bookmark size={48} className="text-reddit-textMuted mx-auto mb-4 opacity-50" />
+            <h2 className="text-xl font-bold text-reddit-text mb-2">
+              Login to View Saved Posts
+            </h2>
+            <p className="text-reddit-textMuted text-sm">
+              Sign in to access your bookmarked study materials
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -30,27 +32,25 @@ const SavedPosts = () => {
   );
 
   return (
-    <div className="min-h-screen bg-black pt-16">
+    <div className="min-h-screen bg-reddit-bg pt-16">
       {/* Header */}
-      <div className="sticky top-16 z-10 bg-black/95 backdrop-blur-sm border-b border-gray-900">
-        <div className="max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
+      <div className="sticky top-16 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
+        <div className="max-w-[640px] mx-auto px-4 py-3">
+          <div className="flex items-center gap-3">
             <motion.button
               onClick={() => navigate(-1)}
               whileHover={{ x: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 hover:bg-gray-900 rounded-full transition-colors"
+              className="p-1.5 hover:bg-reddit-cardHover rounded transition-colors"
             >
-              <ArrowLeft size={20} className="text-white" />
+              <ArrowLeft size={18} className="text-reddit-text" />
             </motion.button>
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-600/20 p-2 rounded-lg">
-                <Bookmark size={20} className="text-blue-600" />
-              </div>
+            <div className="flex items-center gap-2">
+              <Bookmark size={18} className="text-yellow-500" />
               <div>
-                <h1 className="text-xl font-bold text-white">Saved Posts</h1>
-                <p className="text-sm text-gray-400">
-                  {savedPosts.length} {savedPosts.length === 1 ? 'post' : 'posts'} saved
+                <h1 className="text-base font-bold text-reddit-text">Saved Posts</h1>
+                <p className="text-xs text-reddit-textMuted">
+                  {savedPosts.length} {savedPosts.length === 1 ? 'post' : 'posts'}
                 </p>
               </div>
             </div>
@@ -59,39 +59,39 @@ const SavedPosts = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-[640px] mx-auto px-4 py-5">
         {savedPosts.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
+            className="text-center py-16"
           >
-            <div className="bg-gray-900/50 rounded-2xl p-12 border border-gray-800">
-              <Bookmark size={48} className="text-gray-700 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">
+            <div className="bg-reddit-card rounded-md p-10 border border-reddit-border">
+              <Bookmark size={40} className="text-reddit-textMuted mx-auto mb-3 opacity-50" />
+              <h3 className="text-lg font-bold text-reddit-text mb-2">
                 No Saved Posts Yet
               </h3>
-              <p className="text-gray-400 mb-6">
+              <p className="text-reddit-textMuted text-sm mb-6">
                 Start bookmarking posts to build your study collection
               </p>
               <motion.button
                 onClick={() => navigate('/')}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                className="px-5 py-2 bg-reddit-blue hover:bg-reddit-blue/90 text-white text-sm rounded font-medium transition-colors"
               >
                 Explore Feed
               </motion.button>
             </div>
           </motion.div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {savedPosts.map((post, index) => (
               <motion.div
                 key={post.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05, duration: 0.3 }}
               >
                 <PostCard post={post} />
               </motion.div>

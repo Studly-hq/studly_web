@@ -63,7 +63,7 @@ const Settings = () => {
     <motion.button
       onClick={onChange}
       className={`relative w-12 h-6 rounded-full transition-colors ${
-        enabled ? 'bg-blue-600' : 'bg-gray-700'
+        enabled ? 'bg-reddit-blue' : 'bg-reddit-border'
       }`}
       whileTap={{ scale: 0.95 }}
     >
@@ -78,49 +78,49 @@ const Settings = () => {
   const SettingSection = ({ title, icon: Icon, children }) => (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-3">
-        <Icon size={18} className="text-blue-600" />
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+        <Icon size={18} className="text-reddit-blue" />
+        <h3 className="text-sm font-semibold text-reddit-textMuted uppercase tracking-wider">
           {title}
         </h3>
       </div>
-      <div className="bg-gray-900/50 rounded-xl border border-gray-800 divide-y divide-gray-800">
+      <div className="bg-reddit-card rounded-xl border border-reddit-border divide-y divide-reddit-border">
         {children}
       </div>
     </div>
   );
 
   const SettingItem = ({ label, description, enabled, onChange, showChevron }) => (
-    <div className="px-4 py-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors">
+    <div className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors">
       <div className="flex-1">
-        <p className="text-white font-medium mb-1">{label}</p>
+        <p className="text-reddit-text font-medium mb-1">{label}</p>
         {description && (
-          <p className="text-sm text-gray-400">{description}</p>
+          <p className="text-sm text-reddit-textMuted">{description}</p>
         )}
       </div>
       {onChange && (
         <SettingToggle enabled={enabled} onChange={onChange} />
       )}
       {showChevron && (
-        <ChevronRight size={20} className="text-gray-400" />
+        <ChevronRight size={20} className="text-reddit-textMuted" />
       )}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-black pt-16">
+    <div className="min-h-screen bg-reddit-bg pt-16">
       {/* Header */}
-      <div className="sticky top-16 z-10 bg-black/95 backdrop-blur-sm border-b border-gray-900">
+      <div className="sticky top-16 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <motion.button
               onClick={() => navigate(-1)}
               whileHover={{ x: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 hover:bg-gray-900 rounded-full transition-colors"
+              className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors"
             >
-              <ArrowLeft size={20} className="text-white" />
+              <ArrowLeft size={20} className="text-reddit-text" />
             </motion.button>
-            <h1 className="text-xl font-bold text-white">Settings</h1>
+            <h1 className="text-xl font-bold text-reddit-text">Settings</h1>
           </div>
         </div>
       </div>
@@ -135,20 +135,20 @@ const Settings = () => {
           <SettingSection title="Account" icon={User}>
             <button
               onClick={() => navigate('/profile/edit')}
-              className="px-4 py-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors w-full"
+              className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full"
             >
               <div className="flex-1 text-left">
-                <p className="text-white font-medium mb-1">Edit Profile</p>
-                <p className="text-sm text-gray-400">Update your profile information</p>
+                <p className="text-reddit-text font-medium mb-1">Edit Profile</p>
+                <p className="text-sm text-reddit-textMuted">Update your profile information</p>
               </div>
-              <ChevronRight size={20} className="text-gray-400" />
+              <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
-            <button className="px-4 py-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors w-full">
+            <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full">
               <div className="flex-1 text-left">
-                <p className="text-white font-medium mb-1">Change Password</p>
-                <p className="text-sm text-gray-400">Update your login password</p>
+                <p className="text-reddit-text font-medium mb-1">Change Password</p>
+                <p className="text-sm text-reddit-textMuted">Update your login password</p>
               </div>
-              <ChevronRight size={20} className="text-gray-400" />
+              <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
           </SettingSection>
 
@@ -156,27 +156,27 @@ const Settings = () => {
 
           {/* About */}
           <SettingSection title="About" icon={Globe}>
-            <button className="px-4 py-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors w-full">
+            <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full">
               <div className="flex-1 text-left">
-                <p className="text-white font-medium mb-1">Terms of Service</p>
+                <p className="text-reddit-text font-medium mb-1">Terms of Service</p>
               </div>
-              <ChevronRight size={20} className="text-gray-400" />
+              <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
-            <button className="px-4 py-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors w-full">
+            <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full">
               <div className="flex-1 text-left">
-                <p className="text-white font-medium mb-1">Privacy Policy</p>
+                <p className="text-reddit-text font-medium mb-1">Privacy Policy</p>
               </div>
-              <ChevronRight size={20} className="text-gray-400" />
+              <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
-            <button className="px-4 py-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors w-full">
+            <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full">
               <div className="flex-1 text-left">
-                <p className="text-white font-medium mb-1">Help & Support</p>
+                <p className="text-reddit-text font-medium mb-1">Help & Support</p>
               </div>
-              <ChevronRight size={20} className="text-gray-400" />
+              <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
             <div className="px-4 py-4">
-              <p className="text-white font-medium mb-1">Version</p>
-              <p className="text-sm text-gray-400">Studly v1.0.0</p>
+              <p className="text-reddit-text font-medium mb-1">Version</p>
+              <p className="text-sm text-reddit-textMuted">Studly v1.0.0</p>
             </div>
           </SettingSection>
         </motion.div>

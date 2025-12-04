@@ -24,7 +24,7 @@ function App() {
   return (
     <StudyGramProvider>
       <Router>
-        <div className="min-h-screen bg-black text-white">
+        <div className="min-h-screen bg-reddit-bg text-reddit-text">
           {/* Header */}
           <Header />
 

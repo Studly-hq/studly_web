@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart,
@@ -6,7 +6,11 @@ import {
   Bookmark,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal
+  MoreHorizontal,
+  Edit3,
+  Trash2,
+  Flag,
+  Share2
 } from 'lucide-react';
 import { useStudyGram } from '../../context/StudyGramContext';
 
@@ -21,6 +25,8 @@ const PostCard = ({ post }) => {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
 
   const isLiked = currentUser && post.likes.includes(currentUser.id);
   const isBookmarked = currentUser && post.bookmarkedBy.includes(currentUser.id);
@@ -54,45 +60,154 @@ const PostCard = ({ post }) => {
     return postDate.toLocaleDateString();
   };
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showMenu]);
+
+  const handleMenuAction = (action) => {
+    setShowMenu(false);
+
+    switch(action) {
+      case 'edit':
+        // TODO: Implement edit post functionality
+        console.log('Edit post:', post.id);
+        break;
+      case 'delete':
+        // TODO: Implement delete post functionality
+        console.log('Delete post:', post.id);
+        break;
+      case 'report':
+        // TODO: Implement report post functionality
+        console.log('Report post:', post.id);
+        break;
+      case 'share':
+        // TODO: Implement share post functionality
+        if (navigator.share) {
+          navigator.share({
+            title: `Post by ${post.user.displayName}`,
+            text: post.content,
+            url: window.location.href
+          }).catch(() => {});
+        } else {
+          // Fallback: copy to clipboard
+          navigator.clipboard.writeText(window.location.href);
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  const isOwnPost = currentUser && post.userId === currentUser.id;
+
   return (
     <motion.article
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-      className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden mb-4"
+      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+      className="bg-reddit-card border border-reddit-border rounded-md overflow-hidden hover:border-reddit-textMuted transition-colors"
     >
-      {/* Post Header */}
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-3">
+      {/* Post Header - Reddit Style */}
+      <div className="flex items-center justify-between px-3 py-2">
+        <div className="flex items-center gap-2">
           <motion.img
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
             src={post.user.avatar}
             alt={post.user.displayName}
-            className="w-10 h-10 rounded-full border-2 border-blue-600 cursor-pointer"
+            className="w-6 h-6 rounded-full cursor-pointer"
           />
-          <div>
-            <h3 className="text-white font-semibold text-sm hover:text-blue-400 cursor-pointer transition-colors duration-200">
-              {post.user.displayName}
+          <div className="flex items-center gap-1.5 text-xs">
+            <h3 className="text-reddit-text font-bold hover:underline cursor-pointer">
+              @{post.user.username}
             </h3>
-            <p className="text-gray-500 text-xs">
-              @{post.user.username} · {formatTimestamp(post.timestamp)}
-            </p>
+            <span className="text-reddit-textMuted">·</span>
+            <span className="text-reddit-textMuted">
+              {formatTimestamp(post.timestamp)}
+            </span>
           </div>
         </div>
-        <motion.button
-          whileHover={{ rotate: 90 }}
-          whileTap={{ scale: 0.9 }}
-          transition={{ duration: 0.2 }}
-          className="text-gray-500 hover:text-white transition-colors duration-200 p-2"
-        >
-          <MoreHorizontal size={20} />
-        </motion.button>
+        <div className="relative" ref={menuRef}>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setShowMenu(!showMenu)}
+            className="text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover transition-colors p-1 rounded"
+          >
+            <MoreHorizontal size={18} />
+          </motion.button>
+
+          {/* Dropdown Menu */}
+          <AnimatePresence>
+            {showMenu && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                className="absolute right-0 top-full mt-1 w-44 bg-reddit-card border border-reddit-border rounded shadow-xl overflow-hidden z-50"
+              >
+                {isOwnPost && (
+                  <motion.button
+                    whileHover={{ backgroundColor: '#272729' }}
+                    onClick={() => handleMenuAction('edit')}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-reddit-text hover:text-reddit-blue text-sm"
+                  >
+                    <Edit3 size={14} />
+                    <span>Edit Post</span>
+                  </motion.button>
+                )}
+
+                {isOwnPost && (
+                  <motion.button
+                    whileHover={{ backgroundColor: '#272729' }}
+                    onClick={() => handleMenuAction('delete')}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-reddit-text hover:text-red-500 text-sm"
+                  >
+                    <Trash2 size={14} />
+                    <span>Delete Post</span>
+                  </motion.button>
+                )}
+
+                <motion.button
+                  whileHover={{ backgroundColor: '#272729' }}
+                  onClick={() => handleMenuAction('share')}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-left text-reddit-text hover:text-reddit-blue text-sm"
+                >
+                  <Share2 size={14} />
+                  <span>Share Post</span>
+                </motion.button>
+
+                {!isOwnPost && (
+                  <motion.button
+                    whileHover={{ backgroundColor: '#272729' }}
+                    onClick={() => handleMenuAction('report')}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-reddit-text hover:text-red-500 text-sm border-t border-reddit-border"
+                  >
+                    <Flag size={14} />
+                    <span>Report Post</span>
+                  </motion.button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Post Content */}
-      <div className="px-4 pb-3">
-        <p className="text-gray-200 leading-relaxed whitespace-pre-wrap">
+      <div className="px-3 pb-2">
+        <p className="text-reddit-text text-sm leading-relaxed whitespace-pre-wrap">
           {post.content}
         </p>
       </div>
@@ -117,7 +232,7 @@ const PostCard = ({ post }) => {
 
           {/* Loading skeleton */}
           {!imageLoaded && (
-            <div className="absolute inset-0 bg-gray-800 animate-pulse"></div>
+            <div className="absolute inset-0 bg-reddit-cardHover animate-pulse"></div>
           )}
 
           {/* Carousel Controls (only for carousel posts) */}
@@ -188,63 +303,58 @@ const PostCard = ({ post }) => {
         </div>
       )}
 
-      {/* Post Actions */}
-      <div className="p-4 border-t border-gray-800">
+      {/* Post Actions - Reddit Style */}
+      <div className="px-3 pb-2 border-t border-reddit-border pt-1">
         <div className="flex items-center justify-between">
           {/* Left Actions */}
           <div className="flex items-center gap-1">
             {/* Like Button */}
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ backgroundColor: '#272729' }}
               whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
               onClick={() => handleLikePost(post.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+              className={`flex items-center gap-1.5 px-2 py-1.5 rounded transition-all ${
                 isLiked
-                  ? 'text-red-500 bg-red-500/10'
-                  : 'text-gray-400 hover:text-red-500 hover:bg-red-500/10'
+                  ? 'text-reddit-orange'
+                  : 'text-reddit-textMuted hover:text-reddit-text'
               }`}
             >
-              <motion.div
-                animate={isLiked ? { scale: [1, 1.2, 1] } : {}}
-                transition={{ duration: 0.3 }}
-              >
-                <Heart
-                  size={20}
-                  fill={isLiked ? 'currentColor' : 'none'}
-                  strokeWidth={2}
-                />
-              </motion.div>
-              <span className="font-medium text-sm">{post.likeCount}</span>
+              <Heart
+                size={16}
+                fill={isLiked ? 'currentColor' : 'none'}
+                strokeWidth={2}
+              />
+              <span className="text-xs font-bold">{post.likeCount}</span>
             </motion.button>
 
             {/* Comment Button */}
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ backgroundColor: '#272729' }}
               whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
               onClick={() => handleCommentClick(post.id)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-600/10 transition-all duration-200"
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded text-reddit-textMuted hover:text-reddit-text transition-all"
             >
-              <MessageCircle size={20} strokeWidth={2} />
-              <span className="font-medium text-sm">{post.commentCount}</span>
+              <MessageCircle size={16} strokeWidth={2} />
+              <span className="text-xs font-bold">{post.commentCount}</span>
             </motion.button>
           </div>
 
           {/* Bookmark Button */}
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ backgroundColor: '#272729' }}
             whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.15 }}
             onClick={() => handleBookmarkPost(post.id)}
-            className={`p-2 rounded-lg transition-all duration-200 ${
+            className={`p-1.5 rounded transition-all ${
               isBookmarked
-                ? 'text-yellow-500 bg-yellow-500/10'
-                : 'text-gray-400 hover:text-yellow-500 hover:bg-yellow-500/10'
+                ? 'text-yellow-500'
+                : 'text-reddit-textMuted hover:text-reddit-text'
             }`}
           >
             <Bookmark
-              size={20}
+              size={16}
               fill={isBookmarked ? 'currentColor' : 'none'}
               strokeWidth={2}
             />
@@ -253,13 +363,13 @@ const PostCard = ({ post }) => {
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-800">
+          <div className="flex flex-wrap gap-1.5 mt-2">
             {post.tags.map((tag) => (
               <motion.span
                 key={tag}
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.2 }}
-                className="text-xs text-blue-400 bg-blue-600/10 px-3 py-1 rounded-full cursor-pointer hover:bg-blue-600/20 transition-colors duration-200"
+                whileHover={{ backgroundColor: '#272729' }}
+                transition={{ duration: 0.15 }}
+                className="text-xs text-reddit-blue bg-reddit-blue/10 px-2 py-0.5 rounded cursor-pointer"
               >
                 #{tag}
               </motion.span>

@@ -44,9 +44,9 @@ const EditProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black pt-16">
+    <div className="min-h-screen bg-reddit-bg pt-16">
       {/* Header */}
-      <div className="sticky top-16 z-10 bg-black/95 backdrop-blur-sm border-b border-gray-900">
+      <div className="sticky top-16 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -54,18 +54,18 @@ const EditProfile = () => {
                 onClick={handleCancel}
                 whileHover={{ x: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className="p-2 hover:bg-gray-900 rounded-full transition-colors"
+                className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors"
               >
-                <ArrowLeft size={20} className="text-white" />
+                <ArrowLeft size={20} className="text-reddit-text" />
               </motion.button>
-              <h1 className="text-xl font-bold text-white">Edit Profile</h1>
+              <h1 className="text-xl font-bold text-reddit-text">Edit Profile</h1>
             </div>
             <motion.button
               onClick={handleSave}
               disabled={isSaving}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white rounded-lg font-semibold flex items-center gap-2 transition-colors"
+              className="px-4 py-2 bg-reddit-blue hover:bg-reddit-blue/90 disabled:bg-reddit-blue/50 text-white rounded-lg font-semibold flex items-center gap-2 transition-colors"
             >
               {isSaving ? (
                 <>
@@ -88,7 +88,7 @@ const EditProfile = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800 space-y-6"
+          className="bg-reddit-card rounded-2xl p-6 border border-reddit-border space-y-6"
         >
           {/* Avatar Upload */}
           <div className="flex flex-col items-center">
@@ -96,22 +96,22 @@ const EditProfile = () => {
               <img
                 src={formData.avatar}
                 alt="Profile"
-                className="w-32 h-32 rounded-full border-4 border-blue-600"
+                className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-blue"
               />
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="absolute bottom-0 right-0 p-3 bg-blue-600 hover:bg-blue-700 rounded-full text-white transition-colors"
+                className="absolute bottom-0 right-0 p-2 md:p-3 bg-reddit-blue hover:bg-reddit-blue/90 rounded-full text-white transition-colors"
               >
-                <Camera size={20} />
+                <Camera size={18} className="md:w-5 md:h-5" />
               </motion.button>
             </div>
-            <p className="text-sm text-gray-400">Click the camera icon to change your profile picture</p>
+            <p className="text-xs md:text-sm text-reddit-textMuted text-center">Click the camera icon to change your profile picture</p>
           </div>
 
           {/* Display Name */}
           <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-reddit-text mb-2">
               Display Name
             </label>
             <input
@@ -119,35 +119,35 @@ const EditProfile = () => {
               name="displayName"
               value={formData.displayName}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-600 transition-colors"
+              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-blue transition-colors"
               placeholder="Your display name"
             />
           </div>
 
           {/* Username */}
           <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-reddit-text mb-2">
               Username
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">@</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-reddit-textMuted">@</span>
               <input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full pl-8 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-600 transition-colors"
+                className="w-full pl-8 pr-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-blue transition-colors"
                 placeholder="username"
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-reddit-textMuted mt-1">
               Your username is how others will find and mention you
             </p>
           </div>
 
           {/* Bio */}
           <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-reddit-text mb-2">
               Bio
             </label>
             <textarea
@@ -156,21 +156,21 @@ const EditProfile = () => {
               onChange={handleChange}
               rows={4}
               maxLength={160}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-600 transition-colors resize-none"
+              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-blue transition-colors resize-none"
               placeholder="Tell others about yourself..."
             />
             <div className="flex items-center justify-between mt-1">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-reddit-textMuted">
                 Write a short bio to introduce yourself
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-reddit-textMuted">
                 {formData.bio.length}/160
               </p>
             </div>
           </div>
 
           {/* Danger Zone */}
-          <div className="pt-6 border-t border-gray-800">
+          <div className="pt-6 border-t border-reddit-border">
             <h3 className="text-sm font-semibold text-red-400 mb-3">Danger Zone</h3>
             <motion.button
               whileHover={{ scale: 1.02 }}

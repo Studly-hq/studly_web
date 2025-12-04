@@ -4,7 +4,8 @@
 
 @layer base {
   body {
-    @apply font-sans antialiased bg-black text-white;
+    @apply font-sans antialiased text-white;
+    background-color: #0D1117;
     margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -17,34 +18,35 @@
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
+    background-color: #0D1117;
   }
 }
 
 @layer utilities {
-  /* Custom scrollbar for black theme */
+  /* Custom scrollbar for Reddit theme */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #000000;
-    border-left: 1px solid #1f1f1f;
+    background: #0D1117;
+    border-left: 1px solid #343536;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #2563eb;
+    background: #343536;
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #1d4ed8;
+    background: #818384;
   }
 
   /* Firefox scrollbar */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #2563eb #000000;
+    scrollbar-color: #343536 #0D1117;
   }
 
   /* Smooth transitions */
@@ -52,9 +54,11 @@
     transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
   }
 
-  /* Glassmorphism for black theme */
+  /* Glassmorphism for Reddit theme */
   .glass {
-    @apply bg-gray-900/50 backdrop-blur-xl border border-gray-800;
+    background-color: #1A1A1B;
+    backdrop-filter: blur(12px);
+    border: 1px solid #343536;
   }
 
   /* Text balance */
@@ -140,18 +144,18 @@
 
 /* Selection color */
 ::selection {
-  background-color: #2563eb;
+  background-color: #0079D3;
   color: #ffffff;
 }
 
 ::-moz-selection {
-  background-color: #2563eb;
+  background-color: #0079D3;
   color: #ffffff;
 }
 
 /* Focus visible */
 *:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid #0079D3;
   outline-offset: 2px;
 }
 

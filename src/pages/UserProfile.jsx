@@ -30,12 +30,15 @@ const UserProfile = () => {
   // Get user's posts (posts already have user data attached)
   const userPosts = posts.filter(post => post.userId === profileUser?.id);
 
+  // Get user's saved posts (posts they've bookmarked)
+  const savedPosts = posts.filter(post => post.bookmarkedBy?.includes(profileUser?.id));
+
   if (!profileUser) {
     return (
-      <div className="min-h-screen bg-black pt-20 px-4">
+      <div className="min-h-screen bg-reddit-bg pt-20 px-4">
         <div className="max-w-2xl mx-auto text-center py-20">
-          <h2 className="text-2xl font-bold text-white mb-2">User Not Found</h2>
-          <p className="text-gray-400">This user doesn't exist</p>
+          <h2 className="text-2xl font-bold text-reddit-text mb-2">User Not Found</h2>
+          <p className="text-reddit-textMuted">This user doesn't exist</p>
         </div>
       </div>
     );
@@ -43,26 +46,26 @@ const UserProfile = () => {
 
   const tabs = [
     { id: 'posts', label: 'Posts', count: userPosts.length },
-    { id: 'saved', label: 'Saved', count: profileUser.savedPosts?.length || 0, hideIfNotOwn: true }
+    { id: 'saved', label: 'Saved', count: savedPosts.length, hideIfNotOwn: true }
   ];
 
   return (
-    <div className="min-h-screen bg-black pt-16">
+    <div className="min-h-screen bg-reddit-bg pt-16">
       {/* Header */}
-      <div className="sticky top-16 z-10 bg-black/95 backdrop-blur-sm border-b border-gray-900">
+      <div className="sticky top-16 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <motion.button
               onClick={() => navigate(-1)}
               whileHover={{ x: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 hover:bg-gray-900 rounded-full transition-colors"
+              className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors"
             >
-              <ArrowLeft size={20} className="text-white" />
+              <ArrowLeft size={20} className="text-reddit-text" />
             </motion.button>
             <div>
-              <h1 className="text-xl font-bold text-white">{profileUser.displayName}</h1>
-              <p className="text-sm text-gray-400">{userPosts.length} posts</p>
+              <h1 className="text-xl font-bold text-reddit-text">{profileUser.displayName}</h1>
+              <p className="text-sm text-reddit-textMuted">{userPosts.length} posts</p>
             </div>
           </div>
         </div>
@@ -73,36 +76,36 @@ const UserProfile = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800 mb-6"
+          className="bg-reddit-card rounded-md p-6 border border-reddit-border mb-6"
         >
           {/* Profile Image & Basic Info */}
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto">
               <div className="relative">
                 <img
                   src={profileUser.avatar}
                   alt={profileUser.displayName}
-                  className="w-24 h-24 rounded-full border-4 border-blue-600"
+                  className="w-20 md:w-24 h-20 md:h-24 rounded-full border-3 md:border-4 border-reddit-blue"
                 />
-                <div className="absolute -bottom-2 -right-2 bg-blue-600 rounded-full p-2">
-                  <Trophy size={16} className="text-white" />
+                <div className="absolute -bottom-1 md:-bottom-2 -right-1 md:-right-2 bg-reddit-blue rounded-full p-1.5 md:p-2">
+                  <Trophy size={14} className="text-white md:w-4 md:h-4" />
                 </div>
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-1">
+              <div className="flex-1">
+                <h2 className="text-xl md:text-2xl font-bold text-reddit-text mb-1">
                   {profileUser.displayName}
                 </h2>
-                <p className="text-gray-400 mb-2">@{profileUser.username}</p>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1 text-sm">
-                    <Flame size={16} className="text-orange-500" />
-                    <span className="text-white font-semibold">{profileUser.streak}</span>
-                    <span className="text-gray-400">day streak</span>
+                <p className="text-sm md:text-base text-reddit-textMuted mb-2">@{profileUser.username}</p>
+                <div className="flex items-center gap-2 md:gap-4 flex-wrap">
+                  <div className="flex items-center gap-1 text-xs md:text-sm">
+                    <Flame size={14} className="text-reddit-orange md:w-4 md:h-4" />
+                    <span className="text-reddit-text font-semibold">{profileUser.streak}</span>
+                    <span className="text-reddit-textMuted">day streak</span>
                   </div>
-                  <div className="flex items-center gap-1 text-sm">
-                    <Trophy size={16} className="text-blue-600" />
-                    <span className="text-white font-semibold">{profileUser.auraPoints}</span>
-                    <span className="text-gray-400">aura</span>
+                  <div className="flex items-center gap-1 text-xs md:text-sm">
+                    <Trophy size={14} className="text-reddit-blue md:w-4 md:h-4" />
+                    <span className="text-reddit-text font-semibold">{profileUser.auraPoints}</span>
+                    <span className="text-reddit-textMuted">aura</span>
                   </div>
                 </div>
               </div>
@@ -112,7 +115,7 @@ const UserProfile = () => {
                 onClick={() => navigate('/profile/edit')}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold flex items-center gap-2 transition-colors"
+                className="px-3 md:px-4 py-2 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text rounded text-sm md:text-base font-semibold flex items-center gap-2 transition-colors w-full sm:w-auto justify-center"
               >
                 <Edit3 size={16} />
                 Edit
@@ -122,7 +125,7 @@ const UserProfile = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold flex items-center gap-2 transition-colors"
+                className="px-3 md:px-4 py-2 bg-reddit-blue hover:bg-reddit-blue/90 text-white rounded text-sm md:text-base font-semibold flex items-center gap-2 transition-colors w-full sm:w-auto justify-center"
               >
                 <UserPlus size={16} />
                 Follow
@@ -132,42 +135,42 @@ const UserProfile = () => {
 
           {/* Bio */}
           {profileUser.bio && (
-            <p className="text-white mb-4">{profileUser.bio}</p>
+            <p className="text-reddit-text mb-4">{profileUser.bio}</p>
           )}
 
           {/* Meta Info */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 mb-6">
+          <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-reddit-textMuted mb-4 md:mb-6">
             <div className="flex items-center gap-1">
-              <Calendar size={16} />
+              <Calendar size={14} className="md:w-4 md:h-4" />
               <span>Joined {new Date(profileUser.joinedDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
             </div>
           </div>
 
           {/* Following Stats */}
-          <div className="flex items-center gap-6 pt-4 border-t border-gray-800">
+          <div className="flex items-center gap-4 md:gap-6 pt-3 md:pt-4 border-t border-reddit-border">
             <button className="hover:underline">
-              <span className="text-white font-bold">{profileUser.following}</span>
-              <span className="text-gray-400 ml-1">Following</span>
+              <span className="text-reddit-text font-bold text-sm md:text-base">{profileUser.following}</span>
+              <span className="text-reddit-textMuted ml-1 text-xs md:text-sm">Following</span>
             </button>
             <button className="hover:underline">
-              <span className="text-white font-bold">{profileUser.followers}</span>
-              <span className="text-gray-400 ml-1">Followers</span>
+              <span className="text-reddit-text font-bold text-sm md:text-base">{profileUser.followers}</span>
+              <span className="text-reddit-textMuted ml-1 text-xs md:text-sm">Followers</span>
             </button>
           </div>
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 mb-6 bg-gray-900/50 rounded-lg p-1 border border-gray-800">
+        <div className="flex items-center gap-1 mb-6 bg-reddit-card rounded p-1 border border-reddit-border">
           {tabs.map(tab => {
             if (tab.hideIfNotOwn && !isOwnProfile) return null;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all ${
+                className={`flex-1 px-2 md:px-4 py-2 md:py-3 rounded text-xs md:text-sm font-semibold transition-all ${
                   activeTab === tab.id
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                    ? 'bg-reddit-blue text-white'
+                    : 'text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover'
                 }`}
               >
                 {tab.label} {tab.count > 0 && `(${tab.count})`}
@@ -181,12 +184,12 @@ const UserProfile = () => {
           {activeTab === 'posts' && (
             <>
               {userPosts.length === 0 ? (
-                <div className="text-center py-20 bg-gray-900/50 rounded-2xl border border-gray-800">
-                  <BookOpen size={48} className="text-gray-700 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">
+                <div className="text-center py-20 bg-reddit-card rounded-md border border-reddit-border">
+                  <BookOpen size={48} className="text-reddit-textMuted mx-auto mb-4 opacity-50" />
+                  <h3 className="text-xl font-bold text-reddit-text mb-2">
                     No Posts Yet
                   </h3>
-                  <p className="text-gray-400">
+                  <p className="text-reddit-textMuted">
                     {isOwnProfile ? "Start sharing your study journey!" : "This user hasn't posted yet"}
                   </p>
                 </div>
@@ -206,23 +209,32 @@ const UserProfile = () => {
           )}
 
           {activeTab === 'saved' && isOwnProfile && (
-            <div className="text-center py-20 bg-gray-900/50 rounded-2xl border border-gray-800">
-              <BookOpen size={48} className="text-gray-700 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">
-                No Saved Posts
-              </h3>
-              <p className="text-gray-400 mb-6">
-                Posts you bookmark will appear here
-              </p>
-              <motion.button
-                onClick={() => navigate('/saved')}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
-              >
-                Go to Saved Posts
-              </motion.button>
-            </div>
+            <>
+              {savedPosts.length === 0 ? (
+                <div className="text-center py-20 bg-reddit-card rounded-md border border-reddit-border">
+                  <BookOpen size={48} className="text-reddit-textMuted mx-auto mb-4 opacity-50" />
+                  <h3 className="text-xl font-bold text-reddit-text mb-2">
+                    No Saved Posts
+                  </h3>
+                  <p className="text-reddit-textMuted">
+                    Posts you bookmark will appear here
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3 md:space-y-4 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2">
+                  {savedPosts.map((post, index) => (
+                    <motion.div
+                      key={post.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <PostCard post={post} />
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -72,13 +72,13 @@ const CommentSection = () => {
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden"
+          className="bg-reddit-card border border-reddit-border rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <div className="flex items-center justify-between p-4 border-b border-reddit-border">
             <div>
-              <h3 className="text-white font-bold text-lg">Comments</h3>
-              <p className="text-gray-400 text-sm">
+              <h3 className="text-reddit-text font-bold text-lg">Comments</h3>
+              <p className="text-reddit-textMuted text-sm">
                 {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
               </p>
             </div>
@@ -87,30 +87,30 @@ const CommentSection = () => {
               whileTap={{ scale: 0.9 }}
               transition={{ duration: 0.2 }}
               onClick={handleClose}
-              className="text-gray-500 hover:text-white transition-colors duration-200 p-2 rounded-full hover:bg-gray-800"
+              className="text-reddit-textMuted hover:text-reddit-text transition-colors duration-200 p-2 rounded-full hover:bg-reddit-cardHover"
             >
               <X size={20} />
             </motion.button>
           </div>
 
           {/* Post Preview */}
-          <div className="p-4 bg-gray-800/30 border-b border-gray-800">
+          <div className="p-4 bg-reddit-cardHover/30 border-b border-reddit-border">
             <div className="flex items-start gap-3">
               <img
                 src={post.user.avatar}
                 alt={post.user.displayName}
-                className="w-10 h-10 rounded-full border border-gray-700"
+                className="w-10 h-10 rounded-full border border-reddit-border"
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-white font-semibold text-sm">
+                  <span className="text-reddit-text font-semibold text-sm">
                     {post.user.displayName}
                   </span>
-                  <span className="text-gray-500 text-xs">
+                  <span className="text-reddit-textMuted text-xs">
                     @{post.user.username}
                   </span>
                 </div>
-                <p className="text-gray-300 text-sm line-clamp-2">
+                <p className="text-reddit-text text-sm line-clamp-2">
                   {post.content}
                 </p>
               </div>
@@ -138,11 +138,11 @@ const CommentSection = () => {
                 transition={{ duration: 0.3 }}
                 className="flex flex-col items-center justify-center py-12"
               >
-                <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-reddit-cardHover rounded-full flex items-center justify-center mb-4">
                   <span className="text-3xl">💬</span>
                 </div>
-                <h4 className="text-white font-semibold mb-2">No comments yet</h4>
-                <p className="text-gray-400 text-sm text-center max-w-xs">
+                <h4 className="text-reddit-text font-semibold mb-2">No comments yet</h4>
+                <p className="text-reddit-textMuted text-sm text-center max-w-xs">
                   Be the first to share your thoughts on this post!
                 </p>
               </motion.div>
@@ -150,7 +150,7 @@ const CommentSection = () => {
           </div>
 
           {/* Comment Input */}
-          <div className="p-4 border-t border-gray-800 bg-gray-900/50">
+          <div className="p-4 border-t border-reddit-border bg-reddit-card/50">
             {replyingTo && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
@@ -158,9 +158,9 @@ const CommentSection = () => {
                 transition={{ duration: 0.2 }}
                 className="flex items-center gap-2 mb-2 text-sm"
               >
-                <span className="text-gray-400">
+                <span className="text-reddit-textMuted">
                   Replying to{' '}
-                  <span className="text-blue-400 font-semibold">
+                  <span className="text-reddit-blue font-semibold">
                     {getUserById(replyingTo.userId)?.displayName}
                   </span>
                 </span>
@@ -169,7 +169,7 @@ const CommentSection = () => {
                   whileTap={{ scale: 0.9 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => setReplyingTo(null)}
-                  className="text-gray-500 hover:text-white transition-colors duration-200"
+                  className="text-reddit-textMuted hover:text-reddit-text transition-colors duration-200"
                 >
                   <X size={14} />
                 </motion.button>
@@ -180,10 +180,10 @@ const CommentSection = () => {
               <img
                 src={currentUser?.avatar}
                 alt={currentUser?.displayName}
-                className="w-10 h-10 rounded-full border border-gray-700 flex-shrink-0 mt-1"
+                className="w-10 h-10 rounded-full border border-reddit-border flex-shrink-0 mt-1"
               />
               <div className="flex-1 flex items-start gap-2">
-                <div className="flex-1 bg-gray-800 rounded-xl border border-gray-700">
+                <div className="flex-1 bg-reddit-input rounded">
                   <textarea
                     ref={inputRef}
                     value={commentText}
@@ -194,7 +194,7 @@ const CommentSection = () => {
                         : 'Write a comment...'
                     }
                     rows={1}
-                    className="w-full bg-transparent text-white placeholder-gray-500 px-4 py-3 outline-none resize-none max-h-32 overflow-y-auto"
+                    className="w-full bg-transparent text-reddit-text placeholder-reddit-textMuted px-4 py-3 outline-none resize-none max-h-32 overflow-y-auto "
                     style={{ minHeight: '44px' }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
@@ -214,18 +214,18 @@ const CommentSection = () => {
                   whileHover={commentText.trim() ? { scale: 1.02 } : {}}
                   whileTap={commentText.trim() ? { scale: 0.98 } : {}}
                   transition={{ duration: 0.2 }}
-                  className={`p-3 rounded-xl transition-all duration-200 flex-shrink-0 ${
+                  className={`p-3 rounded transition-all duration-200 flex-shrink-0 ${
                     commentText.trim()
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                      : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                      ? 'bg-reddit-blue hover:bg-reddit-blue/90 text-white'
+                      : 'bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed'
                   }`}
                 >
                   <Send size={18} />
                 </motion.button>
               </div>
             </form>
-            <p className="text-gray-500 text-xs mt-2">
-              Press <kbd className="px-1.5 py-0.5 bg-gray-800 rounded border border-gray-700">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 bg-gray-800 rounded border border-gray-700">Shift+Enter</kbd> for new line
+            <p className="text-reddit-textMuted text-xs mt-2">
+              Press <kbd className="px-1.5 py-0.5 bg-reddit-cardHover rounded border border-reddit-border">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 bg-reddit-cardHover rounded border border-reddit-border">Shift+Enter</kbd> for new line
             </p>
           </div>
         </motion.div>

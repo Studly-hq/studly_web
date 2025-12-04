@@ -28,7 +28,7 @@ const MobileBottomNav = () => {
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3 }}
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-xl border-t border-gray-900"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-reddit-card/95 backdrop-blur-xl border-t border-reddit-border"
     >
       <div className="flex items-center justify-around px-2 py-3 safe-area-inset-bottom">
         {navItems.map((item) => {
@@ -42,18 +42,18 @@ const MobileBottomNav = () => {
               whileTap={{ scale: 0.9 }}
               className="flex flex-col items-center gap-1 px-4 py-2 relative"
             >
-    
+
 
               {/* Icon */}
               <div className={`transition-colors duration-200 ${
-                isActive ? 'text-white' : 'text-gray-500'
+                isActive ? 'text-reddit-text' : 'text-reddit-textMuted'
               }`}>
                 <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
               </div>
 
               {/* Label */}
               <span className={`text-xs font-medium transition-colors duration-200 ${
-                isActive ? 'text-white' : 'text-gray-500'
+                isActive ? 'text-reddit-text' : 'text-reddit-textMuted'
               }`}>
                 {item.label}
               </span>

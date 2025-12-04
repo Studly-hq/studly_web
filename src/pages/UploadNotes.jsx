@@ -148,9 +148,9 @@ const UploadNotes = () => {
   const canGenerate = uploadedFile && topic.trim() && questionCount > 0;
 
   return (
-    <div className="min-h-screen bg-black pt-16">
+    <div className="min-h-screen bg-reddit-bg pt-16">
       {/* Header */}
-      <div className="sticky top-16 z-10 bg-black/95 backdrop-blur-sm border-b border-gray-900">
+      <div className="sticky top-16 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -158,11 +158,11 @@ const UploadNotes = () => {
                 onClick={() => navigate(-1)}
                 whileHover={{ x: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className="p-2 hover:bg-gray-900 rounded-full transition-colors"
+                className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors"
               >
-                <ArrowLeft size={20} className="text-white" />
+                <ArrowLeft size={20} className="text-reddit-text" />
               </motion.button>
-              <h1 className="text-xl font-bold text-white">Generate Quiz</h1>
+              <h1 className="text-xl font-bold text-reddit-text">Generate Quiz</h1>
             </div>
           </div>
         </div>
@@ -176,16 +176,16 @@ const UploadNotes = () => {
           className="space-y-6"
         >
           {/* Info Card */}
-          <div className="bg-gradient-to-br from-blue-600/10 to-purple-600/10 backdrop-blur-sm border border-blue-600/20 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-reddit-blue/10 to-reddit-orange/10 backdrop-blur-sm border border-reddit-blue/20 rounded-2xl p-6">
             <div className="flex items-start gap-4">
-              <div className="bg-blue-600/20 p-3 rounded-xl">
-                <Sparkles size={24} className="text-blue-400" />
+              <div className="bg-reddit-blue/20 p-3 rounded-xl">
+                <Sparkles size={24} className="text-reddit-blue" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white mb-2">
+                <h3 className="text-lg font-bold text-reddit-text mb-2">
                   AI-Powered Quiz Generation
                 </h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
+                <p className="text-reddit-textMuted text-sm leading-relaxed">
                   Upload your study notes and let AI generate personalized quizzes to test your knowledge.
                   Perfect for exam prep and self-assessment!
                 </p>
@@ -194,8 +194,8 @@ const UploadNotes = () => {
           </div>
 
           {/* File Upload */}
-          <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
-            <label className="block text-sm font-semibold text-gray-300 mb-3">
+          <div className="bg-reddit-card backdrop-blur-sm border border-reddit-border rounded-2xl p-6">
+            <label className="block text-sm font-semibold text-reddit-text mb-3">
               Upload Notes
             </label>
 
@@ -207,8 +207,8 @@ const UploadNotes = () => {
                 onDrop={handleDrop}
                 className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${
                   isDragging
-                    ? 'border-blue-600 bg-blue-600/10'
-                    : 'border-gray-700 hover:border-gray-600 bg-gray-800/30'
+                    ? 'border-reddit-blue bg-reddit-blue/10'
+                    : 'border-reddit-border hover:border-reddit-textMuted bg-reddit-input'
                 }`}
               >
                 <input
@@ -222,14 +222,14 @@ const UploadNotes = () => {
                   animate={isDragging ? { scale: 1.1 } : { scale: 1 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Upload size={48} className={`mx-auto mb-4 ${isDragging ? 'text-blue-400' : 'text-gray-500'}`} />
-                  <p className="text-white font-medium mb-2">
+                  <Upload size={48} className={`mx-auto mb-4 ${isDragging ? 'text-reddit-blue' : 'text-reddit-textMuted'}`} />
+                  <p className="text-reddit-text font-medium mb-2">
                     {isDragging ? 'Drop your file here' : 'Drag & drop your notes'}
                   </p>
-                  <p className="text-sm text-gray-400 mb-4">
+                  <p className="text-sm text-reddit-textMuted mb-4">
                     or click to browse files
                   </p>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-reddit-textMuted">
                     Supported: PDF, DOC, DOCX, TXT (Max 10MB)
                   </p>
                 </motion.div>
@@ -238,16 +238,16 @@ const UploadNotes = () => {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-gray-800 border border-gray-700 rounded-xl p-4"
+                className="bg-reddit-input border border-reddit-border rounded-xl p-4"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="bg-blue-600/20 p-3 rounded-lg">
-                      <FileText size={24} className="text-blue-400" />
+                    <div className="bg-reddit-blue/20 p-3 rounded-lg">
+                      <FileText size={24} className="text-reddit-blue" />
                     </div>
                     <div>
-                      <p className="text-white font-medium">{uploadedFile.name}</p>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-reddit-text font-medium">{uploadedFile.name}</p>
+                      <p className="text-sm text-reddit-textMuted">
                         {(uploadedFile.size / 1024).toFixed(2)} KB
                       </p>
                     </div>
@@ -268,7 +268,7 @@ const UploadNotes = () => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-3 flex items-center gap-2 text-red-400 text-sm"
+                className="mt-3 flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3"
               >
                 <AlertCircle size={16} />
                 <span>{error}</span>
@@ -277,8 +277,8 @@ const UploadNotes = () => {
           </div>
 
           {/* Topic Input */}
-          <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
-            <label className="block text-sm font-semibold text-gray-300 mb-3">
+          <div className="bg-reddit-card backdrop-blur-sm border border-reddit-border rounded-2xl p-6">
+            <label className="block text-sm font-semibold text-reddit-text mb-3">
               Topic / Subject
             </label>
             <input
@@ -286,16 +286,16 @@ const UploadNotes = () => {
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="e.g., Linear Algebra, World History, React Hooks..."
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-600 transition-colors"
+              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-xl text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-blue transition-colors"
             />
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-reddit-textMuted mt-2">
               This helps AI generate more relevant questions
             </p>
           </div>
 
           {/* Question Count */}
-          <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
-            <label className="block text-sm font-semibold text-gray-300 mb-3">
+          <div className="bg-reddit-card backdrop-blur-sm border border-reddit-border rounded-2xl p-6">
+            <label className="block text-sm font-semibold text-reddit-text mb-3">
               Number of Questions
             </label>
             <div className="flex items-center gap-4">
@@ -305,13 +305,13 @@ const UploadNotes = () => {
                 max="30"
                 value={questionCount}
                 onChange={(e) => setQuestionCount(parseInt(e.target.value))}
-                className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                className="flex-1 h-2 bg-reddit-border rounded-lg appearance-none cursor-pointer accent-reddit-blue"
               />
-              <div className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 min-w-[60px] text-center">
-                <span className="text-white font-bold text-lg">{questionCount}</span>
+              <div className="bg-reddit-input border border-reddit-border rounded-lg px-4 py-2 min-w-[60px] text-center">
+                <span className="text-reddit-text font-bold text-lg">{questionCount}</span>
               </div>
             </div>
-            <div className="flex justify-between text-xs text-gray-500 mt-2">
+            <div className="flex justify-between text-xs text-reddit-textMuted mt-2">
               <span>5 questions</span>
               <span>30 questions (max)</span>
             </div>
@@ -325,8 +325,8 @@ const UploadNotes = () => {
             whileTap={canGenerate && !isGenerating ? { scale: 0.98 } : {}}
             className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${
               canGenerate && !isGenerating
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-600/20'
-                : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                ? 'bg-gradient-to-r from-reddit-blue to-reddit-orange hover:from-reddit-blue/90 hover:to-reddit-orange/90 text-white'
+                : 'bg-reddit-input text-reddit-textMuted cursor-not-allowed'
             }`}
           >
             {isGenerating ? (
@@ -343,12 +343,12 @@ const UploadNotes = () => {
           </motion.button>
 
           {/* Tips */}
-          <div className="bg-gray-900/30 backdrop-blur-sm border border-gray-800 rounded-xl p-4">
-            <h4 className="text-white font-semibold mb-2 flex items-center gap-2">
+          <div className="bg-reddit-card/50 backdrop-blur-sm border border-reddit-border rounded-xl p-4">
+            <h4 className="text-reddit-text font-semibold mb-2 flex items-center gap-2">
               <CheckCircle size={16} className="text-green-400" />
               Tips for best results
             </h4>
-            <ul className="space-y-1 text-sm text-gray-400">
+            <ul className="space-y-1 text-sm text-reddit-textMuted">
               <li>• Upload well-formatted notes with clear content</li>
               <li>• Specify a clear topic for more focused questions</li>
               <li>• Start with 10-15 questions for a comprehensive quiz</li>
