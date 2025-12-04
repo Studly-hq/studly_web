@@ -2,7 +2,24 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        reddit: {
+          bg: '#0e1114ff',           // Main page/feed background (slightly darker than card)
+          card: '#1A1A1B',         // Post cards and surfaces
+          cardHover: '#272729',    // Card hover state
+          border: '#343536',       // Borders and dividers
+          text: '#D7DADC',         // Primary text
+          textMuted: '#818384',    // Secondary/metadata text
+          orange: '#FF4500',       // Reddit orange accent
+          blue: '#0079D3',         // Links and blue accent
+          input: '#272729',        // Search bar background
+        }
+      },
+      fontFamily: {
+        righteous: ['Righteous', 'cursive'],
+      }
+    },
   },
   plugins: [],
 };
