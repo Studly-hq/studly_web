@@ -30,3 +30,16 @@ export const signup = async (email, password) => {
     throw error;
   }
 };
+
+export const login = async (email, password) => {
+  try {
+    const response = await client.post("/auth/login", {
+      email,
+      password,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Login Error:", error.response?.data || error.message);
+    throw error;
+  }
+};

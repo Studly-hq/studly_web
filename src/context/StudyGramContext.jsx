@@ -8,7 +8,7 @@ import {
   getUserById,
 } from "../data/studygramData";
 import { mockQuizzes } from "../data/quizData";
-import { signup as apiSignup } from "../api/auth"; // Importing our new API function
+import { signup as apiSignup, login as apiLogin } from "../api/auth"; // Importing API functions
 
 const StudyGramContext = createContext();
 
@@ -46,6 +46,7 @@ export const StudyGramProvider = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Initialize - simulate checking for saved session
+  // TODO: Update this to verify token with backend if needed
   useEffect(() => {
     const savedAuth = localStorage.getItem("studly_auth");
     if (savedAuth) {
@@ -56,27 +57,46 @@ export const StudyGramProvider = ({ children }) => {
   }, []);
 
   // Auth Functions
-  const login = (email, password) => {
-    // Mock login - just set current user
-    const user = mockUsers.currentUser;
-    setCurrentUser(user);
-    setIsAuthenticated(true);
-    localStorage.setItem("studly_auth", JSON.stringify({ user }));
+  const login = async (email, password) => {
+    try {
+      const data = await apiLogin(email, password);
 
-    // Replay pending action if exists
-    if (pendingAction) {
-      replayAction(pendingAction);
-      setPendingAction(null);
+      // Assuming data contains user info. If it contains a token, store it.
+      // For now, let's log what we get to ensure we structure it right.
+      console.log("Login successful, data:", data);
+
+      // If the backend returns a user object directly or nested:
+      // Adjust this based on actual response structure.
+      // Falling back to mock-like structure if needed but using returned data properties.
+      const user = {
+        ...mockUsers.currentUser, // Fallback for missing fields like 'avatar'
+        ...data.user, // Overwrite with real data if exists
+        email: email, // Ensure email is correct
+      };
+
+      setCurrentUser(user);
+      setIsAuthenticated(true);
+      localStorage.setItem("studly_auth", JSON.stringify({ user }));
+
+      // Replay pending action if exists
+      if (pendingAction) {
+        replayAction(pendingAction);
+        setPendingAction(null);
+      }
+
+      // Restore scroll position
+      if (scrollPosition) {
+        setTimeout(() => {
+          window.scrollTo(0, scrollPosition);
+        }, 100);
+      }
+
+      setShowAuthModal(false);
+      return data;
+    } catch (error) {
+      console.error("Login failed context:", error);
+      throw error;
     }
-
-    // Restore scroll position
-    if (scrollPosition) {
-      setTimeout(() => {
-        window.scrollTo(0, scrollPosition);
-      }, 100);
-    }
-
-    setShowAuthModal(false);
   };
 
   /*
@@ -85,52 +105,17 @@ export const StudyGramProvider = ({ children }) => {
    */
   const signup = async (name, email, password) => {
     try {
-      // Calling the API
-      // Note: The current API documentation only shows email and password.
-      // We are sending those. 'name' might need to be added to the backend later.
+      // 1. Signup
       await apiSignup(email, password);
 
-      // If API call is successful (no error thrown):
-      // For now, since the API returns "User signed up successfully" but no user object/token,
-      // we might need to ask the user to login, or we can temporarily simulate a login
-      // with the data we have if we want to auto-login.
-      //
-      // Let's decide to auto-login nicely:
-      // We can try calling login immediately if we had the ID, but we don't.
-      // So for this step, we will just proceed as if successful and maybe trigger login?
-      // Actually, to keep the UX smooth as requested (WOW factor), let's attempt to 'login'
-      // with the credentials if the signup was successful.
-      // But wait, allow the flow to proceed.
+      // 2. Auto-login
+      // Now that signup is success, we immediately log the user in.
+      // This fulfills the "signup then login" requirement.
+      await login(email, password);
 
-      // Let's simply call login() with the fresh credentials to get the real user object/token
-      // if the login endpoint exists and works.
-      // Since we haven't integrated login API yet, we will keep a hybrid approach:
-      // We know signup worked. We can't fully "log in" real-style without that endpoint.
-      // So we will fall back to the mock behavior for the *UI state* (setting authenticated),
-      // BUT we know the backend account exists now.
-
-      const newUser = {
-        ...mockUsers.currentUser, // Keeping mock structure for now to not break UI
-        email: email,
-        displayName: name,
-        username: name.toLowerCase().replace(/\s+/g, "_"),
-      };
-
-      setCurrentUser(newUser);
-      setIsAuthenticated(true);
-      localStorage.setItem("studly_auth", JSON.stringify({ user: newUser }));
-
-      // Replay pending action
-      if (pendingAction) {
-        replayAction(pendingAction);
-        setPendingAction(null);
-      }
-
-      setShowAuthModal(false);
-      return true; // Indicate success
+      return true;
     } catch (error) {
-      // If API failed, we throw the error so AuthModal can show it
-      console.error("Signup failed:", error);
+      console.error("Signup/Auto-login failed:", error);
       throw error;
     }
   };
