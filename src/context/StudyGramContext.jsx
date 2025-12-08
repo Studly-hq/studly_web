@@ -8,7 +8,11 @@ import {
   getUserById,
 } from "../data/studygramData";
 import { mockQuizzes } from "../data/quizData";
-import { signup as apiSignup, login as apiLogin } from "../api/auth"; // Importing API functions
+import {
+  signup as apiSignup,
+  login as apiLogin,
+  logout as apiLogout,
+} from "../api/auth"; // Importing API functions
 import { getProfile } from "../api/profile"; // Import profile service
 
 const StudyGramContext = createContext();
@@ -140,10 +144,9 @@ export const StudyGramProvider = ({ children }) => {
       // 1. Signup
       await apiSignup(email, password);
 
-      // 2. Auto-login
-      // Now that signup is success, we immediately log the user in.
-      // This fulfills the "signup then login" requirement.
-      await login(email, password);
+      // 2. Auto-login removed per user request.
+      // User must login manually after signup.
+      // await login(email, password);
 
       return true;
     } catch (error) {
@@ -152,7 +155,14 @@ export const StudyGramProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call API to destroy session on server
+      await apiLogout();
+    } catch (error) {
+      console.error("Logout failed on server:", error);
+    }
+
     setIsAuthenticated(false);
     setCurrentUser(null);
     localStorage.removeItem("studly_auth");

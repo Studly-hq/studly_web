@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Lock, User, Sparkles } from "lucide-react";
 import { useStudyGram } from "../../context/StudyGramContext";
+import { toast } from "sonner";
 
 const AuthModal = () => {
   const { showAuthModal, setShowAuthModal, login, signup } = useStudyGram();
@@ -33,15 +34,23 @@ const AuthModal = () => {
 
     try {
       if (activeTab === "login") {
-        // Login is still synchronous/mock for now
         await login(formData.email, formData.password);
+
+        toast.success("Logged in successfully!");
+
+        // Close modal and reset form
+        setShowAuthModal(false);
+        setFormData({ name: "", email: "", password: "" });
       } else {
         // Signup is now asynchronous (real API)
         await signup(formData.name, formData.email, formData.password);
+        // On success, switch to login tab and show message
+        setActiveTab("login");
+        setError(null); // Clear error
+        // Optional: you could set a success message state here to display "Account created! Please log in."
+        toast.success("Account created successfully! Please log in."); // Simple feedback for now
+        setFormData({ name: "", email: "", password: "" }); // Clear form
       }
-      // If success, we close the modal and reset (handleClose isn't called here because login/signup success usually closes it or we want to reset form)
-      // Actually context handles closing modal on success mostly.
-      setFormData({ name: "", email: "", password: "" });
     } catch (err) {
       // If API fails, we catch the error here and show it
       console.error("Auth error:", err);

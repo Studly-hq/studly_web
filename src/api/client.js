@@ -12,6 +12,7 @@ const client = axios.create({
   headers: {
     "Content-Type": "application/json", // We are sending data in JSON format
   },
+  withCredentials: true, // Ensure cookies are sent with requests
 });
 
 export default client;

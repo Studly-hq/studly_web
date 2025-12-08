@@ -40,3 +40,14 @@ export const login = async (email, password) => {
     throw error;
   }
 };
+
+export const logout = async () => {
+  try {
+    const response = await client.post("/auth/logout");
+    console.log("Logout Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Logout Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
