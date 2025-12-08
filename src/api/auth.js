@@ -12,7 +12,6 @@ import client from "./client";
 
 export const signup = async (email, password) => {
   try {
-    // We are sending a POST request to '/auth/signup'
     // The 'client' adds the base URL (http://0.0.0.0:8080) automatically.
     // So the full URL becomes: http://0.0.0.0:8080/auth/signup
     const response = await client.post("/auth/signup", {
@@ -24,8 +23,6 @@ export const signup = async (email, password) => {
     console.log("Signup Response:", response.data);
     return response.data;
   } catch (error) {
-    // If there's an error (like "Email already exists"), we throw it
-    // so the component calling this function can catch it and show an alert.
     console.error("Signup Error:", error.response?.data || error.message);
     throw error;
   }

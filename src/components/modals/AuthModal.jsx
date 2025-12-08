@@ -251,9 +251,14 @@ const AuthModal = () => {
 
             <div className="w-full flex justify-center items-center gap-3">
               <motion.button
+                type="button"
                 whileHover={{ backgroundColor: "#272729" }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.15 }}
+                onClick={() =>
+                  (window.location.href =
+                    "http://0.0.0.0:8080/auth/google/login")
+                }
                 className="flex items-center justify-center gap-2 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text py-2.5 rounded-lg border border-reddit-border transition-colors text-sm font-medium w-full"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">

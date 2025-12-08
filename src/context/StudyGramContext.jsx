@@ -9,6 +9,7 @@ import {
 } from "../data/studygramData";
 import { mockQuizzes } from "../data/quizData";
 import { signup as apiSignup, login as apiLogin } from "../api/auth"; // Importing API functions
+import { getProfile } from "../api/profile"; // Import profile service
 
 const StudyGramContext = createContext();
 
@@ -45,15 +46,46 @@ export const StudyGramProvider = ({ children }) => {
   // Mobile State
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Initialize - simulate checking for saved session
-  // TODO: Update this to verify token with backend if needed
+  // Initialize - Check for session
   useEffect(() => {
-    const savedAuth = localStorage.getItem("studly_auth");
-    if (savedAuth) {
-      const authData = JSON.parse(savedAuth);
-      setIsAuthenticated(true);
-      setCurrentUser(authData.user);
-    }
+    const checkAuth = async () => {
+      try {
+        // 1. Try to get profile from backend (this handles Google Login return where cookie/session is set)
+        // If we have a session cookie, this will work.
+        const userProfile = await getProfile();
+
+        if (userProfile) {
+          console.log("Session found:", userProfile);
+          // Assuming userProfile is the user object, or has a 'user' property
+          const user = userProfile.user || userProfile;
+
+          setIsAuthenticated(true);
+          setCurrentUser(user);
+          localStorage.setItem("studly_auth", JSON.stringify({ user }));
+          return;
+        }
+      } catch (err) {
+        // If profile fetch fails (401), we are not logged in.
+        // Fallback: Check localStorage just in case we are offline or something,
+        // but for security, usually API is source of truth.
+        // For now, if API fails, we clear localStorage to stay in sync.
+        console.log("No active session found.");
+        localStorage.removeItem("studly_auth");
+      }
+
+      // Old localStorage check (fallback or if we want to keep user logged in optimistically)
+      // For now, let's rely on the API check above primarily.
+      /*
+      const savedAuth = localStorage.getItem("studly_auth");
+      if (savedAuth) {
+        const authData = JSON.parse(savedAuth);
+        setIsAuthenticated(true);
+        setCurrentUser(authData.user);
+      }
+      */
+    };
+
+    checkAuth();
   }, []);
 
   // Auth Functions
