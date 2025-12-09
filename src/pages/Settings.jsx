@@ -1,25 +1,24 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import {
-  ArrowLeft,
-  Bell,
-  Moon,
-  Globe,
-  Shield,
-  Eye,
-  Volume2,
-  Smartphone,
-  Mail,
-  Lock,
-  User,
-  ChevronRight
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useStudyGram } from '../context/StudyGramContext';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Globe, User, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useStudyGram } from "../context/StudyGramContext";
+import { changePassword } from "../api/auth";
+import { toast } from "sonner";
+import { X } from "lucide-react";
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useStudyGram();
+  const { isAuthenticated, currentUser } = useStudyGram();
+
+  // Change Password State
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const [settings, setSettings] = useState({
     notifications: {
@@ -27,50 +26,83 @@ const Settings = () => {
       comments: true,
       follows: true,
       mentions: true,
-      email: false
+      email: false,
     },
     appearance: {
       darkMode: true,
-      compactMode: false
+      compactMode: false,
     },
     privacy: {
       privateAccount: false,
       showActivity: true,
-      allowMessages: true
+      allowMessages: true,
     },
     sound: {
       notifications: true,
-      interactions: false
-    }
+      interactions: false,
+    },
   });
 
   if (!isAuthenticated) {
-    navigate('/');
+    navigate("/");
     return null;
   }
 
   const toggleSetting = (category, setting) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       [category]: {
         ...prev[category],
-        [setting]: !prev[category][setting]
-      }
+        [setting]: !prev[category][setting],
+      },
     }));
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error("New passwords do not match!");
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      if (!currentUser?.email) {
+        throw new Error("User email not found");
+      }
+
+      await changePassword(
+        currentUser.email,
+        passwordData.oldPassword,
+        passwordData.newPassword
+      );
+      toast.success("Password changed successfully!");
+      setShowPasswordModal(false);
+      setPasswordData({
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (error) {
+      console.error("Change password failed:", error);
+      toast.error(error.response?.data?.error || "Failed to change password");
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   const SettingToggle = ({ enabled, onChange }) => (
     <motion.button
       onClick={onChange}
       className={`relative w-12 h-6 rounded-full transition-colors ${
-        enabled ? 'bg-reddit-blue' : 'bg-reddit-border'
+        enabled ? "bg-reddit-blue" : "bg-reddit-border"
       }`}
       whileTap={{ scale: 0.95 }}
     >
       <motion.div
         className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full"
         animate={{ x: enabled ? 24 : 0 }}
-        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
       />
     </motion.button>
   );
@@ -89,7 +121,13 @@ const Settings = () => {
     </div>
   );
 
-  const SettingItem = ({ label, description, enabled, onChange, showChevron }) => (
+  const SettingItem = ({
+    label,
+    description,
+    enabled,
+    onChange,
+    showChevron,
+  }) => (
     <div className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors">
       <div className="flex-1">
         <p className="text-reddit-text font-medium mb-1">{label}</p>
@@ -97,9 +135,7 @@ const Settings = () => {
           <p className="text-sm text-reddit-textMuted">{description}</p>
         )}
       </div>
-      {onChange && (
-        <SettingToggle enabled={enabled} onChange={onChange} />
-      )}
+      {onChange && <SettingToggle enabled={enabled} onChange={onChange} />}
       {showChevron && (
         <ChevronRight size={20} className="text-reddit-textMuted" />
       )}
@@ -134,43 +170,58 @@ const Settings = () => {
           {/* Account Settings */}
           <SettingSection title="Account" icon={User}>
             <button
-              onClick={() => navigate('/profile/edit')}
+              onClick={() => navigate("/profile/edit")}
               className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full"
             >
               <div className="flex-1 text-left">
-                <p className="text-reddit-text font-medium mb-1">Edit Profile</p>
-                <p className="text-sm text-reddit-textMuted">Update your profile information</p>
+                <p className="text-reddit-text font-medium mb-1">
+                  Edit Profile
+                </p>
+                <p className="text-sm text-reddit-textMuted">
+                  Update your profile information
+                </p>
               </div>
               <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
-            <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full">
+            <button
+              onClick={() => setShowPasswordModal(true)}
+              className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full"
+            >
               <div className="flex-1 text-left">
-                <p className="text-reddit-text font-medium mb-1">Change Password</p>
-                <p className="text-sm text-reddit-textMuted">Update your login password</p>
+                <p className="text-reddit-text font-medium mb-1">
+                  Change Password
+                </p>
+                <p className="text-sm text-reddit-textMuted">
+                  Update your login password
+                </p>
               </div>
               <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
           </SettingSection>
 
-
-
           {/* About */}
           <SettingSection title="About" icon={Globe}>
             <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full">
               <div className="flex-1 text-left">
-                <p className="text-reddit-text font-medium mb-1">Terms of Service</p>
+                <p className="text-reddit-text font-medium mb-1">
+                  Terms of Service
+                </p>
               </div>
               <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
             <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full">
               <div className="flex-1 text-left">
-                <p className="text-reddit-text font-medium mb-1">Privacy Policy</p>
+                <p className="text-reddit-text font-medium mb-1">
+                  Privacy Policy
+                </p>
               </div>
               <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
             <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full">
               <div className="flex-1 text-left">
-                <p className="text-reddit-text font-medium mb-1">Help & Support</p>
+                <p className="text-reddit-text font-medium mb-1">
+                  Help & Support
+                </p>
               </div>
               <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
@@ -181,6 +232,108 @@ const Settings = () => {
           </SettingSection>
         </motion.div>
       </div>
+
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <div className=" fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-reddit-card w-full max-w-md rounded-xl border border-reddit-border p-6 shadow-xl"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-reddit-text">
+                Change Password
+              </h2>
+              <button
+                onClick={() => setShowPasswordModal(false)}
+                className="text-reddit-textMuted hover:text-reddit-text transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-reddit-text mb-1">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={passwordData.oldPassword}
+                  onChange={(e) =>
+                    setPasswordData((prev) => ({
+                      ...prev,
+                      oldPassword: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-blue"
+                  placeholder="Enter current password"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-reddit-text mb-1">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={passwordData.newPassword}
+                  onChange={(e) =>
+                    setPasswordData((prev) => ({
+                      ...prev,
+                      newPassword: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-blue"
+                  placeholder="Enter new password"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-reddit-text mb-1">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={passwordData.confirmPassword}
+                  onChange={(e) =>
+                    setPasswordData((prev) => ({
+                      ...prev,
+                      confirmPassword: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-blue"
+                  placeholder="Confirm new password"
+                />
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordModal(false)}
+                  className="flex-1 px-4 py-2 border border-reddit-border text-reddit-text rounded-lg hover:bg-reddit-cardHover transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isChangingPassword}
+                  className="flex-1 px-4 py-2 bg-reddit-blue text-white rounded-lg hover:bg-reddit-blue/90 transition-colors font-medium disabled:opacity-50 flex justify-center items-center"
+                >
+                  {isChangingPassword ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    "Save Changes"
+                  )}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

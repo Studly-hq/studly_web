@@ -51,3 +51,20 @@ export const logout = async () => {
     throw error;
   }
 };
+
+export const changePassword = async (email, oldPassword, newPassword) => {
+  try {
+    const response = await client.post("/auth/change-password", {
+      email,
+      old_password: oldPassword,
+      new_password: newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Change Password Error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
