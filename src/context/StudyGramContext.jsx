@@ -14,6 +14,7 @@ import {
   logout as apiLogout,
 } from "../api/auth"; // Importing API functions
 import { getProfile, updateProfile } from "../api/profile"; // Import profile service
+import { createPost as apiCreatePost } from "../api/contents"; // Import content service
 
 const StudyGramContext = createContext();
 
@@ -269,20 +270,43 @@ export const StudyGramProvider = ({ children }) => {
     setShowCreatePostModal(true);
   };
 
-  const createPost = (postData) => {
-    const newPost = {
-      id: `post-${Date.now()}`,
-      userId: currentUser.id,
-      timestamp: new Date().toISOString(),
-      likes: [],
-      likeCount: 0,
-      commentCount: 0,
-      bookmarkedBy: [],
-      ...postData,
-    };
+  const createPost = async (postData) => {
+    try {
+      // Prepare payload for API
+      // API expects { content, media }
+      // We will default media to an empty array or the placeholder if not provided,
+      // closely matching the curl example which expects the field to exist.
 
-    setPosts((prevPosts) => [newPost, ...prevPosts]);
-    setShowCreatePostModal(false);
+      const media =
+        postData.images && postData.images.length > 0
+          ? postData.images.map((img) => img.url)
+          : ["https://picsum.photos/200/300"]; // Default image as verified before
+
+      const payload = {
+        content: postData.content,
+        media: media,
+      };
+
+      const response = await apiCreatePost(payload);
+
+      const newPost = {
+        ...response,
+        user: currentUser,
+        // Ensure defaults if backend omits them
+        likes: response.likes || [],
+        likeCount: response.likeCount || 0,
+        commentCount: response.commentCount || 0,
+        bookmarkedBy: response.bookmarkedBy || [],
+        timestamp: response.timestamp || new Date().toISOString(),
+      };
+
+      setPosts((prevPosts) => [newPost, ...prevPosts]);
+      setShowCreatePostModal(false);
+      return newPost;
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      throw error;
+    }
   };
 
   // Comment Functions

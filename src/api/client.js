@@ -8,7 +8,6 @@ import axios from "axios";
  */
 const client = axios.create({
   // baseURL is removed because we are using a proxy in package.json
-  // Requesting '/auth/signup' will automatically forward to 'http://0.0.0.0:8080/auth/signup'
   headers: {
     "Content-Type": "application/json", // We are sending data in JSON format
   },

@@ -1,23 +1,37 @@
-import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Image, Type, Sparkles, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useStudyGram } from '../../context/StudyGramContext';
+import React, { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  X,
+  Image,
+  Type,
+  Sparkles,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { useStudyGram } from "../../context/StudyGramContext";
+import { toast } from "sonner";
 
 const CreatePostModal = () => {
-  const { showCreatePostModal, setShowCreatePostModal, createPost, currentUser } =
-    useStudyGram();
+  const {
+    showCreatePostModal,
+    setShowCreatePostModal,
+    createPost,
+    currentUser,
+  } = useStudyGram();
 
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
-  const [postType, setPostType] = useState('text'); // 'text', 'single-image', 'carousel'
+  const [postType, setPostType] = useState("text"); // 'text', 'single-image', 'carousel'
   const [previewIndex, setPreviewIndex] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleClose = () => {
     setShowCreatePostModal(false);
-    setContent('');
+    setContent("");
     setImages([]);
-    setPostType('text');
+    setPostType("text");
     setPreviewIndex(0);
   };
 
@@ -29,16 +43,16 @@ const CreatePostModal = () => {
     const newImages = files.map((file) => ({
       url: URL.createObjectURL(file),
       alt: file.name,
-      file
+      file,
     }));
 
     setImages((prev) => [...prev, ...newImages]);
 
     // Determine post type based on number of images
     if (images.length + newImages.length === 1) {
-      setPostType('single-image');
+      setPostType("single-image");
     } else if (images.length + newImages.length > 1) {
-      setPostType('carousel');
+      setPostType("carousel");
     }
   };
 
@@ -48,9 +62,9 @@ const CreatePostModal = () => {
 
     // Update post type
     if (newImages.length === 0) {
-      setPostType('text');
+      setPostType("text");
     } else if (newImages.length === 1) {
-      setPostType('single-image');
+      setPostType("single-image");
       setPreviewIndex(0);
     } else {
       if (previewIndex >= newImages.length) {
@@ -59,18 +73,28 @@ const CreatePostModal = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!content.trim() && images.length === 0) return;
+    if (isSubmitting) return;
 
-    const postData = {
-      type: postType,
-      content: content.trim(),
-      images: images.length > 0 ? images : undefined,
-      tags: extractHashtags(content)
-    };
+    setIsSubmitting(true);
+    try {
+      const postData = {
+        type: postType,
+        content: content.trim(),
+        images: images.length > 0 ? images : undefined,
+        tags: extractHashtags(content),
+      };
 
-    createPost(postData);
-    handleClose();
+      await createPost(postData);
+      toast.success("Post created successfully!");
+      handleClose();
+    } catch (error) {
+      console.error("Post creation error:", error);
+      toast.error(error.message || "Failed to create post. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const extractHashtags = (text) => {
@@ -106,8 +130,12 @@ const CreatePostModal = () => {
                 <Sparkles className="text-white" size={20} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-reddit-text">Create Post</h2>
-                <p className="text-reddit-textMuted text-sm">Share your knowledge</p>
+                <h2 className="text-xl font-bold text-reddit-text">
+                  Create Post
+                </h2>
+                <p className="text-reddit-textMuted text-sm">
+                  Share your knowledge
+                </p>
               </div>
             </div>
             <motion.button
@@ -129,8 +157,12 @@ const CreatePostModal = () => {
               className="w-12 h-12 rounded-full border-2 border-reddit-blue"
             />
             <div>
-              <h3 className="text-reddit-text font-semibold">{currentUser?.displayName}</h3>
-              <p className="text-reddit-textMuted text-sm">@{currentUser?.username}</p>
+              <h3 className="text-reddit-text font-semibold">
+                {currentUser?.displayName}
+              </h3>
+              <p className="text-reddit-textMuted text-sm">
+                @{currentUser?.username}
+              </p>
             </div>
           </div>
 
@@ -207,8 +239,8 @@ const CreatePostModal = () => {
                               onClick={() => setPreviewIndex(index)}
                               className={`h-2 rounded-full transition-all duration-300 ${
                                 index === previewIndex
-                                  ? 'bg-white w-6'
-                                  : 'bg-white/50 w-2'
+                                  ? "bg-white w-6"
+                                  : "bg-white/50 w-2"
                               }`}
                             />
                           ))}
@@ -265,14 +297,18 @@ const CreatePostModal = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                {postType === 'text' && <Type size={18} className="text-reddit-textMuted" />}
-                {postType === 'single-image' && (
+                {postType === "text" && (
+                  <Type size={18} className="text-reddit-textMuted" />
+                )}
+                {postType === "single-image" && (
                   <Image size={18} className="text-reddit-blue" />
                 )}
-                {postType === 'carousel' && (
+                {postType === "carousel" && (
                   <div className="flex items-center gap-1 text-reddit-blue">
                     <Image size={18} />
-                    <span className="text-xs font-medium">×{images.length}</span>
+                    <span className="text-xs font-medium">
+                      ×{images.length}
+                    </span>
                   </div>
                 )}
               </div>
@@ -280,22 +316,24 @@ const CreatePostModal = () => {
 
             <motion.button
               onClick={handleSubmit}
-              disabled={!content.trim() && images.length === 0}
+              disabled={
+                (!content.trim() && images.length === 0) || isSubmitting
+              }
               whileHover={{
                 scale: content.trim() || images.length > 0 ? 1.01 : 1,
-                y: content.trim() || images.length > 0 ? -1 : 0
+                y: content.trim() || images.length > 0 ? -1 : 0,
               }}
               whileTap={{
-                scale: content.trim() || images.length > 0 ? 0.99 : 1
+                scale: content.trim() || images.length > 0 ? 0.99 : 1,
               }}
               transition={{ duration: 0.2 }}
               className={`w-full py-3 rounded font-semibold transition-all duration-200 ${
-                content.trim() || images.length > 0
-                  ? 'bg-reddit-blue hover:bg-reddit-blue/90 text-white'
-                  : 'bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed'
+                (content.trim() || images.length > 0) && !isSubmitting
+                  ? "bg-reddit-blue hover:bg-reddit-blue/90 text-white"
+                  : "bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed"
               }`}
             >
-              Post
+              {isSubmitting ? "Posting..." : "Post"}
             </motion.button>
           </div>
         </motion.div>
