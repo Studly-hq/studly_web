@@ -38,9 +38,12 @@ const AuthModal = () => {
 
         toast.success("Logged in successfully!");
 
-        // Close modal and reset form
         setShowAuthModal(false);
         setFormData({ name: "", email: "", password: "" });
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 700);
       } else {
         // Signup is now asynchronous (real API)
         await signup(formData.name, formData.email, formData.password);

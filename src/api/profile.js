@@ -16,3 +16,19 @@ export const getProfile = async () => {
     throw error;
   }
 };
+
+export const updateProfile = async (currentUsername, profileData) => {
+  try {
+    const response = await client.put(
+      `/profile/profile?username=${currentUsername}`,
+      profileData
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Update Profile Error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

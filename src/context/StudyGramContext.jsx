@@ -13,7 +13,7 @@ import {
   login as apiLogin,
   logout as apiLogout,
 } from "../api/auth"; // Importing API functions
-import { getProfile } from "../api/profile"; // Import profile service
+import { getProfile, updateProfile } from "../api/profile"; // Import profile service
 
 const StudyGramContext = createContext();
 
@@ -166,6 +166,30 @@ export const StudyGramProvider = ({ children }) => {
     setIsAuthenticated(false);
     setCurrentUser(null);
     localStorage.removeItem("studly_auth");
+  };
+
+  const updateUser = async (updatedData) => {
+    try {
+      // We need the current username to identify which user to update
+      // (as per the API requirement: ?username=...)
+      const currentUsername = currentUser.username;
+
+      const response = await updateProfile(currentUsername, updatedData);
+
+      // Update local state with the new data
+      // We merge existing user data with the updates
+      const updatedUser = { ...currentUser, ...updatedData };
+      setCurrentUser(updatedUser);
+      localStorage.setItem(
+        "studly_auth",
+        JSON.stringify({ user: updatedUser })
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Update user failed:", error);
+      throw error;
+    }
   };
 
   // Action Replay System
@@ -423,6 +447,7 @@ export const StudyGramProvider = ({ children }) => {
     login,
     signup,
     logout,
+    updateUser,
     requireAuth,
 
     // Posts
