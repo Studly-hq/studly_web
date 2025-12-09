@@ -69,16 +69,10 @@ export const StudyGramProvider = ({ children }) => {
           return;
         }
       } catch (err) {
-        // If profile fetch fails (401), we are not logged in.
-        // Fallback: Check localStorage just in case we are offline or something,
-        // but for security, usually API is source of truth.
-        // For now, if API fails, we clear localStorage to stay in sync.
         console.log("No active session found.");
         localStorage.removeItem("studly_auth");
       }
 
-      // Old localStorage check (fallback or if we want to keep user logged in optimistically)
-      // For now, let's rely on the API check above primarily.
       /*
       const savedAuth = localStorage.getItem("studly_auth");
       if (savedAuth) {

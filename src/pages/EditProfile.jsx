@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Camera, Save, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
+import { toast } from "sonner";
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const EditProfile = () => {
     name: currentUser?.name || "",
     username: currentUser?.username || "",
     bio: currentUser?.bio || "",
-    avatar: currentUser?.avatar || "",
+    avatar: currentUser?.avatar_url || currentUser?.avatar || "",
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -37,8 +38,9 @@ const EditProfile = () => {
         name: formData.name,
         username: formData.username,
         bio: formData.bio,
-        // avatar: formData.avatar // API might not handle avatar string yet if it's not base64/url
+        avatar_url: formData.avatar,
       });
+      toast.success("Profile updated successfully!");
       navigate("/profile");
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -112,6 +114,7 @@ const EditProfile = () => {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                onClick={() => document.getElementById("avatarUpload").click()}
                 className="absolute bottom-0 right-0 p-2 md:p-3 bg-reddit-blue hover:bg-reddit-blue/90 rounded-full text-white transition-colors"
               >
                 <Camera size={18} className="md:w-5 md:h-5" />
@@ -129,7 +132,7 @@ const EditProfile = () => {
             </label>
             <input
               type="text"
-              name="displayName"
+              name="name"
               value={formData.name}
               onChange={handleChange}
               className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-blue transition-colors"
