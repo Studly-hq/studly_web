@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, Save, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import { toast } from "sonner";
+// import { uploadAvatar } from "../api/profile";
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const EditProfile = () => {
     name: currentUser?.name || "",
     username: currentUser?.username || "",
     bio: currentUser?.bio || "",
-    avatar: currentUser?.avatar_url || currentUser?.avatar || "",
+    // avatar: currentUser?.avatar_url || currentUser?.avatar || "",
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -31,6 +32,25 @@ const EditProfile = () => {
     }));
   };
 
+  // const handleFileSelect = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file) return;
+
+  //   // Create preview immediate feedback
+  //   const preview = URL.createObjectURL(file);
+  //   setFormData((prev) => ({ ...prev, avatar: preview }));
+
+  //   // Upload to backend
+  //   try {
+  //     const uploadedUrl = await uploadAvatar(file);
+  //     setFormData((prev) => ({ ...prev, avatar: uploadedUrl }));
+  //     toast.success("Image uploaded successfully!");
+  //   } catch (err) {
+  //     toast.error("Failed to upload image.");
+  //     console.error(err);
+  //   }
+  // };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -38,7 +58,7 @@ const EditProfile = () => {
         name: formData.name,
         username: formData.username,
         bio: formData.bio,
-        avatar_url: formData.avatar,
+        // avatar_url: formData.avatar,
       });
       toast.success("Profile updated successfully!");
       navigate("/profile");
@@ -112,13 +132,21 @@ const EditProfile = () => {
                 className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-blue"
               />
               <motion.button
+                onClick={() => document.getElementById("avatarUpload").click()}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => document.getElementById("avatarUpload").click()}
+                type="button"
                 className="absolute bottom-0 right-0 p-2 md:p-3 bg-reddit-blue hover:bg-reddit-blue/90 rounded-full text-white transition-colors"
               >
                 <Camera size={18} className="md:w-5 md:h-5" />
               </motion.button>
+              <input
+                id="avatarUpload"
+                type="file"
+                accept="image/*"
+                // onChange={handleFileSelect}
+                className="hidden"
+              />
             </div>
             <p className="text-xs md:text-sm text-reddit-textMuted text-center">
               Click the camera icon to change your profile picture
