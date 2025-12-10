@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Image as ImageIcon, Video, Code } from 'lucide-react';
+import { Code } from 'lucide-react';
 
 const MediaScene = ({ scene }) => {
   const { mediaType, url, alt, caption } = scene;

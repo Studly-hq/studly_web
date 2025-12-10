@@ -15,8 +15,7 @@ const SubjectCard = ({ topic, index = 0 }) => {
   // Get icon component
   const IconComponent = Icons[topic.icon] || Icons.BookOpen;
 
-  // Calculate total scenes
-  const totalScenes = topic.sections.reduce((sum, section) => sum + section.scenes.length, 0);
+  // Calculate total topics
   const totalTopics = topic.sections.length;
 
   // Difficulty badge colors

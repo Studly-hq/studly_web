@@ -20,43 +20,10 @@ const Settings = () => {
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const [settings, setSettings] = useState({
-    notifications: {
-      likes: true,
-      comments: true,
-      follows: true,
-      mentions: true,
-      email: false,
-    },
-    appearance: {
-      darkMode: true,
-      compactMode: false,
-    },
-    privacy: {
-      privateAccount: false,
-      showActivity: true,
-      allowMessages: true,
-    },
-    sound: {
-      notifications: true,
-      interactions: false,
-    },
-  });
-
   if (!isAuthenticated) {
     navigate("/");
     return null;
   }
-
-  const toggleSetting = (category, setting) => {
-    setSettings((prev) => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [setting]: !prev[category][setting],
-      },
-    }));
-  };
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
@@ -91,22 +58,6 @@ const Settings = () => {
     }
   };
 
-  const SettingToggle = ({ enabled, onChange }) => (
-    <motion.button
-      onClick={onChange}
-      className={`relative w-12 h-6 rounded-full transition-colors ${
-        enabled ? "bg-reddit-blue" : "bg-reddit-border"
-      }`}
-      whileTap={{ scale: 0.95 }}
-    >
-      <motion.div
-        className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full"
-        animate={{ x: enabled ? 24 : 0 }}
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      />
-    </motion.button>
-  );
-
   const SettingSection = ({ title, icon: Icon, children }) => (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-3">
@@ -118,27 +69,6 @@ const Settings = () => {
       <div className="bg-reddit-card rounded-xl border border-reddit-border divide-y divide-reddit-border">
         {children}
       </div>
-    </div>
-  );
-
-  const SettingItem = ({
-    label,
-    description,
-    enabled,
-    onChange,
-    showChevron,
-  }) => (
-    <div className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors">
-      <div className="flex-1">
-        <p className="text-reddit-text font-medium mb-1">{label}</p>
-        {description && (
-          <p className="text-sm text-reddit-textMuted">{description}</p>
-        )}
-      </div>
-      {onChange && <SettingToggle enabled={enabled} onChange={onChange} />}
-      {showChevron && (
-        <ChevronRight size={20} className="text-reddit-textMuted" />
-      )}
     </div>
   );
 

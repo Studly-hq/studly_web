@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Circle, Lock, ChevronDown, ChevronRight } from 'lucide-react';
+import { Check, Circle, ChevronDown, ChevronRight } from 'lucide-react';
 import { useCoursePlayer } from '../../../context/CoursePlayerContext';
 
 const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSceneClick, isOpen, onToggle }) => {

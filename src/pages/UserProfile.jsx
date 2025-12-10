@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Calendar,
-  Link as LinkIcon,
   Edit3,
   Flame,
   Trophy,
