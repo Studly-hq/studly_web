@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
+import { CoursePlayerProvider } from "./context/CoursePlayerContext";
 import Header from "./components/layout/Header";
 import LeftSidebar from "./components/layout/LeftSidebar";
 import RightSidebar from "./components/layout/RightSidebar";
@@ -18,6 +19,8 @@ import EditProfile from "./pages/EditProfile";
 import Settings from "./pages/Settings";
 import UploadNotes from "./pages/UploadNotes";
 import QuizFeed from "./pages/QuizFeed";
+import CourseBank from "./pages/CourseBank";
+import TopicPlayer from "./pages/TopicPlayer";
 
 import "./App.css";
 
@@ -61,14 +64,20 @@ function App() {
                   <RightSidebar />
                 </div>
 
-          {/* Modals */}
-          <AuthModal />
-          <CreatePostModal />
-          <CommentSection />
-        </div>
+                {/* Mobile Bottom Nav */}
+                <MobileBottomNav />
 
-        <Toaster position="top-right" richColors />
-      </Router>
+                {/* Modals */}
+                <AuthModal />
+                <CreatePostModal />
+                <CommentSection />
+
+                <Toaster position="top-right" richColors />
+              </div>
+            } />
+          </Routes>
+        </Router>
+      </CoursePlayerProvider>
     </StudyGramProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -44,7 +44,7 @@ const QuizFeed = () => {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setShowOptions(false);
     if (currentQuestionIndex < currentQuiz.questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -52,9 +52,9 @@ const QuizFeed = () => {
       setCurrentQuizIndex(prev => prev + 1);
       setCurrentQuestionIndex(0);
     }
-  };
+  }, [currentQuestionIndex, currentQuiz.questions.length, currentQuizIndex, quizzes.length]);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     setShowOptions(false);
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
@@ -63,7 +63,7 @@ const QuizFeed = () => {
       const prevQuiz = quizzes[currentQuizIndex - 1];
       setCurrentQuestionIndex(prevQuiz.questions.length - 1);
     }
-  };
+  }, [currentQuestionIndex, currentQuizIndex, quizzes]);
 
   const toggleOptions = () => {
     setShowOptions(prev => !prev);
@@ -88,7 +88,7 @@ const QuizFeed = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentQuizIndex, currentQuestionIndex, showOptions]);
+  }, [currentQuizIndex, currentQuestionIndex, showOptions, handleNext, handlePrevious, navigate]);
 
   // Improved scroll wheel navigation with debouncing
   useEffect(() => {
@@ -134,7 +134,7 @@ const QuizFeed = () => {
         if (scrollTimeout) clearTimeout(scrollTimeout);
       };
     }
-  }, [currentQuizIndex, currentQuestionIndex]);
+  }, [currentQuizIndex, currentQuestionIndex, handleNext, handlePrevious]);
 
   if (!currentQuiz) {
     return (

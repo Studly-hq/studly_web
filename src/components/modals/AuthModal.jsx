@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mail, Lock, User, Sparkles } from "lucide-react";
+import { X, Eye, EyeOff } from "lucide-react";
 import { useStudyGram } from "../../context/StudyGramContext";
 import { toast } from "sonner";
 
@@ -13,6 +13,7 @@ const AuthModal = () => {
   const [activeTab, setActiveTab] = useState("login");
   const [isLoading, setIsLoading] = useState(false); // Disable button while waiting
   const [error, setError] = useState(null); // Store error messages from the server
+  const [showPassword, setShowPassword] = useState(false); // Toggle password visibility
 
   const [formData, setFormData] = useState({
     name: "",

@@ -134,6 +134,7 @@ export const CoursePlayerProvider = ({ children }) => {
         score: progress[currentTopic.id]?.score || 0
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTopic, currentSectionIndex, currentSceneIndex, progress]);
 
   const previousScene = useCallback(() => {
@@ -167,6 +168,7 @@ export const CoursePlayerProvider = ({ children }) => {
     }));
 
     emitEvent('scene_completed', { sceneId, topicId: currentTopic.id });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTopic]);
 
   // Handle quiz submission
@@ -209,7 +211,23 @@ export const CoursePlayerProvider = ({ children }) => {
     });
 
     return { isCorrect, points };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTopic, currentSectionIndex, currentSceneIndex]);
+
+  // Sync events (placeholder - implement API call)
+  const syncEvents = useCallback(async () => {
+    if (eventQueue.length === 0) return;
+
+    try {
+      // TODO: Implement API call to sync events
+      // await fetch('/api/player/event', { method: 'POST', body: JSON.stringify(eventQueue) });
+
+      // Clear queue on success
+      setEventQueue([]);
+    } catch (error) {
+      console.error('Failed to sync events:', error);
+    }
+  }, [eventQueue]);
 
   // Event emission
   const emitEvent = useCallback((eventType, data) => {
@@ -226,22 +244,7 @@ export const CoursePlayerProvider = ({ children }) => {
     if (navigator.onLine) {
       syncEvents();
     }
-  }, []);
-
-  // Sync events (placeholder - implement API call)
-  const syncEvents = useCallback(async () => {
-    if (eventQueue.length === 0) return;
-
-    try {
-      // TODO: Implement API call to sync events
-      // await fetch('/api/player/event', { method: 'POST', body: JSON.stringify(eventQueue) });
-
-      // Clear queue on success
-      setEventQueue([]);
-    } catch (error) {
-      console.error('Failed to sync events:', error);
-    }
-  }, [eventQueue]);
+  }, [syncEvents]);
 
   // Notes management
   const saveNotes = useCallback((topicId, noteContent) => {

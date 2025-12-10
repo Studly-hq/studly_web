@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCoursePlayer } from '../../../context/CoursePlayerContext';
 import TextScene from './TextScene';

@@ -18,7 +18,6 @@ import { useStudyGram } from '../../context/StudyGramContext';
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
   const {
-    isAuthenticated,
     currentUser,
     handleLikePost,
     handleBookmarkPost,

@@ -4,7 +4,6 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import 'katex/dist/katex.min.css';
-import { InlineMath, BlockMath } from 'react-katex';
 
 const TextScene = ({ content, typedContent, showCursor, isTyping }) => {
   const containerRef = useRef(null);

@@ -4,7 +4,6 @@ import {
   Settings,
   LogOut,
   Bookmark,
-  BookOpen,
   Upload,
   Edit3,
   Flame,

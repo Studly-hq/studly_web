@@ -1,20 +1,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Search,
   Plus,
   Bell,
-  X,
-  Home,
-  Compass,
-  TrendingUp
+  X
 } from 'lucide-react';
 import { useStudyGram } from '../../context/StudyGramContext';
 
 const Header = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const {
     isAuthenticated,
     currentUser,
@@ -22,14 +18,7 @@ const Header = () => {
     setShowAuthModal
   } = useStudyGram();
 
-  const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
-  const navTabs = [
-    { icon: Home, label: 'For You', id: 'for-you', path: '/' },
-    { icon: Compass, label: 'Explore', id: 'explore', path: '/explore' },
-    { icon: TrendingUp, label: 'Trending', id: 'trending', path: '/trending', disabled: true }
-  ];
 
   return (
     <motion.header

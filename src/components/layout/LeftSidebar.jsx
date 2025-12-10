@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, BookOpen, User, Brain, PlayCircle } from 'lucide-react';
+import { Home, Compass, User, PlayCircle } from 'lucide-react';
 import { useCoursePlayer } from '../../context/CoursePlayerContext';
 
 const LeftSidebar = () => {

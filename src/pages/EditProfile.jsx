@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Camera, Save, X } from "lucide-react";
+import { ArrowLeft, Camera, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import { toast } from "sonner";
