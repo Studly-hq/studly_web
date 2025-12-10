@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, BookOpen, User, Brain } from 'lucide-react';
+import { Home, Compass, BookOpen, User, Brain, PlayCircle } from 'lucide-react';
+import { useCoursePlayer } from '../../context/CoursePlayerContext';
 
 const LeftSidebar = () => {
   const location = useLocation();
+  const { hasAnyProgress } = useCoursePlayer();
 
   const navItems = [
     {
@@ -19,18 +21,15 @@ const LeftSidebar = () => {
       id: 'explore'
     },
     {
-      icon: BookOpen,
-      label: 'Course Bank',
-      path: '/courses',
-      id: 'course-bank'
-    },
-    {
       icon: User,
       label: 'Profile',
       path: '/profile',
       id: 'profile'
     }
   ];
+
+  const isCourseActive = location.pathname.startsWith('/courses');
+  const courseButtonLabel = hasAnyProgress() ? 'Continue Course' : 'Take a Course';
 
   return (
     <motion.aside
@@ -40,6 +39,7 @@ const LeftSidebar = () => {
       className="hidden lg:flex flex-col w-60 bg-reddit-bg border-r border-reddit-border h-screen sticky top-0 pt-16"
     >
       <div className="flex flex-col gap-1 p-3 pt-4">
+        {/* Regular nav items */}
         {navItems.map((item, index) => {
           const isActive = location.pathname === item.path;
           const Component = item.disabled ? 'div' : Link;
@@ -78,6 +78,47 @@ const LeftSidebar = () => {
             </motion.div>
           );
         })}
+
+        {/* Divider */}
+        <div className="h-px bg-reddit-border my-2" />
+
+        {/* Dynamic Course Button */}
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: navItems.length * 0.05, duration: 0.2 }}
+        >
+          <Link to="/courses">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`
+                flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold
+                transition-all duration-200 border-2
+                ${isCourseActive
+                  ? 'bg-reddit-orange text-white border-reddit-orange shadow-lg'
+                  : 'bg-reddit-orange/10 text-reddit-orange border-reddit-orange/30 hover:bg-reddit-orange hover:text-white hover:border-reddit-orange'
+                }
+              `}
+            >
+              <PlayCircle size={18} />
+              <span>{courseButtonLabel}</span>
+            </motion.div>
+          </Link>
+        </motion.div>
+
+        {/* Optional: Course progress indicator */}
+        {hasAnyProgress() && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="mt-2 px-3 py-2 bg-reddit-card/50 rounded-lg border border-reddit-border"
+          >
+            <p className="text-xs text-reddit-placeholder text-center">
+              Continue learning where you left off
+            </p>
+          </motion.div>
+        )}
       </div>
     </motion.aside>
   );
