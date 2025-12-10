@@ -24,37 +24,42 @@ import "./App.css";
 function App() {
   return (
     <StudyGramProvider>
-      <Router>
-        <div className="min-h-screen bg-reddit-bg text-reddit-text">
-          {/* Header */}
-          <Header />
+      <CoursePlayerProvider>
+        <Router>
+          <Routes>
+            {/* Course Bank routes (full screen, no header/sidebars) */}
+            <Route path="/courses" element={<CourseBank />} />
+            <Route path="/courses/:topicId" element={<TopicPlayer />} />
 
-          {/* Main Layout - Three Column */}
-          <div className="flex">
-            {/* Left Sidebar */}
-            <LeftSidebar />
+            {/* Main app routes (with header and sidebars) */}
+            <Route path="/*" element={
+              <div className="min-h-screen bg-reddit-bg text-reddit-text">
+                {/* Header */}
+                <Header />
 
-            {/* Center Content - Routes */}
-            <main className="flex-1 pt-16 pb-20 lg:pb-0">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/explore" element={<Explore />} />
-                <Route path="/saved" element={<SavedPosts />} />
-                <Route path="/upload" element={<UploadNotes />} />
-                <Route path="/quiz-feed" element={<QuizFeed />} />
-                <Route path="/profile" element={<UserProfile />} />
-                <Route path="/profile/:userId" element={<UserProfile />} />
-                <Route path="/profile/edit" element={<EditProfile />} />
-                <Route path="/settings" element={<Settings />} />
-              </Routes>
-            </main>
+                {/* Main Layout - Three Column */}
+                <div className="flex">
+                  {/* Left Sidebar */}
+                  <LeftSidebar />
 
-            {/* Right Sidebar */}
-            <RightSidebar />
-          </div>
+                  {/* Center Content - Routes */}
+                  <main className="flex-1 pt-16 pb-20 lg:pb-0">
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/explore" element={<Explore />} />
+                      <Route path="/saved" element={<SavedPosts />} />
+                      <Route path="/upload" element={<UploadNotes />} />
+                      <Route path="/quiz-feed" element={<QuizFeed />} />
+                      <Route path="/profile" element={<UserProfile />} />
+                      <Route path="/profile/edit" element={<EditProfile />} />
+                      <Route path="/profile/:userId" element={<UserProfile />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Routes>
+                  </main>
 
-          {/* Mobile Bottom Navigation */}
-          <MobileBottomNav />
+                  {/* Right Sidebar */}
+                  <RightSidebar />
+                </div>
 
           {/* Modals */}
           <AuthModal />

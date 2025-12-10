@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, MoreHorizontal, Edit3, Trash2, Flag } from 'lucide-react';
 import { useStudyGram } from '../../context/StudyGramContext';
 import { getUserById } from '../../data/studygramData';
 
 const Comment = ({ comment, postId, isReply = false, onReply }) => {
+  const navigate = useNavigate();
   const { currentUser, handleLikeComment, requireAuth } = useStudyGram();
   const [showReplies, setShowReplies] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
@@ -82,6 +84,7 @@ const Comment = ({ comment, postId, isReply = false, onReply }) => {
         <motion.img
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.2 }}
+          onClick={() => navigate(`/profile/${comment.userId}`)}
           src={commentUser?.avatar}
           alt={commentUser?.displayName}
           className="w-8 h-8 rounded-full border border-reddit-border cursor-pointer flex-shrink-0"
@@ -92,7 +95,10 @@ const Comment = ({ comment, postId, isReply = false, onReply }) => {
           <div className="bg-reddit-cardHover rounded px-3 py-2">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
-                <span className="text-reddit-text font-semibold text-sm hover:text-reddit-blue cursor-pointer transition-colors duration-200">
+                <span
+                  onClick={() => navigate(`/profile/${comment.userId}`)}
+                  className="text-reddit-text font-semibold text-sm hover:text-reddit-blue cursor-pointer transition-colors duration-200"
+                >
                   {commentUser?.displayName}
                 </span>
                 <span className="text-reddit-textMuted text-xs">

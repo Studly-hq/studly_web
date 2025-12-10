@@ -188,15 +188,24 @@ const AuthModal = () => {
               <label className="block text-reddit-text text-sm font-semibold mb-2">
                 Password
               </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                required
-                className="w-full bg-reddit-input border border-reddit-border rounded-lg px-4 py-2.5 text-reddit-text text-sm placeholder-reddit-textMuted outline-none focus:border-reddit-blue focus:ring-2 focus:ring-reddit-blue/20 transition-all"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  required
+                  className="w-full bg-reddit-input border border-reddit-border rounded-lg pl-4 pr-10 py-2.5 text-reddit-text text-sm placeholder-reddit-textMuted outline-none focus:border-reddit-blue focus:ring-2 focus:ring-reddit-blue/20 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-reddit-textMuted hover:text-reddit-text transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             {activeTab === "login" && (

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Heart,
   MessageCircle,
@@ -15,6 +16,7 @@ import {
 import { useStudyGram } from '../../context/StudyGramContext';
 
 const PostCard = ({ post }) => {
+  const navigate = useNavigate();
   const {
     isAuthenticated,
     currentUser,
@@ -115,7 +117,7 @@ const PostCard = ({ post }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-      className="bg-reddit-card border border-reddit-border rounded-md overflow-hidden hover:border-reddit-textMuted transition-colors"
+      className="bg-reddit-card border border-reddit-border rounded-md overflow-hidden  transition-colors"
     >
       {/* Post Header - Reddit Style */}
       <div className="flex items-center justify-between px-3 py-2">
@@ -123,12 +125,16 @@ const PostCard = ({ post }) => {
           <motion.img
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
+            onClick={() => navigate(`/profile/${post.userId}`)}
             src={post.user.avatar}
             alt={post.user.displayName}
             className="w-6 h-6 rounded-full cursor-pointer"
           />
           <div className="flex items-center gap-1.5 text-xs">
-            <h3 className="text-reddit-text font-bold hover:underline cursor-pointer">
+            <h3
+              onClick={() => navigate(`/profile/${post.userId}`)}
+              className="text-reddit-text font-bold hover:underline cursor-pointer"
+            >
               @{post.user.username}
             </h3>
             <span className="text-reddit-textMuted">·</span>
