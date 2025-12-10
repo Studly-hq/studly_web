@@ -277,14 +277,11 @@ export const StudyGramProvider = ({ children }) => {
       // We will default media to an empty array or the placeholder if not provided,
       // closely matching the curl example which expects the field to exist.
 
-      const media =
-        postData.images && postData.images.length > 0
-          ? postData.images.map((img) => img.url)
-          : ["https://picsum.photos/200/300"]; // Default image as verified before
+      const media = postData.images ? postData.images.map((i) => i.url) : []; // Send undefined to omit field from JSON
 
       const payload = {
         content: postData.content,
-        media: media,
+        media: postData.media?.length > 0 ? postData.media : ["placeholder"],
       };
 
       const response = await apiCreatePost(payload);
