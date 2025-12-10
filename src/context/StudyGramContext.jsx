@@ -1,20 +1,26 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   mockUsers,
   mockPosts,
   mockComments,
   getFeedPosts,
   getCommentsForPost,
-  getUserById
-} from '../data/studygramData';
-import { mockQuizzes } from '../data/quizData';
+  getUserById,
+} from "../data/studygramData";
+import { mockQuizzes } from "../data/quizData";
+import {
+  signup as apiSignup,
+  login as apiLogin,
+  logout as apiLogout,
+} from "../api/auth"; // Importing API functions
+import { getProfile, updateProfile } from "../api/profile"; // Import profile service
 
 const StudyGramContext = createContext();
 
 export const useStudyGram = () => {
   const context = useContext(StudyGramContext);
   if (!context) {
-    throw new Error('useStudyGram must be used within StudyGramProvider');
+    throw new Error("useStudyGram must be used within StudyGramProvider");
   }
   return context;
 };
@@ -44,64 +50,140 @@ export const StudyGramProvider = ({ children }) => {
   // Mobile State
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Initialize - simulate checking for saved session
+  // Initialize - Check for session
   useEffect(() => {
-    const savedAuth = localStorage.getItem('studly_auth');
-    if (savedAuth) {
-      const authData = JSON.parse(savedAuth);
-      setIsAuthenticated(true);
-      setCurrentUser(authData.user);
-    }
+    const checkAuth = async () => {
+      try {
+        // 1. Try to get profile from backend (this handles Google Login return where cookie/session is set)
+        // If we have a session cookie, this will work.
+        const userProfile = await getProfile();
+
+        if (userProfile) {
+          console.log("Session found:", userProfile);
+          // Assuming userProfile is the user object, or has a 'user' property
+          const user = userProfile.user || userProfile;
+
+          setIsAuthenticated(true);
+          setCurrentUser(user);
+          localStorage.setItem("studly_auth", JSON.stringify({ user }));
+          return;
+        }
+      } catch (err) {
+        console.log("No active session found.");
+        localStorage.removeItem("studly_auth");
+      }
+
+      /*
+      const savedAuth = localStorage.getItem("studly_auth");
+      if (savedAuth) {
+        const authData = JSON.parse(savedAuth);
+        setIsAuthenticated(true);
+        setCurrentUser(authData.user);
+      }
+      */
+    };
+
+    checkAuth();
   }, []);
 
   // Auth Functions
-  const login = (email, password) => {
-    // Mock login - just set current user
-    const user = mockUsers.currentUser;
-    setCurrentUser(user);
-    setIsAuthenticated(true);
-    localStorage.setItem('studly_auth', JSON.stringify({ user }));
+  const login = async (email, password) => {
+    try {
+      const data = await apiLogin(email, password);
 
-    // Replay pending action if exists
-    if (pendingAction) {
-      replayAction(pendingAction);
-      setPendingAction(null);
+      // Assuming data contains user info. If it contains a token, store it.
+      // For now, let's log what we get to ensure we structure it right.
+      console.log("Login successful, data:", data);
+
+      // If the backend returns a user object directly or nested:
+      // Adjust this based on actual response structure.
+      // Falling back to mock-like structure if needed but using returned data properties.
+      const user = {
+        ...mockUsers.currentUser, // Fallback for missing fields like 'avatar'
+        ...data.user, // Overwrite with real data if exists
+        email: email, // Ensure email is correct
+      };
+
+      setCurrentUser(user);
+      setIsAuthenticated(true);
+      localStorage.setItem("studly_auth", JSON.stringify({ user }));
+
+      // Replay pending action if exists
+      if (pendingAction) {
+        replayAction(pendingAction);
+        setPendingAction(null);
+      }
+
+      // Restore scroll position
+      if (scrollPosition) {
+        setTimeout(() => {
+          window.scrollTo(0, scrollPosition);
+        }, 100);
+      }
+
+      setShowAuthModal(false);
+      return data;
+    } catch (error) {
+      console.error("Login failed context:", error);
+      throw error;
     }
-
-    // Restore scroll position
-    if (scrollPosition) {
-      setTimeout(() => {
-        window.scrollTo(0, scrollPosition);
-      }, 100);
-    }
-
-    setShowAuthModal(false);
   };
 
-  const signup = (name, email, password) => {
-    // Mock signup
-    const newUser = {
-      ...mockUsers.currentUser,
-      displayName: name,
-      username: name.toLowerCase().replace(/\s+/g, '_')
-    };
-    setCurrentUser(newUser);
-    setIsAuthenticated(true);
-    localStorage.setItem('studly_auth', JSON.stringify({ user: newUser }));
+  /*
+   * Signup Function
+   * Changed to use the real API 'apiSignup' we imported.
+   */
+  const signup = async (name, email, password) => {
+    try {
+      // 1. Signup
+      await apiSignup(email, password);
 
-    // Replay pending action
-    if (pendingAction) {
-      replayAction(pendingAction);
-      setPendingAction(null);
+      // 2. Auto-login removed per user request.
+      // User must login manually after signup.
+      // await login(email, password);
+
+      return true;
+    } catch (error) {
+      console.error("Signup/Auto-login failed:", error);
+      throw error;
     }
-
-    setShowAuthModal(false);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call API to destroy session on server
+      await apiLogout();
+    } catch (error) {
+      console.error("Logout failed on server:", error);
+    }
+
     setIsAuthenticated(false);
     setCurrentUser(null);
-    localStorage.removeItem('studly_auth');
+    localStorage.removeItem("studly_auth");
+  };
+
+  const updateUser = async (updatedData) => {
+    try {
+      // We need the current username to identify which user to update
+      // (as per the API requirement: ?username=...)
+      const currentUsername = currentUser.username;
+
+      const response = await updateProfile(currentUsername, updatedData);
+
+      // Update local state with the new data
+      // We merge existing user data with the updates
+      const updatedUser = { ...currentUser, ...updatedData };
+      setCurrentUser(updatedUser);
+      localStorage.setItem(
+        "studly_auth",
+        JSON.stringify({ user: updatedUser })
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Update user failed:", error);
+      throw error;
+    }
   };
 
   // Action Replay System
@@ -117,19 +199,19 @@ export const StudyGramProvider = ({ children }) => {
 
   const replayAction = (action) => {
     switch (action.type) {
-      case 'like':
+      case "like":
         handleLikePost(action.postId, true);
         break;
-      case 'comment':
+      case "comment":
         setShowComments(action.postId);
         break;
-      case 'bookmark':
+      case "bookmark":
         handleBookmarkPost(action.postId, true);
         break;
-      case 'create':
+      case "create":
         setShowCreatePostModal(true);
         break;
-      case 'like-comment':
+      case "like-comment":
         handleLikeComment(action.commentId, action.postId, true);
         break;
       default:
@@ -139,18 +221,18 @@ export const StudyGramProvider = ({ children }) => {
 
   // Post Functions
   const handleLikePost = (postId, skipAuth = false) => {
-    if (!skipAuth && !requireAuth({ type: 'like', postId })) return;
+    if (!skipAuth && !requireAuth({ type: "like", postId })) return;
 
-    setPosts(prevPosts =>
-      prevPosts.map(post => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
         if (post.id === postId) {
           const hasLiked = post.likes.includes(currentUser.id);
           return {
             ...post,
             likes: hasLiked
-              ? post.likes.filter(id => id !== currentUser.id)
+              ? post.likes.filter((id) => id !== currentUser.id)
               : [...post.likes, currentUser.id],
-            likeCount: hasLiked ? post.likeCount - 1 : post.likeCount + 1
+            likeCount: hasLiked ? post.likeCount - 1 : post.likeCount + 1,
           };
         }
         return post;
@@ -159,17 +241,17 @@ export const StudyGramProvider = ({ children }) => {
   };
 
   const handleBookmarkPost = (postId, skipAuth = false) => {
-    if (!skipAuth && !requireAuth({ type: 'bookmark', postId })) return;
+    if (!skipAuth && !requireAuth({ type: "bookmark", postId })) return;
 
-    setPosts(prevPosts =>
-      prevPosts.map(post => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
         if (post.id === postId) {
           const hasBookmarked = post.bookmarkedBy.includes(currentUser.id);
           return {
             ...post,
             bookmarkedBy: hasBookmarked
-              ? post.bookmarkedBy.filter(id => id !== currentUser.id)
-              : [...post.bookmarkedBy, currentUser.id]
+              ? post.bookmarkedBy.filter((id) => id !== currentUser.id)
+              : [...post.bookmarkedBy, currentUser.id],
           };
         }
         return post;
@@ -178,12 +260,12 @@ export const StudyGramProvider = ({ children }) => {
   };
 
   const handleCommentClick = (postId) => {
-    if (!requireAuth({ type: 'comment', postId })) return;
+    if (!requireAuth({ type: "comment", postId })) return;
     setShowComments(postId);
   };
 
   const handleCreatePost = () => {
-    if (!requireAuth({ type: 'create' })) return;
+    if (!requireAuth({ type: "create" })) return;
     setShowCreatePostModal(true);
   };
 
@@ -196,28 +278,29 @@ export const StudyGramProvider = ({ children }) => {
       likeCount: 0,
       commentCount: 0,
       bookmarkedBy: [],
-      ...postData
+      ...postData,
     };
 
-    setPosts(prevPosts => [newPost, ...prevPosts]);
+    setPosts((prevPosts) => [newPost, ...prevPosts]);
     setShowCreatePostModal(false);
   };
 
   // Comment Functions
   const handleLikeComment = (commentId, postId, skipAuth = false) => {
-    if (!skipAuth && !requireAuth({ type: 'like-comment', commentId, postId })) return;
+    if (!skipAuth && !requireAuth({ type: "like-comment", commentId, postId }))
+      return;
 
-    setComments(prevComments => {
+    setComments((prevComments) => {
       const postComments = prevComments[postId] || [];
-      const updatedComments = postComments.map(comment => {
+      const updatedComments = postComments.map((comment) => {
         if (comment.id === commentId) {
           const hasLiked = comment.likes.includes(currentUser.id);
           return {
             ...comment,
             likes: hasLiked
-              ? comment.likes.filter(id => id !== currentUser.id)
+              ? comment.likes.filter((id) => id !== currentUser.id)
               : [...comment.likes, currentUser.id],
-            likeCount: hasLiked ? comment.likeCount - 1 : comment.likeCount + 1
+            likeCount: hasLiked ? comment.likeCount - 1 : comment.likeCount + 1,
           };
         }
 
@@ -225,19 +308,21 @@ export const StudyGramProvider = ({ children }) => {
         if (comment.replies && comment.replies.length > 0) {
           return {
             ...comment,
-            replies: comment.replies.map(reply => {
+            replies: comment.replies.map((reply) => {
               if (reply.id === commentId) {
                 const hasLiked = reply.likes.includes(currentUser.id);
                 return {
                   ...reply,
                   likes: hasLiked
-                    ? reply.likes.filter(id => id !== currentUser.id)
+                    ? reply.likes.filter((id) => id !== currentUser.id)
                     : [...reply.likes, currentUser.id],
-                  likeCount: hasLiked ? reply.likeCount - 1 : reply.likeCount + 1
+                  likeCount: hasLiked
+                    ? reply.likeCount - 1
+                    : reply.likeCount + 1,
                 };
               }
               return reply;
-            })
+            }),
           };
         }
 
@@ -246,7 +331,7 @@ export const StudyGramProvider = ({ children }) => {
 
       return {
         ...prevComments,
-        [postId]: updatedComments
+        [postId]: updatedComments,
       };
     });
   };
@@ -261,39 +346,39 @@ export const StudyGramProvider = ({ children }) => {
       timestamp: new Date().toISOString(),
       likes: [],
       likeCount: 0,
-      replies: []
+      replies: [],
     };
 
-    setComments(prevComments => {
+    setComments((prevComments) => {
       const postComments = prevComments[postId] || [];
 
       if (parentId) {
         // Add as reply
-        const updatedComments = postComments.map(comment => {
+        const updatedComments = postComments.map((comment) => {
           if (comment.id === parentId) {
             return {
               ...comment,
-              replies: [...(comment.replies || []), newComment]
+              replies: [...(comment.replies || []), newComment],
             };
           }
           return comment;
         });
         return {
           ...prevComments,
-          [postId]: updatedComments
+          [postId]: updatedComments,
         };
       } else {
         // Add as top-level comment
         return {
           ...prevComments,
-          [postId]: [...postComments, newComment]
+          [postId]: [...postComments, newComment],
         };
       }
     });
 
     // Update comment count on post
-    setPosts(prevPosts =>
-      prevPosts.map(post =>
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
         post.id === postId
           ? { ...post, commentCount: post.commentCount + 1 }
           : post
@@ -303,18 +388,18 @@ export const StudyGramProvider = ({ children }) => {
 
   // Quiz Functions
   const handleLikeQuiz = (quizId, skipAuth = false) => {
-    if (!skipAuth && !requireAuth({ type: 'like-quiz', quizId })) return;
+    if (!skipAuth && !requireAuth({ type: "like-quiz", quizId })) return;
 
-    setQuizzes(prevQuizzes =>
-      prevQuizzes.map(quiz => {
+    setQuizzes((prevQuizzes) =>
+      prevQuizzes.map((quiz) => {
         if (quiz.id === quizId) {
           const hasLiked = quiz.likes.includes(currentUser.id);
           return {
             ...quiz,
             likes: hasLiked
-              ? quiz.likes.filter(id => id !== currentUser.id)
+              ? quiz.likes.filter((id) => id !== currentUser.id)
               : [...quiz.likes, currentUser.id],
-            likeCount: hasLiked ? quiz.likeCount - 1 : quiz.likeCount + 1
+            likeCount: hasLiked ? quiz.likeCount - 1 : quiz.likeCount + 1,
           };
         }
         return quiz;
@@ -323,17 +408,17 @@ export const StudyGramProvider = ({ children }) => {
   };
 
   const handleSaveQuiz = (quizId, skipAuth = false) => {
-    if (!skipAuth && !requireAuth({ type: 'save-quiz', quizId })) return;
+    if (!skipAuth && !requireAuth({ type: "save-quiz", quizId })) return;
 
-    setQuizzes(prevQuizzes =>
-      prevQuizzes.map(quiz => {
+    setQuizzes((prevQuizzes) =>
+      prevQuizzes.map((quiz) => {
         if (quiz.id === quizId) {
           const hasSaved = quiz.savedBy.includes(currentUser.id);
           return {
             ...quiz,
             savedBy: hasSaved
-              ? quiz.savedBy.filter(id => id !== currentUser.id)
-              : [...quiz.savedBy, currentUser.id]
+              ? quiz.savedBy.filter((id) => id !== currentUser.id)
+              : [...quiz.savedBy, currentUser.id],
           };
         }
         return quiz;
@@ -343,9 +428,9 @@ export const StudyGramProvider = ({ children }) => {
 
   // Get feed posts with user data
   const feedPosts = posts
-    .map(post => ({
+    .map((post) => ({
       ...post,
-      user: getUserById(post.userId)
+      user: getUserById(post.userId),
     }))
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
@@ -356,6 +441,7 @@ export const StudyGramProvider = ({ children }) => {
     login,
     signup,
     logout,
+    updateUser,
     requireAuth,
 
     // Posts
@@ -387,7 +473,7 @@ export const StudyGramProvider = ({ children }) => {
     showComments,
     setShowComments,
     isMobileMenuOpen,
-    setIsMobileMenuOpen
+    setIsMobileMenuOpen,
   };
 
   return (

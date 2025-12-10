@@ -1,27 +1,25 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { StudyGramProvider } from './context/StudyGramContext';
-import { CoursePlayerProvider } from './context/CoursePlayerContext';
-import Header from './components/layout/Header';
-import LeftSidebar from './components/layout/LeftSidebar';
-import RightSidebar from './components/layout/RightSidebar';
-import MobileBottomNav from './components/layout/MobileBottomNav';
-import AuthModal from './components/modals/AuthModal';
-import CreatePostModal from './components/modals/CreatePostModal';
-import CommentSection from './components/comments/CommentSection';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { StudyGramProvider } from "./context/StudyGramContext";
+import Header from "./components/layout/Header";
+import LeftSidebar from "./components/layout/LeftSidebar";
+import RightSidebar from "./components/layout/RightSidebar";
+import MobileBottomNav from "./components/layout/MobileBottomNav";
+import AuthModal from "./components/modals/AuthModal";
+import CreatePostModal from "./components/modals/CreatePostModal";
+import CommentSection from "./components/comments/CommentSection";
+import { Toaster } from "sonner";
 
 // Pages
-import Home from './pages/Home';
-import Explore from './pages/Explore';
-import SavedPosts from './pages/SavedPosts';
-import UserProfile from './pages/UserProfile';
-import EditProfile from './pages/EditProfile';
-import Settings from './pages/Settings';
-import UploadNotes from './pages/UploadNotes';
-import QuizFeed from './pages/QuizFeed';
-import CourseBank from './pages/CourseBank';
-import TopicPlayer from './pages/TopicPlayer';
+import Home from "./pages/Home";
+import Explore from "./pages/Explore";
+import SavedPosts from "./pages/SavedPosts";
+import UserProfile from "./pages/UserProfile";
+import EditProfile from "./pages/EditProfile";
+import Settings from "./pages/Settings";
+import UploadNotes from "./pages/UploadNotes";
+import QuizFeed from "./pages/QuizFeed";
 
-import './App.css';
+import "./App.css";
 
 function App() {
   return (
@@ -63,18 +61,14 @@ function App() {
                   <RightSidebar />
                 </div>
 
-                {/* Mobile Bottom Navigation */}
-                <MobileBottomNav />
+          {/* Modals */}
+          <AuthModal />
+          <CreatePostModal />
+          <CommentSection />
+        </div>
 
-                {/* Modals */}
-                <AuthModal />
-                <CreatePostModal />
-                <CommentSection />
-              </div>
-            } />
-          </Routes>
-        </Router>
-      </CoursePlayerProvider>
+        <Toaster position="top-right" richColors />
+      </Router>
     </StudyGramProvider>
   );
 }

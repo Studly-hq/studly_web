@@ -1,46 +1,77 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Camera, Save, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useStudyGram } from '../context/StudyGramContext';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Camera, Save, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useStudyGram } from "../context/StudyGramContext";
+import { toast } from "sonner";
+// import { uploadAvatar } from "../api/profile";
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated } = useStudyGram();
+  const { currentUser, isAuthenticated, updateUser } = useStudyGram();
 
   const [formData, setFormData] = useState({
-    displayName: currentUser?.displayName || '',
-    username: currentUser?.username || '',
-    bio: currentUser?.bio || '',
-    avatar: currentUser?.avatar || ''
+    name: currentUser?.name || "",
+    username: currentUser?.username || "",
+    bio: currentUser?.bio || "",
+    // avatar: currentUser?.avatar_url || currentUser?.avatar || "",
   });
 
   const [isSaving, setIsSaving] = useState(false);
 
   if (!isAuthenticated) {
-    navigate('/');
+    navigate("/");
     return null;
   }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
+  // const handleFileSelect = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file) return;
+
+  //   // Create preview immediate feedback
+  //   const preview = URL.createObjectURL(file);
+  //   setFormData((prev) => ({ ...prev, avatar: preview }));
+
+  //   // Upload to backend
+  //   try {
+  //     const uploadedUrl = await uploadAvatar(file);
+  //     setFormData((prev) => ({ ...prev, avatar: uploadedUrl }));
+  //     toast.success("Image uploaded successfully!");
+  //   } catch (err) {
+  //     toast.error("Failed to upload image.");
+  //     console.error(err);
+  //   }
+  // };
+
   const handleSave = async () => {
     setIsSaving(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    // TODO: Update user profile in context
-    navigate('/profile');
+    try {
+      await updateUser({
+        name: formData.name,
+        username: formData.username,
+        bio: formData.bio,
+        // avatar_url: formData.avatar,
+      });
+      toast.success("Profile updated successfully!");
+      navigate("/profile");
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      alert("Failed to update profile. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
-    navigate('/profile');
+    navigate("/profile");
   };
 
   return (
@@ -58,7 +89,9 @@ const EditProfile = () => {
               >
                 <ArrowLeft size={20} className="text-reddit-text" />
               </motion.button>
-              <h1 className="text-xl font-bold text-reddit-text">Edit Profile</h1>
+              <h1 className="text-xl font-bold text-reddit-text">
+                Edit Profile
+              </h1>
             </div>
             <motion.button
               onClick={handleSave}
@@ -99,14 +132,25 @@ const EditProfile = () => {
                 className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-blue"
               />
               <motion.button
+                onClick={() => document.getElementById("avatarUpload").click()}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                type="button"
                 className="absolute bottom-0 right-0 p-2 md:p-3 bg-reddit-blue hover:bg-reddit-blue/90 rounded-full text-white transition-colors"
               >
                 <Camera size={18} className="md:w-5 md:h-5" />
               </motion.button>
+              <input
+                id="avatarUpload"
+                type="file"
+                accept="image/*"
+                // onChange={handleFileSelect}
+                className="hidden"
+              />
             </div>
-            <p className="text-xs md:text-sm text-reddit-textMuted text-center">Click the camera icon to change your profile picture</p>
+            <p className="text-xs md:text-sm text-reddit-textMuted text-center">
+              Click the camera icon to change your profile picture
+            </p>
           </div>
 
           {/* Display Name */}
@@ -116,8 +160,8 @@ const EditProfile = () => {
             </label>
             <input
               type="text"
-              name="displayName"
-              value={formData.displayName}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-blue transition-colors"
               placeholder="Your display name"
@@ -130,7 +174,9 @@ const EditProfile = () => {
               Username
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-reddit-textMuted">@</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-reddit-textMuted">
+                @
+              </span>
               <input
                 type="text"
                 name="username"
@@ -171,7 +217,9 @@ const EditProfile = () => {
 
           {/* Danger Zone */}
           <div className="pt-6 border-t border-reddit-border">
-            <h3 className="text-sm font-semibold text-red-400 mb-3">Danger Zone</h3>
+            <h3 className="text-sm font-semibold text-red-400 mb-3">
+              Danger Zone
+            </h3>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
