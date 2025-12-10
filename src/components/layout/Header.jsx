@@ -1,20 +1,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Search,
   Plus,
   Bell,
-  X,
-  Home,
-  Compass,
-  TrendingUp
+  X
 } from 'lucide-react';
 import { useStudyGram } from '../../context/StudyGramContext';
 
 const Header = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const {
     isAuthenticated,
     currentUser,
@@ -22,14 +18,7 @@ const Header = () => {
     setShowAuthModal
   } = useStudyGram();
 
-  const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
-  const navTabs = [
-    { icon: Home, label: 'For You', id: 'for-you', path: '/' },
-    { icon: Compass, label: 'Explore', id: 'explore', path: '/explore' },
-    { icon: TrendingUp, label: 'Trending', id: 'trending', path: '/trending', disabled: true }
-  ];
 
   return (
     <motion.header
@@ -38,22 +27,22 @@ const Header = () => {
       transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
       className="fixed top-0 left-0 right-0 z-50 bg-reddit-card/95 backdrop-blur-xl border-b border-reddit-border"
     >
-      <div className="max-w-screen-2xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+      <div className="max-w-screen-2xl mx-auto px-2 sm:px-4 h-14 flex items-center justify-between gap-2 sm:gap-4">
         {/* Logo */}
         <motion.div
           onClick={() => navigate('/')}
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
-          className="cursor-pointer"
+          className="cursor-pointer flex-shrink-0"
         >
-          <span className="text-reddit-text text-xl font-righteous tracking-wide">
+          <span className="text-reddit-text text-lg md:text-xl font-righteous tracking-wide">
             Studly
           </span>
         </motion.div>
 
         {/* Search Bar - Reddit Style */}
-        <div className="flex-1 max-w-xl mx-4">
-          <div className="relative flex items-center gap-2 bg-reddit-input rounded px-3 py-1.5 border border-reddit-border  transition-colors">
+        <div className="flex-1 max-w-xl mx-1 sm:mx-2 md:mx-4">
+          <div className="relative flex items-center gap-1.5 sm:gap-2 bg-reddit-input rounded px-2 sm:px-3 py-1.5 transition-colors">
             <Search size={16} className="text-reddit-textMuted flex-shrink-0" />
             <input
               type="text"
@@ -80,7 +69,7 @@ const Header = () => {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
           {/* Create Post Button */}
           <motion.button
             onClick={() => {
@@ -93,10 +82,10 @@ const Header = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="hidden sm:flex items-center gap-1.5 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text px-3 py-1.5 rounded text-sm font-medium border border-reddit-border transition-colors"
+            className="hidden sm:flex items-center gap-1.5 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text px-2.5 md:px-3 py-1.5 rounded text-sm font-medium border border-reddit-border transition-colors"
           >
             <Plus size={16} />
-            <span>Create</span>
+            <span className="hidden md:inline">Create</span>
           </motion.button>
 
           {/* Mobile Create Button */}
@@ -111,7 +100,7 @@ const Header = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="sm:hidden w-8 h-8 flex items-center justify-center bg-reddit-cardHover text-reddit-text rounded border border-reddit-border"
+            className="sm:hidden w-9 h-9 flex items-center justify-center bg-reddit-cardHover text-reddit-text rounded border border-reddit-border"
           >
             <Plus size={16} />
           </motion.button>
@@ -122,7 +111,7 @@ const Header = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="relative w-8 h-8 flex items-center justify-center bg-reddit-cardHover rounded text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-border border border-reddit-border transition-colors"
+              className="relative w-9 h-9 flex items-center justify-center bg-reddit-cardHover rounded text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-border border border-reddit-border transition-colors"
             >
               <Bell size={16} />
               <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-reddit-orange rounded-full"></span>
@@ -140,7 +129,7 @@ const Header = () => {
               <img
                 src={currentUser?.avatar}
                 alt={currentUser?.displayName}
-                className="w-8 h-8 rounded-full border border-reddit-border"
+                className="w-9 h-9 rounded-full border border-reddit-border"
               />
             </motion.div>
           ) : (
@@ -149,7 +138,7 @@ const Header = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               transition={{ duration: 0.15 }}
-              className="hidden sm:block bg-reddit-orange hover:bg-reddit-orange/90 text-white px-4 py-1.5 rounded text-sm font-bold transition-colors"
+              className="hidden sm:block bg-reddit-orange hover:bg-reddit-orange/90 text-white px-3 md:px-4 py-1.5 rounded text-sm font-bold transition-colors"
             >
               Log In
             </motion.button>

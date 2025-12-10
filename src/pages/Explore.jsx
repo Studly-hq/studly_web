@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, TrendingUp, Hash, X, Flame, Sparkles, Clock, Filter } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Search, TrendingUp, Hash, X, Flame, Sparkles, Clock } from 'lucide-react';
 import { useStudyGram } from '../context/StudyGramContext';
 import PostCard from '../components/post/PostCard';
 
 const Explore = () => {
-  const navigate = useNavigate();
   const { posts } = useStudyGram();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState(null);

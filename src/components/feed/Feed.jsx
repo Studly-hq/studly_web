@@ -10,13 +10,15 @@ const Feed = () => {
   useEffect(() => {
     // Scroll restoration
     const savedPosition = sessionStorage.getItem('feed-scroll-position');
-    if (savedPosition && feedRef.current) {
-      feedRef.current.scrollTop = parseInt(savedPosition, 10);
+    const currentFeedRef = feedRef.current;
+
+    if (savedPosition && currentFeedRef) {
+      currentFeedRef.scrollTop = parseInt(savedPosition, 10);
     }
 
     return () => {
-      if (feedRef.current) {
-        sessionStorage.setItem('feed-scroll-position', feedRef.current.scrollTop);
+      if (currentFeedRef) {
+        sessionStorage.setItem('feed-scroll-position', currentFeedRef.scrollTop);
       }
     };
   }, []);

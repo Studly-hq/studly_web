@@ -3,8 +3,6 @@ import {
   mockUsers,
   mockPosts,
   mockComments,
-  getFeedPosts,
-  getCommentsForPost,
   getUserById,
 } from "../data/studygramData";
 import { mockQuizzes } from "../data/quizData";
