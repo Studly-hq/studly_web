@@ -90,7 +90,7 @@ const CreatePostModal = () => {
       toast.success("Post created successfully!");
       handleClose();
     } catch (error) {
-      console.error("Post creation error:", error);
+      console.error("Post creation error pls try again:", error);
       toast.error(error.message || "Failed to create post. Please try again.");
     } finally {
       setIsSubmitting(false);
