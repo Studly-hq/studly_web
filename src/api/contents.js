@@ -10,3 +10,14 @@ export const createPost = async (postData) => {
     throw error;
   }
 };
+
+export const getPosts = async () => {
+  try {
+    const response = await client.get("/content/posts");
+    console.log("Get Posts Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Get Posts Error:", error.response?.data || error.message);
+    throw error;
+  }
+};

@@ -12,7 +12,10 @@ import {
   logout as apiLogout,
 } from "../api/auth"; // Importing API functions
 import { getProfile, updateProfile } from "../api/profile"; // Import profile service
-import { createPost as apiCreatePost } from "../api/contents"; // Import content service
+import {
+  createPost as apiCreatePost,
+  getPosts as apiGetPosts,
+} from "../api/contents"; // Import content service
 
 const StudyGramContext = createContext();
 
@@ -30,7 +33,7 @@ export const StudyGramProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
 
   // Posts & Comments State
-  const [posts, setPosts] = useState(mockPosts);
+  const [posts, setPosts] = useState([]); // Start empty, fetch real posts
   const [comments, setComments] = useState(mockComments);
 
   // Quiz State
@@ -84,6 +87,57 @@ export const StudyGramProvider = ({ children }) => {
 
     checkAuth();
   }, []);
+
+  // Fetch Feed Posts
+  const fetchFeedPosts = async () => {
+    try {
+      const serverPosts = await apiGetPosts();
+
+      const mappedPosts = serverPosts.map((post) => {
+        // Handle images: backend gives image_url (string) or null
+        // Frontend expects images array: [{ url, alt }]
+        const images = post.image_url
+          ? [{ url: post.image_url, alt: "Post Image" }]
+          : [];
+
+        // Handle User
+        // If it's the current user, we might want to use the latest profile info from context,
+        // but simple fallback logic in feedPosts will handle it if we provide a basic object here.
+        // We'll construct a placeholder user object.
+        const postUser = {
+          id: post.user_id,
+          username: `user${post.user_id}`, // Placeholder
+          displayName: `User ${post.user_id}`, // Placeholder
+          avatar: `https://i.pravatar.cc/150?u=${post.user_id}`, // Placeholder avatar
+        };
+
+        return {
+          id: post.post_id,
+          type: images.length > 0 ? "single-image" : "text", // Infer type
+          content: post.content || "",
+          timestamp: post.created_at,
+          likeCount: post.like_count || 0,
+          commentCount: post.comment_count || 0,
+          userId: post.user_id,
+          likes: [], // Backend doesn't return array of liker IDs yet
+          bookmarkedBy: [], // Backend doesn't return bookmarkedBy IDs yet
+          tags: [], // Backend doesn't return tags yet
+          images: images,
+          user: postUser, // Attach user object for fallback
+        };
+      });
+
+      setPosts(mappedPosts);
+    } catch (error) {
+      console.error("Failed to fetch feed posts:", error);
+      // Fallback to mock posts if fetch fails? Or just show empty/error?
+      // setPosts(mockPosts);
+    }
+  };
+
+  useEffect(() => {
+    fetchFeedPosts();
+  }, [isAuthenticated]); // Re-fetch when auth status changes (e.g. login)
 
   // Auth Functions
   const login = async (email, password) => {
@@ -449,7 +503,7 @@ export const StudyGramProvider = ({ children }) => {
   const feedPosts = posts
     .map((post) => ({
       ...post,
-      user: getUserById(post.userId),
+      user: getUserById(post.userId) || post.user,
     }))
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
