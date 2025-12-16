@@ -20,6 +20,8 @@ import {
   unlikePost as apiUnlikePost,
   createComment as apiCreateComment,
   getComments as apiGetComments,
+  // likeComment as apiLikeComment,
+  // unlikeComment as apiUnlikeComment,
 } from "../api/contents"; // Import content service
 import { toast } from "sonner";
 
@@ -447,13 +449,17 @@ export const StudyGramProvider = ({ children }) => {
   };
 
   // Comment Functions
-  const handleLikeComment = (commentId, postId, skipAuth = false) => {
+  const handleLikeComment = async (commentId, postId, skipAuth = false) => {
     if (!skipAuth && !requireAuth({ type: "like-comment", commentId, postId }))
       return;
 
+    // 1. Optimistic Update
+    let previousComments;
     setComments((prevComments) => {
+      previousComments = prevComments; // Save for rollback
       const postComments = prevComments[postId] || [];
       const updatedComments = postComments.map((comment) => {
+        // Check if it's the main comment being liked/unliked
         if (comment.id === commentId) {
           const hasLiked = comment.likes.includes(currentUser.id);
           return {
@@ -465,7 +471,7 @@ export const StudyGramProvider = ({ children }) => {
           };
         }
 
-        // Check replies
+        // Check replies if the commentId matches a reply
         if (comment.replies && comment.replies.length > 0) {
           return {
             ...comment,
@@ -547,7 +553,7 @@ export const StudyGramProvider = ({ children }) => {
       // Transform if necessary (snake_case to camelCase)
       const formattedComments = commentsData.map((c) => ({
         id: c.comment_id,
-        text: c.comment_content,
+        content: c.comment_content,
         timestamp: c.comment_created_at, // timestamps logic
         // Backend returns count, but frontend expects array of IDs for .includes().
         // We set likes to [] to prevent crash, and use likeCount for display.
