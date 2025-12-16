@@ -62,3 +62,38 @@ export const unlikePost = async (postId) => {
     throw error;
   }
 };
+
+export const createComment = async (
+  postId,
+  content,
+  userId,
+  parentCommentId = null
+) => {
+  try {
+    const response = await client.post(`/studlygram/${postId}/comment`, {
+      content,
+      post_id: String(postId),
+      user_id: String(userId),
+      parent_comment_id: parentCommentId ? String(parentCommentId) : null,
+    });
+    console.log("Create Comment Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Create Comment Error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+export const getComments = async (postId) => {
+  try {
+    const response = await client.get(`/studlygram/${postId}/comments`);
+    console.log("Get Comments Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Get Comments Error:", error.response?.data || error.message);
+    throw error;
+  }
+};

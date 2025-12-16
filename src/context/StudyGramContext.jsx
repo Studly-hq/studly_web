@@ -18,6 +18,8 @@ import {
   getPost as apiGetPost,
   likePost as apiLikePost,
   unlikePost as apiUnlikePost,
+  createComment as apiCreateComment,
+  getComments as apiGetComments,
 } from "../api/contents"; // Import content service
 import { toast } from "sonner";
 
@@ -396,8 +398,9 @@ export const StudyGramProvider = ({ children }) => {
   };
 
   const handleCommentClick = (postId) => {
-    if (!requireAuth({ type: "comment", postId })) return;
+    // if (!requireAuth({ type: "comment", postId })) return; // Comments can be viewed by guests? Maybe.
     setShowComments(postId);
+    fetchCommentsForPost(postId);
   };
 
   const handleCreatePost = () => {
@@ -494,54 +497,78 @@ export const StudyGramProvider = ({ children }) => {
     });
   };
 
-  const addComment = (postId, content, parentId = null) => {
-    const newComment = {
-      id: `comment-${Date.now()}`,
-      postId,
-      parentId,
-      userId: currentUser.id,
-      content,
-      timestamp: new Date().toISOString(),
-      likes: [],
-      likeCount: 0,
-      replies: [],
-    };
+  const addComment = async (postId, content, parentId = null) => {
+    if (!requireAuth({ type: "comment", postId })) return;
 
-    setComments((prevComments) => {
-      const postComments = prevComments[postId] || [];
+    // Optimistic Update (Optional) or Wait for API
+    // Let's await API for consistency with backend IDs
+    try {
+      const newComment = await apiCreateComment(
+        postId,
+        content,
+        currentUser.id,
+        parentId
+      );
 
-      if (parentId) {
-        // Add as reply
-        const updatedComments = postComments.map((comment) => {
-          if (comment.id === parentId) {
-            return {
-              ...comment,
-              replies: [...(comment.replies || []), newComment],
-            };
-          }
-          return comment;
-        });
-        return {
-          ...prevComments,
-          [postId]: updatedComments,
-        };
-      } else {
-        // Add as top-level comment
-        return {
-          ...prevComments,
-          [postId]: [...postComments, newComment],
-        };
-      }
-    });
+      setComments((prev) => {
+        const postComments = prev[postId] || [];
+        // Map backend response to frontend structure if needed, or assume backend matches
+        // The endpoint returns "Comment created successfully" or the object?
+        // Docs say "Comment created successfully" (201).
+        // We might need to refetch or manually construct the comment object if backend doesn't return it.
+        // Waiting for clarification or assuming we need to fetch.
+        // Let's assume we need to REFETCH for now to get the full comment object with clean ID/timestamp.
+        return prev;
+      });
 
-    // Update comment count on post
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post.id === postId
-          ? { ...post, commentCount: post.commentCount + 1 }
-          : post
-      )
-    );
+      // Refetch comments to get the new one
+      fetchCommentsForPost(postId);
+
+      // Update comment count on post
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, commentCount: post.commentCount + 1 }
+            : post
+        )
+      );
+
+      return true;
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+      toast.error("Failed to post comment.");
+      return false;
+    }
+  };
+
+  const fetchCommentsForPost = async (postId) => {
+    try {
+      const commentsData = await apiGetComments(postId);
+      // Transform if necessary (snake_case to camelCase)
+      const formattedComments = commentsData.map((c) => ({
+        id: c.comment_id,
+        text: c.comment_content,
+        timestamp: c.comment_created_at, // timestamps logic
+        // Backend returns count, but frontend expects array of IDs for .includes().
+        // We set likes to [] to prevent crash, and use likeCount for display.
+        likes: [],
+        likeCount: c.comment_like_count,
+        user: {
+          id: c.commenter_user_id,
+          username: c.commenter_username,
+          name: c.commenter_name,
+          avatar: c.commenter_avatar,
+        },
+        replies: [], // sub_comment_count handled separately?
+      }));
+
+      setComments((prev) => ({
+        ...prev,
+        [postId]: formattedComments,
+      }));
+    } catch (error) {
+      console.error("Failed to fetch comments", error);
+    }
   };
 
   // Quiz Functions
@@ -614,6 +641,7 @@ export const StudyGramProvider = ({ children }) => {
     // Comments
     comments,
     addComment,
+    fetchCommentsForPost,
     handleLikeComment,
     getCommentsForPost: (postId) => comments[postId] || [],
 
