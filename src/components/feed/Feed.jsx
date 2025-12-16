@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { useStudyGram } from '../../context/StudyGramContext';
-import PostCard from '../post/PostCard';
+import React, { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { useStudyGram } from "../../context/StudyGramContext";
+import PostCard from "../post/PostCard";
 
 const Feed = () => {
   const { posts } = useStudyGram();
@@ -9,7 +9,7 @@ const Feed = () => {
 
   useEffect(() => {
     // Scroll restoration
-    const savedPosition = sessionStorage.getItem('feed-scroll-position');
+    const savedPosition = sessionStorage.getItem("feed-scroll-position");
     const currentFeedRef = feedRef.current;
 
     if (savedPosition && currentFeedRef) {
@@ -18,7 +18,10 @@ const Feed = () => {
 
     return () => {
       if (currentFeedRef) {
-        sessionStorage.setItem('feed-scroll-position', currentFeedRef.scrollTop);
+        sessionStorage.setItem(
+          "feed-scroll-position",
+          currentFeedRef.scrollTop
+        );
       }
     };
   }, []);
@@ -54,7 +57,8 @@ const Feed = () => {
               No posts yet
             </h3>
             <p className="text-reddit-textMuted text-center max-w-md text-sm">
-              Start following users or create your first post to see content here!
+              Start following users or create your first post to see content
+              here!
             </p>
           </motion.div>
         )}

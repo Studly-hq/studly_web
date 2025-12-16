@@ -15,6 +15,7 @@ import { getProfile, updateProfile } from "../api/profile"; // Import profile se
 import {
   createPost as apiCreatePost,
   getPosts as apiGetPosts,
+  getPost as apiGetPost,
 } from "../api/contents"; // Import content service
 
 const StudyGramContext = createContext();
@@ -88,50 +89,102 @@ export const StudyGramProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  // Placeholder images collection
+  const PLACEHOLDER_IMAGES = [
+    "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1513258496098-b1fcb478adcc?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1558021284-836f886fbe5d?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1532153975070-2e9ab71f1b14?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=800&h=600&fit=crop",
+  ];
+
+  const mapBackendPostToFrontend = (post) => {
+    // Handle images: backend returns array of strings (urls)
+    // If "placeholder", treat as empty array (text post)
+    const images = Array.isArray(post.post_media)
+      ? post.post_media
+          .filter((url) => url !== "placeholder") // Filter out "placeholder"
+          .map((url) => ({
+            url: url,
+            alt: "Post Image",
+          }))
+      : [];
+
+    // Handle User from Creator fields
+    const postUser = {
+      id: post.creator_id,
+      username: post.creator_username || `user${post.creator_id}`,
+      displayName:
+        post.creator_name || post.creator_username || `User ${post.creator_id}`,
+      avatar:
+        post.creator_avatar || `https://i.pravatar.cc/150?u=${post.creator_id}`,
+    };
+
+    // Handle Timestamp
+    let timestamp = new Date().toISOString();
+    if (post.post_created_at) {
+      timestamp = post.post_created_at.replace(" ", "T");
+      if (!timestamp.endsWith("Z") && !timestamp.includes("+")) {
+        timestamp += "Z"; // Assume UTC
+      }
+    }
+
+    return {
+      id: post.post_id,
+      type:
+        images.length > 0
+          ? images.length > 1
+            ? "carousel"
+            : "single-image"
+          : "text",
+      content: post.post_content || "",
+      timestamp: timestamp,
+      likeCount: post.post_like_count || 0,
+      commentCount: post.post_comment_count || 0,
+      userId: post.creator_id,
+      likes:
+        post.post_is_liked_by_requester && currentUser ? [currentUser.id] : [],
+      bookmarkedBy:
+        post.post_is_bookmarked_by_requester && currentUser
+          ? [currentUser.id]
+          : [],
+      tags: post.post_hashtags || [],
+      images: images,
+      user: postUser,
+    };
+  };
+
   // Fetch Feed Posts
   const fetchFeedPosts = async () => {
     try {
       const serverPosts = await apiGetPosts();
-
-      const mappedPosts = serverPosts.map((post) => {
-        // Handle images: backend gives image_url (string) or null
-        // Frontend expects images array: [{ url, alt }]
-        const images = post.image_url
-          ? [{ url: post.image_url, alt: "Post Image" }]
-          : [];
-
-        // Handle User
-        // If it's the current user, we might want to use the latest profile info from context,
-        // but simple fallback logic in feedPosts will handle it if we provide a basic object here.
-        // We'll construct a placeholder user object.
-        const postUser = {
-          id: post.user_id,
-          username: `user${post.user_id}`, // Placeholder
-          displayName: `User ${post.user_id}`, // Placeholder
-          avatar: `https://i.pravatar.cc/150?u=${post.user_id}`, // Placeholder avatar
-        };
-
-        return {
-          id: post.post_id,
-          type: images.length > 0 ? "single-image" : "text", // Infer type
-          content: post.content || "",
-          timestamp: post.created_at,
-          likeCount: post.like_count || 0,
-          commentCount: post.comment_count || 0,
-          userId: post.user_id,
-          likes: [], // Backend doesn't return array of liker IDs yet
-          bookmarkedBy: [], // Backend doesn't return bookmarkedBy IDs yet
-          tags: [], // Backend doesn't return tags yet
-          images: images,
-          user: postUser, // Attach user object for fallback
-        };
-      });
-
+      const mappedPosts = serverPosts.map(mapBackendPostToFrontend);
       setPosts(mappedPosts);
     } catch (error) {
       console.error("Failed to fetch feed posts:", error);
       // Fallback to mock posts if fetch fails? Or just show empty/error?
       // setPosts(mockPosts);
+    }
+  };
+
+  // Fetch Single Post
+  const fetchPostById = async (postId) => {
+    try {
+      // Check local state first
+      const existingPost = posts.find((p) => p.id === parseInt(postId));
+      if (existingPost) return existingPost;
+
+      // Fetch from API
+      const serverPost = await apiGetPost(postId);
+      if (serverPost) {
+        return mapBackendPostToFrontend(serverPost);
+      }
+      return null;
+    } catch (error) {
+      console.error("Failed to fetch post:", error);
+      return null;
     }
   };
 
@@ -338,6 +391,8 @@ export const StudyGramProvider = ({ children }) => {
 
       const response = await apiCreatePost(payload);
 
+      console.log("Create Post Response:", response);
+
       const newPost = {
         ...response,
         user: currentUser,
@@ -524,6 +579,7 @@ export const StudyGramProvider = ({ children }) => {
     handleCommentClick,
     handleCreatePost,
     createPost,
+    fetchPostById, // Add fetchPostById here
 
     // Comments
     comments,

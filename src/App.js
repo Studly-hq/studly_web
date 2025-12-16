@@ -21,6 +21,7 @@ import UploadNotes from "./pages/UploadNotes";
 import QuizFeed from "./pages/QuizFeed";
 import CourseBank from "./pages/CourseBank";
 import TopicPlayer from "./pages/TopicPlayer";
+import PostDetail from "./pages/PostDetail";
 
 import "./App.css";
 
@@ -35,46 +36,53 @@ function App() {
             <Route path="/courses/:topicId" element={<TopicPlayer />} />
 
             {/* Main app routes (with header and sidebars) */}
-            <Route path="/*" element={
-              <div className="min-h-screen bg-reddit-bg text-reddit-text">
-                {/* Header */}
-                <Header />
+            <Route
+              path="/*"
+              element={
+                <div className="min-h-screen bg-reddit-bg text-reddit-text">
+                  {/* Header */}
+                  <Header />
 
-                {/* Main Layout - Three Column */}
-                <div className="flex">
-                  {/* Left Sidebar */}
-                  <LeftSidebar />
+                  {/* Main Layout - Three Column */}
+                  <div className="flex">
+                    {/* Left Sidebar */}
+                    <LeftSidebar />
 
-                  {/* Center Content - Routes */}
-                  <main className="flex-1 pt-16 pb-20 lg:pb-0">
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/explore" element={<Explore />} />
-                      <Route path="/saved" element={<SavedPosts />} />
-                      <Route path="/upload" element={<UploadNotes />} />
-                      <Route path="/quiz-feed" element={<QuizFeed />} />
-                      <Route path="/profile" element={<UserProfile />} />
-                      <Route path="/profile/edit" element={<EditProfile />} />
-                      <Route path="/profile/:userId" element={<UserProfile />} />
-                      <Route path="/settings" element={<Settings />} />
-                    </Routes>
-                  </main>
+                    {/* Center Content - Routes */}
+                    <main className="flex-1 pt-16 pb-20 lg:pb-0">
+                      <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/explore" element={<Explore />} />
+                        <Route path="/saved" element={<SavedPosts />} />
+                        <Route path="/upload" element={<UploadNotes />} />
+                        <Route path="/quiz-feed" element={<QuizFeed />} />
+                        <Route path="/profile" element={<UserProfile />} />
+                        <Route path="/profile/edit" element={<EditProfile />} />
+                        <Route
+                          path="/profile/:userId"
+                          element={<UserProfile />}
+                        />
+                        <Route path="/post/:postId" element={<PostDetail />} />
+                        <Route path="/settings" element={<Settings />} />
+                      </Routes>
+                    </main>
 
-                  {/* Right Sidebar */}
-                  <RightSidebar />
+                    {/* Right Sidebar */}
+                    <RightSidebar />
+                  </div>
+
+                  {/* Mobile Bottom Nav */}
+                  <MobileBottomNav />
+
+                  {/* Modals */}
+                  <AuthModal />
+                  <CreatePostModal />
+                  <CommentSection />
+
+                  <Toaster position="top-right" richColors />
                 </div>
-
-                {/* Mobile Bottom Nav */}
-                <MobileBottomNav />
-
-                {/* Modals */}
-                <AuthModal />
-                <CreatePostModal />
-                <CommentSection />
-
-                <Toaster position="top-right" richColors />
-              </div>
-            } />
+              }
+            />
           </Routes>
         </Router>
       </CoursePlayerProvider>
