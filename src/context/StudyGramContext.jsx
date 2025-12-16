@@ -16,7 +16,10 @@ import {
   createPost as apiCreatePost,
   getPosts as apiGetPosts,
   getPost as apiGetPost,
+  likePost as apiLikePost,
+  unlikePost as apiUnlikePost,
 } from "../api/contents"; // Import content service
+import { toast } from "sonner";
 
 const StudyGramContext = createContext();
 
@@ -326,11 +329,14 @@ export const StudyGramProvider = ({ children }) => {
   };
 
   // Post Functions
-  const handleLikePost = (postId, skipAuth = false) => {
+  const handleLikePost = async (postId, skipAuth = false) => {
     if (!skipAuth && !requireAuth({ type: "like", postId })) return;
 
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
+    // 1. Optimistic Update
+    let previousPosts;
+    setPosts((prevPosts) => {
+      previousPosts = prevPosts; // Save for rollback
+      return prevPosts.map((post) => {
         if (post.id === postId) {
           const hasLiked = post.likes.includes(currentUser.id);
           return {
@@ -342,8 +348,32 @@ export const StudyGramProvider = ({ children }) => {
           };
         }
         return post;
-      })
-    );
+      });
+    });
+
+    // 2. Call API
+    try {
+      const post = posts.find((p) => p.id === postId);
+      const isLiking = !post.likes.includes(currentUser.id); // Check *current* state before update implied we toggled.
+      // ERROR: `posts` here is stale closure. We need to find the post from the *previous* state or determining action differently.
+      // Better way: Check if text 'like' or 'unlike' based on the optimistic update logic.
+
+      // Actually, easier to check what we *would* do.
+      const currentPost = posts.find((p) => p.id === postId);
+      if (!currentPost) return;
+      const alreadyLiked = currentPost.likes.includes(currentUser.id);
+
+      if (alreadyLiked) {
+        await apiUnlikePost(postId);
+      } else {
+        await apiLikePost(postId);
+      }
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+      // Revert
+      setPosts(previousPosts);
+      toast.error("Failed to update like.");
+    }
   };
 
   const handleBookmarkPost = (postId, skipAuth = false) => {

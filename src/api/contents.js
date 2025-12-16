@@ -32,3 +32,33 @@ export const getPost = async (postId) => {
     throw error;
   }
 };
+
+export const likePost = async (postId) => {
+  try {
+    const response = await client.post("/studlygram/like", {
+      post_id: postId,
+      comment_id: null,
+    });
+    console.log("Like Post Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Like Post Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const unlikePost = async (postId) => {
+  try {
+    const response = await client.delete("/studlygram/like", {
+      data: {
+        post_id: postId,
+        comment_id: null,
+      },
+    });
+    console.log("Unlike Post Response:", response, response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Unlike Post Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
