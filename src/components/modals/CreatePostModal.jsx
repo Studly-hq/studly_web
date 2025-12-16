@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useStudyGram } from "../../context/StudyGramContext";
 import { toast } from "sonner";
+// import { getAvatarUploadUrl, uploadImageToS3 } from "../../api/profile";
 
 const CreatePostModal = () => {
   const {
@@ -79,9 +80,36 @@ const CreatePostModal = () => {
 
     setIsSubmitting(true);
     try {
+      // let uploadedImageUrls = [];
+
+      // If there are images, upload them first
+      // if (images.length > 0) {
+      //   // We use Promise.all to upload in parallel
+      //   uploadedImageUrls = await Promise.all(
+      //     images.map(async (img) => {
+      //       // 1. Get Presigned URL
+      //       // We can reuse the profile/avatar-url endpoint or create a new one.
+      //       // For now, let's reuse it or assume the backend endpoint handles generic "fileType".
+      //       // The backend guide I wrote set the key as "avatars/...", we might want to change that later to "posts/..."
+      //       const { uploadUrl, publicUrl } = await getAvatarUploadUrl(
+      //         img.file.type
+      //       );
+
+      //       // 2. Upload to S3
+      //       await uploadImageToS3(uploadUrl, img.file);
+
+      //       return {
+      //         url: publicUrl,
+      //         alt: img.alt,
+      //       };
+      //     })
+      //   );
+      // }
+
       const postData = {
         type: postType,
         content: content.trim(),
+        // images: uploadedImageUrls.length > 0 ? uploadedImageUrls : undefined,
         images: images.length > 0 ? images : undefined,
         tags: extractHashtags(content),
       };
