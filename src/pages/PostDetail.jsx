@@ -38,6 +38,20 @@ const PostDetail = () => {
     );
   }
 
+  if (error || !post) {
+    return (
+      <div className="flex flex-col items-center justify-center mt-4 h-screen bg-reddit-bg text-reddit-text">
+        <p className="text-xl mb-4">{error || "Post not found"}</p>
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-reddit-blue hover:underline"
+        >
+          <ArrowLeft size={20} /> Go Back
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-reddit-bg min-h-screen text-reddit-text p-4 mt-4">
       <div className="max-w-2xl mx-auto">
