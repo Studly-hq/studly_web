@@ -4,14 +4,25 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
+import Comment from "../components/comments/Comment";
 
 const PostDetail = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
-  const { fetchPostById } = useStudyGram();
+  const {
+    fetchPostById,
+    fetchCommentsForPost,
+    getCommentsForPost,
+    addComment,
+    currentUser,
+  } = useStudyGram();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Comment State
+  const [commentText, setCommentText] = useState("");
+  const comments = getCommentsForPost(postId);
 
   useEffect(() => {
     const loadPost = async () => {
@@ -19,6 +30,7 @@ const PostDetail = () => {
       const fetchedPost = await fetchPostById(postId);
       if (fetchedPost) {
         setPost(fetchedPost);
+        await fetchCommentsForPost(postId);
       } else {
         setError("Post not found");
       }
@@ -28,7 +40,14 @@ const PostDetail = () => {
     if (postId) {
       loadPost();
     }
-  }, [postId, fetchPostById]);
+  }, [postId, fetchPostById, fetchCommentsForPost]);
+
+  const handleCommentSubmit = (e) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+    addComment(postId, commentText);
+    setCommentText("");
+  };
 
   if (loading) {
     return (
@@ -69,6 +88,54 @@ const PostDetail = () => {
         >
           <PostCard post={post} />
         </motion.div>
+
+        {/* Embedded Comment Section */}
+        <div className="bg-reddit-card border border-reddit-border rounded-lg mt-4 overflow-hidden">
+          <div className="p-4 border-b border-reddit-border">
+            <h3 className="font-bold text-lg">Comments</h3>
+          </div>
+
+          {/* Comment Input */}
+          <div className="p-4 bg-reddit-cardHover/10 border-b border-reddit-border">
+            <form onSubmit={handleCommentSubmit} className="flex gap-3">
+              <img
+                src={currentUser?.avatar}
+                alt={currentUser?.displayName}
+                className="w-8 h-8 rounded-full"
+              />
+              <div className="flex-1 flex gap-2">
+                <input
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Write a comment..."
+                  className="flex-1 bg-reddit-input rounded-md px-4 py-2 outline-none text-sm"
+                />
+                <button
+                  type="submit"
+                  disabled={!commentText.trim()}
+                  className="bg-reddit-blue text-white px-4 py-2 rounded-md disabled:opacity-50 text-sm font-semibold"
+                >
+                  Post
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Comment List */}
+          <div className="p-4 space-y-4">
+            {comments.length > 0 ? (
+              comments.map((comment) => (
+                <div key={comment.id}>
+                  <Comment comment={comment} postId={postId} />
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-reddit-textMuted py-8">
+                No comments yet. Be the first to share your thoughts!
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

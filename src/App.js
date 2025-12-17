@@ -39,43 +39,17 @@ function App() {
             <Route path="/courses/:topicId" element={<TopicPlayer />} />
 
             {/* Main app routes (with header and sidebars) */}
-            <Route path="/*" element={
-              <div className="min-h-screen bg-reddit-bg text-reddit-text flex justify-center">
-                <div className="flex w-full max-w-[1280px]">
-                  {/* Left Sidebar */}
-                  <LeftSidebar />
-
-                  {/* Center Content - Routes */}
-                  <main className="flex-1 min-w-0 border-x border-reddit-border pb-20 lg:pb-0">
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/explore" element={<Explore />} />
-                      <Route path="/saved" element={<SavedPosts />} />
-                      <Route path="/upload" element={<UploadNotes />} />
-                      <Route path="/quiz-feed" element={<QuizFeed />} />
-                      <Route path="/profile" element={<UserProfile />} />
-                      <Route path="/profile/edit" element={<EditProfile />} />
-                      <Route path="/profile/:userId" element={<UserProfile />} />
-                      <Route path="/post/:postId" element={<PostPage />} />
-                      <Route path="/ads/create" element={<CreateAd />} />
-                      <Route path="/ads/dashboard" element={<AdsDashboard />} />
-                      <Route path="/settings" element={<Settings />} />
-                    </Routes>
-                  </main>
+            {/* Main app routes (with sidebars) */}
             <Route
               path="/*"
               element={
-                <div className="min-h-screen bg-reddit-bg text-reddit-text">
-                  {/* Header */}
-                  <Header />
-
-                  {/* Main Layout - Three Column */}
-                  <div className="flex">
+                <div className="min-h-screen bg-reddit-bg text-reddit-text flex justify-center">
+                  <div className="flex w-full max-w-[1280px]">
                     {/* Left Sidebar */}
                     <LeftSidebar />
 
                     {/* Center Content - Routes */}
-                    <main className="flex-1 pt-16 pb-20 lg:pb-0">
+                    <main className="flex-1 min-w-0 border-x border-reddit-border pb-20 lg:pb-0">
                       <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/explore" element={<Explore />} />
@@ -89,12 +63,19 @@ function App() {
                           element={<UserProfile />}
                         />
                         <Route path="/post/:postId" element={<PostDetail />} />
+                        <Route path="/ads/create" element={<CreateAd />} />
+                        <Route
+                          path="/ads/dashboard"
+                          element={<AdsDashboard />}
+                        />
                         <Route path="/settings" element={<Settings />} />
                       </Routes>
                     </main>
 
                     {/* Right Sidebar */}
-                    <RightSidebar />
+                    <div className="hidden lg:block w-[350px] p-4">
+                      <RightSidebar />
+                    </div>
                   </div>
 
                   {/* Mobile Bottom Nav */}
