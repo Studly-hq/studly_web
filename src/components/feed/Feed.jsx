@@ -26,7 +26,7 @@ const Feed = () => {
   return (
     <div
       ref={feedRef}
-      className="flex-1 max-w-[640px] mx-auto px-4 py-5 overflow-y-auto"
+      className="flex-1 max-w-[640px] mx-auto px-4 pt-4 pb-5 overflow-y-auto"
     >
       {/* Posts List - Reddit Style: Clean, minimal spacing */}
       <div className="space-y-3">

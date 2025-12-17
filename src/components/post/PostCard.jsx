@@ -78,7 +78,7 @@ const PostCard = ({ post }) => {
   const handleMenuAction = (action) => {
     setShowMenu(false);
 
-    switch(action) {
+    switch (action) {
       case 'edit':
         // TODO: Implement edit post functionality
         console.log('Edit post:', post.id);
@@ -98,7 +98,7 @@ const PostCard = ({ post }) => {
             title: `Post by ${post.user.displayName}`,
             text: post.content,
             url: window.location.href
-          }).catch(() => {});
+          }).catch(() => { });
         } else {
           // Fallback: copy to clipboard
           navigator.clipboard.writeText(window.location.href);
@@ -116,7 +116,8 @@ const PostCard = ({ post }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-      className="bg-reddit-card border border-reddit-border rounded-md overflow-hidden  transition-colors"
+      className="bg-reddit-card border border-reddit-border rounded-md overflow-hidden transition-colors cursor-pointer hover:bg-reddit-cardHover/50"
+      onClick={() => navigate(`/post/${post.id}`)}
     >
       {/* Post Header - Reddit Style */}
       <div className="flex items-center justify-between px-3 py-2">
@@ -124,14 +125,14 @@ const PostCard = ({ post }) => {
           <motion.img
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
-            onClick={() => navigate(`/profile/${post.userId}`)}
+            onClick={(e) => { e.stopPropagation(); navigate(`/profile/${post.userId}`); }}
             src={post.user.avatar}
             alt={post.user.displayName}
             className="w-6 h-6 rounded-full cursor-pointer"
           />
           <div className="flex items-center gap-1.5 text-xs">
             <h3
-              onClick={() => navigate(`/profile/${post.userId}`)}
+              onClick={(e) => { e.stopPropagation(); navigate(`/profile/${post.userId}`); }}
               className="text-reddit-text font-bold hover:underline cursor-pointer"
             >
               @{post.user.username}
@@ -147,7 +148,7 @@ const PostCard = ({ post }) => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            onClick={() => setShowMenu(!showMenu)}
+            onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
             className="text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover transition-colors p-1 rounded"
           >
             <MoreHorizontal size={18} />
@@ -290,11 +291,10 @@ const PostCard = ({ post }) => {
                       setCurrentImageIndex(index);
                       setImageLoaded(false);
                     }}
-                    className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${
-                      index === currentImageIndex
+                    className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${index === currentImageIndex
                         ? 'bg-white w-6'
                         : 'bg-white/50 w-2 hover:bg-white/75'
-                    }`}
+                      }`}
                   />
                 ))}
               </div>
@@ -318,12 +318,11 @@ const PostCard = ({ post }) => {
               whileHover={{ backgroundColor: '#272729' }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              onClick={() => handleLikePost(post.id)}
-              className={`flex items-center gap-1.5 px-2 py-1.5 rounded transition-all ${
-                isLiked
+              onClick={(e) => { e.stopPropagation(); handleLikePost(post.id); }}
+              className={`flex items-center gap-1.5 px-2 py-1.5 rounded transition-all ${isLiked
                   ? 'text-reddit-orange'
                   : 'text-reddit-textMuted hover:text-reddit-text'
-              }`}
+                }`}
             >
               <Heart
                 size={16}
@@ -338,8 +337,8 @@ const PostCard = ({ post }) => {
               whileHover={{ backgroundColor: '#272729' }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              onClick={() => handleCommentClick(post.id)}
-              className="flex items-center gap-1.5 px-2 py-1.5 rounded text-reddit-textMuted hover:text-reddit-text transition-all"
+              onClick={(e) => { e.stopPropagation(); navigate(`/post/${post.id}`); }}
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded text-reddit-textMuted hover:text-reddit-text transition-colors"
             >
               <MessageCircle size={16} strokeWidth={2} />
               <span className="text-xs font-bold">{post.commentCount}</span>
@@ -351,12 +350,11 @@ const PostCard = ({ post }) => {
             whileHover={{ backgroundColor: '#272729' }}
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            onClick={() => handleBookmarkPost(post.id)}
-            className={`p-1.5 rounded transition-all ${
-              isBookmarked
+            onClick={(e) => { e.stopPropagation(); handleBookmarkPost(post.id); }}
+            className={`p-1.5 rounded transition-all ${isBookmarked
                 ? 'text-yellow-500'
                 : 'text-reddit-textMuted hover:text-reddit-text'
-            }`}
+              }`}
           >
             <Bookmark
               size={16}
