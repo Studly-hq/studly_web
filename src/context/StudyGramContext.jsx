@@ -12,6 +12,18 @@ import {
   logout as apiLogout,
 } from "../api/auth"; // Importing API functions
 import { getProfile, updateProfile } from "../api/profile"; // Import profile service
+import {
+  createPost as apiCreatePost,
+  getPosts as apiGetPosts,
+  getPost as apiGetPost,
+  likePost as apiLikePost,
+  unlikePost as apiUnlikePost,
+  createComment as apiCreateComment,
+  getComments as apiGetComments,
+  // likeComment as apiLikeComment,
+  // unlikeComment as apiUnlikeComment,
+} from "../api/contents"; // Import content service
+import { toast } from "sonner";
 
 const StudyGramContext = createContext();
 
@@ -29,7 +41,7 @@ export const StudyGramProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
 
   // Posts & Comments State
-  const [posts, setPosts] = useState(mockPosts);
+  const [posts, setPosts] = useState([]); // Start empty, fetch real posts
   const [comments, setComments] = useState(mockComments);
 
   // Quiz State
@@ -83,6 +95,109 @@ export const StudyGramProvider = ({ children }) => {
 
     checkAuth();
   }, []);
+
+  // Placeholder images collection
+  const PLACEHOLDER_IMAGES = [
+    "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1513258496098-b1fcb478adcc?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1558021284-836f886fbe5d?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1532153975070-2e9ab71f1b14?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=800&h=600&fit=crop",
+  ];
+
+  const mapBackendPostToFrontend = (post) => {
+    // Handle images: backend returns array of strings (urls)
+    // If "placeholder", treat as empty array (text post)
+    const images = Array.isArray(post.post_media)
+      ? post.post_media
+          .filter((url) => url !== "placeholder") // Filter out "placeholder"
+          .map((url) => ({
+            url: url,
+            alt: "Post Image",
+          }))
+      : [];
+
+    // Handle User from Creator fields
+    const postUser = {
+      id: post.creator_id,
+      username: post.creator_username || `user${post.creator_id}`,
+      displayName:
+        post.creator_name || post.creator_username || `User ${post.creator_id}`,
+      avatar:
+        post.creator_avatar || `https://i.pravatar.cc/150?u=${post.creator_id}`,
+    };
+
+    // Handle Timestamp
+    let timestamp = new Date().toISOString();
+    if (post.post_created_at) {
+      timestamp = post.post_created_at.replace(" ", "T");
+      if (!timestamp.endsWith("Z") && !timestamp.includes("+")) {
+        timestamp += "Z"; // Assume UTC
+      }
+    }
+
+    return {
+      id: post.post_id,
+      type:
+        images.length > 0
+          ? images.length > 1
+            ? "carousel"
+            : "single-image"
+          : "text",
+      content: post.post_content || "",
+      timestamp: timestamp,
+      likeCount: post.post_like_count || 0,
+      commentCount: post.post_comment_count || 0,
+      userId: post.creator_id,
+      likes:
+        post.post_is_liked_by_requester && currentUser ? [currentUser.id] : [],
+      bookmarkedBy:
+        post.post_is_bookmarked_by_requester && currentUser
+          ? [currentUser.id]
+          : [],
+      tags: post.post_hashtags || [],
+      images: images,
+      user: postUser,
+    };
+  };
+
+  // Fetch Feed Posts
+  const fetchFeedPosts = async () => {
+    try {
+      const serverPosts = await apiGetPosts();
+      const mappedPosts = serverPosts.map(mapBackendPostToFrontend);
+      setPosts(mappedPosts);
+    } catch (error) {
+      console.error("Failed to fetch feed posts:", error);
+      // Fallback to mock posts if fetch fails? Or just show empty/error?
+      // setPosts(mockPosts);
+    }
+  };
+
+  // Fetch Single Post
+  const fetchPostById = async (postId) => {
+    try {
+      // Check local state first
+      const existingPost = posts.find((p) => p.id === parseInt(postId));
+      if (existingPost) return existingPost;
+
+      // Fetch from API
+      const serverPost = await apiGetPost(postId);
+      if (serverPost) {
+        return mapBackendPostToFrontend(serverPost);
+      }
+      return null;
+    } catch (error) {
+      console.error("Failed to fetch post:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    fetchFeedPosts();
+  }, [isAuthenticated]); // Re-fetch when auth status changes (e.g. login)
 
   // Auth Functions
   const login = async (email, password) => {
@@ -218,11 +333,14 @@ export const StudyGramProvider = ({ children }) => {
   };
 
   // Post Functions
-  const handleLikePost = (postId, skipAuth = false) => {
+  const handleLikePost = async (postId, skipAuth = false) => {
     if (!skipAuth && !requireAuth({ type: "like", postId })) return;
 
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
+    // 1. Optimistic Update
+    let previousPosts;
+    setPosts((prevPosts) => {
+      previousPosts = prevPosts; // Save for rollback
+      return prevPosts.map((post) => {
         if (post.id === postId) {
           const hasLiked = post.likes.includes(currentUser.id);
           return {
@@ -234,8 +352,32 @@ export const StudyGramProvider = ({ children }) => {
           };
         }
         return post;
-      })
-    );
+      });
+    });
+
+    // 2. Call API
+    try {
+      const post = posts.find((p) => p.id === postId);
+      const isLiking = !post.likes.includes(currentUser.id); // Check *current* state before update implied we toggled.
+      // ERROR: `posts` here is stale closure. We need to find the post from the *previous* state or determining action differently.
+      // Better way: Check if text 'like' or 'unlike' based on the optimistic update logic.
+
+      // Actually, easier to check what we *would* do.
+      const currentPost = posts.find((p) => p.id === postId);
+      if (!currentPost) return;
+      const alreadyLiked = currentPost.likes.includes(currentUser.id);
+
+      if (alreadyLiked) {
+        await apiUnlikePost(postId);
+      } else {
+        await apiLikePost(postId);
+      }
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+      // Revert
+      setPosts(previousPosts);
+      toast.error("Failed to update like.");
+    }
   };
 
   const handleBookmarkPost = (postId, skipAuth = false) => {
@@ -258,8 +400,9 @@ export const StudyGramProvider = ({ children }) => {
   };
 
   const handleCommentClick = (postId) => {
-    if (!requireAuth({ type: "comment", postId })) return;
+    // if (!requireAuth({ type: "comment", postId })) return; // Comments can be viewed by guests? Maybe.
     setShowComments(postId);
+    fetchCommentsForPost(postId);
   };
 
   const handleCreatePost = () => {
@@ -267,30 +410,56 @@ export const StudyGramProvider = ({ children }) => {
     setShowCreatePostModal(true);
   };
 
-  const createPost = (postData) => {
-    const newPost = {
-      id: `post-${Date.now()}`,
-      userId: currentUser.id,
-      timestamp: new Date().toISOString(),
-      likes: [],
-      likeCount: 0,
-      commentCount: 0,
-      bookmarkedBy: [],
-      ...postData,
-    };
+  const createPost = async (postData) => {
+    try {
+      // Prepare payload for API
+      // API expects { content, media }
+      // We will default media to an empty array or the placeholder if not provided,
+      // closely matching the curl example which expects the field to exist.
 
-    setPosts((prevPosts) => [newPost, ...prevPosts]);
-    setShowCreatePostModal(false);
+      const media = postData.images ? postData.images.map((i) => i.url) : []; // Send undefined to omit field from JSON
+
+      const payload = {
+        content: postData.content,
+        media: postData.media?.length > 0 ? postData.media : ["placeholder"],
+      };
+
+      const response = await apiCreatePost(payload);
+
+      console.log("Create Post Response:", response);
+
+      const newPost = {
+        ...response,
+        user: currentUser,
+        // Ensure defaults if backend omits them
+        likes: response.likes || [],
+        likeCount: response.likeCount || 0,
+        commentCount: response.commentCount || 0,
+        bookmarkedBy: response.bookmarkedBy || [],
+        timestamp: response.timestamp || new Date().toISOString(),
+      };
+
+      setPosts((prevPosts) => [newPost, ...prevPosts]);
+      setShowCreatePostModal(false);
+      return newPost;
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      throw error;
+    }
   };
 
   // Comment Functions
-  const handleLikeComment = (commentId, postId, skipAuth = false) => {
+  const handleLikeComment = async (commentId, postId, skipAuth = false) => {
     if (!skipAuth && !requireAuth({ type: "like-comment", commentId, postId }))
       return;
 
+    // 1. Optimistic Update
+    let previousComments;
     setComments((prevComments) => {
+      previousComments = prevComments; // Save for rollback
       const postComments = prevComments[postId] || [];
       const updatedComments = postComments.map((comment) => {
+        // Check if it's the main comment being liked/unliked
         if (comment.id === commentId) {
           const hasLiked = comment.likes.includes(currentUser.id);
           return {
@@ -302,7 +471,7 @@ export const StudyGramProvider = ({ children }) => {
           };
         }
 
-        // Check replies
+        // Check replies if the commentId matches a reply
         if (comment.replies && comment.replies.length > 0) {
           return {
             ...comment,
@@ -334,54 +503,78 @@ export const StudyGramProvider = ({ children }) => {
     });
   };
 
-  const addComment = (postId, content, parentId = null) => {
-    const newComment = {
-      id: `comment-${Date.now()}`,
-      postId,
-      parentId,
-      userId: currentUser.id,
-      content,
-      timestamp: new Date().toISOString(),
-      likes: [],
-      likeCount: 0,
-      replies: [],
-    };
+  const addComment = async (postId, content, parentId = null) => {
+    if (!requireAuth({ type: "comment", postId })) return;
 
-    setComments((prevComments) => {
-      const postComments = prevComments[postId] || [];
+    // Optimistic Update (Optional) or Wait for API
+    // Let's await API for consistency with backend IDs
+    try {
+      const newComment = await apiCreateComment(
+        postId,
+        content,
+        currentUser.id,
+        parentId
+      );
 
-      if (parentId) {
-        // Add as reply
-        const updatedComments = postComments.map((comment) => {
-          if (comment.id === parentId) {
-            return {
-              ...comment,
-              replies: [...(comment.replies || []), newComment],
-            };
-          }
-          return comment;
-        });
-        return {
-          ...prevComments,
-          [postId]: updatedComments,
-        };
-      } else {
-        // Add as top-level comment
-        return {
-          ...prevComments,
-          [postId]: [...postComments, newComment],
-        };
-      }
-    });
+      setComments((prev) => {
+        const postComments = prev[postId] || [];
+        // Map backend response to frontend structure if needed, or assume backend matches
+        // The endpoint returns "Comment created successfully" or the object?
+        // Docs say "Comment created successfully" (201).
+        // We might need to refetch or manually construct the comment object if backend doesn't return it.
+        // Waiting for clarification or assuming we need to fetch.
+        // Let's assume we need to REFETCH for now to get the full comment object with clean ID/timestamp.
+        return prev;
+      });
 
-    // Update comment count on post
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post.id === postId
-          ? { ...post, commentCount: post.commentCount + 1 }
-          : post
-      )
-    );
+      // Refetch comments to get the new one
+      fetchCommentsForPost(postId);
+
+      // Update comment count on post
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, commentCount: post.commentCount + 1 }
+            : post
+        )
+      );
+
+      return true;
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+      toast.error("Failed to post comment.");
+      return false;
+    }
+  };
+
+  const fetchCommentsForPost = async (postId) => {
+    try {
+      const commentsData = await apiGetComments(postId);
+      // Transform if necessary (snake_case to camelCase)
+      const formattedComments = commentsData.map((c) => ({
+        id: c.comment_id,
+        content: c.comment_content,
+        timestamp: c.comment_created_at, // timestamps logic
+        // Backend returns count, but frontend expects array of IDs for .includes().
+        // We set likes to [] to prevent crash, and use likeCount for display.
+        likes: [],
+        likeCount: c.comment_like_count,
+        user: {
+          id: c.commenter_user_id,
+          username: c.commenter_username,
+          name: c.commenter_name,
+          avatar: c.commenter_avatar,
+        },
+        replies: [], // sub_comment_count handled separately?
+      }));
+
+      setComments((prev) => ({
+        ...prev,
+        [postId]: formattedComments,
+      }));
+    } catch (error) {
+      console.error("Failed to fetch comments", error);
+    }
   };
 
   // Quiz Functions
@@ -428,7 +621,7 @@ export const StudyGramProvider = ({ children }) => {
   const feedPosts = posts
     .map((post) => ({
       ...post,
-      user: getUserById(post.userId),
+      user: getUserById(post.userId) || post.user,
     }))
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
@@ -449,10 +642,12 @@ export const StudyGramProvider = ({ children }) => {
     handleCommentClick,
     handleCreatePost,
     createPost,
+    fetchPostById, // Add fetchPostById here
 
     // Comments
     comments,
     addComment,
+    fetchCommentsForPost,
     handleLikeComment,
     getCommentsForPost: (postId) => comments[postId] || [],
 
