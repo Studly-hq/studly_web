@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
-import Header from "./components/layout/Header";
+
 import LeftSidebar from "./components/layout/LeftSidebar";
 import RightSidebar from "./components/layout/RightSidebar";
 import MobileBottomNav from "./components/layout/MobileBottomNav";
@@ -21,6 +21,9 @@ import UploadNotes from "./pages/UploadNotes";
 import QuizFeed from "./pages/QuizFeed";
 import CourseBank from "./pages/CourseBank";
 import TopicPlayer from "./pages/TopicPlayer";
+import PostPage from "./pages/PostPage";
+import CreateAd from "./pages/CreateAd";
+import AdsDashboard from "./pages/AdsDashboard";
 import PostDetail from "./pages/PostDetail";
 
 import "./App.css";
@@ -36,6 +39,29 @@ function App() {
             <Route path="/courses/:topicId" element={<TopicPlayer />} />
 
             {/* Main app routes (with header and sidebars) */}
+            <Route path="/*" element={
+              <div className="min-h-screen bg-reddit-bg text-reddit-text flex justify-center">
+                <div className="flex w-full max-w-[1280px]">
+                  {/* Left Sidebar */}
+                  <LeftSidebar />
+
+                  {/* Center Content - Routes */}
+                  <main className="flex-1 min-w-0 border-x border-reddit-border pb-20 lg:pb-0">
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/explore" element={<Explore />} />
+                      <Route path="/saved" element={<SavedPosts />} />
+                      <Route path="/upload" element={<UploadNotes />} />
+                      <Route path="/quiz-feed" element={<QuizFeed />} />
+                      <Route path="/profile" element={<UserProfile />} />
+                      <Route path="/profile/edit" element={<EditProfile />} />
+                      <Route path="/profile/:userId" element={<UserProfile />} />
+                      <Route path="/post/:postId" element={<PostPage />} />
+                      <Route path="/ads/create" element={<CreateAd />} />
+                      <Route path="/ads/dashboard" element={<AdsDashboard />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Routes>
+                  </main>
             <Route
               path="/*"
               element={

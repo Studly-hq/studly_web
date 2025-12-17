@@ -1,11 +1,14 @@
 import { motion } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, User, PlayCircle } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, Compass, User, PlayCircle, Plus, MoreHorizontal, LogIn } from 'lucide-react';
 import { useCoursePlayer } from '../../context/CoursePlayerContext';
+import { useStudyGram } from '../../context/StudyGramContext';
 
 const LeftSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { hasAnyProgress } = useCoursePlayer();
+  const { isAuthenticated, currentUser, logout, handleCreatePost, setShowAuthModal } = useStudyGram();
 
   const navItems = [
     {
@@ -35,90 +38,92 @@ const LeftSidebar = () => {
     <motion.aside
       initial={{ x: -20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-      className="hidden lg:flex flex-col w-60 bg-reddit-bg border-r border-reddit-border h-screen sticky top-0 pt-16"
+      className="hidden lg:flex flex-col w-[280px] h-screen sticky top-0 px-2 justify-between"
     >
-      <div className="flex flex-col gap-1 p-3 pt-4">
-        {/* Regular nav items */}
-        {navItems.map((item, index) => {
-          const isActive = location.pathname === item.path;
-          const Component = item.disabled ? 'div' : Link;
-          const props = item.disabled ? {} : { to: item.path };
-
-          return (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05, duration: 0.2 }}
-            >
-              <Component {...props}>
-                <motion.div
-                  whileHover={!item.disabled ? { backgroundColor: '#272729' } : {}}
-                  whileTap={!item.disabled ? { scale: 0.98 } : {}}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium
-                    transition-all duration-150
-                    ${
-                      isActive && !item.disabled
-                        ? 'bg-reddit-card text-reddit-text border border-reddit-border'
-                        : item.disabled
-                        ? 'text-reddit-textMuted cursor-not-allowed opacity-40'
-                        : 'text-reddit-textMuted hover:text-reddit-text cursor-pointer'
-                    }
-                  `}
-                >
-                  <item.icon size={18} />
-                  <span>{item.label}</span>
-                  {item.disabled && (
-                    <span className="ml-auto text-[10px] text-reddit-textMuted">Soon</span>
-                  )}
-                </motion.div>
-              </Component>
-            </motion.div>
-          );
-        })}
-
-        {/* Divider */}
-        <div className="h-px bg-reddit-border my-2" />
-
-        {/* Dynamic Course Button */}
-        <motion.div
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: navItems.length * 0.05, duration: 0.2 }}
-        >
-          <Link to="/courses">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={`
-                flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold
-                transition-all duration-200 border-2
-                ${isCourseActive
-                  ? 'bg-reddit-orange text-white border-reddit-orange shadow-lg'
-                  : 'bg-reddit-orange/10 text-reddit-orange border-reddit-orange/30 hover:bg-reddit-orange hover:text-white hover:border-reddit-orange'
-                }
-              `}
-            >
-              <PlayCircle size={18} />
-              <span>{courseButtonLabel}</span>
-            </motion.div>
+      <div className="flex flex-col h-full">
+        {/* Logo Area */}
+        <div className="p-3 my-1">
+          <Link to="/" className="inline-flex items-center justify-center p-3 rounded-full hover:bg-reddit-cardHover/50 transition-colors w-12 h-12">
+            <span className="text-reddit-orange font-righteous text-2xl">S</span>
           </Link>
-        </motion.div>
+        </div>
 
-        {/* Optional: Course progress indicator */}
-        {hasAnyProgress() && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="mt-2 px-3 py-2 bg-reddit-card/50 rounded-lg border border-reddit-border"
-          >
-            <p className="text-xs text-reddit-placeholder text-center">
-              Continue learning where you left off
-            </p>
-          </motion.div>
-        )}
+        {/* Nav Items */}
+        <nav className="flex-1 px-2 space-y-1">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            const Component = item.disabled ? 'div' : Link;
+            const props = item.disabled ? {} : { to: item.path };
+
+            return (
+              <Component key={item.id} {...props} className="block group">
+                <div className={`
+                  inline-flex items-center gap-4 px-5 py-3 rounded-full text-xl
+                  transition-colors duration-200
+                  ${isActive ? 'font-bold' : 'font-normal'}
+                  text-white group-hover:bg-reddit-cardHover/50
+                `}>
+                  <item.icon size={26} strokeWidth={isActive ? 3 : 2} />
+                  <span>{item.label}</span>
+                </div>
+              </Component>
+            );
+          })}
+
+          {/* Course Button (Studly Specific) */}
+          <Link to="/courses" className="block group mt-2">
+            <div className={`
+                inline-flex items-center gap-4 px-5 py-3 rounded-full text-xl
+                transition-colors duration-200 font-normal
+                text-white group-hover:bg-reddit-cardHover/50
+                ${isCourseActive ? 'font-bold' : ''}
+              `}>
+              <PlayCircle size={26} strokeWidth={isCourseActive ? 3 : 2} />
+              <span>{courseButtonLabel}</span>
+            </div>
+          </Link>
+
+          {/* Post Button */}
+          <div className="mt-4 px-2">
+            <button
+              onClick={() => isAuthenticated ? handleCreatePost() : setShowAuthModal(true)}
+              className="w-[90%] bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-2.5 rounded-full shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] text-lg"
+            >
+              Post
+            </button>
+          </div>
+        </nav>
+
+        {/* User Profile / Auth Area (Bottom) */}
+        <div className="p-3 mb-2">
+          {isAuthenticated ? (
+            <button
+              className="w-full flex items-center justify-between p-3 rounded-full hover:bg-reddit-cardHover/50 transition-colors group text-left"
+              onClick={() => navigate('/profile')}
+            >
+              <div className="flex items-center gap-3">
+                <img
+                  src={currentUser?.avatar}
+                  alt={currentUser?.displayName}
+                  className="w-10 h-10 rounded-full bg-gray-700"
+                />
+                <div className="flex flex-col leading-snug hidden xl:block">
+                  <span className="font-bold text-sm truncate max-w-[100px]">{currentUser?.displayName}</span>
+                  <span className="text-reddit-textMuted text-sm truncate max-w-[100px]">@{currentUser?.username}</span>
+                </div>
+              </div>
+              <MoreHorizontal className="hidden xl:block" size={18} />
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="w-full border border-reddit-border hover:bg-reddit-cardHover/10 text-reddit-text font-bold py-3 rounded-full transition-colors flex items-center justify-center gap-2"
+            >
+              <LogIn size={20} />
+              <span className="hidden xl:inline">Log In</span>
+            </button>
+          )}
+        </div>
       </div>
     </motion.aside>
   );
