@@ -32,7 +32,7 @@ const PostDetail = () => {
         setPost(fetchedPost);
         await fetchCommentsForPost(postId);
       } else {
-        setError("Post not found");
+        setError("Post not found, Please try again!");
       }
       setLoading(false);
     };
