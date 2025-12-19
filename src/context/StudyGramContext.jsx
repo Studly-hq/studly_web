@@ -28,6 +28,8 @@ import {
   createComment as apiCreateComment,
   getComments as apiGetComments,
   bookmarkPost as apiBookmarkPost,
+  unbookmarkPost as apiUnbookmarkPost,
+  getBookmarks as apiGetBookmarks,
   // likeComment as apiLikeComment,
   // unlikeComment as apiUnlikeComment,
 } from "../api/contents"; // Import content service
