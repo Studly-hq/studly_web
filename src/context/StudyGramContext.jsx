@@ -27,6 +27,7 @@ import {
   unlikePost as apiUnlikePost,
   createComment as apiCreateComment,
   getComments as apiGetComments,
+  bookmarkPost as apiBookmarkPost,
   // likeComment as apiLikeComment,
   // unlikeComment as apiUnlikeComment,
 } from "../api/contents"; // Import content service
@@ -49,6 +50,7 @@ export const StudyGramProvider = ({ children }) => {
 
   // Posts & Comments State
   const [posts, setPosts] = useState([]); // Start empty, fetch real posts
+  const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
   const [comments, setComments] = useState(mockComments);
 
   // Quiz State
@@ -213,9 +215,22 @@ export const StudyGramProvider = ({ children }) => {
     [posts, mapBackendPostToFrontend]
   );
 
+  const fetchBookmarks = useCallback(async () => {
+    try {
+      const serverBookmarks = await apiGetBookmarks();
+      const mappedBookmarks = serverBookmarks.map(mapBackendPostToFrontend);
+      setBookmarkedPosts(mappedBookmarks);
+    } catch (error) {
+      console.error("Failed to fetch bookmarks:", error);
+    }
+  }, [mapBackendPostToFrontend]);
+
   useEffect(() => {
     fetchFeedPosts();
-  }, [isAuthenticated, fetchFeedPosts]); // Re-fetch when auth status changes (e.g. login)
+    if (isAuthenticated) {
+      fetchBookmarks();
+    }
+  }, [isAuthenticated, fetchFeedPosts, fetchBookmarks]);
 
   // Auth Functions
   const replayAction = useCallback((action) => {
@@ -462,7 +477,7 @@ export const StudyGramProvider = ({ children }) => {
   );
 
   const handleBookmarkPost = useCallback(
-    (postId, skipAuth = false) => {
+    async (postId, skipAuth = false) => {
       if (!skipAuth && !isAuthenticated) {
         setScrollPosition(window.scrollY);
         setPendingAction({ type: "bookmark", postId });
@@ -470,8 +485,13 @@ export const StudyGramProvider = ({ children }) => {
         return;
       }
 
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => {
+      // 1. Optimistic Update
+      let previousPosts;
+      let previousBookmarks;
+
+      setPosts((prevPosts) => {
+        previousPosts = prevPosts;
+        return prevPosts.map((post) => {
           if (post.id === postId) {
             const hasBookmarked = post.bookmarkedBy.includes(currentUser.id);
             return {
@@ -482,8 +502,46 @@ export const StudyGramProvider = ({ children }) => {
             };
           }
           return post;
-        })
-      );
+        });
+      });
+
+      setBookmarkedPosts((prevBookmarks) => {
+        previousBookmarks = prevBookmarks;
+        const isAlreadyInBookmarks = prevBookmarks.some((p) => p.id === postId);
+        if (isAlreadyInBookmarks) {
+          return prevBookmarks.filter((p) => p.id !== postId);
+        } else {
+          const postToAdd = posts.find((p) => p.id === postId);
+          if (postToAdd) {
+            return [
+              { ...postToAdd, bookmarkedBy: [currentUser.id] },
+              ...prevBookmarks,
+            ];
+          }
+          return prevBookmarks;
+        }
+      });
+
+      // 2. Call API
+      try {
+        const currentPost = posts.find((p) => p.id === postId);
+        const alreadyBookmarked = currentPost?.bookmarkedBy.includes(
+          currentUser.id
+        );
+
+        if (alreadyBookmarked) {
+          await apiUnbookmarkPost(postId);
+          toast.success("Removed from bookmarks");
+        } else {
+          await apiBookmarkPost(postId);
+          toast.success("Added to bookmarks");
+        }
+      } catch (error) {
+        console.error("Failed to toggle bookmark:", error);
+        setPosts(previousPosts);
+        setBookmarkedPosts(previousBookmarks);
+        toast.error("Failed to update bookmark.");
+      }
     },
     [
       posts,
@@ -822,12 +880,14 @@ export const StudyGramProvider = ({ children }) => {
 
       // Posts
       posts: feedPosts,
+      bookmarkedPosts,
       handleLikePost,
       handleBookmarkPost,
       handleCommentClick,
       handleCreatePost,
       createPost,
-      fetchPostById, // Add fetchPostById here
+      fetchPostById,
+      fetchBookmarks,
 
       // Comments
       comments,
@@ -886,6 +946,8 @@ export const StudyGramProvider = ({ children }) => {
       setShowComments,
       isMobileMenuOpen,
       setIsMobileMenuOpen,
+      bookmarkedPosts,
+      fetchBookmarks,
     ]
   );
 

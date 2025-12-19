@@ -130,3 +130,17 @@ export const getComments = async (postId) => {
     throw error;
   }
 };
+
+export const bookmarkPost = async (postId) => {
+  try {
+    const response = await client.post(`/studlygram/bookmark/${postId}`);
+    console.log("Bookmark Post Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Bookmark Post Error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

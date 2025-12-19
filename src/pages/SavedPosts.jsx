@@ -1,19 +1,30 @@
-import { motion } from 'framer-motion';
-import { Bookmark, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useStudyGram } from '../context/StudyGramContext';
-import PostCard from '../components/post/PostCard';
+import { motion } from "framer-motion";
+import { Bookmark, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useStudyGram } from "../context/StudyGramContext";
+import PostCard from "../components/post/PostCard";
+import { useEffect } from "react";
 
 const SavedPosts = () => {
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated, posts } = useStudyGram();
+  const { currentUser, isAuthenticated, bookmarkedPosts, fetchBookmarks } =
+    useStudyGram();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchBookmarks();
+    }
+  }, [isAuthenticated, fetchBookmarks]);
 
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-reddit-bg pt-20 px-4">
         <div className="max-w-[640px] mx-auto text-center py-16">
           <div className="bg-reddit-card rounded-md p-12 border border-reddit-border">
-            <Bookmark size={48} className="text-reddit-textMuted mx-auto mb-4 opacity-50" />
+            <Bookmark
+              size={48}
+              className="text-reddit-textMuted mx-auto mb-4 opacity-50"
+            />
             <h2 className="text-xl font-bold text-reddit-text mb-2">
               Login to View Saved Posts
             </h2>
@@ -26,10 +37,7 @@ const SavedPosts = () => {
     );
   }
 
-  // Get saved posts from bookmarkedBy field (posts already have user data attached)
-  const savedPosts = posts.filter(post =>
-    post.bookmarkedBy?.includes(currentUser?.id)
-  );
+  const savedPosts = bookmarkedPosts;
 
   return (
     <div className="min-h-screen bg-reddit-bg pt-16">
@@ -48,9 +56,12 @@ const SavedPosts = () => {
             <div className="flex items-center gap-2">
               <Bookmark size={18} className="text-yellow-500" />
               <div>
-                <h1 className="text-base font-bold text-reddit-text">Saved Posts</h1>
+                <h1 className="text-base font-bold text-reddit-text">
+                  Saved Posts
+                </h1>
                 <p className="text-xs text-reddit-textMuted">
-                  {savedPosts.length} {savedPosts.length === 1 ? 'post' : 'posts'}
+                  {savedPosts.length}{" "}
+                  {savedPosts.length === 1 ? "post" : "posts"}
                 </p>
               </div>
             </div>
@@ -67,7 +78,10 @@ const SavedPosts = () => {
             className="text-center py-16"
           >
             <div className="bg-reddit-card rounded-md p-10 border border-reddit-border">
-              <Bookmark size={40} className="text-reddit-textMuted mx-auto mb-3 opacity-50" />
+              <Bookmark
+                size={40}
+                className="text-reddit-textMuted mx-auto mb-3 opacity-50"
+              />
               <h3 className="text-lg font-bold text-reddit-text mb-2">
                 No Saved Posts Yet
               </h3>
@@ -75,7 +89,7 @@ const SavedPosts = () => {
                 Start bookmarking posts to build your study collection
               </p>
               <motion.button
-                onClick={() => navigate('/')}
+                onClick={() => navigate("/")}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="px-5 py-2 bg-reddit-blue hover:bg-reddit-blue/90 text-white text-sm rounded font-medium transition-colors"
