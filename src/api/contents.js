@@ -144,3 +144,17 @@ export const bookmarkPost = async (postId) => {
     throw error;
   }
 };
+
+export const unbookmarkPost = async (postId) => {
+  try {
+    const response = await client.delete(`/studlygram/bookmark/${postId}`);
+    console.log("Unbookmark Post Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Unbookmark Post Error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
