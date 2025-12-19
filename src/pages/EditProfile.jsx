@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import { toast } from "sonner";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 // import { uploadAvatar } from "../api/profile";
 
 const EditProfile = () => {
@@ -102,7 +103,7 @@ const EditProfile = () => {
             >
               {isSaving ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <LoadingSpinner size={16} color="#ffffff" />
                   Saving...
                 </>
               ) : (

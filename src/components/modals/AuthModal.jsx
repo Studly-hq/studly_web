@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Eye, EyeOff } from "lucide-react";
 import { useStudyGram } from "../../context/StudyGramContext";
 import { toast } from "sonner";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 const AuthModal = () => {
   const { showAuthModal, setShowAuthModal, login, signup } = useStudyGram();
@@ -120,11 +121,10 @@ const AuthModal = () => {
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.15 }}
                 onClick={() => setActiveTab("login")}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all ${
-                  activeTab === "login"
-                    ? "bg-reddit-orange text-white "
-                    : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
-                }`}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all ${activeTab === "login"
+                  ? "bg-reddit-orange text-white "
+                  : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
+                  }`}
               >
                 Log In
               </motion.button>
@@ -132,11 +132,10 @@ const AuthModal = () => {
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.15 }}
                 onClick={() => setActiveTab("signup")}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all ${
-                  activeTab === "signup"
-                    ? "bg-reddit-orange text-white shadow-sm"
-                    : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
-                }`}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all ${activeTab === "signup"
+                  ? "bg-reddit-orange text-white shadow-sm"
+                  : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
+                  }`}
               >
                 Sign Up
               </motion.button>
@@ -241,15 +240,13 @@ const AuthModal = () => {
               whileTap={isLoading ? {} : { scale: 0.99 }}
               transition={{ duration: 0.15 }}
               className={`w-full font-bold py-3 rounded-lg text-sm transition-all flex items-center justify-center
-                ${
-                  isLoading
-                    ? "bg-reddit-orange/50 cursor-not-allowed text-white/50"
-                    : "bg-reddit-orange hover:from-reddit-orange/90 hover:to-reddit-orange/80 text-white"
+                ${isLoading
+                  ? "bg-reddit-orange/50 cursor-not-allowed text-white/50"
+                  : "bg-reddit-orange hover:from-reddit-orange/90 hover:to-reddit-orange/80 text-white"
                 }`}
             >
               {isLoading ? (
-                // Simple loading spinner
-                <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                <LoadingSpinner size={20} color="#ffffff" />
               ) : activeTab === "login" ? (
                 "Log In"
               ) : (
@@ -278,8 +275,8 @@ const AuthModal = () => {
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.15 }}
                 onClick={() =>
-                  (window.location.href =
-                    "http://0.0.0.0:8080/auth/google/login")
+                (window.location.href =
+                  "https://unesthetic-cretaceously-maris.ngrok-free.dev/auth/google/login")
                 }
                 className="flex items-center justify-center gap-2 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text py-2.5 rounded-lg border border-reddit-border transition-colors text-sm font-medium w-full"
               >

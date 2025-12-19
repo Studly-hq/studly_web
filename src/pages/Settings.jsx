@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Globe, User, ChevronRight } from "lucide-react";
+import { ArrowLeft, Globe, User, ChevronRight, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import { changePassword } from "../api/auth";
 import { toast } from "sonner";
-import { X } from "lucide-react";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -254,7 +254,7 @@ const Settings = () => {
                   className="flex-1 px-4 py-2 bg-reddit-blue text-white rounded-lg hover:bg-reddit-blue/90 transition-colors font-medium disabled:opacity-50 flex justify-center items-center"
                 >
                   {isChangingPassword ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <LoadingSpinner size={20} color="#ffffff" />
                   ) : (
                     "Save Changes"
                   )}

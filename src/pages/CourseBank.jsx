@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import {
   Search,
   ArrowLeft,
-  Loader2,
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
@@ -18,6 +17,7 @@ import {
 } from "../data/courseBankData";
 import { getCourses, getEnrolledCourses } from "../api/coursebank";
 import { useStudyGram } from "../context/StudyGramContext";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const CourseBank = () => {
   const navigate = useNavigate();
@@ -203,8 +203,8 @@ const CourseBank = () => {
           {/* Loading State */}
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-20">
-              <Loader2 className="w-10 h-10 text-reddit-orange animate-spin mb-4" />
-              <p className="text-reddit-placeholder">Loading courses...</p>
+              <LoadingSpinner size={50} color="#FF4500" />
+              <p className="text-reddit-placeholder mt-4">Loading courses...</p>
             </div>
           )}
 

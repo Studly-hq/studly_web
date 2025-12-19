@@ -104,7 +104,7 @@ const PostCard = ({ post }) => {
               text: post.content,
               url: window.location.href,
             })
-            .catch(() => {});
+            .catch(() => { });
         } else {
           // Fallback: copy to clipboard
           navigator.clipboard.writeText(window.location.href);
@@ -142,8 +142,12 @@ const PostCard = ({ post }) => {
               e.stopPropagation();
               navigate(`/profile/${post.user.username}`);
             }}
-            src={post.user.avatar}
+            src={post.user.avatar || `https://ui-avatars.com/api/?name=${post.user.displayName}&background=ff4500&color=fff`}
             alt={post.user.displayName}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = `https://ui-avatars.com/api/?name=${post.user.displayName}&background=ff4500&color=fff`;
+            }}
             className="w-8 h-8 rounded-full cursor-pointer object-cover"
           />
           <div className="flex flex-col">
@@ -206,7 +210,7 @@ const PostCard = ({ post }) => {
                   <motion.button
                     whileHover={{ backgroundColor: "#272729" }}
                     onClick={() => handleMenuAction("edit")}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-reddit-text hover:text-reddit-blue text-sm"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-reddit-text hover:text-reddit-orange text-sm"
                   >
                     <Edit3 size={14} />
                     <span>Edit Post</span>
@@ -227,7 +231,7 @@ const PostCard = ({ post }) => {
                 <motion.button
                   whileHover={{ backgroundColor: "#272729" }}
                   onClick={() => handleMenuAction("share")}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-left text-reddit-text hover:text-reddit-blue text-sm"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-left text-reddit-text hover:text-reddit-orange text-sm"
                 >
                   <Share2 size={14} />
                   <span>Share Post</span>
@@ -336,11 +340,10 @@ const PostCard = ({ post }) => {
                       setCurrentImageIndex(index);
                       setImageLoaded(false);
                     }}
-                    className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${
-                      index === currentImageIndex
+                    className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${index === currentImageIndex
                         ? "bg-white w-6"
                         : "bg-white/50 w-2 hover:bg-white/75"
-                    }`}
+                      }`}
                   />
                 ))}
               </div>
@@ -368,11 +371,10 @@ const PostCard = ({ post }) => {
                 e.stopPropagation();
                 handleLikePost(post.id);
               }}
-              className={`flex items-center gap-1 p-2 rounded-full ${
-                isLiked
+              className={`flex items-center gap-1 p-2 rounded-full ${isLiked
                   ? "text-reddit-orange"
                   : "text-reddit-textMuted hover:text-reddit-text"
-              }`}
+                }`}
             >
               <Heart
                 size={20}
@@ -407,11 +409,10 @@ const PostCard = ({ post }) => {
               e.stopPropagation();
               handleBookmarkPost(post.id);
             }}
-            className={`p-2 rounded-full ${
-              isBookmarked
-                ? "text-yellow-500"
+            className={`p-2 rounded-full ${isBookmarked
+                ? "text-reddit-orange"
                 : "text-reddit-textMuted hover:text-reddit-text"
-            }`}
+              }`}
           >
             <Bookmark
               size={20}
@@ -430,7 +431,7 @@ const PostCard = ({ post }) => {
                 whileHover={{ backgroundColor: "#272729" }}
                 transition={{ duration: 0.15 }}
                 onClick={(e) => e.stopPropagation()}
-                className="text-xs text-reddit-blue bg-reddit-blue/10 px-2 py-0.5 rounded cursor-pointer"
+                className="text-xs text-reddit-orange bg-reddit-orange/10 px-2 py-0.5 rounded cursor-pointer"
               >
                 #{tag}
               </motion.span>

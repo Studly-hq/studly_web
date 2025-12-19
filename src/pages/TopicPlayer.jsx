@@ -9,6 +9,7 @@ import ContentPlayer from '../components/courses/player/ContentPlayer';
 import NotesPanel from '../components/courses/player/NotesPanel';
 import AIChatbot from '../components/courses/player/AIChatbot';
 import { Toaster } from 'react-hot-toast';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const TopicPlayer = () => {
   const { topicId } = useParams();
@@ -44,7 +45,7 @@ const TopicPlayer = () => {
   if (!topic || !currentTopic) {
     return (
       <div className="min-h-screen bg-reddit-dark flex items-center justify-center">
-        <div className="text-white">Loading course...</div>
+        <LoadingSpinner size={50} color="#FF4500" />
       </div>
     );
   }
@@ -57,7 +58,7 @@ const TopicPlayer = () => {
 
   const canGoPrevious = currentSectionIndex > 0 || currentSceneIndex > 0;
   const canGoNext = currentSectionIndex < topic.sections.length - 1 ||
-                     currentSceneIndex < currentSection.scenes.length - 1;
+    currentSceneIndex < currentSection.scenes.length - 1;
 
   return (
     <div className="min-h-screen bg-reddit-dark text-white overflow-x-hidden">

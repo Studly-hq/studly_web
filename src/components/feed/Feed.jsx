@@ -2,13 +2,17 @@ import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useStudyGram } from "../../context/StudyGramContext";
 import PostCard from "../post/PostCard";
+import LoadingSpinner from "../common/LoadingSpinner";
 
-const Feed = () => {
-  const { posts } = useStudyGram();
+const Feed = ({ activeTab }) => {
+  const { posts, currentUser, isFeedLoading } = useStudyGram();
   const feedRef = useRef(null);
 
+  const displayedPosts = activeTab === 'following'
+    ? posts.filter(post => currentUser?.following?.includes(post.userId))
+    : posts;
+
   useEffect(() => {
-    // Scroll restoration
     const savedPosition = sessionStorage.getItem("feed-scroll-position");
     const currentFeedRef = feedRef.current;
 
@@ -26,15 +30,22 @@ const Feed = () => {
     };
   }, []);
 
+  if (isFeedLoading) {
+    return (
+      <div className="flex justify-center p-10">
+        <LoadingSpinner size={50} color="#FF4500" />
+      </div>
+    );
+  }
+
   return (
     <div
       ref={feedRef}
       className="flex-1 max-w-[640px] mx-auto px-4 pt-4 pb-5 overflow-y-auto"
     >
-      {/* Posts List - Reddit Style: Clean, minimal spacing */}
       <div className="space-y-3">
-        {posts && posts.length > 0 ? (
-          posts.map((post, index) => (
+        {displayedPosts && displayedPosts.length > 0 ? (
+          displayedPosts.map((post, index) => (
             <motion.div
               key={post.id}
               initial={{ opacity: 0, y: 10 }}
@@ -64,7 +75,6 @@ const Feed = () => {
         )}
       </div>
 
-      {/* Loading More Indicator */}
       {posts && posts.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}

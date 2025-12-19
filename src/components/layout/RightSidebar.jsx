@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -13,6 +13,7 @@ import {
   X
 } from 'lucide-react';
 import { useStudyGram } from '../../context/StudyGramContext';
+import { getUserStreak, getUserAuraPoints } from '../../api/profile';
 import AdPromotionWidget from '../ads/AdPromotionWidget';
 
 const RightSidebar = () => {
@@ -21,6 +22,25 @@ const RightSidebar = () => {
   const { isAuthenticated, currentUser, logout, setShowAuthModal } = useStudyGram();
   const [searchQuery, setSearchQuery] = useState('');
   const [adWidgetDismissed, setAdWidgetDismissed] = useState(false);
+  const [stats, setStats] = useState({ streak: 0, auraPoints: 0 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (currentUser?.username) {
+        try {
+          const streak = await getUserStreak(currentUser.username);
+          const points = await getUserAuraPoints(currentUser.username);
+          setStats({ streak, auraPoints: points });
+        } catch (error) {
+          console.error("Failed to fetch sidebar stats", error);
+        }
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchStats();
+    }
+  }, [isAuthenticated, currentUser]);
 
   // Hide ad widget on ads-related pages
   const isOnAdsPage = location.pathname.startsWith('/ads/');
@@ -43,24 +63,34 @@ const RightSidebar = () => {
     <motion.aside
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="hidden lg:flex flex-col w-[320px] h-screen sticky top-0 px-4 pt-2 gap-4"
+      className="hidden lg:flex flex-col w-[350px] h-screen sticky top-0 px-4 pt-2 gap-4 overflow-y-auto pb-20 scrollbar-hide"
     >
+
       {/* Search Bar - Sticky */}
       <div className="sticky top-0 pt-2 pb-1 z-10">
-        <div className="group relative flex items-center bg-[#202327] border border-[#2f3336] focus-within:border-reddit-orange focus-within:ring-1 focus-within:ring-reddit-orange rounded-full px-4 py-3 transition-all">
-          <Search size={18} className="text-gray-500 group-focus-within:text-reddit-orange" />
+        <div
+          className="flex items-center bg-[#202327] rounded-full px-4 py-3 border border-[#2f3336] focus-within:border-reddit-orange transition-colors duration-200"
+        >
+          <Search size={18} className="text-gray-500" />
           <input
             type="text"
             placeholder="Search Studly"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleSearch}
-            className="flex-1 bg-transparent text-white placeholder-gray-500 outline-none text-[15px] ml-4"
+            className="flex-1 bg-transparent text-white placeholder-gray-500 text-[15px] ml-4 w-full"
+            style={{
+              border: 'none',
+              outline: 'none',
+              boxShadow: 'none',
+              background: 'transparent'
+            }}
+            autoComplete="off"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="bg-reddit-orange rounded-full p-0.5"
+              className="bg-reddit-orange rounded-full p-0.5 hover:bg-white transition-colors"
             >
               <X size={12} className="text-black" />
             </button>
@@ -101,7 +131,7 @@ const RightSidebar = () => {
                 <Flame size={18} className="text-reddit-orange" />
                 <span className="text-sm font-medium">Daily Streak</span>
               </div>
-              <span className="text-white font-bold text-lg">{currentUser?.streak || 0}</span>
+              <span className="text-white font-bold text-lg">{stats.streak || currentUser?.streak || 0}</span>
             </div>
           </div>
 
@@ -111,7 +141,7 @@ const RightSidebar = () => {
                 <Trophy size={18} className="text-blue-500" />
                 <span className="text-sm font-medium">Aura Points</span>
               </div>
-              <span className="text-white font-bold text-lg">{currentUser?.auraPoints || 0}</span>
+              <span className="text-white font-bold text-lg">{stats.auraPoints || currentUser?.auraPoints || 0}</span>
             </div>
           </div>
         </div>

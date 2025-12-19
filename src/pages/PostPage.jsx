@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft,
     MoreHorizontal,
@@ -8,51 +7,57 @@ import {
     MessageCircle,
     Bookmark,
     Share2,
-    Trash2,
-    Flag
 } from 'lucide-react';
 import { useStudyGram } from '../context/StudyGramContext';
 import Comment from '../components/comments/Comment';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const PostPage = () => {
     const { postId } = useParams();
     const navigate = useNavigate();
     const {
-        posts,
         currentUser,
         handleLikePost,
         handleBookmarkPost,
         getCommentsForPost,
         addComment,
         isAuthenticated,
-        setShowAuthModal
+        setShowAuthModal,
+        fetchPostById
     } = useStudyGram();
 
     const [commentText, setCommentText] = useState('');
     const [replyingTo, setReplyingTo] = useState(null);
+    const [post, setPost] = useState(null);
+    const [loading, setLoading] = useState(true);
     const inputRef = useRef(null);
 
-    // Find the post
-    const post = posts.find((p) => String(p.id) === String(postId));
+    useEffect(() => {
+        let isMounted = true;
+        const loadPost = async () => {
+            setLoading(true);
+            try {
+                const foundPost = await fetchPostById(postId);
+                if (isMounted) {
+                    setPost(foundPost);
+                }
+            } catch (error) {
+                console.error("Error fetching post:", error);
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        if (postId) {
+            loadPost();
+        }
+    }, [postId, fetchPostById]);
+
     const comments = getCommentsForPost ? getCommentsForPost(Number(postId)) : [];
-
-    const isLiked = currentUser && post?.likes.includes(currentUser.id);
-    const isBookmarked = currentUser && post?.bookmarkedBy.includes(currentUser.id);
-
-    if (!post) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] text-white">
-                <h2 className="text-xl font-bold mb-2">Post not found</h2>
-                <p className="text-gray-500 mb-4">The post you are looking for doesn't exist.</p>
-                <button
-                    onClick={() => navigate('/')}
-                    className="bg-reddit-orange px-4 py-2 rounded-full font-bold"
-                >
-                    Go Home
-                </button>
-            </div>
-        );
-    }
+    const isLiked = currentUser && post?.likes?.includes(currentUser.id);
+    const isBookmarked = currentUser && post?.bookmarkedBy?.includes(currentUser.id);
 
     const handleReplySubmit = (e) => {
         e.preventDefault();
@@ -68,6 +73,29 @@ const PostPage = () => {
         const date = new Date(timestamp);
         return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + ' · ' + date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
     };
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] text-white">
+                <LoadingSpinner size={60} color="#FF4500" />
+            </div>
+        );
+    }
+
+    if (!post) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] text-white">
+                <h2 className="text-xl font-bold mb-2">Post not found</h2>
+                <p className="text-gray-500 mb-4">The post you are looking for doesn't exist.</p>
+                <button
+                    onClick={() => navigate('/')}
+                    className="bg-reddit-orange px-4 py-2 rounded-full font-bold"
+                >
+                    Go Home
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen text-white">
@@ -168,7 +196,7 @@ const PostPage = () => {
 
             {/* Reply Input */}
             <div className="px-4 py-4 border-b border-gray-800 flex gap-3">
-                <img src={currentUser?.avatar || "https://ui-avatars.com/api/?name=Guest"} className="w-10 h-10 rounded-full bg-gray-700" />
+                <img src={currentUser?.avatar || "https://ui-avatars.com/api/?name=Guest"} alt="User avatar" className="w-10 h-10 rounded-full bg-gray-700" />
                 <div className="flex-1">
                     <div className="relative">
                         <input

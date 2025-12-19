@@ -8,8 +8,8 @@ import {
   Trophy,
   UserPlus,
   BookOpen,
-  Loader2,
 } from "lucide-react";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 import { useNavigate, useParams } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
@@ -97,7 +97,7 @@ const UserProfile = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-reddit-bg pt-20 px-4 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-reddit-blue" />
+        <LoadingSpinner size={40} color="#FF4500" />
       </div>
     );
   }
@@ -281,11 +281,10 @@ const UserProfile = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-2 md:px-4 py-2 md:py-3 rounded text-xs md:text-sm font-semibold transition-all ${
-                  activeTab === tab.id
+                className={`flex-1 px-2 md:px-4 py-2 md:py-3 rounded text-xs md:text-sm font-semibold transition-all ${activeTab === tab.id
                     ? "bg-reddit-blue text-white"
                     : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
-                }`}
+                  }`}
               >
                 {tab.label} {tab.count > 0 && `(${tab.count})`}
               </button>

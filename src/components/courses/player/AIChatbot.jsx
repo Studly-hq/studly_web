@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Loader } from 'lucide-react';
+import { Send, Bot, User } from 'lucide-react';
+import LoadingSpinner from '../../common/LoadingSpinner';
 
 const AIChatbot = ({ topicTitle, currentSectionTitle }) => {
   const [messages, setMessages] = useState([
@@ -173,7 +174,7 @@ const AIChatbot = ({ topicTitle, currentSectionTitle }) => {
             `}
           >
             {isTyping ? (
-              <Loader className="w-4 h-4 animate-spin" />
+              <LoadingSpinner size={16} color="#FF4500" />
             ) : (
               <Send className="w-4 h-4" />
             )}

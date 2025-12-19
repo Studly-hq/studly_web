@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
 import Comment from "../components/comments/Comment";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const PostDetail = () => {
   const { postId } = useParams();
@@ -52,7 +53,7 @@ const PostDetail = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-reddit-bg text-reddit-text">
-        <div className="animate-pulse">Loading post...</div>
+        <LoadingSpinner size={50} color="#FF4500" />
       </div>
     );
   }

@@ -203,6 +203,11 @@ const CreatePostModal = () => {
               placeholder="What's on your mind? Share your study notes, tips, or questions... Use #hashtags to categorize!"
               className="w-full bg-transparent text-reddit-text placeholder-reddit-textMuted outline-none resize-none text-lg min-h-[120px]"
               autoFocus
+              style={{
+                border: "none",
+                outline: "none",
+                boxShadow: "none",
+              }}
             />
 
             {/* Image Preview */}
@@ -265,11 +270,10 @@ const CreatePostModal = () => {
                             <button
                               key={index}
                               onClick={() => setPreviewIndex(index)}
-                              className={`h-2 rounded-full transition-all duration-300 ${
-                                index === previewIndex
+                              className={`h-2 rounded-full transition-all duration-300 ${index === previewIndex
                                   ? "bg-white w-6"
                                   : "bg-white/50 w-2"
-                              }`}
+                                }`}
                             />
                           ))}
                         </div>
@@ -355,11 +359,10 @@ const CreatePostModal = () => {
                 scale: content.trim() || images.length > 0 ? 0.99 : 1,
               }}
               transition={{ duration: 0.2 }}
-              className={`w-full py-3 rounded font-semibold transition-all duration-200 ${
-                (content.trim() || images.length > 0) && !isSubmitting
+              className={`w-full py-3 rounded font-semibold transition-all duration-200 ${(content.trim() || images.length > 0) && !isSubmitting
                   ? "bg-reddit-blue hover:bg-reddit-blue/90 text-white"
                   : "bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed"
-              }`}
+                }`}
             >
               {isSubmitting ? "Posting..." : "Post"}
             </motion.button>

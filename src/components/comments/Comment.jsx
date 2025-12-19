@@ -52,7 +52,9 @@ const Comment = ({ comment, postId, isReply = false, onReply }) => {
 
   const handleReplyClick = () => {
     if (!requireAuth({ type: "comment", postId })) return;
-    onReply(comment);
+    if (onReply && typeof onReply === 'function') {
+      onReply(comment);
+    }
   };
 
   // Close menu when clicking outside
@@ -198,11 +200,10 @@ const Comment = ({ comment, postId, isReply = false, onReply }) => {
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.2 }}
               onClick={() => handleLikeComment(comment.id, postId)}
-              className={`flex items-center gap-1 text-xs font-medium transition-colors duration-200 ${
-                isLiked
+              className={`flex items-center gap-1 text-xs font-medium transition-colors duration-200 ${isLiked
                   ? "text-reddit-orange"
                   : "text-reddit-textMuted hover:text-reddit-orange"
-              }`}
+                }`}
             >
               <Heart
                 size={14}

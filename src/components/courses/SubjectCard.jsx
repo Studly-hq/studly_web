@@ -6,6 +6,7 @@ import { useStudyGram } from "../../context/StudyGramContext";
 import { enrollInCourse } from "../../api/coursebank";
 import { toast } from "sonner";
 import * as Icons from "lucide-react";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 const SubjectCard = ({
   topic,
@@ -122,9 +123,8 @@ const SubjectCard = ({
             <span>{topic.estimatedMinutes} min</span>
           </div>
           <div
-            className={`px-2 py-0.5 rounded-full text-xs border ${
-              difficultyColors[topic.difficulty]
-            }`}
+            className={`px-2 py-0.5 rounded-full text-xs border ${difficultyColors[topic.difficulty]
+              }`}
           >
             {topic.difficulty}
           </div>
@@ -161,7 +161,7 @@ const SubjectCard = ({
           >
             {enrolling ? (
               <>
-                <Icons.Loader2 className="w-4 h-4 animate-spin" />
+                <LoadingSpinner size={16} color="#ffffff" />
                 Enrolling...
               </>
             ) : (

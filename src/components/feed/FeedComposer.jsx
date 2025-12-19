@@ -1,83 +1,143 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Image, Smile, Calendar, MapPin, BarChart3 } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Image, Smile, X } from 'lucide-react';
 import { useStudyGram } from '../../context/StudyGramContext';
+import { toast } from 'sonner';
+import LoadingSpinner from '../common/LoadingSpinner';
 
 const FeedComposer = () => {
-    const { currentUser, isAuthenticated, handleCreatePost, setShowAuthModal } = useStudyGram();
-    const [activeTab, setActiveTab] = useState('foryou');
+    const { currentUser, isAuthenticated, createPost, setShowAuthModal } = useStudyGram();
+    const [content, setContent] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const fileInputRef = useRef(null);
+    const textareaRef = useRef(null);
 
-    const tabs = [
-        { id: 'foryou', label: 'For you' },
-        { id: 'following', label: 'Following' }
-    ];
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error("Image size too large (max 5MB)");
+                return;
+            }
+            const url = URL.createObjectURL(file);
+            setSelectedImage({ file, url });
+        }
+    };
 
-    const attachmentIcons = [
-        { icon: Image, color: 'text-blue-500', label: 'Media' },
-        { icon: Smile, color: 'text-blue-500', label: 'GIF' },
-        { icon: BarChart3, color: 'text-blue-500', label: 'Poll' },
-        { icon: Calendar, color: 'text-blue-500', label: 'Schedule' }
-    ];
+    const removeImage = () => {
+        if (selectedImage) {
+            URL.revokeObjectURL(selectedImage.url);
+            setSelectedImage(null);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (!isAuthenticated) {
+            setShowAuthModal(true);
+            return;
+        }
+        if (!content.trim() && !selectedImage) return;
+
+        setIsSubmitting(true);
+        try {
+            const postData = {
+                content,
+                images: selectedImage ? [{ url: selectedImage.url }] : []
+            };
+            await createPost(postData);
+            setContent('');
+            removeImage();
+            toast.success("Post created successfully!");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to create post");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const autoResize = () => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+        }
+    };
 
     return (
-        <div className="border-b border-reddit-border">
-            {/* Tabs */}
-            <div className="flex border-b border-reddit-border">
-                {tabs.map((tab) => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className="flex-1 relative py-4 text-[15px] font-bold transition-colors hover:bg-reddit-cardHover/30"
-                    >
-                        <span className={activeTab === tab.id ? 'text-white' : 'text-gray-500'}>
-                            {tab.label}
-                        </span>
-                        {activeTab === tab.id && (
-                            <motion.div
-                                layoutId="activeTab"
-                                className="absolute bottom-0 left-0 right-0 h-1 bg-reddit-orange rounded-full"
-                                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                            />
-                        )}
-                    </button>
-                ))}
-            </div>
-
-            {/* Composer */}
-            <div className="flex gap-3 p-4 border-b border-reddit-border">
+        <div className="border-b border-reddit-border p-4">
+            <div className="flex gap-3">
                 <img
                     src={currentUser?.avatar || "https://ui-avatars.com/api/?name=Guest&background=1a1a1b&color=818384"}
                     alt={currentUser?.displayName || "Guest"}
-                    className="w-10 h-10 rounded-full bg-gray-700 flex-shrink-0"
+                    className="w-10 h-10 rounded-full bg-gray-700 flex-shrink-0 object-cover"
                 />
                 <div className="flex-1">
-                    <div
-                        onClick={() => isAuthenticated ? handleCreatePost() : setShowAuthModal(true)}
-                        className="text-lg text-gray-500 cursor-text py-3 hover:text-gray-400 transition-colors"
-                    >
-                        Say something...
-                    </div>
+                    <textarea
+                        ref={textareaRef}
+                        value={content}
+                        onChange={(e) => {
+                            setContent(e.target.value);
+                            autoResize();
+                        }}
+                        onClick={() => !isAuthenticated && setShowAuthModal(true)}
+                        placeholder="Say something..."
+                        className="w-full bg-transparent text-reddit-text placeholder-gray-500 text-[15px] resize-none outline-none min-h-[40px]"
+                        rows={1}
+                    />
 
-                    {/* Attachment Icons */}
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-reddit-border/50">
-                        <div className="flex items-center gap-1">
-                            {attachmentIcons.map((item, index) => (
+                    <AnimatePresence>
+                        {selectedImage && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="relative mt-2 rounded-xl overflow-hidden max-w-sm"
+                            >
+                                <img src={selectedImage.url} alt="Preview" className="w-full h-auto" />
                                 <button
-                                    key={index}
-                                    onClick={() => isAuthenticated ? handleCreatePost() : setShowAuthModal(true)}
-                                    className="p-2 rounded-full hover:bg-blue-500/10 transition-colors group"
-                                    title={item.label}
+                                    onClick={removeImage}
+                                    className="absolute top-2 right-2 bg-black/70 p-1 rounded-full text-white hover:bg-black/90 transition-colors"
                                 >
-                                    <item.icon size={20} className={`${item.color} group-hover:opacity-80`} />
+                                    <X size={16} />
                                 </button>
-                            ))}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-reddit-border/30">
+                        <div className="flex items-center gap-1">
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleImageUpload}
+                                accept="image/*"
+                                className="hidden"
+                            />
+                            <button
+                                onClick={() => isAuthenticated ? fileInputRef.current?.click() : setShowAuthModal(true)}
+                                className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors group"
+                                title="Media"
+                            >
+                                <Image size={20} className="text-reddit-orange group-hover:opacity-80" />
+                            </button>
+                            <button
+                                onClick={() => !isAuthenticated && setShowAuthModal(true)}
+                                className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors group"
+                                title="Emoji"
+                            >
+                                <Smile size={20} className="text-reddit-orange group-hover:opacity-80" />
+                            </button>
                         </div>
 
                         <button
-                            onClick={() => isAuthenticated ? handleCreatePost() : setShowAuthModal(true)}
-                            className="bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold px-4 py-1.5 rounded-full transition-colors text-[15px] opacity-50 cursor-not-allowed"
-                            disabled
+                            onClick={handleSubmit}
+                            disabled={(!content.trim() && !selectedImage) || isSubmitting}
+                            className={`bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold px-4 py-1.5 rounded-full transition-all text-[15px] flex items-center gap-2 ${(!content.trim() && !selectedImage) || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
                         >
+                            {isSubmitting && <LoadingSpinner size={16} color="#ffffff" />}
                             Post
                         </button>
                     </div>

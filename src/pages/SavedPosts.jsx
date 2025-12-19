@@ -1,13 +1,14 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Bookmark, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
-import { useEffect } from "react";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const SavedPosts = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, bookmarkedPosts, fetchBookmarks } = useStudyGram();
+  const { isAuthenticated, bookmarkedPosts, fetchBookmarks, isBookmarksLoading } = useStudyGram();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -53,7 +54,7 @@ const SavedPosts = () => {
               <ArrowLeft size={18} className="text-reddit-text" />
             </motion.button>
             <div className="flex items-center gap-2">
-              <Bookmark size={18} className="text-yellow-500" />
+              <Bookmark size={18} className="text-reddit-orange" />
               <div>
                 <h1 className="text-base font-bold text-reddit-text">
                   Saved Posts
@@ -70,7 +71,11 @@ const SavedPosts = () => {
 
       {/* Content */}
       <div className="max-w-[640px] mx-auto px-4 py-5">
-        {savedPosts.length === 0 ? (
+        {isBookmarksLoading ? (
+          <div className="flex justify-center py-20">
+            <LoadingSpinner size={50} color="#FF4500" />
+          </div>
+        ) : savedPosts.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

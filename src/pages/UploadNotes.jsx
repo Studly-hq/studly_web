@@ -8,10 +8,10 @@ import {
   Sparkles,
   AlertCircle,
   CheckCircle,
-  Loader
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useStudyGram } from '../context/StudyGramContext';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const UploadNotes = () => {
   const navigate = useNavigate();
@@ -205,11 +205,10 @@ const UploadNotes = () => {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${
-                  isDragging
+                className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${isDragging
                     ? 'border-reddit-blue bg-reddit-blue/10'
                     : 'border-reddit-border hover:border-reddit-textMuted bg-reddit-input'
-                }`}
+                  }`}
               >
                 <input
                   type="file"
@@ -323,15 +322,14 @@ const UploadNotes = () => {
             disabled={!canGenerate || isGenerating}
             whileHover={canGenerate && !isGenerating ? { scale: 1.02 } : {}}
             whileTap={canGenerate && !isGenerating ? { scale: 0.98 } : {}}
-            className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${
-              canGenerate && !isGenerating
+            className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${canGenerate && !isGenerating
                 ? 'bg-gradient-to-r from-reddit-blue to-reddit-orange hover:from-reddit-blue/90 hover:to-reddit-orange/90 text-white'
                 : 'bg-reddit-input text-reddit-textMuted cursor-not-allowed'
-            }`}
+              }`}
           >
             {isGenerating ? (
               <>
-                <Loader size={24} className="animate-spin" />
+                <LoadingSpinner size={20} color="#ffffff" />
                 Generating Quiz...
               </>
             ) : (
