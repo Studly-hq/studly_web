@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Image, Smile, X } from 'lucide-react';
+import { Image, Smile, X, User } from 'lucide-react';
 import { useStudyGram } from '../../context/StudyGramContext';
 import { toast } from 'sonner';
 import LoadingSpinner from '../common/LoadingSpinner';
@@ -68,11 +68,17 @@ const FeedComposer = () => {
     return (
         <div className="border-b border-reddit-border p-4">
             <div className="flex gap-3">
-                <img
-                    src={currentUser?.avatar || "https://ui-avatars.com/api/?name=Guest&background=1a1a1b&color=818384"}
-                    alt={currentUser?.displayName || "Guest"}
-                    className="w-10 h-10 rounded-full bg-gray-700 flex-shrink-0 object-cover"
-                />
+                {currentUser?.avatar ? (
+                    <img
+                        src={currentUser.avatar}
+                        alt={currentUser?.displayName || "User"}
+                        className="w-10 h-10 rounded-full bg-gray-700 flex-shrink-0 object-cover"
+                    />
+                ) : (
+                    <div className="w-10 h-10 rounded-full bg-reddit-cardHover flex-shrink-0 flex items-center justify-center">
+                        <User size={20} className="text-reddit-textMuted" />
+                    </div>
+                )}
                 <div className="flex-1">
                     <textarea
                         ref={textareaRef}

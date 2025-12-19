@@ -7,6 +7,7 @@ import {
     MessageCircle,
     Bookmark,
     Share2,
+    User,
 } from 'lucide-react';
 import { useStudyGram } from '../context/StudyGramContext';
 import Comment from '../components/comments/Comment';
@@ -196,7 +197,13 @@ const PostPage = () => {
 
             {/* Reply Input */}
             <div className="px-4 py-4 border-b border-gray-800 flex gap-3">
-                <img src={currentUser?.avatar || "https://ui-avatars.com/api/?name=Guest"} alt="User avatar" className="w-10 h-10 rounded-full bg-gray-700" />
+                {currentUser?.avatar ? (
+                    <img src={currentUser.avatar} alt="User avatar" className="w-10 h-10 rounded-full bg-gray-700 object-cover" />
+                ) : (
+                    <div className="w-10 h-10 rounded-full bg-reddit-cardHover flex items-center justify-center">
+                        <User size={20} className="text-reddit-textMuted" />
+                    </div>
+                )}
                 <div className="flex-1">
                     <div className="relative">
                         <input

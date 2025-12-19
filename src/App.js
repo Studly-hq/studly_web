@@ -21,10 +21,9 @@ import UploadNotes from "./pages/UploadNotes";
 import QuizFeed from "./pages/QuizFeed";
 import CourseBank from "./pages/CourseBank";
 import TopicPlayer from "./pages/TopicPlayer";
-import PostPage from "./pages/PostPage";
+import PostDetail from "./pages/PostDetail";
 import CreateAd from "./pages/CreateAd";
 import AdsDashboard from "./pages/AdsDashboard";
-import PostDetail from "./pages/PostDetail";
 
 import "./App.css";
 
@@ -38,7 +37,6 @@ function App() {
             <Route path="/courses" element={<CourseBank />} />
             <Route path="/courses/:topicId" element={<TopicPlayer />} />
 
-            {/* Main app routes (with header and sidebars) */}
             {/* Main app routes (with sidebars) */}
             <Route
               path="/*"
@@ -58,16 +56,10 @@ function App() {
                         <Route path="/quiz-feed" element={<QuizFeed />} />
                         <Route path="/profile" element={<UserProfile />} />
                         <Route path="/profile/edit" element={<EditProfile />} />
-                        <Route
-                          path="/profile/:username"
-                          element={<UserProfile />}
-                        />
+                        <Route path="/profile/:username" element={<UserProfile />} />
                         <Route path="/post/:postId" element={<PostDetail />} />
                         <Route path="/ads/create" element={<CreateAd />} />
-                        <Route
-                          path="/ads/dashboard"
-                          element={<AdsDashboard />}
-                        />
+                        <Route path="/ads/dashboard" element={<AdsDashboard />} />
                         <Route path="/settings" element={<Settings />} />
                       </Routes>
                     </main>

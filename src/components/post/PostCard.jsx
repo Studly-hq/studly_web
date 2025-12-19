@@ -12,6 +12,7 @@ import {
   Trash2,
   Flag,
   Share2,
+  User,
 } from "lucide-react";
 import { useStudyGram } from "../../context/StudyGramContext";
 
@@ -21,7 +22,6 @@ const PostCard = ({ post }) => {
     currentUser,
     handleLikePost,
     handleBookmarkPost,
-    handleCommentClick,
   } = useStudyGram();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -135,21 +135,29 @@ const PostCard = ({ post }) => {
       {/* Post Header */}
       <div className="flex items-center justify-between p-3">
         <div className="flex items-center gap-2">
-          <motion.img
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/profile/${post.user.username}`);
-            }}
-            src={post.user.avatar || `https://ui-avatars.com/api/?name=${post.user.displayName}&background=ff4500&color=fff`}
-            alt={post.user.displayName}
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = `https://ui-avatars.com/api/?name=${post.user.displayName}&background=ff4500&color=fff`;
-            }}
-            className="w-8 h-8 rounded-full cursor-pointer object-cover"
-          />
+          {post.user.avatar ? (
+            <motion.img
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/profile/${post.user.username}`);
+              }}
+              src={post.user.avatar}
+              alt={post.user.displayName}
+              className="w-8 h-8 rounded-full cursor-pointer object-cover"
+            />
+          ) : (
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/profile/${post.user.username}`);
+              }}
+              className="w-8 h-8 rounded-full bg-reddit-cardHover flex items-center justify-center cursor-pointer hover:bg-reddit-border transition-colors"
+            >
+              <User size={16} className="text-reddit-textMuted" />
+            </div>
+          )}
           <div className="flex flex-col">
             <div className="flex items-center gap-1">
               <span
@@ -341,8 +349,8 @@ const PostCard = ({ post }) => {
                       setImageLoaded(false);
                     }}
                     className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${index === currentImageIndex
-                        ? "bg-white w-6"
-                        : "bg-white/50 w-2 hover:bg-white/75"
+                      ? "bg-white w-6"
+                      : "bg-white/50 w-2 hover:bg-white/75"
                       }`}
                   />
                 ))}
@@ -372,8 +380,8 @@ const PostCard = ({ post }) => {
                 handleLikePost(post.id);
               }}
               className={`flex items-center gap-1 p-2 rounded-full ${isLiked
-                  ? "text-reddit-orange"
-                  : "text-reddit-textMuted hover:text-reddit-text"
+                ? "text-reddit-orange"
+                : "text-reddit-textMuted hover:text-reddit-text"
                 }`}
             >
               <Heart
@@ -410,8 +418,8 @@ const PostCard = ({ post }) => {
               handleBookmarkPost(post.id);
             }}
             className={`p-2 rounded-full ${isBookmarked
-                ? "text-reddit-orange"
-                : "text-reddit-textMuted hover:text-reddit-text"
+              ? "text-reddit-orange"
+              : "text-reddit-textMuted hover:text-reddit-text"
               }`}
           >
             <Bookmark

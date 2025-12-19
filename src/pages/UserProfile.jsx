@@ -8,6 +8,7 @@ import {
   Trophy,
   UserPlus,
   BookOpen,
+  User,
 } from "lucide-react";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { useNavigate, useParams } from "react-router-dom";
@@ -162,11 +163,17 @@ const UserProfile = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto">
               <div className="relative">
-                <img
-                  src={profileUser.avatar}
-                  alt={profileUser.displayName}
-                  className="w-20 md:w-24 h-20 md:h-24 rounded-full border-3 md:border-4 border-reddit-blue"
-                />
+                {profileUser.avatar ? (
+                  <img
+                    src={profileUser.avatar}
+                    alt={profileUser.displayName}
+                    className="w-20 md:w-24 h-20 md:h-24 rounded-full border-3 md:border-4 border-reddit-blue object-cover"
+                  />
+                ) : (
+                  <div className="w-20 md:w-24 h-20 md:h-24 rounded-full border-3 md:border-4 border-reddit-blue bg-reddit-cardHover flex items-center justify-center">
+                    <User size={32} className="text-reddit-textMuted md:w-10 md:h-10" />
+                  </div>
+                )}
                 <div className="absolute -bottom-1 md:-bottom-2 -right-1 md:-right-2 bg-reddit-blue rounded-full p-1.5 md:p-2">
                   <Trophy size={14} className="text-white md:w-4 md:h-4" />
                 </div>
@@ -282,8 +289,8 @@ const UserProfile = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 px-2 md:px-4 py-2 md:py-3 rounded text-xs md:text-sm font-semibold transition-all ${activeTab === tab.id
-                    ? "bg-reddit-blue text-white"
-                    : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
+                  ? "bg-reddit-blue text-white"
+                  : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
                   }`}
               >
                 {tab.label} {tab.count > 0 && `(${tab.count})`}

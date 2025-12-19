@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, User, PlayCircle, Plus, MoreHorizontal, LogIn } from 'lucide-react';
+import { Home, Compass, User, PlayCircle, MoreHorizontal, LogIn } from 'lucide-react';
 import { useCoursePlayer } from '../../context/CoursePlayerContext';
 import { useStudyGram } from '../../context/StudyGramContext';
 
@@ -8,7 +8,7 @@ const LeftSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { hasAnyProgress } = useCoursePlayer();
-  const { isAuthenticated, currentUser, logout, handleCreatePost, setShowAuthModal } = useStudyGram();
+  const { isAuthenticated, currentUser, handleCreatePost, setShowAuthModal } = useStudyGram();
 
   const navItems = [
     {
@@ -102,11 +102,17 @@ const LeftSidebar = () => {
               onClick={() => navigate('/profile')}
             >
               <div className="flex items-center gap-3">
-                <img
-                  src={currentUser?.avatar}
-                  alt={currentUser?.displayName}
-                  className="w-10 h-10 rounded-full bg-gray-700"
-                />
+                {currentUser?.avatar ? (
+                  <img
+                    src={currentUser.avatar}
+                    alt={currentUser?.displayName}
+                    className="w-10 h-10 rounded-full bg-gray-700 object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-reddit-cardHover flex items-center justify-center">
+                    <User size={20} className="text-reddit-textMuted" />
+                  </div>
+                )}
                 <div className="flex flex-col leading-snug hidden xl:block">
                   <span className="font-bold text-sm truncate max-w-[100px]">{currentUser?.displayName}</span>
                   <span className="text-reddit-textMuted text-sm truncate max-w-[100px]">@{currentUser?.username}</span>
