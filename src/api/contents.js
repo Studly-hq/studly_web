@@ -158,3 +158,17 @@ export const unbookmarkPost = async (postId) => {
     throw error;
   }
 };
+
+export const getBookmarks = async () => {
+  try {
+    const response = await client.get("/studlygram/bookmark");
+    console.log("Get Bookmarks Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Get Bookmarks Error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
