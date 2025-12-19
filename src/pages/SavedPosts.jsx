@@ -7,8 +7,7 @@ import { useEffect } from "react";
 
 const SavedPosts = () => {
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated, bookmarkedPosts, fetchBookmarks } =
-    useStudyGram();
+  const { isAuthenticated, bookmarkedPosts, fetchBookmarks } = useStudyGram();
 
   useEffect(() => {
     if (isAuthenticated) {
