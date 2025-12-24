@@ -140,7 +140,7 @@ const PostCard = ({ post }) => {
             transition={{ duration: 0.2 }}
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/profile/${post.userId}`);
+              navigate(`/profile/${post.user.username}`);
             }}
             src={post.user.avatar}
             alt={post.user.displayName}
@@ -151,7 +151,7 @@ const PostCard = ({ post }) => {
               <span
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/profile/${post.userId}`);
+                  navigate(`/profile/${post.user.username}`);
                 }}
                 className="font-semibold text-sm hover:underline cursor-pointer"
               >
@@ -161,7 +161,7 @@ const PostCard = ({ post }) => {
               <span
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/profile/${post.userId}`);
+                  navigate(`/profile/${post.user.username}`);
                 }}
                 className="text-reddit-textMuted text-xs hover:underline cursor-pointer"
               >

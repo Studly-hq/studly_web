@@ -59,7 +59,7 @@ function App() {
                         <Route path="/profile" element={<UserProfile />} />
                         <Route path="/profile/edit" element={<EditProfile />} />
                         <Route
-                          path="/profile/:userId"
+                          path="/profile/:username"
                           element={<UserProfile />}
                         />
                         <Route path="/post/:postId" element={<PostDetail />} />

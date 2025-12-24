@@ -18,7 +18,7 @@ import {
   login as apiLogin,
   logout as apiLogout,
 } from "../api/auth"; // Importing API functions
-import { getProfile, updateProfile } from "../api/profile"; // Import profile service
+import { getProfileByUsername, updateProfile } from "../api/profile"; // Import profile service
 import {
   createPost as apiCreatePost,
   getPosts as apiGetPosts,
@@ -74,40 +74,45 @@ export const StudyGramProvider = ({ children }) => {
   // Initialize - Check for session
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        // 1. Try to get profile from backend (this handles Google Login return where cookie/session is set)
-        // If we have a session cookie, this will work.
-        const userProfile = await getProfile();
-
-        if (userProfile) {
-          console.log("Session found:", userProfile);
-          // Assuming userProfile is the user object, or has a 'user' property
-          const user = userProfile.user || userProfile;
-
-          setIsAuthenticated(true);
-          setCurrentUser(user);
-          localStorage.setItem("studly_auth", JSON.stringify({ user }));
-          return;
-        }
-      } catch (err) {
-        console.log("Backend session check failed:", err.message);
-        // Don't clear localStorage immediately - try to restore from it first
-      }
-
-      // 2. Fallback: Restore from localStorage if backend check failed
+      // 1. First, try to restore from localStorage
       const savedAuth = localStorage.getItem("studly_auth");
+      let storedUser = null;
+
       if (savedAuth) {
         try {
           const authData = JSON.parse(savedAuth);
           if (authData.user) {
-            console.log("Restoring session from localStorage");
-            setIsAuthenticated(true);
-            setCurrentUser(authData.user);
+            storedUser = authData.user;
           }
         } catch (parseErr) {
           console.error("Failed to parse saved auth:", parseErr);
           localStorage.removeItem("studly_auth");
         }
+      }
+
+      // 2. If we have a stored user with username, validate with backend
+      if (storedUser && storedUser.username) {
+        try {
+          const userProfile = await getProfileByUsername(storedUser.username);
+          if (userProfile) {
+            console.log("Session validated:", userProfile);
+            const user = userProfile.user || userProfile;
+            setIsAuthenticated(true);
+            setCurrentUser(user);
+            localStorage.setItem("studly_auth", JSON.stringify({ user }));
+            return;
+          }
+        } catch (err) {
+          console.log("Backend validation failed:", err.message);
+          // Continue to use stored user as fallback
+        }
+      }
+
+      // 3. Fallback: Use stored user if backend validation failed
+      if (storedUser) {
+        console.log("Restoring session from localStorage");
+        setIsAuthenticated(true);
+        setCurrentUser(storedUser);
       }
     };
 

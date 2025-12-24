@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -8,21 +8,51 @@ import {
   Trophy,
   UserPlus,
   BookOpen,
+  Loader2,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
-import { getUserById } from "../data/studygramData";
+import { getProfileByUsername } from "../api/profile";
 
 const UserProfile = () => {
   const navigate = useNavigate();
-  const { userId } = useParams();
+  const { username } = useParams();
   const { currentUser, isAuthenticated, posts } = useStudyGram();
-  const [activeTab, setActiveTab] = useState("posts");
 
-  // Get the profile user (either from URL param or current user)
-  const profileUser = userId ? getUserById(userId) : currentUser;
-  const isOwnProfile = isAuthenticated && profileUser?.id === currentUser?.id;
+  const [activeTab, setActiveTab] = useState("posts");
+  const [profileUser, setProfileUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Determine if we're viewing our own profile or someone else's
+  const isOwnProfile =
+    !username || (isAuthenticated && currentUser?.username === username);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (username) {
+        // Viewing another user's profile by username
+        setLoading(true);
+        setError(null);
+        try {
+          const data = await getProfileByUsername(username);
+          setProfileUser(data);
+        } catch (err) {
+          console.error("Failed to fetch profile:", err);
+          setError("User not found");
+          setProfileUser(null);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        // Viewing own profile (no username param)
+        setProfileUser(currentUser);
+      }
+    };
+
+    fetchProfile();
+  }, [username, currentUser]);
 
   // Get user's posts (posts already have user data attached)
   const userPosts = posts.filter((post) => post.userId === profileUser?.id);
@@ -32,7 +62,15 @@ const UserProfile = () => {
     post.bookmarkedBy?.includes(profileUser?.id)
   );
 
-  if (!profileUser) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-reddit-bg pt-20 px-4 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-reddit-blue" />
+      </div>
+    );
+  }
+
+  if (error || !profileUser) {
     return (
       <div className="min-h-screen bg-reddit-bg pt-20 px-4">
         <div className="max-w-2xl mx-auto text-center py-20">

@@ -6,13 +6,33 @@ import client from "./client";
  * Functions related to user profile.
  */
 
-export const getProfile = async () => {
+// NOTE: This function is no longer used - using getProfileByUsername instead
+// export const getProfile = async () => {
+//   try {
+//     const response = await client.get("/profile/profile");
+//     console.log("Get Profile Response:", response.data);
+//     return response.data;
+//   } catch (error) {
+//     console.error("Get Profile Error:", error.response?.data || error.message);
+//     throw error;
+//   }
+// };
+
+/**
+ * Get a user's profile by their username.
+ * @param {string} username - The username to look up.
+ * @returns {Promise<object>} - The user's profile data.
+ */
+export const getProfileByUsername = async (username) => {
   try {
-    const response = await client.get("/profile/profile");
-    console.log("Get Profile Response:", response.data);
+    const response = await client.get(`/profile/profile/${username}`);
+    console.log("Get Profile By Username Response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Get Profile Error:", error.response?.data || error.message);
+    console.error(
+      "Get Profile By Username Error:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
