@@ -90,18 +90,25 @@ export const StudyGramProvider = ({ children }) => {
           return;
         }
       } catch (err) {
-        console.log("No active session found.");
-        localStorage.removeItem("studly_auth");
+        console.log("Backend session check failed:", err.message);
+        // Don't clear localStorage immediately - try to restore from it first
       }
 
-      /*
+      // 2. Fallback: Restore from localStorage if backend check failed
       const savedAuth = localStorage.getItem("studly_auth");
       if (savedAuth) {
-        const authData = JSON.parse(savedAuth);
-        setIsAuthenticated(true);
-        setCurrentUser(authData.user);
+        try {
+          const authData = JSON.parse(savedAuth);
+          if (authData.user) {
+            console.log("Restoring session from localStorage");
+            setIsAuthenticated(true);
+            setCurrentUser(authData.user);
+          }
+        } catch (parseErr) {
+          console.error("Failed to parse saved auth:", parseErr);
+          localStorage.removeItem("studly_auth");
+        }
       }
-      */
     };
 
     checkAuth();
