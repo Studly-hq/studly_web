@@ -142,8 +142,7 @@ const UserProfile = () => {
 
               <div className="flex-1">
                 <h2 className="text-xl md:text-2xl font-bold text-reddit-text mb-1 capitalize">
-                  {/* {profileUser.displayName} */}
-                  {profileUser.name}
+                  {profileUser.displayName}
                 </h2>
                 <p className="text-sm md:text-base text-reddit-textMuted mb-2">
                   @{profileUser.username}

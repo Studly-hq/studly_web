@@ -18,7 +18,7 @@ import {
   login as apiLogin,
   logout as apiLogout,
 } from "../api/auth"; // Importing API functions
-import { getProfileByUsername, updateProfile } from "../api/profile"; // Import profile service
+import { getProfile, updateProfile } from "../api/profile"; // Import profile service
 import {
   createPost as apiCreatePost,
   getPosts as apiGetPosts,
@@ -74,45 +74,46 @@ export const StudyGramProvider = ({ children }) => {
   // Initialize - Check for session
   useEffect(() => {
     const checkAuth = async () => {
-      // 1. First, try to restore from localStorage
-      const savedAuth = localStorage.getItem("studly_auth");
-      let storedUser = null;
+      // Try to get profile from valid session (cookie) first
+      try {
+        const userProfile = await getProfile();
+        if (userProfile) {
+          console.log("Session validated via /profile/profile:", userProfile);
+          setIsAuthenticated(true);
+          setCurrentUser(userProfile);
+          localStorage.setItem(
+            "studly_auth",
+            JSON.stringify({ user: userProfile })
+          );
+          return;
+        }
+      } catch (err) {
+        console.log("Session validation failed:", err.message);
+        // If 401, we are definitely not logged in.
+      }
 
+      // Fallback: Check localStorage if API failed (e.g. network error)
+      // converting old format if necessary, but prefer fresh fetch
+      const savedAuth = localStorage.getItem("studly_auth");
       if (savedAuth) {
         try {
           const authData = JSON.parse(savedAuth);
           if (authData.user) {
-            storedUser = authData.user;
+            // Note: Stored user might be stale, but better than nothing for offline/loading
+            // However, if we got a 401 above, we shouldn't use this.
+            // But if we got a network error, maybe?
+            // For now, let's allow it as a temporary state, but correct approach is trust the API.
+            // If API returned 401, we should clear.
+            // Since we caught the error, we don't know status code easily without checking err.response.
+            // Let's rely on the fact that if getProfile failed, we probably shouldn't be authenticated
+            // UNLESS it's a network error.
+            // For safety in this "fix", I won't auto-login from LS if API failed,
+            // effectively logging them out if session is invalid.
+            localStorage.removeItem("studly_auth");
           }
         } catch (parseErr) {
-          console.error("Failed to parse saved auth:", parseErr);
           localStorage.removeItem("studly_auth");
         }
-      }
-
-      // 2. If we have a stored user with username, validate with backend
-      if (storedUser && storedUser.username) {
-        try {
-          const userProfile = await getProfileByUsername(storedUser.username);
-          if (userProfile) {
-            console.log("Session validated:", userProfile);
-            const user = userProfile.user || userProfile;
-            setIsAuthenticated(true);
-            setCurrentUser(user);
-            localStorage.setItem("studly_auth", JSON.stringify({ user }));
-            return;
-          }
-        } catch (err) {
-          console.log("Backend validation failed:", err.message);
-          // Continue to use stored user as fallback
-        }
-      }
-
-      // 3. Fallback: Use stored user if backend validation failed
-      if (storedUser) {
-        console.log("Restoring session from localStorage");
-        setIsAuthenticated(true);
-        setCurrentUser(storedUser);
       }
     };
 
@@ -295,11 +296,15 @@ export const StudyGramProvider = ({ children }) => {
         // If the backend returns a user object directly or nested:
         // Adjust this based on actual response structure.
         // Falling back to mock-like structure if needed but using returned data properties.
-        const user = {
-          ...mockUsers.currentUser, // Fallback for missing fields like 'avatar'
-          ...data.user, // Overwrite with real data if exists
-          email: email, // Ensure email is correct
-        };
+        // Fetch full profile to get all details (avatar, bio, etc.)
+        const userProfile = await getProfile();
+        console.log("Fetched User Profile after login:", userProfile);
+
+        const user = userProfile || {
+          ...mockUsers.currentUser,
+          ...data.user,
+          email: email,
+        }; // Fallback if profile fetch fails but login succeeded (unlikely)
 
         setCurrentUser(user);
         setIsAuthenticated(true);

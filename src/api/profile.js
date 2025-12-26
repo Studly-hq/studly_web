@@ -6,17 +6,35 @@ import client from "./client";
  * Functions related to user profile.
  */
 
-// NOTE: This function is no longer used - using getProfileByUsername instead
-// export const getProfile = async () => {
-//   try {
-//     const response = await client.get("/profile/profile");
-//     console.log("Get Profile Response:", response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Get Profile Error:", error.response?.data || error.message);
-//     throw error;
-//   }
-// };
+// Helper to map backend user to frontend user
+const mapBackendUserToFrontend = (backendUser) => {
+  if (!backendUser) return null;
+  return {
+    id: backendUser.id || backendUser.user_id, // Ensure we capture ID if available
+    username: backendUser.username,
+    displayName: backendUser.name || backendUser.username, // Fallback to username
+    email: backendUser.email,
+    bio: backendUser.bio || "",
+    avatar: backendUser.avatar_url, // Map avatar_url to avatar
+    created_at: backendUser.created_at || new Date().toISOString(),
+    streak: backendUser.streak || 0, // Default if missing
+    auraPoints: backendUser.aura_points || 0, // Default if missing, note snake_case
+    following: backendUser.following_count || 0,
+    followers: backendUser.followers_count || 0,
+  };
+};
+
+// Get current authenticated user's profile
+export const getProfile = async () => {
+  try {
+    const response = await client.get("/profile/profile");
+    console.log("Get Profile Response:", response.data);
+    return mapBackendUserToFrontend(response.data);
+  } catch (error) {
+    console.error("Get Profile Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
 
 /**
  * Get a user's profile by their username.
@@ -27,7 +45,7 @@ export const getProfileByUsername = async (username) => {
   try {
     const response = await client.get(`/profile/profile/${username}`);
     console.log("Get Profile By Username Response:", response.data);
-    return response.data;
+    return mapBackendUserToFrontend(response.data);
   } catch (error) {
     console.error(
       "Get Profile By Username Error:",
@@ -43,7 +61,7 @@ export const updateProfile = async (currentUsername, profileData) => {
       `/profile/profile?username=${currentUsername}`,
       profileData
     );
-    return response.data;
+    return mapBackendUserToFrontend(response.data);
   } catch (error) {
     console.error(
       "Update Profile Error:",
