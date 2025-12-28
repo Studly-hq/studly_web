@@ -22,6 +22,21 @@ export const getPosts = async () => {
   }
 };
 
+export const getUserPosts = async (username) => {
+  try {
+    // Note: The endpoint documentation says /studlygram/posts/{username}
+    const response = await client.get(`/studlygram/posts/${username}`);
+    console.log("Get User Posts Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Get User Posts Error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
 export const getPost = async (postId) => {
   try {
     const response = await client.get(`/studlygram/post/${postId}`);

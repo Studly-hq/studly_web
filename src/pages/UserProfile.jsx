@@ -18,11 +18,13 @@ import { getProfileByUsername } from "../api/profile";
 const UserProfile = () => {
   const navigate = useNavigate();
   const { username } = useParams();
-  const { currentUser, isAuthenticated, posts } = useStudyGram();
+  const { currentUser, isAuthenticated, posts, fetchUserPosts } =
+    useStudyGram();
 
   const [activeTab, setActiveTab] = useState("posts");
   const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [userPosts, setUserPosts] = useState([]);
   const [error, setError] = useState(null);
 
   // Determine if we're viewing our own profile or someone else's
@@ -38,6 +40,9 @@ const UserProfile = () => {
         try {
           const data = await getProfileByUsername(username);
           setProfileUser(data);
+          // Fetch user posts for this profile
+          const initialPosts = await fetchUserPosts(username);
+          setUserPosts(initialPosts);
         } catch (err) {
           console.error("Failed to fetch profile:", err);
           setError("User not found");
@@ -48,14 +53,15 @@ const UserProfile = () => {
       } else {
         // Viewing own profile (no username param)
         setProfileUser(currentUser);
+        if (currentUser) {
+          const initialPosts = await fetchUserPosts(currentUser.username);
+          setUserPosts(initialPosts);
+        }
       }
     };
 
     fetchProfile();
-  }, [username, currentUser]);
-
-  // Get user's posts (posts already have user data attached)
-  const userPosts = posts.filter((post) => post.userId === profileUser?.id);
+  }, [username, currentUser, fetchUserPosts]);
 
   // Get user's saved posts (posts they've bookmarked)
   const savedPosts = posts.filter((post) =>

@@ -22,6 +22,7 @@ import { getProfile, updateProfile } from "../api/profile"; // Import profile se
 import {
   createPost as apiCreatePost,
   getPosts as apiGetPosts,
+  getUserPosts as apiGetUserPosts,
   getPost as apiGetPost,
   likePost as apiLikePost,
   unlikePost as apiUnlikePost,
@@ -207,6 +208,19 @@ export const StudyGramProvider = ({ children }) => {
       // setPosts(mockPosts);
     }
   }, [mapBackendPostToFrontend]); // currentUser might be needed if mapBackendPostToFrontend uses it (it does for likes check)
+
+  const fetchUserPosts = useCallback(
+    async (username) => {
+      try {
+        const serverPosts = await apiGetUserPosts(username);
+        return serverPosts.map(mapBackendPostToFrontend);
+      } catch (error) {
+        console.error("Failed to fetch user posts:", error);
+        return [];
+      }
+    },
+    [mapBackendPostToFrontend]
+  );
 
   // Fetch Single Post
   const fetchPostById = useCallback(
@@ -907,6 +921,7 @@ export const StudyGramProvider = ({ children }) => {
       createPost,
       fetchPostById,
       fetchBookmarks,
+      fetchUserPosts,
 
       // Comments
       comments,
@@ -967,6 +982,7 @@ export const StudyGramProvider = ({ children }) => {
       setIsMobileMenuOpen,
       bookmarkedPosts,
       fetchBookmarks,
+      fetchUserPosts,
     ]
   );
 
