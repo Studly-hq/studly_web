@@ -13,7 +13,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
-import { getProfileByUsername } from "../api/profile";
+import { getProfileByUsername, getUserStreak } from "../api/profile";
 
 const UserProfile = () => {
   const navigate = useNavigate();
@@ -39,9 +39,13 @@ const UserProfile = () => {
         setError(null);
         try {
           const data = await getProfileByUsername(username);
-          setProfileUser(data);
           // Fetch user posts for this profile
           const initialPosts = await fetchUserPosts(username);
+
+          // Fetch user streak
+          const streakData = await getUserStreak(username);
+
+          setProfileUser({ ...data, streak: streakData }); // Update with latest streak
           setUserPosts(initialPosts);
         } catch (err) {
           console.error("Failed to fetch profile:", err);
@@ -52,10 +56,15 @@ const UserProfile = () => {
         }
       } else {
         // Viewing own profile (no username param)
-        setProfileUser(currentUser);
         if (currentUser) {
+          // We might want to refresh the streak here too
+          const streakData = await getUserStreak(currentUser.username);
+          setProfileUser({ ...currentUser, streak: streakData });
+
           const initialPosts = await fetchUserPosts(currentUser.username);
           setUserPosts(initialPosts);
+        } else {
+          setProfileUser(null);
         }
       }
     };

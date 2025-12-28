@@ -70,3 +70,18 @@ export const updateProfile = async (currentUsername, profileData) => {
     throw error;
   }
 };
+
+export const getUserStreak = async (username) => {
+  try {
+    const response = await client.get(`/studlygram/streak/${username}`);
+    console.log("Get User Streak Response:", response.data);
+    return response.data?.current_streak || 0;
+  } catch (error) {
+    console.error(
+      "Get User Streak Error:",
+      error.response?.data || error.message
+    );
+    // Return 0 on error so UI doesn't break
+    return 0;
+  }
+};
