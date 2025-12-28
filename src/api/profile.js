@@ -85,3 +85,19 @@ export const getUserStreak = async (username) => {
     return 0;
   }
 };
+
+export const getUserAuraPoints = async (username) => {
+  try {
+    const response = await client.get(`/studlygram/aura-points/${username}`);
+    console.log("Get User Aura Points Response:", response.data);
+    // Based on the screenshot provided, the response body is just a number "5".
+    // So response.data should be directly the number or convertible to it.
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Get User Aura Points Error:",
+      error.response?.data || error.message
+    );
+    return 0;
+  }
+};

@@ -13,7 +13,11 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
-import { getProfileByUsername, getUserStreak } from "../api/profile";
+import {
+  getProfileByUsername,
+  getUserStreak,
+  getUserAuraPoints,
+} from "../api/profile";
 
 const UserProfile = () => {
   const navigate = useNavigate();
@@ -45,7 +49,14 @@ const UserProfile = () => {
           // Fetch user streak
           const streakData = await getUserStreak(username);
 
-          setProfileUser({ ...data, streak: streakData }); // Update with latest streak
+          // Fetch user aura points
+          const auraPointsData = await getUserAuraPoints(username);
+
+          setProfileUser({
+            ...data,
+            streak: streakData,
+            auraPoints: auraPointsData,
+          }); // Update with latest stats
           setUserPosts(initialPosts);
         } catch (err) {
           console.error("Failed to fetch profile:", err);
@@ -57,9 +68,15 @@ const UserProfile = () => {
       } else {
         // Viewing own profile (no username param)
         if (currentUser) {
-          // We might want to refresh the streak here too
+          // Refresh stats
           const streakData = await getUserStreak(currentUser.username);
-          setProfileUser({ ...currentUser, streak: streakData });
+          const auraPointsData = await getUserAuraPoints(currentUser.username);
+
+          setProfileUser({
+            ...currentUser,
+            streak: streakData,
+            auraPoints: auraPointsData,
+          });
 
           const initialPosts = await fetchUserPosts(currentUser.username);
           setUserPosts(initialPosts);
