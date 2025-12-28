@@ -663,26 +663,17 @@ export const StudyGramProvider = ({ children }) => {
 
         console.log("Create Post Response:", response);
 
-        const newPost = {
-          ...response,
-          user: currentUser,
-          // Ensure defaults if backend omits them
-          likes: response.likes || [],
-          likeCount: response.likeCount || 0,
-          commentCount: response.commentCount || 0,
-          bookmarkedBy: response.bookmarkedBy || [],
-          timestamp: response.timestamp || new Date().toISOString(),
-        };
+        // Refresh feed to show new post
+        await fetchFeedPosts();
 
-        setPosts((prevPosts) => [newPost, ...prevPosts]);
         setShowCreatePostModal(false);
-        return newPost;
+        return response;
       } catch (error) {
         console.error("Failed to create post:", error);
         throw error;
       }
     },
-    [currentUser, setPosts, setShowCreatePostModal]
+    [currentUser, fetchFeedPosts, setShowCreatePostModal]
   );
 
   // Comment Functions
