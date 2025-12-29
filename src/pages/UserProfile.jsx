@@ -11,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 import LoadingSpinner from "../components/common/LoadingSpinner";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
 import {
@@ -20,15 +20,22 @@ import {
   getUserAuraPoints,
 } from "../api/profile";
 
-const UserProfile = () => {
+const UserProfileContent = () => {
   const navigate = useNavigate();
   const { username } = useParams();
-  const { currentUser, isAuthenticated, posts, fetchUserPosts } =
-    useStudyGram();
+  const {
+    currentUser,
+    isAuthenticated,
+    posts,
+    fetchUserPosts,
+    isAuthLoading,
+    bookmarkedPosts,
+    fetchBookmarks,
+  } = useStudyGram();
 
   const [activeTab, setActiveTab] = useState("posts");
   const [profileUser, setProfileUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [userPosts, setUserPosts] = useState([]);
   const [error, setError] = useState(null);
 
@@ -38,62 +45,76 @@ const UserProfile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (username) {
-        // Viewing another user's profile by username
-        setLoading(true);
-        setError(null);
-        try {
+      // If we are still checking auth and no username param is present (trying to view own profile),
+      // we must wait.
+      if (isAuthLoading && !username) {
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        if (username) {
+          // Viewing another user's profile by username
           const data = await getProfileByUsername(username);
-          // Fetch user posts for this profile
-          const initialPosts = await fetchUserPosts(username);
 
-          // Fetch user streak
-          const streakData = await getUserStreak(username);
-
-          // Fetch user aura points
-          const auraPointsData = await getUserAuraPoints(username);
+          // Parallelize fetches for better performance
+          const [initialPosts, streakData, auraPointsData] = await Promise.all([
+            fetchUserPosts(username),
+            getUserStreak(username),
+            getUserAuraPoints(username),
+          ]);
 
           setProfileUser({
             ...data,
             streak: streakData,
             auraPoints: auraPointsData,
-          }); // Update with latest stats
-          setUserPosts(initialPosts);
-        } catch (err) {
-          console.error("Failed to fetch profile:", err);
-          setError("User not found");
-          setProfileUser(null);
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        // Viewing own profile (no username param)
-        if (currentUser) {
-          // Refresh stats
-          const streakData = await getUserStreak(currentUser.username);
-          const auraPointsData = await getUserAuraPoints(currentUser.username);
-
-          setProfileUser({
-            ...currentUser,
-            streak: streakData,
-            auraPoints: auraPointsData,
           });
-
-          const initialPosts = await fetchUserPosts(currentUser.username);
           setUserPosts(initialPosts);
         } else {
-          setProfileUser(null);
+          // Viewing own profile (no username param)
+          if (currentUser) {
+            // Refresh stats
+            const [streakData, auraPointsData, initialPosts] =
+              await Promise.all([
+                getUserStreak(currentUser.username),
+                getUserAuraPoints(currentUser.username),
+                fetchUserPosts(currentUser.username),
+              ]);
+
+            setProfileUser({
+              ...currentUser,
+              streak: streakData,
+              auraPoints: auraPointsData,
+            });
+            setUserPosts(initialPosts);
+          } else {
+            setProfileUser(null);
+            // If we are not logged in and no username is provided, we might want to stay in "Not Found" or handle redirect elsewhere.
+            // For now, consistent with previous behavior.
+          }
         }
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+        setError("User not found");
+        setProfileUser(null);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [username, currentUser, fetchUserPosts]);
+  }, [username, currentUser, fetchUserPosts, isAuthLoading]);
 
-  // Get user's saved posts (posts they've bookmarked)
-  const savedPosts = posts.filter((post) =>
-    post.bookmarkedBy?.includes(profileUser?.id)
-  );
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchBookmarks();
+    }
+  }, [isAuthenticated, fetchBookmarks]);
+
+  // Use bookmarkedPosts from context for the Saved tab
+  const savedPosts = bookmarkedPosts;
 
   if (loading) {
     return (
@@ -171,7 +192,10 @@ const UserProfile = () => {
                   />
                 ) : (
                   <div className="w-20 md:w-24 h-20 md:h-24 rounded-full border-3 md:border-4 border-reddit-blue bg-reddit-cardHover flex items-center justify-center">
-                    <User size={32} className="text-reddit-textMuted md:w-10 md:h-10" />
+                    <User
+                      size={32}
+                      className="text-reddit-textMuted md:w-10 md:h-10"
+                    />
                   </div>
                 )}
                 <div className="absolute -bottom-1 md:-bottom-2 -right-1 md:-right-2 bg-reddit-blue rounded-full p-1.5 md:p-2">
@@ -288,10 +312,11 @@ const UserProfile = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-2 md:px-4 py-2 md:py-3 rounded text-xs md:text-sm font-semibold transition-all ${activeTab === tab.id
-                  ? "bg-reddit-blue text-white"
-                  : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
-                  }`}
+                className={`flex-1 px-2 md:px-4 py-2 md:py-3 rounded text-xs md:text-sm font-semibold transition-all ${
+                  activeTab === tab.id
+                    ? "bg-reddit-blue text-white"
+                    : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
+                }`}
               >
                 {tab.label} {tab.count > 0 && `(${tab.count})`}
               </button>
@@ -368,6 +393,11 @@ const UserProfile = () => {
       </div>
     </div>
   );
+};
+
+const UserProfile = () => {
+  const location = useLocation();
+  return <UserProfileContent key={location.pathname} />;
 };
 
 export default UserProfile;

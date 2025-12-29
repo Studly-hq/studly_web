@@ -6,11 +6,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import {
-  mockUsers,
-  mockComments,
-  getUserById,
-} from "../data/studygramData";
+import { mockUsers, mockComments, getUserById } from "../data/studygramData";
 import { mockQuizzes } from "../data/quizData";
 import {
   signup as apiSignup,
@@ -47,6 +43,7 @@ export const StudyGramProvider = ({ children }) => {
   // Auth State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   // Posts & Comments State
   const [posts, setPosts] = useState([]);
@@ -75,24 +72,31 @@ export const StudyGramProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const userProfile = await getProfile();
-        if (userProfile) {
-          setIsAuthenticated(true);
-          setCurrentUser(userProfile);
-          localStorage.setItem("studly_auth", JSON.stringify({ user: userProfile }));
-          return;
-        }
-      } catch (err) {
-        console.log("Session validation failed:", err.message);
-      }
-      const savedAuth = localStorage.getItem("studly_auth");
-      if (savedAuth) {
         try {
-          JSON.parse(savedAuth);
-          localStorage.removeItem("studly_auth");
-        } catch (parseErr) {
-          localStorage.removeItem("studly_auth");
+          const userProfile = await getProfile();
+          if (userProfile) {
+            setIsAuthenticated(true);
+            setCurrentUser(userProfile);
+            localStorage.setItem(
+              "studly_auth",
+              JSON.stringify({ user: userProfile })
+            );
+            return;
+          }
+        } catch (err) {
+          console.log("Session validation failed:", err.message);
         }
+        const savedAuth = localStorage.getItem("studly_auth");
+        if (savedAuth) {
+          try {
+            JSON.parse(savedAuth);
+            localStorage.removeItem("studly_auth");
+          } catch (parseErr) {
+            localStorage.removeItem("studly_auth");
+          }
+        }
+      } finally {
+        setIsAuthLoading(false);
       }
     };
     checkAuth();
@@ -103,15 +107,20 @@ export const StudyGramProvider = ({ children }) => {
     (post) => {
       const images = Array.isArray(post.post_media)
         ? post.post_media
-          .filter((url) => url !== "placeholder")
-          .map((url) => ({ url: url, alt: "Post Image" }))
+            .filter((url) => url !== "placeholder")
+            .map((url) => ({ url: url, alt: "Post Image" }))
         : [];
 
       const postUser = {
         id: post.creator_id,
         username: post.creator_username || `user${post.creator_id}`,
-        displayName: post.creator_name || post.creator_username || `User ${post.creator_id}`,
-        avatar: post.creator_avatar || `https://i.pravatar.cc/150?u=${post.creator_id}`,
+        displayName:
+          post.creator_name ||
+          post.creator_username ||
+          `User ${post.creator_id}`,
+        avatar:
+          post.creator_avatar ||
+          `https://i.pravatar.cc/150?u=${post.creator_id}`,
       };
 
       let timestamp = new Date().toISOString();
@@ -124,14 +133,25 @@ export const StudyGramProvider = ({ children }) => {
 
       return {
         id: post.post_id,
-        type: images.length > 0 ? (images.length > 1 ? "carousel" : "single-image") : "text",
+        type:
+          images.length > 0
+            ? images.length > 1
+              ? "carousel"
+              : "single-image"
+            : "text",
         content: post.post_content || "",
         timestamp: timestamp,
         likeCount: post.post_like_count || 0,
         commentCount: post.post_comment_count || 0,
         userId: post.creator_id,
-        likes: post.post_is_liked_by_requester && currentUser ? [currentUser.id] : [],
-        bookmarkedBy: post.post_is_bookmarked_by_requester && currentUser ? [currentUser.id] : [],
+        likes:
+          post.post_is_liked_by_requester && currentUser
+            ? [currentUser.id]
+            : [],
+        bookmarkedBy:
+          post.post_is_bookmarked_by_requester && currentUser
+            ? [currentUser.id]
+            : [],
         tags: post.post_hashtags || [],
         images: images,
         user: postUser,
@@ -211,7 +231,11 @@ export const StudyGramProvider = ({ children }) => {
       try {
         const data = await apiLogin(email, password);
         const userProfile = await getProfile();
-        const user = userProfile || { ...mockUsers.currentUser, ...data.user, email: email };
+        const user = userProfile || {
+          ...mockUsers.currentUser,
+          ...data.user,
+          email: email,
+        };
         setCurrentUser(user);
         setIsAuthenticated(true);
         localStorage.setItem("studly_auth", JSON.stringify({ user }));
@@ -219,7 +243,9 @@ export const StudyGramProvider = ({ children }) => {
           setPendingAction(null);
         }
         if (scrollPosition) {
-          setTimeout(() => { window.scrollTo(0, scrollPosition); }, 100);
+          setTimeout(() => {
+            window.scrollTo(0, scrollPosition);
+          }, 100);
         }
         setShowAuthModal(false);
         return data;
@@ -260,7 +286,10 @@ export const StudyGramProvider = ({ children }) => {
         const response = await updateProfile(currentUsername, updatedData);
         const updatedUser = { ...currentUser, ...updatedData };
         setCurrentUser(updatedUser);
-        localStorage.setItem("studly_auth", JSON.stringify({ user: updatedUser }));
+        localStorage.setItem(
+          "studly_auth",
+          JSON.stringify({ user: updatedUser })
+        );
         return response;
       } catch (error) {
         console.error("Update user failed:", error);
@@ -300,7 +329,9 @@ export const StudyGramProvider = ({ children }) => {
             const hasLiked = post.likes.includes(currentUser.id);
             return {
               ...post,
-              likes: hasLiked ? post.likes.filter((id) => id !== currentUser.id) : [...post.likes, currentUser.id],
+              likes: hasLiked
+                ? post.likes.filter((id) => id !== currentUser.id)
+                : [...post.likes, currentUser.id],
               likeCount: hasLiked ? post.likeCount - 1 : post.likeCount + 1,
             };
           }
@@ -342,7 +373,9 @@ export const StudyGramProvider = ({ children }) => {
             const hasBookmarked = post.bookmarkedBy.includes(currentUser.id);
             return {
               ...post,
-              bookmarkedBy: hasBookmarked ? post.bookmarkedBy.filter((id) => id !== currentUser.id) : [...post.bookmarkedBy, currentUser.id],
+              bookmarkedBy: hasBookmarked
+                ? post.bookmarkedBy.filter((id) => id !== currentUser.id)
+                : [...post.bookmarkedBy, currentUser.id],
             };
           }
           return post;
@@ -356,14 +389,19 @@ export const StudyGramProvider = ({ children }) => {
         } else {
           const postToAdd = posts.find((p) => p.id === postId);
           if (postToAdd) {
-            return [{ ...postToAdd, bookmarkedBy: [currentUser.id] }, ...prevBookmarks];
+            return [
+              { ...postToAdd, bookmarkedBy: [currentUser.id] },
+              ...prevBookmarks,
+            ];
           }
           return prevBookmarks;
         }
       });
       try {
         const currentPost = posts.find((p) => p.id === postId);
-        const alreadyBookmarked = currentPost?.bookmarkedBy.includes(currentUser.id);
+        const alreadyBookmarked = currentPost?.bookmarkedBy.includes(
+          currentUser.id
+        );
         if (alreadyBookmarked) {
           await apiUnbookmarkPost(postId);
           toast.success("Removed from bookmarks");
@@ -381,31 +419,28 @@ export const StudyGramProvider = ({ children }) => {
     [posts, currentUser, isAuthenticated]
   );
 
-  const fetchCommentsForPost = useCallback(
-    async (postId) => {
-      try {
-        const commentsData = await apiGetComments(postId);
-        const formattedComments = commentsData.map((c) => ({
-          id: c.comment_id,
-          content: c.comment_content,
-          timestamp: c.comment_created_at,
-          likes: [],
-          likeCount: c.comment_like_count,
-          user: {
-            id: c.commenter_user_id,
-            username: c.commenter_username,
-            name: c.commenter_name,
-            avatar: c.commenter_avatar,
-          },
-          replies: [],
-        }));
-        setComments((prev) => ({ ...prev, [postId]: formattedComments }));
-      } catch (error) {
-        console.error("Failed to fetch comments", error);
-      }
-    },
-    []
-  );
+  const fetchCommentsForPost = useCallback(async (postId) => {
+    try {
+      const commentsData = await apiGetComments(postId);
+      const formattedComments = commentsData.map((c) => ({
+        id: c.comment_id,
+        content: c.comment_content,
+        timestamp: c.comment_created_at,
+        likes: [],
+        likeCount: c.comment_like_count,
+        user: {
+          id: c.commenter_user_id,
+          username: c.commenter_username,
+          name: c.commenter_name,
+          avatar: c.commenter_avatar,
+        },
+        replies: [],
+      }));
+      setComments((prev) => ({ ...prev, [postId]: formattedComments }));
+    } catch (error) {
+      console.error("Failed to fetch comments", error);
+    }
+  }, []);
 
   const handleCommentClick = useCallback(
     (postId) => {
@@ -459,8 +494,12 @@ export const StudyGramProvider = ({ children }) => {
             const hasLiked = comment.likes.includes(currentUser.id);
             return {
               ...comment,
-              likes: hasLiked ? comment.likes.filter((id) => id !== currentUser.id) : [...comment.likes, currentUser.id],
-              likeCount: hasLiked ? comment.likeCount - 1 : comment.likeCount + 1,
+              likes: hasLiked
+                ? comment.likes.filter((id) => id !== currentUser.id)
+                : [...comment.likes, currentUser.id],
+              likeCount: hasLiked
+                ? comment.likeCount - 1
+                : comment.likeCount + 1,
             };
           }
           if (comment.replies && comment.replies.length > 0) {
@@ -471,8 +510,12 @@ export const StudyGramProvider = ({ children }) => {
                   const hasLiked = reply.likes.includes(currentUser.id);
                   return {
                     ...reply,
-                    likes: hasLiked ? reply.likes.filter((id) => id !== currentUser.id) : [...reply.likes, currentUser.id],
-                    likeCount: hasLiked ? reply.likeCount - 1 : reply.likeCount + 1,
+                    likes: hasLiked
+                      ? reply.likes.filter((id) => id !== currentUser.id)
+                      : [...reply.likes, currentUser.id],
+                    likeCount: hasLiked
+                      ? reply.likeCount - 1
+                      : reply.likeCount + 1,
                   };
                 }
                 return reply;
@@ -500,7 +543,9 @@ export const StudyGramProvider = ({ children }) => {
         fetchCommentsForPost(postId);
         setPosts((prev) =>
           prev.map((post) =>
-            post.id === postId ? { ...post, commentCount: post.commentCount + 1 } : post
+            post.id === postId
+              ? { ...post, commentCount: post.commentCount + 1 }
+              : post
           )
         );
         return true;
@@ -528,7 +573,9 @@ export const StudyGramProvider = ({ children }) => {
             const hasLiked = quiz.likes.includes(currentUser.id);
             return {
               ...quiz,
-              likes: hasLiked ? quiz.likes.filter((id) => id !== currentUser.id) : [...quiz.likes, currentUser.id],
+              likes: hasLiked
+                ? quiz.likes.filter((id) => id !== currentUser.id)
+                : [...quiz.likes, currentUser.id],
               likeCount: hasLiked ? quiz.likeCount - 1 : quiz.likeCount + 1,
             };
           }
@@ -553,7 +600,9 @@ export const StudyGramProvider = ({ children }) => {
             const hasSaved = quiz.savedBy.includes(currentUser.id);
             return {
               ...quiz,
-              savedBy: hasSaved ? quiz.savedBy.filter((id) => id !== currentUser.id) : [...quiz.savedBy, currentUser.id],
+              savedBy: hasSaved
+                ? quiz.savedBy.filter((id) => id !== currentUser.id)
+                : [...quiz.savedBy, currentUser.id],
             };
           }
           return quiz;
@@ -567,7 +616,10 @@ export const StudyGramProvider = ({ children }) => {
   const feedPosts = useMemo(
     () =>
       posts
-        .map((post) => ({ ...post, user: getUserById(post.userId) || post.user }))
+        .map((post) => ({
+          ...post,
+          user: getUserById(post.userId) || post.user,
+        }))
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)),
     [posts]
   );
@@ -630,6 +682,7 @@ export const StudyGramProvider = ({ children }) => {
       logout,
       updateUser,
       requireAuth,
+      isAuthLoading,
       feedPosts,
       isFeedLoading,
       bookmarkedPosts,
