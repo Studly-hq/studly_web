@@ -357,52 +357,51 @@ export const StudyGramProvider = ({ children }) => {
   );
 
   const handleBookmarkPost = useCallback(
-    async (postId, skipAuth = false) => {
+    async (postId, post = null, skipAuth = false) => {
       if (!skipAuth && !isAuthenticated) {
         setScrollPosition(window.scrollY);
         setPendingAction({ type: "bookmark", postId });
         setShowAuthModal(true);
         return;
       }
+
+      const isAlreadyBookmarked = bookmarkedPosts.some((p) => p.id === postId);
+      const previousBookmarks = bookmarkedPosts;
       let previousPosts;
-      let previousBookmarks;
+
+      // Update feed posts if present
       setPosts((prevPosts) => {
         previousPosts = prevPosts;
-        return prevPosts.map((post) => {
-          if (post.id === postId) {
-            const hasBookmarked = post.bookmarkedBy.includes(currentUser.id);
+        return prevPosts.map((p) => {
+          if (p.id === postId) {
+            const hasBookmarked = p.bookmarkedBy.includes(currentUser.id);
             return {
-              ...post,
+              ...p,
               bookmarkedBy: hasBookmarked
-                ? post.bookmarkedBy.filter((id) => id !== currentUser.id)
-                : [...post.bookmarkedBy, currentUser.id],
+                ? p.bookmarkedBy.filter((id) => id !== currentUser.id)
+                : [...p.bookmarkedBy, currentUser.id],
             };
           }
-          return post;
+          return p;
         });
       });
-      setBookmarkedPosts((prevBookmarks) => {
-        previousBookmarks = prevBookmarks;
-        const isAlreadyInBookmarks = prevBookmarks.some((p) => p.id === postId);
-        if (isAlreadyInBookmarks) {
-          return prevBookmarks.filter((p) => p.id !== postId);
-        } else {
-          const postToAdd = posts.find((p) => p.id === postId);
-          if (postToAdd) {
-            return [
-              { ...postToAdd, bookmarkedBy: [currentUser.id] },
-              ...prevBookmarks,
-            ];
-          }
-          return prevBookmarks;
+
+      // Update bookmarks list synchronously
+      if (isAlreadyBookmarked) {
+        setBookmarkedPosts((prev) => prev.filter((p) => p.id !== postId));
+      } else {
+        const postToAdd = posts.find((p) => p.id === postId) || post;
+        if (postToAdd) {
+          const newBookmark = {
+            ...postToAdd,
+            bookmarkedBy: [...(postToAdd.bookmarkedBy || []), currentUser.id],
+          };
+          setBookmarkedPosts((prev) => [newBookmark, ...prev]);
         }
-      });
+      }
+
       try {
-        const currentPost = posts.find((p) => p.id === postId);
-        const alreadyBookmarked = currentPost?.bookmarkedBy.includes(
-          currentUser.id
-        );
-        if (alreadyBookmarked) {
+        if (isAlreadyBookmarked) {
           await apiUnbookmarkPost(postId);
           toast.success("Removed from bookmarks");
         } else {
@@ -416,7 +415,7 @@ export const StudyGramProvider = ({ children }) => {
         toast.error("Failed to update bookmark.");
       }
     },
-    [posts, currentUser, isAuthenticated]
+    [posts, currentUser, isAuthenticated, bookmarkedPosts]
   );
 
   const fetchCommentsForPost = useCallback(async (postId) => {
