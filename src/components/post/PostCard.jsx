@@ -18,11 +18,8 @@ import { useStudyGram } from "../../context/StudyGramContext";
 
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
-  const {
-    currentUser,
-    handleLikePost,
-    handleBookmarkPost,
-  } = useStudyGram();
+  const { currentUser, bookmarkedPosts, handleLikePost, handleBookmarkPost } =
+    useStudyGram();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -31,7 +28,7 @@ const PostCard = ({ post }) => {
 
   const isLiked = currentUser && post.likes.includes(currentUser.id);
   const isBookmarked =
-    currentUser && post.bookmarkedBy.includes(currentUser.id);
+    currentUser && bookmarkedPosts.some((p) => p.id === post.id);
 
   console.log(post);
 
@@ -104,7 +101,7 @@ const PostCard = ({ post }) => {
               text: post.content,
               url: window.location.href,
             })
-            .catch(() => { });
+            .catch(() => {});
         } else {
           // Fallback: copy to clipboard
           navigator.clipboard.writeText(window.location.href);
@@ -348,10 +345,11 @@ const PostCard = ({ post }) => {
                       setCurrentImageIndex(index);
                       setImageLoaded(false);
                     }}
-                    className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${index === currentImageIndex
-                      ? "bg-white w-6"
-                      : "bg-white/50 w-2 hover:bg-white/75"
-                      }`}
+                    className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${
+                      index === currentImageIndex
+                        ? "bg-white w-6"
+                        : "bg-white/50 w-2 hover:bg-white/75"
+                    }`}
                   />
                 ))}
               </div>
@@ -379,10 +377,11 @@ const PostCard = ({ post }) => {
                 e.stopPropagation();
                 handleLikePost(post.id);
               }}
-              className={`flex items-center gap-1 p-2 rounded-full ${isLiked
-                ? "text-reddit-orange"
-                : "text-reddit-textMuted hover:text-reddit-text"
-                }`}
+              className={`flex items-center gap-1 p-2 rounded-full ${
+                isLiked
+                  ? "text-reddit-orange"
+                  : "text-reddit-textMuted hover:text-reddit-text"
+              }`}
             >
               <Heart
                 size={20}
@@ -415,12 +414,13 @@ const PostCard = ({ post }) => {
             transition={{ duration: 0.15 }}
             onClick={(e) => {
               e.stopPropagation();
-              handleBookmarkPost(post.id);
+              handleBookmarkPost(post.id, post);
             }}
-            className={`p-2 rounded-full ${isBookmarked
-              ? "text-reddit-orange"
-              : "text-reddit-textMuted hover:text-reddit-text"
-              }`}
+            className={`p-2 rounded-full ${
+              isBookmarked
+                ? "text-reddit-orange"
+                : "text-reddit-textMuted hover:text-reddit-text"
+            }`}
           >
             <Bookmark
               size={20}

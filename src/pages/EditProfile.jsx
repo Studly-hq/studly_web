@@ -65,7 +65,16 @@ const EditProfile = () => {
       navigate("/profile");
     } catch (error) {
       console.error("Failed to update profile:", error);
-      alert("Failed to update profile. Please try again.");
+
+      const errorMessage =
+        error.response?.data?.error ||
+        "Failed to update profile. Please try again.";
+
+      if (errorMessage === "Username taken") {
+        toast.error("Username is already taken. Please choose another one.");
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setIsSaving(false);
     }
