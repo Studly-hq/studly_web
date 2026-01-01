@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useStudyGram } from "../../context/StudyGramContext";
 import { toast } from "sonner";
-// import { getAvatarUploadUrl, uploadImageToS3 } from "../../api/profile";
+import { uploadMultipleToCloudinary } from "../../utils/uploadToCloudinary";
 
 const CreatePostModal = () => {
   const {
@@ -26,6 +26,7 @@ const CreatePostModal = () => {
   const [postType, setPostType] = useState("text"); // 'text', 'single-image', 'carousel'
   const [previewIndex, setPreviewIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState("");
   const fileInputRef = useRef(null);
 
   const handleClose = () => {
@@ -34,6 +35,7 @@ const CreatePostModal = () => {
     setImages([]);
     setPostType("text");
     setPreviewIndex(0);
+    setUploadProgress("");
   };
 
   const handleImageSelect = (e) => {
@@ -79,38 +81,28 @@ const CreatePostModal = () => {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
+    setUploadProgress("");
+    
     try {
-      // let uploadedImageUrls = [];
+      let uploadedImageUrls = [];
 
-      // If there are images, upload them first
-      // if (images.length > 0) {
-      //   // We use Promise.all to upload in parallel
-      //   uploadedImageUrls = await Promise.all(
-      //     images.map(async (img) => {
-      //       // 1. Get Presigned URL
-      //       // We can reuse the profile/avatar-url endpoint or create a new one.
-      //       // For now, let's reuse it or assume the backend endpoint handles generic "fileType".
-      //       // The backend guide I wrote set the key as "avatars/...", we might want to change that later to "posts/..."
-      //       const { uploadUrl, publicUrl } = await getAvatarUploadUrl(
-      //         img.file.type
-      //       );
-
-      //       // 2. Upload to S3
-      //       await uploadImageToS3(uploadUrl, img.file);
-
-      //       return {
-      //         url: publicUrl,
-      //         alt: img.alt,
-      //       };
-      //     })
-      //   );
-      // }
+      // If there are images, upload them to Cloudinary first
+      if (images.length > 0) {
+        setUploadProgress(`Uploading ${images.length} image${images.length > 1 ? 's' : ''}...`);
+        
+        // Extract the File objects from the images array
+        const files = images.map(img => img.file);
+        
+        // Upload all images to Cloudinary in parallel
+        uploadedImageUrls = await uploadMultipleToCloudinary(files);
+        
+        setUploadProgress("Creating post...");
+      }
 
       const postData = {
         type: postType,
         content: content.trim(),
-        // images: uploadedImageUrls.length > 0 ? uploadedImageUrls : undefined,
-        images: images.length > 0 ? images : undefined,
+        media: uploadedImageUrls.length > 0 ? uploadedImageUrls : undefined,
         tags: extractHashtags(content),
       };
 
@@ -118,10 +110,11 @@ const CreatePostModal = () => {
       toast.success("Post created successfully!");
       handleClose();
     } catch (error) {
-      console.error("Post creation error pls try again:", error);
+      console.error("Post creation error:", error);
       toast.error(error.message || "Failed to create post. Please try again.");
     } finally {
       setIsSubmitting(false);
+      setUploadProgress("");
     }
   };
 
@@ -364,7 +357,7 @@ const CreatePostModal = () => {
                   : "bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed"
                 }`}
             >
-              {isSubmitting ? "Posting..." : "Post"}
+              {isSubmitting ? (uploadProgress || "Posting...") : "Post"}
             </motion.button>
           </div>
         </motion.div>
