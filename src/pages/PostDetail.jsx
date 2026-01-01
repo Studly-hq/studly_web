@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MessageSquare } from "lucide-react";
 import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
 import Comment from "../components/comments/Comment";
@@ -131,8 +131,9 @@ const PostDetail = () => {
                 </div>
               ))
             ) : (
-              <div className="text-center text-reddit-textMuted py-8">
-                No comments yet. Be the first to share your thoughts!
+              <div className="text-center text-reddit-textMuted py-8 flex flex-col items-center gap-2">
+                <MessageSquare size={32} className="opacity-50" />
+                <p>No comments yet. Be the first to share your thoughts!</p>
               </div>
             )}
           </div>

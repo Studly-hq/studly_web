@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, User, PlayCircle, MoreHorizontal, LogIn } from 'lucide-react';
 import { useCoursePlayer } from '../../context/CoursePlayerContext';
 import { useStudyGram } from '../../context/StudyGramContext';
+import logo from '../../assets/logo.png';
+
 
 const LeftSidebar = () => {
   const location = useLocation();
@@ -32,7 +34,7 @@ const LeftSidebar = () => {
   ];
 
   const isCourseActive = location.pathname.startsWith('/courses');
-  const courseButtonLabel = hasAnyProgress() ? 'Continue Course' : 'Take a Course';
+  const courseButtonLabel = hasAnyProgress() ? 'Continue Topic' : 'Start Studying';
 
   return (
     <motion.aside
@@ -43,8 +45,8 @@ const LeftSidebar = () => {
       <div className="flex flex-col h-full">
         {/* Logo Area */}
         <div className="p-3 my-1">
-          <Link to="/" className="inline-flex items-center justify-center p-3 rounded-full hover:bg-reddit-cardHover/50 transition-colors w-12 h-12">
-            <span className="text-reddit-orange font-righteous text-2xl">S</span>
+          <Link to="/" className="inline-flex items-center justify-center p-2 rounded-full hover:bg-reddit-cardHover/50 transition-colors w-12 h-12">
+            <img src={logo} alt="Studly Logo" className="w-10 h-10 object-contain" />
           </Link>
         </div>
 

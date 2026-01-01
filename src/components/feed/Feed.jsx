@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useStudyGram } from "../../context/StudyGramContext";
 import PostCard from "../post/PostCard";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { Layout } from "lucide-react";
 
 const Feed = ({ activeTab }) => {
   const { posts, currentUser, isFeedLoading } = useStudyGram();
@@ -62,7 +63,7 @@ const Feed = ({ activeTab }) => {
             className="flex flex-col items-center justify-center py-20 bg-reddit-card border border-reddit-border rounded-md"
           >
             <div className="w-16 h-16 bg-reddit-cardHover rounded-full flex items-center justify-center mb-4">
-              <span className="text-3xl">📚</span>
+              <Layout size={32} className="text-reddit-textMuted opacity-50" />
             </div>
             <h3 className="text-reddit-text text-lg font-semibold mb-2">
               No posts yet

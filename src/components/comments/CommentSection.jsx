@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send } from 'lucide-react';
+import { X, Send, MessageSquare } from 'lucide-react';
 import { useStudyGram } from '../../context/StudyGramContext';
 import { getUserById } from '../../data/studygramData';
 import Comment from './Comment';
@@ -139,7 +139,7 @@ const CommentSection = () => {
                 className="flex flex-col items-center justify-center py-12"
               >
                 <div className="w-16 h-16 bg-reddit-cardHover rounded-full flex items-center justify-center mb-4">
-                  <span className="text-3xl">💬</span>
+                  <MessageSquare size={32} className="text-reddit-textMuted opacity-50" />
                 </div>
                 <h4 className="text-reddit-text font-semibold mb-2">No comments yet</h4>
                 <p className="text-reddit-textMuted text-sm text-center max-w-xs">
@@ -214,11 +214,10 @@ const CommentSection = () => {
                   whileHover={commentText.trim() ? { scale: 1.02 } : {}}
                   whileTap={commentText.trim() ? { scale: 0.98 } : {}}
                   transition={{ duration: 0.2 }}
-                  className={`p-3 rounded transition-all duration-200 flex-shrink-0 ${
-                    commentText.trim()
-                      ? 'bg-reddit-blue hover:bg-reddit-blue/90 text-white'
-                      : 'bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed'
-                  }`}
+                  className={`p-3 rounded transition-all duration-200 flex-shrink-0 ${commentText.trim()
+                    ? 'bg-reddit-blue hover:bg-reddit-blue/90 text-white'
+                    : 'bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed'
+                    }`}
                 >
                   <Send size={18} />
                 </motion.button>

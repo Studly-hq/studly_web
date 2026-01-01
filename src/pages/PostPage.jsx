@@ -244,8 +244,9 @@ const PostPage = () => {
                     />
                 ))}
                 {comments.length === 0 && (
-                    <div className="text-center py-10 text-gray-500">
-                        No comments yet. Be the first to reply!
+                    <div className="text-center py-10 text-gray-500 flex flex-col items-center gap-2">
+                        <MessageCircle size={32} className="opacity-50" />
+                        <p>No comments yet. Be the first to reply!</p>
                     </div>
                 )}
             </div>
