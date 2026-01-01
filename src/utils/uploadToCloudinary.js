@@ -1,17 +1,5 @@
-/**
- * Cloudinary Upload Utility
- * 
- * Handles uploading images to Cloudinary using signed uploads.
- * Note: This implementation uses client-side signing which requires the API secret.
- * For production, consider moving the signature generation to your backend.
- */
-
 import { CLOUDINARY_UPLOAD_URL, CLOUDINARY_API_KEY, validateCloudinaryConfig } from './cloudinaryConfig';
 
-/**
- * Generate SHA-1 hash for signature (simplified version)
- * In production, this should be done on the backend for security
- */
 const generateSignature = async (paramsToSign, apiSecret) => {
   const sortedParams = Object.keys(paramsToSign)
     .sort()
@@ -20,7 +8,6 @@ const generateSignature = async (paramsToSign, apiSecret) => {
   
   const stringToSign = sortedParams + apiSecret;
   
-  // Use Web Crypto API to generate SHA-1 hash
   const encoder = new TextEncoder();
   const data = encoder.encode(stringToSign);
   const hashBuffer = await crypto.subtle.digest('SHA-1', data);
@@ -30,35 +17,24 @@ const generateSignature = async (paramsToSign, apiSecret) => {
   return hashHex;
 };
 
-/**
- * Upload an image file to Cloudinary using signed upload
- * @param {File} file - The image file to upload
- * @returns {Promise<string>} - The secure URL of the uploaded image
- */
 export const uploadToCloudinary = async (file) => {
   try {
-    // Validate configuration
     validateCloudinaryConfig();
 
-    // Get API secret from environment (in production, do this on backend)
     const apiSecret = process.env.REACT_APP_CLOUDINARY_API_SECRET;
     if (!apiSecret) {
       throw new Error('Cloudinary API secret is not configured');
     }
 
-    // Generate timestamp
     const timestamp = Math.round(Date.now() / 1000);
 
-    // Parameters to sign (excluding file and api_key)
     const paramsToSign = {
       timestamp: timestamp,
-      folder: 'studly/posts' // Optional: organize uploads in a folder
+      folder: 'studly/posts'
     };
 
-    // Generate signature
     const signature = await generateSignature(paramsToSign, apiSecret);
 
-    // Create form data
     const formData = new FormData();
     formData.append('file', file);
     formData.append('timestamp', timestamp);
@@ -66,7 +42,6 @@ export const uploadToCloudinary = async (file) => {
     formData.append('signature', signature);
     formData.append('folder', 'studly/posts');
 
-    // Upload to Cloudinary
     const response = await fetch(CLOUDINARY_UPLOAD_URL, {
       method: 'POST',
       body: formData,
@@ -80,7 +55,6 @@ export const uploadToCloudinary = async (file) => {
 
     const data = await response.json();
     
-    // Return the secure URL
     return data.secure_url;
   } catch (error) {
     console.error('Cloudinary upload error:', error);
@@ -88,11 +62,6 @@ export const uploadToCloudinary = async (file) => {
   }
 };
 
-/**
- * Upload multiple images to Cloudinary in parallel
- * @param {File[]} files - Array of image files to upload
- * @returns {Promise<string[]>} - Array of secure URLs of uploaded images
- */
 export const uploadMultipleToCloudinary = async (files) => {
   try {
     const uploadPromises = files.map(file => uploadToCloudinary(file));
