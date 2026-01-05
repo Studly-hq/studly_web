@@ -5,20 +5,21 @@ import { useNavigate } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import { toast } from "sonner";
 import LoadingSpinner from "../components/common/LoadingSpinner";
-// import { uploadAvatar } from "../api/profile";
+import { uploadAvatarToCloudinary } from "../utils/uploadAvatar";
 
 const EditProfile = () => {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated, updateUser } = useStudyGram();
 
   const [formData, setFormData] = useState({
-    name: currentUser?.name || "",
+    name: currentUser?.name || currentUser?.displayName || "",
     username: currentUser?.username || "",
     bio: currentUser?.bio || "",
-    // avatar: currentUser?.avatar_url || currentUser?.avatar || "",
+    avatar: currentUser?.avatar || "",
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   if (!isAuthenticated) {
     navigate("/");
@@ -33,34 +34,72 @@ const EditProfile = () => {
     }));
   };
 
-  // const handleFileSelect = async (e) => {
-  //   const file = e.target.files[0];
-  //   if (!file) return;
+  const handleFileSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  //   // Create preview immediate feedback
-  //   const preview = URL.createObjectURL(file);
-  //   setFormData((prev) => ({ ...prev, avatar: preview }));
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please select an image file");
+      return;
+    }
 
-  //   // Upload to backend
-  //   try {
-  //     const uploadedUrl = await uploadAvatar(file);
-  //     setFormData((prev) => ({ ...prev, avatar: uploadedUrl }));
-  //     toast.success("Image uploaded successfully!");
-  //   } catch (err) {
-  //     toast.error("Failed to upload image.");
-  //     console.error(err);
-  //   }
-  // };
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    // Create preview for immediate feedback
+    const preview = URL.createObjectURL(file);
+    setFormData((prev) => ({ ...prev, avatar: preview }));
+
+    // Upload to Cloudinary
+    setIsUploadingAvatar(true);
+    try {
+      const uploadedUrl = await uploadAvatarToCloudinary(file);
+      setFormData((prev) => ({ ...prev, avatar: uploadedUrl }));
+      toast.success("Avatar uploaded successfully!");
+    } catch (err) {
+      toast.error("Failed to upload avatar. Please try again.");
+      console.error(err);
+      // Revert to original avatar on error
+      setFormData((prev) => ({ ...prev, avatar: currentUser?.avatar || "" }));
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await updateUser({
-        name: formData.name,
-        username: formData.username,
-        bio: formData.bio,
-        // avatar_url: formData.avatar,
-      });
+      // Build payload with only non-empty fields to avoid "Invalid input data" error
+      const payload = {};
+      
+      if (formData.name && formData.name.trim()) {
+        payload.name = formData.name.trim();
+      }
+      
+      if (formData.username && formData.username.trim()) {
+        payload.username = formData.username.trim();
+      }
+      
+      if (formData.bio && formData.bio.trim()) {
+        payload.bio = formData.bio.trim();
+      }
+      
+      if (formData.avatar && formData.avatar.trim()) {
+        payload.avatar_url = formData.avatar.trim();
+      }
+
+      // Only send if there are fields to update
+      if (Object.keys(payload).length === 0) {
+        toast.error("No changes to save");
+        setIsSaving(false);
+        return;
+      }
+
+      await updateUser(payload);
       toast.success("Profile updated successfully!");
       navigate("/profile");
     } catch (error) {
@@ -137,29 +176,36 @@ const EditProfile = () => {
           <div className="flex flex-col items-center">
             <div className="relative mb-4">
               <img
-                src={formData.avatar}
+                src={formData.avatar || "https://i.pravatar.cc/150?u=default"}
                 alt="Profile"
-                className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-blue"
+                className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-blue object-cover"
               />
               <motion.button
                 onClick={() => document.getElementById("avatarUpload").click()}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 type="button"
-                className="absolute bottom-0 right-0 p-2 md:p-3 bg-reddit-blue hover:bg-reddit-blue/90 rounded-full text-white transition-colors"
+                disabled={isUploadingAvatar}
+                className="absolute bottom-0 right-0 p-2 md:p-3 bg-reddit-blue hover:bg-reddit-blue/90 disabled:bg-reddit-blue/50 rounded-full text-white transition-colors"
               >
-                <Camera size={18} className="md:w-5 md:h-5" />
+                {isUploadingAvatar ? (
+                  <LoadingSpinner size={18} color="#ffffff" />
+                ) : (
+                  <Camera size={18} className="md:w-5 md:h-5" />
+                )}
               </motion.button>
               <input
                 id="avatarUpload"
                 type="file"
                 accept="image/*"
-                // onChange={handleFileSelect}
+                onChange={handleFileSelect}
                 className="hidden"
               />
             </div>
             <p className="text-xs md:text-sm text-reddit-textMuted text-center">
-              Click the camera icon to change your profile picture
+              {isUploadingAvatar 
+                ? "Uploading avatar..." 
+                : "Click the camera icon to change your profile picture"}
             </p>
           </div>
 
