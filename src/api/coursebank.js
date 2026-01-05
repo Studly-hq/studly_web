@@ -94,3 +94,22 @@ export const getEnrollmentStatus = async (courseId) => {
     throw error;
   }
 };
+
+/**
+ * Create a new course
+ * @param {Object} courseData - The course data
+ * @returns {Promise<Object>} Created course
+ */
+export const createCourse = async (courseData) => {
+  try {
+    const response = await client.post("/coursebank/course", courseData);
+    console.log("Create Course Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Create Course Error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

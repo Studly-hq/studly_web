@@ -24,7 +24,7 @@ import TopicPlayer from "./pages/TopicPlayer";
 import PostDetail from "./pages/PostDetail";
 import CreateAd from "./pages/CreateAd";
 import AdsDashboard from "./pages/AdsDashboard";
-
+import CourseAdmin from "./pages/CourseAdmin";
 import "./App.css";
 
 function App() {
@@ -36,6 +36,7 @@ function App() {
             {/* Course Bank routes (full screen, no header/sidebars) */}
             <Route path="/courses" element={<CourseBank />} />
             <Route path="/courses/:topicId" element={<TopicPlayer />} />
+            <Route path="/courses/admin" element={<CourseAdmin />} />
 
             {/* Main app routes (with sidebars) */}
             <Route
