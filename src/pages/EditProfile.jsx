@@ -80,7 +80,7 @@ const EditProfile = () => {
         payload.name = formData.name.trim();
       }
       
-      if (formData.username && formData.username.trim()) {
+      if (formData.username && formData.username.trim() && formData.username.trim() !== currentUser?.username) {
         payload.username = formData.username.trim();
       }
       
