@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, MessageSquare } from 'lucide-react';
+import { X, Send, MessageSquare, User } from 'lucide-react';
 import { useStudyGram } from '../../context/StudyGramContext';
 import { getUserById } from '../../data/studygramData';
 import Comment from './Comment';
@@ -17,6 +17,8 @@ const CommentSection = () => {
 
   const [commentText, setCommentText] = useState('');
   const [replyingTo, setReplyingTo] = useState(null);
+  const [avatarError, setAvatarError] = useState(false);
+  const [postAuthorAvatarError, setPostAuthorAvatarError] = useState(false);
   const inputRef = useRef(null);
   const commentsEndRef = useRef(null);
 
@@ -96,11 +98,18 @@ const CommentSection = () => {
           {/* Post Preview */}
           <div className="p-4 bg-reddit-cardHover/30 border-b border-reddit-border">
             <div className="flex items-start gap-3">
-              <img
-                src={post.user.avatar}
-                alt={post.user.displayName}
-                className="w-10 h-10 rounded-full border border-reddit-border"
-              />
+              {post.user.avatar && !postAuthorAvatarError ? (
+                <img
+                  src={post.user.avatar}
+                  alt={post.user.displayName}
+                  onError={() => setPostAuthorAvatarError(true)}
+                  className="w-10 h-10 rounded-full border border-reddit-border object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-reddit-cardHover border border-reddit-border flex items-center justify-center">
+                  <User size={20} className="text-reddit-textMuted" />
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-reddit-text font-semibold text-sm">
@@ -177,11 +186,18 @@ const CommentSection = () => {
             )}
 
             <form onSubmit={handleSubmit} className="flex items-start gap-3">
-              <img
-                src={currentUser?.avatar}
-                alt={currentUser?.displayName}
-                className="w-10 h-10 rounded-full border border-reddit-border flex-shrink-0 mt-1"
-              />
+              {currentUser?.avatar && !avatarError ? (
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.displayName}
+                  onError={() => setAvatarError(true)}
+                  className="w-10 h-10 rounded-full border border-reddit-border flex-shrink-0 mt-1 object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-reddit-cardHover border border-reddit-border flex items-center justify-center flex-shrink-0 mt-1">
+                  <User size={20} className="text-reddit-textMuted" />
+                </div>
+              )}
               <div className="flex-1 flex items-start gap-2">
                 <div className="flex-1 bg-reddit-input rounded">
                   <textarea

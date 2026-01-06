@@ -102,16 +102,14 @@ const ProgressStats = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1, duration: 0.3 }}
-            className={`bg-reddit-card border ${stat.borderColor} rounded-lg p-4 hover:bg-reddit-cardHover transition-colors`}
+            className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-lg ${stat.bgColor} flex items-center justify-center`}>
-                <Icon className={`w-5 h-5 ${stat.color}`} />
-              </div>
-              <div>
-                <p className="text-xs text-reddit-placeholder">{stat.label}</p>
-                <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
-              </div>
+            <div className={`w-10 h-10 rounded-lg ${stat.bgColor} flex items-center justify-center`}>
+              <Icon className={`w-5 h-5 ${stat.color}`} />
+            </div>
+            <div>
+              <p className="text-xs text-white/40 uppercase tracking-wider font-semibold">{stat.label}</p>
+              <p className={`text-lg font-bold text-white`}>{stat.value}</p>
             </div>
           </motion.div>
         );

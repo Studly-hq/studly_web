@@ -69,120 +69,82 @@ const SubjectCard = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
       transition={{
         delay: index * 0.05,
-        duration: 0.3,
+        duration: 0.4,
         ease: [0.23, 1, 0.32, 1],
       }}
-      whileHover={{ y: -4 }}
+      whileHover={{ scale: 1.02 }}
       onClick={handleClick}
-      className="bg-reddit-card border border-reddit-border rounded-lg overflow-hidden hover:bg-reddit-cardHover transition-all cursor-pointer group"
+      className="group relative bg-white/5 hover:bg-white/[0.07] rounded-2xl p-6 transition-all duration-300 cursor-pointer overflow-hidden backdrop-blur-sm border border-white/5 hover:border-white/10"
     >
-      {/* Progress bar */}
+      {/* Sleek hover gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-reddit-orange/0 via-reddit-orange/0 to-reddit-orange/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-      <div className="p-5">
+      <div className="relative z-10">
         {/* Header */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-reddit-orange/10 flex items-center justify-center group-hover:bg-reddit-orange/20 transition-colors">
-              <IconComponent className="w-6 h-6 text-reddit-orange" />
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex items-center gap-4">
+            <div className={`
+              w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300
+              ${hasStarted ? 'bg-reddit-orange text-white shadow-none' : 'bg-white/10 text-white group-hover:bg-reddit-orange group-hover:text-white'}
+            `}>
+              <IconComponent className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white group-hover:text-reddit-orange transition-colors">
+              <h3 className="text-lg font-bold text-white group-hover:text-reddit-orange transition-colors duration-300">
                 {topic.title}
               </h3>
-              <p className="text-sm text-reddit-placeholder">
+              <p className="text-sm text-white/50 group-hover:text-white/70 transition-colors">
                 {topic.subtitle}
               </p>
             </div>
           </div>
+
+
         </div>
 
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {topic.tags.slice(0, 3).map((tag, idx) => (
-            <span
-              key={idx}
-              className="px-2 py-1 text-xs rounded-full bg-reddit-cardHover text-reddit-placeholder border border-reddit-border"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* Stats */}
-        <div className="flex items-center gap-4 mb-4 text-sm text-reddit-placeholder">
-          <div className="flex items-center gap-1">
-            <Icons.BookOpen className="w-4 h-4" />
+        {/* Info Row - Minimal */}
+        <div className="flex items-center gap-6 text-sm text-white/40 mb-6 group-hover:text-white/60 transition-colors">
+          <div className="flex items-center gap-1.5">
+            <Icons.Layers className="w-4 h-4" />
             <span>{totalTopics} sections</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <Icons.Clock className="w-4 h-4" />
             <span>{topic.estimatedMinutes} min</span>
           </div>
-          <div
-            className={`px-2 py-0.5 rounded-full text-xs border ${difficultyColors[topic.difficulty]
-              }`}
-          >
-            {topic.difficulty}
-          </div>
         </div>
 
-        {/* Progress or CTA */}
-        {hasStarted ? (
-          <div>
-            <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-reddit-placeholder">Progress</span>
-              <span className="text-white font-medium">
-                {progressPercentage}%
+        {/* Action Area */}
+        <div className="mt-auto">
+          {hasStarted ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-white/50 font-medium">Progress</span>
+                <span className="text-white font-bold">{progressPercentage}%</span>
+              </div>
+              <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPercentage}%` }}
+                  className="h-full bg-reddit-orange rounded-full"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between pt-2 border-t border-white/5 group-hover:border-white/10 transition-colors">
+              <span className="text-xs font-medium text-white/30 group-hover:text-white/50 transition-colors">
+                {topic.isApiCourse && !isEnrolled ? 'Tap to Enroll' : 'Start Learning'}
               </span>
+              <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-reddit-orange group-hover:text-white transition-all duration-300 transform group-hover:translate-x-1">
+                {topic.isApiCourse && !isEnrolled ? <Icons.Plus className="w-4 h-4" /> : <Icons.ArrowRight className="w-4 h-4" />}
+              </div>
             </div>
-            <div className="w-full h-2 bg-reddit-cardHover rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progressPercentage}%` }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="h-full bg-reddit-orange rounded-full"
-              />
-            </div>
-            <button className="w-full mt-3 px-4 py-2 bg-reddit-orange hover:bg-reddit-orange/90 text-white rounded-full font-medium transition-colors flex items-center justify-center gap-2">
-              <Icons.Play className="w-4 h-4" />
-              Continue Learning
-            </button>
-          </div>
-        ) : topic.isApiCourse && !isEnrolled ? (
-          // Enroll button for API courses that user hasn't enrolled in
-          <button
-            onClick={handleEnroll}
-            disabled={enrolling}
-            className="w-full px-4 py-2 bg-reddit-orange hover:bg-reddit-orange/90 text-white rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {enrolling ? (
-              <>
-                <LoadingSpinner size={16} color="#ffffff" />
-                Enrolling...
-              </>
-            ) : (
-              <>
-                <Icons.UserPlus className="w-4 h-4" />
-                Enroll Now
-              </>
-            )}
-          </button>
-        ) : (
-          // Start button for mock courses or enrolled API courses
-          <button
-            onClick={handleClick}
-            className="w-full px-4 py-2 bg-reddit-cardHover hover:bg-reddit-orange/10 text-white border border-reddit-border hover:border-reddit-orange rounded-full font-medium transition-colors flex items-center justify-center gap-2 group/btn"
-          >
-            <Icons.PlayCircle className="w-4 h-4 group-hover/btn:text-reddit-orange" />
-            <span className="group-hover/btn:text-reddit-orange">
-              Start Course
-            </span>
-          </button>
-        )}
+          )}
+        </div>
       </div>
     </motion.div>
   );

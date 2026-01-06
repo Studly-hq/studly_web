@@ -38,47 +38,47 @@ const TextScene = ({ content, typedContent, showCursor, isTyping }) => {
                 style={vscDarkPlus}
                 language={match[1]}
                 PreTag="div"
-                className="rounded-lg !bg-reddit-cardHover !my-4"
+                className="rounded-lg !bg-white/5 !my-6"
                 {...props}
               >
                 {String(children).replace(/\n$/, '')}
               </SyntaxHighlighter>
             ) : (
-              <code className="bg-reddit-cardHover px-1.5 py-0.5 rounded text-reddit-orange" {...props}>
+              <code className="bg-white/10 px-1.5 py-0.5 rounded text-reddit-orange font-mono" {...props}>
                 {children}
               </code>
             );
           },
           // Headings
           h1: ({ children }) => (
-            <h1 className="text-3xl font-bold text-white mb-4 mt-6">{children}</h1>
+            <h1 className="text-3xl font-bold text-white mb-6 mt-8 tracking-tight">{children}</h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-2xl font-bold text-white mb-3 mt-5">{children}</h2>
+            <h2 className="text-2xl font-bold text-white/95 mb-4 mt-6 tracking-tight">{children}</h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-xl font-semibold text-white mb-2 mt-4">{children}</h3>
+            <h3 className="text-xl font-semibold text-white/90 mb-3 mt-5">{children}</h3>
           ),
           // Paragraphs
           p: ({ children }) => (
-            <p className="text-reddit-placeholder leading-relaxed mb-4">{children}</p>
+            <p className="text-reddit-textMuted leading-7 mb-6 text-lg">{children}</p>
           ),
           // Lists
           ul: ({ children }) => (
-            <ul className="list-disc list-inside mb-4 space-y-2 text-reddit-placeholder">{children}</ul>
+            <ul className="list-disc list-outside ml-4 mb-6 space-y-2 text-reddit-textMuted leading-relaxed">{children}</ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal list-inside mb-4 space-y-2 text-reddit-placeholder">{children}</ol>
+            <ol className="list-decimal list-outside ml-4 mb-6 space-y-2 text-reddit-textMuted leading-relaxed">{children}</ol>
           ),
           li: ({ children }) => (
-            <li className="ml-2">{children}</li>
+            <li className="pl-1">{children}</li>
           ),
           // Strong and emphasis
           strong: ({ children }) => (
             <strong className="text-white font-semibold">{children}</strong>
           ),
           em: ({ children }) => (
-            <em className="text-reddit-orange">{children}</em>
+            <em className="text-reddit-orange not-italic">{children}</em>
           ),
           // Links
           a: ({ href, children }) => (
@@ -86,14 +86,14 @@ const TextScene = ({ content, typedContent, showCursor, isTyping }) => {
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-reddit-blue hover:underline"
+              className="text-reddit-blue hover:text-white transition-colors underline decoration-reddit-blue/30 hover:decoration-white/50"
             >
               {children}
             </a>
           ),
           // Blockquotes
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-reddit-orange pl-4 italic text-reddit-placeholder my-4">
+            <blockquote className="border-l-2 border-reddit-orange pl-6 my-6 italic text-white/70">
               {children}
             </blockquote>
           )
@@ -107,7 +107,7 @@ const TextScene = ({ content, typedContent, showCursor, isTyping }) => {
         <motion.span
           animate={{ opacity: [1, 0] }}
           transition={{ duration: 0.5, repeat: Infinity, ease: 'easeInOut' }}
-          className="inline-block w-0.5 h-5 bg-reddit-orange ml-0.5 align-middle"
+          className="inline-block w-0.5 h-6 bg-reddit-orange ml-1 align-middle"
         />
       )}
     </div>

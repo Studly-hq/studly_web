@@ -74,7 +74,6 @@ const PostPage = () => {
   const handleFormatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
     return (
-<<<<<<< HEAD
         <div className="min-h-screen text-white">
             {/* Sticky Header */}
             <div className="sticky top-0 bg-reddit-bg/95 backdrop-blur-md z-10 px-4 py-3 flex items-center gap-6 border-b border-reddit-border">
@@ -227,15 +226,6 @@ const PostPage = () => {
                 )}
             </div>
         </div>
-=======
-      date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) +
-      " · " +
-      date.toLocaleDateString([], {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
->>>>>>> 4abfb234ef95f621c1dd7c6d3fea916a52df7ac1
     );
   };
 

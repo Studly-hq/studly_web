@@ -16,10 +16,10 @@ const CourseFilter = ({ activeCategory, onCategoryChange }) => {
             transition={{ delay: index * 0.05 }}
             onClick={() => onCategoryChange(category)}
             className={`
-              relative px-4 py-2 rounded-full font-medium transition-all whitespace-nowrap
+              relative px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap border
               ${isActive
-                ? 'text-white bg-reddit-orange'
-                : 'text-reddit-placeholder bg-reddit-cardHover hover:bg-reddit-border hover:text-white'
+                ? 'text-white border-reddit-orange bg-reddit-orange/10'
+                : 'text-white/60 border-white/10 hover:border-white/30 hover:text-white bg-transparent'
               }
             `}
           >
@@ -28,7 +28,7 @@ const CourseFilter = ({ activeCategory, onCategoryChange }) => {
             {isActive && (
               <motion.div
                 layoutId="activeCategory"
-                className="absolute inset-0 bg-reddit-orange rounded-full -z-10"
+                className="absolute inset-0 bg-reddit-orange/10 rounded-full -z-10"
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               />
             )}

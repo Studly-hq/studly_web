@@ -99,7 +99,7 @@ const Explore = () => {
                   whileHover={!isActive ? { backgroundColor: '#272729' } : {}}
                   whileTap={{ scale: 0.97 }}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-all ${isActive
-                    ? 'bg-reddit-blue text-white'
+                    ? 'bg-reddit-orange text-white'
                     : 'bg-reddit-card text-reddit-textMuted hover:text-reddit-text border border-reddit-border'
                     }`}
                 >
@@ -229,34 +229,7 @@ const Explore = () => {
                 )}
               </motion.div>
 
-              {/* Popular Subjects */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-reddit-card rounded-md border border-reddit-border overflow-hidden"
-              >
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-reddit-border">
-                  <Sparkles size={16} className="text-reddit-blue" />
-                  <h2 className="text-sm font-bold text-reddit-text">Popular Subjects</h2>
-                </div>
 
-                <div className="p-2 space-y-1">
-                  {['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology'].map((subject, index) => (
-                    <motion.button
-                      key={subject}
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 + index * 0.03 }}
-                      whileHover={{ backgroundColor: '#272729' }}
-                      className="w-full flex items-center justify-between px-2 py-1.5 rounded text-left transition-colors"
-                    >
-                      <span className="text-xs text-reddit-text">{subject}</span>
-                      <span className="text-[10px] text-reddit-textMuted">{Math.floor(Math.random() * 50) + 10}k</span>
-                    </motion.button>
-                  ))}
-                </div>
-              </motion.div>
             </div>
           </div>
         </div>

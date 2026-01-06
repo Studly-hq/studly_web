@@ -1,14 +1,15 @@
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, User, PlayCircle, MoreHorizontal, LogIn } from 'lucide-react';
+import { Home, Compass, User, PlayCircle, MoreHorizontal, LogIn, AlertCircle } from 'lucide-react';
 import { useCoursePlayer } from '../../context/CoursePlayerContext';
 import { useStudyGram } from '../../context/StudyGramContext';
 import logo from '../../assets/logo.png';
-
+import { useLumelyReport } from 'lumely-react';
 
 const LeftSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { reportError } = useLumelyReport();
   const { hasAnyProgress } = useCoursePlayer();
   const { isAuthenticated, currentUser, handleCreatePost, setShowAuthModal } = useStudyGram();
 
@@ -85,8 +86,27 @@ const LeftSidebar = () => {
             </div>
           </Link>
 
+          {/* Test Error Button */}
+          <div className="mt-2 px-2">
+            <button
+              onClick={() => {
+                try {
+                  throw new Error("Lumely Test Error: This is a deliberate error to test integration!");
+                } catch (err) {
+                  reportError(err);
+                  // Using alert or a toast if available (sonner is in package.json)
+                  import('sonner').then(({ toast }) => toast.error("Error reported to Lumely!"));
+                }
+              }}
+              className="w-[90%] bg-transparent border border-orange-500/50 hover:bg-orange-500/10 text-orange-500 font-bold py-2 rounded-full transition-all flex items-center justify-center gap-2 text-sm"
+            >
+              <AlertCircle size={16} />
+              Test Error
+            </button>
+          </div>
+
           {/* Post Button */}
-          <div className="mt-4 px-2">
+          <div className="mt-2 px-2">
             <button
               onClick={() => isAuthenticated ? handleCreatePost() : setShowAuthModal(true)}
               className="w-[90%] bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-2.5 rounded-full shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] text-lg"

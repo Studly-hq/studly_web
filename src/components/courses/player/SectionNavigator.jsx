@@ -1,11 +1,22 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Circle, ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  CheckCircle2,
+  Circle,
+  PlayCircle,
+  Lock,
+  ChevronDown,
+  ChevronRight,
+  BookOpen,
+  Film,
+  HelpCircle,
+  LayoutList
+} from 'lucide-react';
 import { useCoursePlayer } from '../../../context/CoursePlayerContext';
 
 const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSceneClick, isOpen, onToggle }) => {
   const { progress } = useCoursePlayer();
-  const [expandedSections, setExpandedSections] = React.useState([0]); // First section expanded by default
+  const [expandedSections, setExpandedSections] = React.useState([0]);
 
   const topicProgress = progress[topic.id] || { scenes: {} };
 
@@ -27,27 +38,37 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
     );
   };
 
+  const getSceneIcon = (type, isCompleted, isCurrent) => {
+    if (isCompleted) return <CheckCircle2 className="w-4 h-4 text-green-500" />;
+    if (isCurrent) return <PlayCircle className="w-4 h-4 text-reddit-orange fill-reddit-orange/10" />;
+
+    switch (type) {
+      case 'quiz': return <HelpCircle className="w-4 h-4 text-reddit-textMuted" />;
+      case 'media': return <Film className="w-4 h-4 text-reddit-textMuted" />;
+      default: return <BookOpen className="w-4 h-4 text-reddit-textMuted" />;
+    }
+  };
+
   return (
     <>
       {/* Mobile toggle button */}
       <button
         onClick={onToggle}
-        className="md:hidden fixed top-20 left-4 z-50 w-10 h-10 bg-reddit-card border border-reddit-border rounded-full flex items-center justify-center hover:bg-reddit-cardHover transition-colors"
+        className="md:hidden fixed top-20 left-4 z-50 w-10 h-10 bg-reddit-card border border-reddit-border rounded-full flex items-center justify-center hover:bg-reddit-cardHover transition-colors shadow-lg"
         aria-label="Toggle navigation"
       >
-        <ChevronRight className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <LayoutList className="w-5 h-5 text-white" />
       </button>
 
       {/* Overlay for mobile */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-            animate={{ opacity: 1, backdropFilter: 'blur(8px)' }}
-            exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={onToggle}
-            className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            className="md:hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40"
           />
         )}
       </AnimatePresence>
@@ -55,61 +76,68 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
       {/* Navigator */}
       <aside
         className={`
-          fixed md:static top-0 left-0 h-screen w-80 bg-reddit-dark border-r border-reddit-border
-          overflow-y-auto z-50 transition-transform duration-300
-          ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          fixed md:static top-0 left-0 h-full w-80 bg-reddit-dark border-r border-white/5
+          overflow-y-auto custom-scrollbar z-50 transition-all duration-300 ease-in-out flex-shrink-0
+          ${isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full md:translate-x-0 md:w-0 md:opacity-0 md:overflow-hidden'}
         `}
       >
-        <div className="p-6">
+        <div className="p-6 h-full flex flex-col">
           {/* Header */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-white mb-1">Course Progress</h2>
-            <p className="text-sm text-reddit-placeholder">
-              Section {currentSectionIndex + 1} of {topic.sections.length}
+          <div className="mb-8 pl-2">
+            <h2 className="text-xs font-bold text-reddit-textMuted uppercase tracking-wider mb-2">Course Module</h2>
+            <p className="text-sm font-medium text-white/90">
+              {currentSectionIndex + 1} of {topic.sections.length} Sections
             </p>
           </div>
 
-          {/* Sections */}
-          <div className="space-y-4">
+          {/* Sections List */}
+          <div className="space-y-6 flex-1">
             {topic.sections.map((section, sectionIndex) => {
               const isExpanded = expandedSections.includes(sectionIndex);
               const isCurrent = sectionIndex === currentSectionIndex;
               const sectionProgress = getSectionProgress(section);
+              const isSectionCompleted = sectionProgress === 100;
 
               return (
-                <div key={section.id} className="space-y-2">
+                <div key={section.id} className="group relative">
+                  {/* Vertical line connector */}
+                  {sectionIndex !== topic.sections.length - 1 && (
+                    <div className="absolute left-[19px] top-8 bottom-0 w-[2px] bg-white/5 -z-10 group-last:hidden h-[calc(100%+24px)]" />
+                  )}
+
                   {/* Section header */}
                   <button
                     onClick={() => toggleSection(sectionIndex)}
-                    className={`
-                      w-full flex items-center justify-between p-4 rounded-lg transition-colors
-                      ${isCurrent
-                        ? 'bg-reddit-orange/10 border border-reddit-orange/30'
-                        : 'bg-reddit-card hover:bg-reddit-cardHover border border-transparent'
-                      }
-                    `}
+                    className="w-full flex items-start gap-4 text-left group/btn"
                   >
-                    <div className="flex items-center gap-3 flex-1 text-left">
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform ${isExpanded ? '' : '-rotate-90'} ${isCurrent ? 'text-reddit-orange' : 'text-reddit-placeholder'}`}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium truncate mb-1 ${isCurrent ? 'text-reddit-orange' : 'text-white'}`}>
-                          {section.title}
-                        </p>
-                        <p className="text-xs text-reddit-placeholder">
-                          {sectionProgress}% complete
-                        </p>
-                      </div>
+                    <div className={`
+                       w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 border
+                       ${isCurrent
+                        ? 'bg-reddit-orange text-white border-reddit-orange shadow-[0_0_15px_rgba(255,69,0,0.3)]'
+                        : isSectionCompleted
+                          ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                          : 'bg-white/5 text-reddit-textMuted border-white/10 group-hover/btn:border-white/20'
+                      }
+                    `}>
+                      {isSectionCompleted ? <CheckCircle2 className="w-5 h-5" /> : <span className="text-sm font-bold">{sectionIndex + 1}</span>}
                     </div>
 
-                    {/* Progress indicator */}
-                    <div className="w-10 h-10 rounded-full bg-reddit-cardHover flex items-center justify-center flex-shrink-0">
-                      {sectionProgress === 100 ? (
-                        <Check className="w-5 h-5 text-green-400" />
-                      ) : (
-                        <span className="text-xs text-reddit-placeholder font-medium">{sectionProgress}%</span>
-                      )}
+                    <div className="flex-1 pt-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <h3 className={`text-sm font-medium truncate transition-colors ${isCurrent ? 'text-white' : 'text-reddit-textMuted group-hover/btn:text-white'}`}>
+                          {section.title}
+                        </h3>
+                        <ChevronDown className={`w-3 h-3 text-reddit-textMuted transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${isSectionCompleted ? 'bg-green-500' : 'bg-reddit-orange'}`}
+                            style={{ width: `${sectionProgress}%` }}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </button>
 
@@ -123,7 +151,7 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <div className="ml-6 space-y-2 py-2">
+                        <div className="pl-[52px] pt-4 space-y-1">
                           {section.scenes.map((scene, sceneIndex) => {
                             const isSceneCurrent = isCurrent && sceneIndex === currentSceneIndex;
                             const isCompleted = isSceneCompleted(scene.id);
@@ -133,34 +161,15 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
                                 key={scene.id}
                                 onClick={() => onSceneClick(sectionIndex, sceneIndex)}
                                 className={`
-                                  w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left
+                                  w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 text-left border border-transparent
                                   ${isSceneCurrent
-                                    ? 'bg-reddit-orange/20 text-reddit-orange'
-                                    : isCompleted
-                                      ? 'text-white hover:bg-reddit-cardHover'
-                                      : 'text-reddit-placeholder hover:bg-reddit-cardHover'
+                                    ? 'bg-reddit-orange/10 text-white border-reddit-orange/20 font-medium'
+                                    : 'text-reddit-textMuted hover:text-white hover:bg-white/5'
                                   }
                                 `}
-                                aria-current={isSceneCurrent ? 'step' : undefined}
-                                aria-label={`${scene.type} scene ${sceneIndex + 1}`}
                               >
-                                {/* Icon */}
-                                <div className="flex-shrink-0">
-                                  {isCompleted ? (
-                                    <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                                      <Check className="w-3 h-3 text-white" />
-                                    </div>
-                                  ) : isSceneCurrent ? (
-                                    <div className="w-5 h-5 rounded-full bg-reddit-orange flex items-center justify-center">
-                                      <Circle className="w-3 h-3 text-white fill-white" />
-                                    </div>
-                                  ) : (
-                                    <Circle className="w-5 h-5 text-reddit-border" />
-                                  )}
-                                </div>
-
-                                {/* Label */}
-                                <span className="text-sm truncate flex-1">
+                                {getSceneIcon(scene.type, isCompleted, isSceneCurrent)}
+                                <span className="truncate">
                                   {scene.type === 'quiz' ? 'Quiz' : scene.type === 'text' ? 'Lesson' : 'Media'} {sceneIndex + 1}
                                 </span>
                               </button>

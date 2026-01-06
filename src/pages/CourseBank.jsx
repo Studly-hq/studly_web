@@ -144,46 +144,46 @@ const CourseBank = () => {
       {/* Full width, no sidebars */}
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Sticky Header */}
-        <div className="sticky top-0 z-40 bg-reddit-dark/95 backdrop-blur-md border-b border-reddit-border px-4 sm:px-6 lg:px-8">
-          <div className="py-4">
+        <div className="sticky top-0 z-40 bg-reddit-dark/80 backdrop-blur-xl border-b border-white/5 px-4 sm:px-6 lg:px-8 transition-all duration-300">
+          <div className="py-6 max-w-7xl mx-auto">
             {/* Back button and title */}
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-4 mb-8">
               <button
                 onClick={() => navigate("/")}
-                className="w-8 h-8 rounded-full hover:bg-reddit-cardHover flex items-center justify-center transition-colors"
+                className="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center transition-all duration-300 group"
                 aria-label="Go back"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-5 h-5 text-white/50 group-hover:text-white" />
               </button>
               <div className="flex-1">
-                <h1 className="text-2xl font-bold">Course Bank</h1>
-                <p className="text-sm text-reddit-placeholder">
-                  Learn through interactive, typed lessons
+                <h1 className="text-3xl font-bold tracking-tight text-white mb-1">Studly Dock</h1>
+                <p className="text-base text-white/40 font-medium">
+                  Interactive learning modules
                   {usingFallback && (
-                    <span className="ml-2 text-yellow-500">(Demo Mode)</span>
+                    <span className="ml-2 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">Demo</span>
                   )}
                 </p>
               </div>
               {usingFallback && (
                 <button
                   onClick={fetchCourses}
-                  className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors"
+                  className="p-2 rounded-full hover:bg-white/10 transition-colors"
                   title="Retry loading from server"
                 >
-                  <RefreshCw className="w-5 h-5 text-reddit-placeholder" />
+                  <RefreshCw className="w-5 h-5 text-white/30 hover:text-white" />
                 </button>
               )}
             </div>
 
             {/* Search bar */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-reddit-placeholder" />
+            <div className="relative mb-8 max-w-2xl">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
               <input
                 type="text"
-                placeholder="Search courses..."
+                placeholder="Search for a topic..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-reddit-cardHover border border-reddit-border rounded-full text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
+                className="w-full pl-12 pr-6 py-4 bg-white/5 border border-white/5 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:bg-white/10 focus:border-white/10 transition-all duration-300 shadow-none text-lg"
               />
             </div>
 

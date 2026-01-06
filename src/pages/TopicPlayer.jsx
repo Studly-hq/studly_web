@@ -10,6 +10,7 @@ import NotesPanel from '../components/courses/player/NotesPanel';
 import AIChatbot from '../components/courses/player/AIChatbot';
 import { Toaster } from 'react-hot-toast';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import CompletionScreen from '../components/courses/player/CompletionScreen';
 
 const TopicPlayer = () => {
   const { topicId } = useParams();
@@ -73,57 +74,61 @@ const TopicPlayer = () => {
         }}
       />
 
-      {/* Progress bar */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-reddit-cardHover z-50">
+      {/* Progress bar - Extremely thin and precise */}
+      <div className="fixed top-0 left-0 right-0 h-0.5 bg-reddit-dark z-50">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${progressPercentage}%` }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="h-full bg-reddit-orange"
+          className="h-full bg-reddit-orange shadow-[0_0_10px_rgba(255,69,0,0.5)]"
         />
       </div>
 
-      {/* Header */}
-      <div className="fixed top-1 left-0 right-0 z-40 bg-reddit-dark/95 backdrop-blur-md border-b border-reddit-border">
-        <div className="px-4 py-3 flex items-center justify-between">
+      {/* Header - Glassmorphic, minimal */}
+      <div className="fixed top-0 left-0 right-0 z-40 bg-reddit-dark/80 backdrop-blur-xl border-b border-white/5">
+        <div className="px-6 py-4 flex items-center justify-between">
           {/* Left: Back button and title */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
             <button
               onClick={() => navigate('/courses')}
-              className="w-8 h-8 rounded-full hover:bg-reddit-cardHover flex items-center justify-center transition-colors flex-shrink-0"
+              className="group flex items-center justify-center w-8 h-8 rounded-full hover:bg-white/10 transition-all duration-300"
               aria-label="Back to courses"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5 text-reddit-textMuted group-hover:text-white transition-colors" />
             </button>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-lg font-semibold truncate">{topic.title}</h1>
-              <p className="text-xs text-reddit-placeholder truncate">
-                {currentSection?.title} • Scene {currentSceneIndex + 1} of {currentSection?.scenes.length}
-              </p>
+            <div className="min-w-0 flex flex-col justify-center">
+              <h1 className="text-sm font-medium text-white/90 tracking-wide truncate">{topic.title}</h1>
+              <div className="flex items-center gap-2 text-xs text-reddit-textMuted">
+                <span className="truncate">{currentSection?.title}</span>
+                <span className="w-1 h-1 rounded-full bg-reddit-textMuted/50" />
+                <span>{currentSceneIndex + 1} / {currentSection?.scenes.length}</span>
+              </div>
             </div>
           </div>
 
           {/* Right: Progress and score */}
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2">
-              <div className="text-right">
-                <p className="text-xs text-reddit-placeholder">Progress</p>
-                <p className="text-sm font-semibold text-reddit-orange">{progressPercentage}%</p>
+          <div className="flex items-center gap-6">
+            <div className="hidden sm:flex flex-col items-end">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-white">{progressPercentage}%</span>
+                <span className="text-xs text-reddit-textMuted">Complete</span>
               </div>
             </div>
 
             {progress && progress.score > 0 && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
-                <Trophy className="w-4 h-4 text-yellow-400" />
-                <span className="text-sm font-medium text-yellow-400">{progress.score}</span>
+              <div className="flex items-center gap-2 px-3 py-1 bg-yellow-500/10 rounded-full border border-yellow-500/20">
+                <Trophy className="w-3.5 h-3.5 text-yellow-500" />
+                <span className="text-xs font-bold text-yellow-500">{progress.score}</span>
               </div>
             )}
           </div>
         </div>
       </div>
 
+
+
       {/* Main layout */}
-      <div className="flex pt-16 w-full">
+      <div className="flex h-screen pt-[72px] overflow-hidden">
         {/* Left: Section Navigator */}
         <SectionNavigator
           topic={topic}
@@ -135,42 +140,45 @@ const TopicPlayer = () => {
         />
 
         {/* Center: Content Player */}
-        <main className="flex-1 min-h-screen md:ml-50 flex justify-center overflow-hidden">
-          <div className="h-[calc(100vh-4rem)] relative w-full max-w-5xl px-4">
-            <ContentPlayer topic={topic} />
-
-            {/* Navigation arrows */}
-            <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between pointer-events-none">
-              <button
-                onClick={previousScene}
-                disabled={!canGoPrevious}
-                className={`
-                  pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center transition-all
-                  ${canGoPrevious
-                    ? 'bg-reddit-card border border-reddit-border hover:bg-reddit-cardHover text-white'
-                    : 'bg-reddit-cardHover text-reddit-placeholder cursor-not-allowed opacity-50'
-                  }
-                `}
-                aria-label="Previous scene"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-
-              <button
-                onClick={nextScene}
-                disabled={!canGoNext || playerState === 'completed'}
-                className={`
-                  pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center transition-all
-                  ${canGoNext && playerState !== 'completed'
-                    ? 'bg-reddit-card border border-reddit-border hover:bg-reddit-cardHover text-white'
-                    : 'bg-reddit-cardHover text-reddit-placeholder cursor-not-allowed opacity-50'
-                  }
-                `}
-                aria-label="Next scene"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
+        <main className="flex-1 flex flex-col relative min-w-0 bg-gradient-to-b from-reddit-dark to-[#0f0f10]">
+          <div className="flex-1 overflow-y-auto custom-scrollbar px-8 lg:px-16 py-8">
+            <div className="max-w-4xl mx-auto h-full">
+              <ContentPlayer topic={topic} />
             </div>
+          </div>
+
+          {/* Minimal Floating Navigation Controls */}
+          <div className="absolute bottom-8 right-8 flex items-center gap-3 z-30">
+            <button
+              onClick={previousScene}
+              disabled={!canGoPrevious}
+              className={`
+                  w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300
+                  ${canGoPrevious
+                  ? 'hover:bg-white/10 text-reddit-textMuted hover:text-white'
+                  : 'opacity-0 pointer-events-none'
+                }
+                `}
+              aria-label="Previous scene"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+
+            <button
+              onClick={nextScene}
+              disabled={playerState === 'completed'}
+              className={`
+                  h-10 px-6 rounded-full flex items-center gap-2 transition-all duration-300
+                  ${playerState !== 'completed'
+                  ? 'bg-reddit-orange hover:bg-reddit-orange/90 text-white translate-y-0'
+                  : 'bg-white/5 text-reddit-textMuted cursor-not-allowed'
+                }
+                `}
+              aria-label={!canGoNext ? "Finish course" : "Next scene"}
+            >
+              <span className="text-sm font-medium">{!canGoNext ? 'Finish' : 'Next'}</span>
+              {!canGoNext ? <Trophy className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            </button>
           </div>
         </main>
 
@@ -186,45 +194,7 @@ const TopicPlayer = () => {
 
       {/* Topic completion screen */}
       {playerState === 'completed' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-        >
-          <motion.div
-            initial={{ scale: 0.9, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-reddit-card border border-reddit-border rounded-2xl p-8 max-w-md w-full text-center"
-          >
-            <div className="w-20 h-20 bg-reddit-orange/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Trophy className="w-10 h-10 text-reddit-orange" />
-            </div>
-
-            <h2 className="text-2xl font-bold mb-2">Course Completed!</h2>
-            <p className="text-reddit-placeholder mb-6">
-              Congratulations on completing "{topic.title}"
-            </p>
-
-            <div className="bg-reddit-cardHover rounded-lg p-4 mb-6 space-y-2">
-              <div className="flex justify-between">
-                <span className="text-reddit-placeholder">Total Score:</span>
-                <span className="text-white font-semibold">{progress?.score || 0} points</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-reddit-placeholder">Completion:</span>
-                <span className="text-green-400 font-semibold">100%</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => navigate('/courses')}
-              className="w-full py-3 bg-reddit-orange hover:bg-reddit-orange/90 rounded-full font-medium transition-colors"
-            >
-              Back to Course Bank
-            </button>
-          </motion.div>
-        </motion.div>
+        <CompletionScreen topic={topic} progress={progress} />
       )}
     </div>
   );

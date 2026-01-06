@@ -77,36 +77,47 @@ const NotesPanel = ({ topicId, topicTitle }) => {
   };
 
   return (
-    <div className="h-1/2 flex flex-col border-b border-reddit-border">
+    <div className="h-1/2 flex flex-col border-b border-white/5">
       {/* Header */}
-      <div className="p-4 border-b border-reddit-border bg-reddit-card/50">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-reddit-orange" />
-            <h3 className="text-sm font-semibold text-white">My Notes</h3>
+      <div className="p-4 flex items-center justify-between border-b border-white/5 bg-white/[0.02]">
+        <div className="flex items-center gap-2.5">
+          <div className="p-1.5 rounded-md bg-reddit-orange/10">
+            <FileText className="w-3.5 h-3.5 text-reddit-orange" />
           </div>
-
-          <button
-            onClick={handleExportPDF}
-            disabled={!notes.trim()}
-            className={`
-              flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors
-              ${notes.trim()
-                ? 'bg-reddit-orange hover:bg-reddit-orange/90 text-white'
-                : 'bg-reddit-cardHover text-reddit-placeholder cursor-not-allowed'
-              }
-            `}
-            title="Export as PDF"
-          >
-            <Download className="w-3.5 h-3.5" />
-            Export
-          </button>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-reddit-textMuted">My Notes</h3>
         </div>
 
-        {/* Save status */}
-        <div className="flex items-center gap-2 text-xs">
+        <button
+          onClick={handleExportPDF}
+          disabled={!notes.trim()}
+          className={`
+            flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200
+            ${notes.trim()
+              ? 'bg-white/10 hover:bg-white/20 text-white'
+              : 'bg-white/5 text-reddit-textMuted/50 cursor-not-allowed'
+            }
+          `}
+          title="Export as PDF"
+        >
+          <Download className="w-3 h-3" />
+          <span>Export</span>
+        </button>
+      </div>
+
+      {/* Notes textarea */}
+      <div className="flex-1 relative group">
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Start typing your notes here..."
+          className="w-full h-full bg-transparent border border-transparent resize-none text-sm text-white/90 placeholder-white/20 focus:border-reddit-orange focus:ring-0 focus:outline-none p-5 leading-relaxed transition-colors"
+          style={{ fontFamily: 'inherit' }}
+        />
+
+        {/* Save indicator overlay */}
+        <div className="absolute bottom-4 right-4 text-xs pointer-events-none">
           {isSaving ? (
-            <span className="text-reddit-orange flex items-center gap-1">
+            <span className="text-reddit-orange/80 flex items-center gap-1.5 bg-reddit-dark/80 backdrop-blur px-2 py-1 rounded-md border border-reddit-orange/20">
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -116,32 +127,12 @@ const NotesPanel = ({ topicId, topicTitle }) => {
               Saving...
             </span>
           ) : lastSaved ? (
-            <span className="text-green-400 flex items-center gap-1">
+            <span className="text-emerald-500/80 flex items-center gap-1.5 bg-reddit-dark/80 backdrop-blur px-2 py-1 rounded-md border border-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <Save className="w-3 h-3" />
-              Saved {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              Saved
             </span>
-          ) : (
-            <span className="text-reddit-placeholder">Auto-save enabled</span>
-          )}
+          ) : null}
         </div>
-      </div>
-
-      {/* Notes textarea */}
-      <div className="flex-1 p-4 overflow-hidden">
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Take notes as you learn... Your notes are saved automatically."
-          className="w-full h-full bg-transparent border-none resize-none text-sm text-white placeholder-reddit-placeholder focus:outline-none"
-          style={{ fontFamily: 'inherit' }}
-        />
-      </div>
-
-      {/* Character count */}
-      <div className="px-4 py-2 border-t border-reddit-border bg-reddit-card/30">
-        <p className="text-xs text-reddit-placeholder text-right">
-          {notes.length} characters
-        </p>
       </div>
     </div>
   );

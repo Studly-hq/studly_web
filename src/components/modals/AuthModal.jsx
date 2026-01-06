@@ -4,9 +4,11 @@ import { X, Eye, EyeOff } from "lucide-react";
 import { useStudyGram } from "../../context/StudyGramContext";
 import { toast } from "sonner";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { useLumelyReport } from "lumely-react";
 
 const AuthModal = () => {
   const { showAuthModal, setShowAuthModal, login, signup } = useStudyGram();
+  const { reportError } = useLumelyReport();
   /*
    * Updated state to include loading and error handling.
    * This is important for real API calls because they take time and can fail.
@@ -59,6 +61,7 @@ const AuthModal = () => {
     } catch (err) {
       // If API fails, we catch the error here and show it
       console.error("Auth error:", err);
+      reportError(err);
       // specific check for the server's error format: { error: "User..." }
       const serverError =
         err.response?.data?.error || err.response?.data?.message;
