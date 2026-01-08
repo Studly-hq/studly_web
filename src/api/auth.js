@@ -10,17 +10,13 @@ import client from "./client";
  * If the signup URL changes, we only fix it here, not in every component.
  */
 
-export const signup = async (email, password) => {
+export const signup = async (email, password, name = null) => {
   try {
-    // The 'client' adds the base URL (http://0.0.0.0:8080) automatically.
-    // So the full URL becomes: http://0.0.0.0:8080/auth/signup
     const response = await client.post("/auth/signup", {
       email,
       password,
+      name,
     });
-
-    // If successful, we return the data from the server
-    console.log("Signup Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Signup Error:", error.response?.data || error.message);
@@ -34,9 +30,32 @@ export const login = async (email, password) => {
       email,
       password,
     });
-    return response.data;
+    return response.data; // Expecting { token, refresh_token, status }
   } catch (error) {
     console.error("Login Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const refreshToken = async () => {
+  try {
+    const response = await client.post("/auth/refresh-token");
+    return response.data;
+  } catch (error) {
+    console.error("Refresh Token Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const sync = async (accessToken, refreshToken) => {
+  try {
+    const response = await client.post("/auth/sync", {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Sync Error:", error.response?.data || error.message);
     throw error;
   }
 };

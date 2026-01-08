@@ -12,8 +12,11 @@ import {
   signup as apiSignup,
   login as apiLogin,
   logout as apiLogout,
+  sync as apiSync,
+  refreshToken as apiRefreshToken,
 } from "../api/auth";
 import { getProfile, updateProfile } from "../api/profile";
+import { supabase } from "../utils/supabase";
 import {
   createPost as apiCreatePost,
   getPosts as apiGetPosts,
@@ -72,27 +75,20 @@ export const StudyGramProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        try {
-          const userProfile = await getProfile();
-          if (userProfile) {
-            setIsAuthenticated(true);
-            setCurrentUser(userProfile);
-            localStorage.setItem(
-              "studly_auth",
-              JSON.stringify({ user: userProfile })
-            );
-            return;
-          }
-        } catch (err) {
-          console.log("Session validation failed:", err.message);
-        }
-        const savedAuth = localStorage.getItem("studly_auth");
-        if (savedAuth) {
+        const token = localStorage.getItem("studly_token");
+        if (token) {
           try {
-            JSON.parse(savedAuth);
-            localStorage.removeItem("studly_auth");
-          } catch (parseErr) {
-            localStorage.removeItem("studly_auth");
+            const userProfile = await getProfile();
+            if (userProfile) {
+              setIsAuthenticated(true);
+              setCurrentUser(userProfile);
+              return;
+            }
+          } catch (err) {
+            console.log("Session validation failed:", err.message);
+            // If token is invalid, clear it
+            localStorage.removeItem("studly_token");
+            localStorage.removeItem("studly_refresh_token");
           }
         }
       } finally {
@@ -230,6 +226,10 @@ export const StudyGramProvider = ({ children }) => {
     async (email, password) => {
       try {
         const data = await apiLogin(email, password);
+        // Store tokens if present in response
+        if (data.token) localStorage.setItem("studly_token", data.token);
+        if (data.refresh_token) localStorage.setItem("studly_refresh_token", data.refresh_token);
+        
         const userProfile = await getProfile();
         const user = userProfile || {
           ...mockUsers.currentUser,
@@ -238,7 +238,6 @@ export const StudyGramProvider = ({ children }) => {
         };
         setCurrentUser(user);
         setIsAuthenticated(true);
-        localStorage.setItem("studly_auth", JSON.stringify({ user }));
         if (pendingAction) {
           setPendingAction(null);
         }
@@ -259,11 +258,28 @@ export const StudyGramProvider = ({ children }) => {
 
   const signup = useCallback(async (name, email, password) => {
     try {
-      await apiSignup(email, password);
+      const data = await apiSignup(email, password, name);
+      return data;
+    } catch (error) {
+      console.error("Signup failed:", error);
+      throw error;
+    }
+  }, []);
+
+  const syncWithBackend = useCallback(async (accessToken, refreshToken) => {
+    try {
+      const data = await apiSync(accessToken, refreshToken);
+      if (data.token) localStorage.setItem("studly_token", data.token);
+      if (data.refresh_token) localStorage.setItem("studly_refresh_token", data.refresh_token);
+      
+      const userProfile = await getProfile();
+      setCurrentUser(userProfile);
+      setIsAuthenticated(true);
+      setShowAuthModal(false);
       return true;
     } catch (error) {
-      console.error("Signup/Auto-login failed:", error);
-      throw error;
+      console.error("Sync failed:", error);
+      return false;
     }
   }, []);
 
@@ -275,7 +291,9 @@ export const StudyGramProvider = ({ children }) => {
     }
     setIsAuthenticated(false);
     setCurrentUser(null);
-    localStorage.removeItem("studly_auth");
+    localStorage.removeItem("studly_token");
+    localStorage.removeItem("studly_refresh_token");
+    await supabase.auth.signOut();
   }, []);
 
   const updateUser = useCallback(
@@ -286,10 +304,6 @@ export const StudyGramProvider = ({ children }) => {
         const response = await updateProfile(currentUsername, updatedData);
         const updatedUser = { ...currentUser, ...updatedData };
         setCurrentUser(updatedUser);
-        localStorage.setItem(
-          "studly_auth",
-          JSON.stringify({ user: updatedUser })
-        );
         return response;
       } catch (error) {
         console.error("Update user failed:", error);
@@ -638,6 +652,7 @@ export const StudyGramProvider = ({ children }) => {
       logout,
       updateUser,
       requireAuth,
+      syncWithBackend,
       // Posts
       posts: feedPosts,
       isFeedLoading,
@@ -681,7 +696,7 @@ export const StudyGramProvider = ({ children }) => {
       logout,
       updateUser,
       requireAuth,
-      isAuthLoading,
+      syncWithBackend,
       feedPosts,
       isFeedLoading,
       bookmarkedPosts,
