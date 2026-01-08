@@ -7,7 +7,7 @@ import LoadingSpinner from "../common/LoadingSpinner";
 import { useLumelyReport } from "lumely-react";
 
 const AuthModal = () => {
-  const { showAuthModal, setShowAuthModal, login, signup } = useStudyGram();
+  const { showAuthModal, setShowAuthModal, login, signup, syncWithBackend } = useStudyGram();
   const { reportError } = useLumelyReport();
   /*
    * Updated state to include loading and error handling.
@@ -23,12 +23,23 @@ const AuthModal = () => {
     email: "",
     password: "",
   });
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [maskedEmail, setMaskedEmail] = useState("");
+
+  const maskEmail = (email) => {
+    const [p1, p2] = email.split("@");
+    if (p1.length <= 6) return email;
+    const start = p1.substring(0, 3);
+    const end = p1.substring(p1.length - 3);
+    return `${start}***${end}@${p2}`;
+  };
 
   const handleClose = () => {
     setShowAuthModal(false);
     setFormData({ name: "", email: "", password: "" });
     setError(null);
     setIsLoading(false);
+    setSignupSuccess(false);
   };
 
   const handleSubmit = async (e) => {
@@ -49,13 +60,15 @@ const AuthModal = () => {
           window.location.reload();
         }, 700);
       } else {
-        // Signup is now asynchronous (real API)
+        // Signup
+        if (formData.password.length < 8) {
+          setError("Password must be at least 8 characters");
+          return;
+        }
         await signup(formData.name, formData.email, formData.password);
-        // On success, switch to login tab and show message
-        setActiveTab("login");
-        setError(null); // Clear error
-        // Optional: you could set a success message state here to display "Account created! Please log in."
-        toast.success("Account created successfully! Please log in."); // Simple feedback for now
+        setMaskedEmail(maskEmail(formData.email));
+        setSignupSuccess(true);
+        toast.success("Verification email sent!");
         setFormData({ name: "", email: "", password: "" }); // Clear form
       }
     } catch (err) {
@@ -146,117 +159,125 @@ const AuthModal = () => {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            {/* <AnimatePresence mode="wait">
-              {activeTab === "signup" && (
-                <motion.div
-                  key="name-field"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.15 }}
+            {signupSuccess ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-reddit-bg border border-reddit-border rounded-lg p-8 text-center space-y-4"
+              >
+                <div className="w-16 h-16 bg-reddit-orange/10 rounded-full flex items-center justify-center mx-auto text-reddit-orange">
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-reddit-text">Check your email</h3>
+                <p className="text-reddit-textMuted text-sm">
+                  We've sent a confirmation link to <span className="text-reddit-text font-medium">{maskedEmail}</span>.
+                </p>
+                <p className="text-reddit-textMuted text-xs">
+                  Click the link in the email to finish joining Studly.
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setSignupSuccess(false);
+                    setActiveTab("login");
+                  }}
+                  className="w-full bg-reddit-cardHover border border-reddit-border text-reddit-text py-2 rounded-lg text-sm font-semibold mt-4 hover:bg-reddit-border transition-colors"
                 >
+                  Back to Login
+                </motion.button>
+              </motion.div>
+            ) : (
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                {/* ... existing email and password fields ... */}
+                <div>
                   <label className="block text-reddit-text text-sm font-semibold mb-2">
-                    Username
+                    Email
                   </label>
                   <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
+                    type="email"
+                    name="email"
+                    value={formData.email}
                     onChange={handleChange}
-                    placeholder="Choose a username"
+                    placeholder="your@email.com"
                     required
                     className="w-full bg-reddit-input border border-reddit-border rounded-lg px-4 py-2.5 text-reddit-text text-sm placeholder-reddit-textMuted outline-none focus:border-reddit-blue focus:ring-2 focus:ring-reddit-blue/20 transition-all"
                   />
-                </motion.div>
-              )}
-            </AnimatePresence> */}
+                </div>
 
-            <div>
-              <label className="block text-reddit-text text-sm font-semibold mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="your@email.com"
-                required
-                className="w-full bg-reddit-input border border-reddit-border rounded-lg px-4 py-2.5 text-reddit-text text-sm placeholder-reddit-textMuted outline-none focus:border-reddit-blue focus:ring-2 focus:ring-reddit-blue/20 transition-all"
-              />
-            </div>
+                <div>
+                  <label className="block text-reddit-text text-sm font-semibold mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="Enter your password"
+                      required
+                      className="w-full bg-reddit-input border border-reddit-border rounded-lg pl-4 pr-10 py-2.5 text-reddit-text text-sm placeholder-reddit-textMuted outline-none focus:border-reddit-blue focus:ring-2 focus:ring-reddit-blue/20 transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-reddit-textMuted hover:text-reddit-text transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
 
-            <div>
-              <label className="block text-reddit-text text-sm font-semibold mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Enter your password"
-                  required
-                  className="w-full bg-reddit-input border border-reddit-border rounded-lg pl-4 pr-10 py-2.5 text-reddit-text text-sm placeholder-reddit-textMuted outline-none focus:border-reddit-blue focus:ring-2 focus:ring-reddit-blue/20 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-reddit-textMuted hover:text-reddit-text transition-colors"
+                {activeTab === "login" && (
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      className="text-reddit-blue text-xs hover:text-reddit-blue/80 font-medium transition-colors"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                )}
+
+                {/* Error Message Display */}
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-red-500 text-sm text-center"
+                    >
+                      {error}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <motion.button
+                  type="submit"
+                  disabled={isLoading}
+                  whileHover={isLoading ? {} : { scale: 1.01 }}
+                  whileTap={isLoading ? {} : { scale: 0.99 }}
+                  transition={{ duration: 0.15 }}
+                  className={`w-full font-bold py-3 rounded-lg text-sm transition-all flex items-center justify-center
+                    ${isLoading
+                      ? "bg-reddit-orange/50 cursor-not-allowed text-white/50"
+                      : "bg-reddit-orange hover:from-reddit-orange/90 hover:to-reddit-orange/80 text-white"
+                    }`}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            {activeTab === "login" && (
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  className="text-reddit-blue text-xs hover:text-reddit-blue/80 font-medium transition-colors"
-                >
-                  Forgot password?
-                </button>
-              </div>
+                  {isLoading ? (
+                    <LoadingSpinner size={20} color="#ffffff" />
+                  ) : activeTab === "login" ? (
+                    "Log In"
+                  ) : (
+                    "Sign Up"
+                  )}
+                </motion.button>
+              </form>
             )}
-
-            {/* Error Message Display */}
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-red-500 text-sm text-center"
-                >
-                  {error}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <motion.button
-              type="submit"
-              disabled={isLoading}
-              whileHover={isLoading ? {} : { scale: 1.01 }}
-              whileTap={isLoading ? {} : { scale: 0.99 }}
-              transition={{ duration: 0.15 }}
-              className={`w-full font-bold py-3 rounded-lg text-sm transition-all flex items-center justify-center
-                ${isLoading
-                  ? "bg-reddit-orange/50 cursor-not-allowed text-white/50"
-                  : "bg-reddit-orange hover:from-reddit-orange/90 hover:to-reddit-orange/80 text-white"
-                }`}
-            >
-              {isLoading ? (
-                <LoadingSpinner size={20} color="#ffffff" />
-              ) : activeTab === "login" ? (
-                "Log In"
-              ) : (
-                "Sign Up"
-              )}
-            </motion.button>
-          </form>
 
           {/* Footer */}
           <div className="px-6 pb-6">
@@ -277,10 +298,18 @@ const AuthModal = () => {
                 whileHover={{ backgroundColor: "#272729" }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.15 }}
-                onClick={() =>
-                (window.location.href =
-                  "https://unesthetic-cretaceously-maris.ngrok-free.dev/auth/google/login")
-                }
+                onClick={async () => {
+                  const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                      redirectTo: window.location.origin
+                    }
+                  });
+                  if (error) {
+                    console.error('Google login error:', error);
+                    toast.error("Google login failed");
+                  }
+                }}
                 className="flex items-center justify-center gap-2 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text py-2.5 rounded-lg border border-reddit-border transition-colors text-sm font-medium w-full"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
