@@ -43,7 +43,6 @@ function AppContent() {
         const params = new URLSearchParams(hash.substring(1));
         const accessToken = params.get("access_token");
         const refreshToken = params.get("refresh_token");
-        const type = params.get("type");
 
         if (accessToken) {
           toast.loading("Verifying your account...", { id: "auth-sync" });

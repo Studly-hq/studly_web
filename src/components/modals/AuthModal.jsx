@@ -5,9 +5,10 @@ import { useStudyGram } from "../../context/StudyGramContext";
 import { toast } from "sonner";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { useLumelyReport } from "lumely-react";
+import { supabase } from "../../utils/supabase";
 
 const AuthModal = () => {
-  const { showAuthModal, setShowAuthModal, login, signup, syncWithBackend } = useStudyGram();
+  const { showAuthModal, setShowAuthModal, login, signup } = useStudyGram();
   const { reportError } = useLumelyReport();
   /*
    * Updated state to include loading and error handling.
@@ -132,66 +133,74 @@ const AuthModal = () => {
             </div>
 
             {/* Tab Switcher */}
-            <div className="flex gap-2 bg-reddit-bg p-1 rounded-lg">
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.15 }}
-                onClick={() => setActiveTab("login")}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all ${activeTab === "login"
-                  ? "bg-reddit-orange text-white "
-                  : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
-                  }`}
-              >
-                Log In
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.15 }}
-                onClick={() => setActiveTab("signup")}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all ${activeTab === "signup"
-                  ? "bg-reddit-orange text-white shadow-sm"
-                  : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
-                  }`}
-              >
-                Sign Up
-              </motion.button>
-            </div>
+            {!signupSuccess && (
+              <div className="flex gap-2 bg-reddit-bg p-1 rounded-lg">
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.15 }}
+                  onClick={() => setActiveTab("login")}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all ${activeTab === "login"
+                    ? "bg-reddit-orange text-white "
+                    : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
+                    }`}
+                >
+                  Log In
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.15 }}
+                  onClick={() => setActiveTab("signup")}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-all ${activeTab === "signup"
+                    ? "bg-reddit-orange text-white shadow-sm"
+                    : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
+                    }`}
+                >
+                  Sign Up
+                </motion.button>
+              </div>
+            )}
           </div>
 
-          {/* Form */}
+          {/* Form / Success Content */}
+          <div className="p-6">
             {signupSuccess ? (
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-reddit-bg border border-reddit-border rounded-lg p-8 text-center space-y-4"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="py-4 text-center space-y-5"
               >
                 <div className="w-16 h-16 bg-reddit-orange/10 rounded-full flex items-center justify-center mx-auto text-reddit-orange">
                   <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-reddit-text">Check your email</h3>
-                <p className="text-reddit-textMuted text-sm">
-                  We've sent a confirmation link to <span className="text-reddit-text font-medium">{maskedEmail}</span>.
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-reddit-text">Verify your email</h3>
+                  <p className="text-reddit-textMuted text-sm leading-relaxed">
+                    We've sent a verification link to<br />
+                    <span className="text-reddit-text font-bold text-base">{maskedEmail}</span>
+                  </p>
+                </div>
+                <p className="text-reddit-textMuted text-xs px-4">
+                  Please click the link in the email to complete your registration. If you don't see it, check your spam folder.
                 </p>
-                <p className="text-reddit-textMuted text-xs">
-                  Click the link in the email to finish joining Studly.
-                </p>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    setSignupSuccess(false);
-                    setActiveTab("login");
-                  }}
-                  className="w-full bg-reddit-cardHover border border-reddit-border text-reddit-text py-2 rounded-lg text-sm font-semibold mt-4 hover:bg-reddit-border transition-colors"
-                >
-                  Back to Login
-                </motion.button>
+                <div className="pt-4">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      setSignupSuccess(false);
+                      setActiveTab("login");
+                    }}
+                    className="w-full bg-reddit-orange text-white py-3 rounded-lg text-sm font-bold shadow-lg shadow-reddit-orange/20"
+                  >
+                    Continue to Log In
+                  </motion.button>
+                </div>
               </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                {/* ... existing email and password fields ... */}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Email and Password fields */}
                 <div>
                   <label className="block text-reddit-text text-sm font-semibold mb-2">
                     Email
@@ -278,6 +287,7 @@ const AuthModal = () => {
                 </motion.button>
               </form>
             )}
+          </div>
 
           {/* Footer */}
           <div className="px-6 pb-6">

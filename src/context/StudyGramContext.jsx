@@ -652,6 +652,7 @@ export const StudyGramProvider = ({ children }) => {
       logout,
       updateUser,
       requireAuth,
+      syncWithBackend,
       // Posts
       posts: feedPosts,
       isFeedLoading,
@@ -695,7 +696,7 @@ export const StudyGramProvider = ({ children }) => {
       logout,
       updateUser,
       requireAuth,
-      isAuthLoading,
+      syncWithBackend,
       feedPosts,
       isFeedLoading,
       bookmarkedPosts,
