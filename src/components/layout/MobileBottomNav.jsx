@@ -28,7 +28,7 @@ const MobileBottomNav = () => {
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3 }}
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-reddit-card/95 backdrop-blur-xl border-t border-reddit-border"
+      className="xl:hidden fixed bottom-0 left-0 right-0 z-40 bg-reddit-card/95 backdrop-blur-xl border-t border-reddit-border"
     >
       <div className="flex items-center justify-around px-2 py-2 safe-area-inset-bottom">
         {navItems.map((item) => {

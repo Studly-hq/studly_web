@@ -99,7 +99,7 @@ function AppContent() {
                 <LeftSidebar />
 
                 {/* Center Content - Routes */}
-                <main className="flex-1 min-w-0 border-x border-reddit-border pb-20 lg:pb-0">
+                <main className="flex-1 min-w-0 border-x border-reddit-border pb-20 xl:pb-0">
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/explore" element={<Explore />} />
@@ -125,7 +125,7 @@ function AppContent() {
                 </main>
 
                 {/* Right Sidebar */}
-                <div className="hidden lg:block w-[350px] p-4">
+                <div className="hidden xl:block w-[350px] p-4">
                   <RightSidebar />
                 </div>
               </div>

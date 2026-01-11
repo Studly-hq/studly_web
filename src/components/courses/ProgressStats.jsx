@@ -91,10 +91,18 @@ const ProgressStats = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+      className="grid grid-cols-4 gap-2 md:gap-4 mb-6"
     >
       {stats.map((stat, index) => {
         const Icon = stat.icon;
+
+        const getShortLabel = (label) => {
+          if (label === 'Aura Points') return 'Aura';
+          if (label === 'Topics Completed') return 'Topics';
+          if (label === 'Time Spent') return 'Time';
+          if (label === 'Quiz Accuracy') return 'Quiz';
+          return label;
+        };
 
         return (
           <motion.div
@@ -102,14 +110,23 @@ const ProgressStats = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1, duration: 0.3 }}
-            className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors"
+            className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-3 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors"
           >
-            <div className={`w-10 h-10 rounded-lg ${stat.bgColor} flex items-center justify-center`}>
-              <Icon className={`w-5 h-5 ${stat.color}`} />
+            <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg ${stat.bgColor} flex items-center justify-center flex-shrink-0`}>
+              <Icon className={`w-4 h-4 md:w-5 md:h-5 ${stat.color}`} />
             </div>
-            <div>
-              <p className="text-xs text-white/40 uppercase tracking-wider font-semibold">{stat.label}</p>
-              <p className={`text-lg font-bold text-white`}>{stat.value}</p>
+            <div className="text-center md:text-left min-w-0">
+              {/* Desktop Label - Full Name */}
+              <p className="hidden md:block text-xs text-white/40 uppercase tracking-wider font-semibold truncate w-full">
+                {stat.label}
+              </p>
+
+              {/* Mobile Label - Short Name (One Word) */}
+              <p className="md:hidden text-[9px] text-white/40 uppercase tracking-wider font-bold">
+                {getShortLabel(stat.label)}
+              </p>
+
+              <p className="text-sm md:text-lg font-bold text-white leading-tight">{stat.value}</p>
             </div>
           </motion.div>
         );

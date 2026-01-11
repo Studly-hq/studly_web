@@ -10,6 +10,7 @@ import {
   Flag,
   X,
   AlertTriangle,
+  Send,
 } from "lucide-react";
 import { useStudyGram } from "../../context/StudyGramContext";
 import { editComment, deleteComment } from "../../api/contents";
@@ -18,7 +19,7 @@ import LoadingSpinner from "../common/LoadingSpinner";
 
 const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, onCommentUpdated }) => {
   const navigate = useNavigate();
-  const { currentUser, handleLikeComment, requireAuth } = useStudyGram();
+  const { currentUser, handleLikeComment, requireAuth, addComment } = useStudyGram();
   const [showReplies, setShowReplies] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -59,10 +60,25 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
     return commentDate.toLocaleDateString();
   };
 
+  const [isReplying, setIsReplying] = useState(false);
+  const [replyContent, setReplyContent] = useState("");  // ... (existing code)
+
   const handleReplyClick = () => {
     if (!requireAuth({ type: "comment", postId })) return;
-    if (onReply && typeof onReply === 'function') {
-      onReply(comment);
+    setIsReplying(!isReplying);
+    // Focus logic can be handled in useEffect if needed, or autoFocus on input
+  };
+
+  const handleSubmitReply = async (e) => {
+    e.preventDefault();
+    if (!replyContent.trim()) return;
+
+    const success = await addComment(postId, replyContent, comment.id);
+    if (success) {
+      setReplyContent("");
+      setIsReplying(false);
+      setShowReplies(true); // Auto-open replies to show the new one
+      toast.success("Reply posted!");
     }
   };
 
@@ -241,6 +257,47 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
                 {comment.content}
               </p>
             </div>
+
+            {/* Inline Reply Input */}
+            <AnimatePresence>
+              {isReplying && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-2 overflow-hidden"
+                >
+                  <form onSubmit={handleSubmitReply} className="flex items-start gap-2">
+                    <div className="w-6 h-6 rounded-full bg-reddit-cardHover border border-reddit-border flex-shrink-0 overflow-hidden mt-1">
+                      {currentUser?.avatar ? (
+                        <img src={currentUser.avatar} alt="You" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-reddit-cardHover" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-reddit-input rounded border border-white/10 focus-within:border-white/20 transition-colors flex items-center pr-2">
+                        <input
+                          type="text"
+                          value={replyContent}
+                          onChange={(e) => setReplyContent(e.target.value)}
+                          placeholder={`Reply to ${commentUser?.username}...`}
+                          className="flex-1 bg-transparent border-none text-sm text-white placeholder-white/20 px-3 py-2 outline-none"
+                          autoFocus
+                        />
+                        <button
+                          type="submit"
+                          disabled={!replyContent.trim()}
+                          className="p-1.5 rounded-full hover:bg-white/10 text-reddit-orange disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <Send size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Comment Actions */}
             <div className="flex items-center gap-4 mt-2 px-2">

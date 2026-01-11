@@ -41,7 +41,7 @@ const LeftSidebar = () => {
     <motion.aside
       initial={{ x: -20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      className="hidden lg:flex flex-col w-[280px] h-screen sticky top-0 px-2 justify-between"
+      className="hidden xl:flex flex-col w-[280px] h-screen sticky top-0 px-2 justify-between"
     >
       <div className="flex flex-col h-full">
         {/* Logo Area */}
