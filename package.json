@@ -16,7 +16,7 @@
     "jspdf": "^3.0.4",
     "katex": "^0.16.27",
     "lucide-react": "^0.553.0",
-    "lumely-react": "^0.1.9",
+    "lumely-react": "^0.1.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.6.0",
