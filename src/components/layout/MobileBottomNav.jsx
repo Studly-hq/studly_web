@@ -11,7 +11,7 @@ const MobileBottomNav = () => {
   const navItems = [
     { icon: Home, label: 'Home', path: '/', id: 'home' },
     { icon: Compass, label: 'Explore', path: '/explore', id: 'explore' },
-    { icon: GraduationCap, label: 'Study', path: '/quiz-feed', id: 'quiz-feed' },
+    { icon: GraduationCap, label: 'Study', path: '/courses', id: 'courses' },
     { icon: User, label: 'Profile', path: '/profile', id: 'profile', requiresAuth: true }
   ];
 

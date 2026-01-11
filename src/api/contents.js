@@ -13,7 +13,7 @@ export const createPost = async (postData) => {
 
 export const getPosts = async () => {
   try {
-    const response = await client.get("/studlygram/posts");
+    const response = await client.get("/studlygram/feed");
     console.log("Get Posts Response:", response.data);
     return response.data;
   } catch (error) {
@@ -44,6 +44,54 @@ export const getPost = async (postId) => {
     return response.data;
   } catch (error) {
     console.error("Get Post Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const editPost = async (postId, content) => {
+  try {
+    const response = await client.put(`/studlygram/post/${postId}`, {
+      content,
+    });
+    console.log("Edit Post Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Edit Post Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const deletePost = async (postId) => {
+  try {
+    const response = await client.delete(`/studlygram/post/${postId}`);
+    console.log("Delete Post Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Delete Post Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const editComment = async (commentId, content) => {
+  try {
+    const response = await client.put(`/studlygram/comment/${commentId}`, {
+      content,
+    });
+    console.log("Edit Comment Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Edit Comment Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const deleteComment = async (commentId) => {
+  try {
+    const response = await client.delete(`/studlygram/comment/${commentId}`);
+    console.log("Delete Comment Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Delete Comment Error:", error.response?.data || error.message);
     throw error;
   }
 };

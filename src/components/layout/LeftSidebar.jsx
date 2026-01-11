@@ -123,21 +123,21 @@ const LeftSidebar = () => {
               className="w-full flex items-center justify-between p-3 rounded-full hover:bg-reddit-cardHover/50 transition-colors group text-left"
               onClick={() => navigate('/profile')}
             >
-              <div className="flex items-center gap-3">
-                {currentUser?.avatar ? (
+              <div className="flex items-center gap-3 min-w-0">
+                {(currentUser?.avatar || currentUser?.profile_picture) ? (
                   <img
-                    src={currentUser.avatar}
+                    src={currentUser.profile_picture || currentUser.avatar}
                     alt={currentUser?.displayName}
-                    className="w-10 h-10 rounded-full bg-gray-700 object-cover"
+                    className="w-10 h-10 rounded-full bg-gray-700 object-cover flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-reddit-cardHover flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-reddit-cardHover flex items-center justify-center flex-shrink-0">
                     <User size={20} className="text-reddit-textMuted" />
                   </div>
                 )}
-                <div className="flex flex-col leading-snug hidden xl:block">
-                  <span className="font-bold text-sm truncate max-w-[100px]">{currentUser?.displayName}</span>
-                  <span className="text-reddit-textMuted text-sm truncate max-w-[100px]">@{currentUser?.username}</span>
+                <div className="flex flex-col leading-snug hidden xl:flex min-w-0 overflow-hidden">
+                  <span className="font-bold text-sm truncate" title={currentUser?.displayName}>{currentUser?.displayName}</span>
+                  <span className="text-reddit-textMuted text-sm truncate" title={`@${currentUser?.username}`}>@{currentUser?.username}</span>
                 </div>
               </div>
               <MoreHorizontal className="hidden xl:block" size={18} />

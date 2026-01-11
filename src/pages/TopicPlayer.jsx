@@ -45,7 +45,7 @@ const TopicPlayer = () => {
 
   if (!topic || !currentTopic) {
     return (
-      <div className="min-h-screen bg-reddit-dark flex items-center justify-center">
+      <div className="min-h-screen bg-reddit-bg flex items-center justify-center">
         <LoadingSpinner size={50} color="#FF4500" />
       </div>
     );
@@ -62,7 +62,7 @@ const TopicPlayer = () => {
     currentSceneIndex < currentSection.scenes.length - 1;
 
   return (
-    <div className="min-h-screen bg-reddit-dark text-white overflow-x-hidden">
+    <div className="min-h-screen bg-reddit-bg text-white overflow-x-hidden">
       <Toaster
         position="top-right"
         toastOptions={{
@@ -75,7 +75,7 @@ const TopicPlayer = () => {
       />
 
       {/* Progress bar - Extremely thin and precise */}
-      <div className="fixed top-0 left-0 right-0 h-0.5 bg-reddit-dark z-50">
+      <div className="fixed top-0 left-0 right-0 h-0.5 bg-reddit-bg z-50">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${progressPercentage}%` }}
@@ -85,7 +85,7 @@ const TopicPlayer = () => {
       </div>
 
       {/* Header - Glassmorphic, minimal */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-reddit-dark/80 backdrop-blur-xl border-b border-white/5">
+      <div className="fixed top-0 left-0 right-0 z-40 bg-reddit-bg/80 backdrop-blur-xl border-b border-white/5">
         <div className="px-6 py-4 flex items-center justify-between">
           {/* Left: Back button and title */}
           <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -140,7 +140,7 @@ const TopicPlayer = () => {
         />
 
         {/* Center: Content Player */}
-        <main className="flex-1 flex flex-col relative min-w-0 bg-gradient-to-b from-reddit-dark to-[#0f0f10]">
+        <main className="flex-1 flex flex-col relative min-w-0 bg-gradient-to-b from-reddit-bg to-[#0f0f10]">
           <div className="flex-1 overflow-y-auto custom-scrollbar px-8 lg:px-16 py-8">
             <div className="max-w-4xl mx-auto h-full">
               <ContentPlayer topic={topic} />
@@ -183,7 +183,7 @@ const TopicPlayer = () => {
         </main>
 
         {/* Right: Notes + AI Chatbot */}
-        <aside className="hidden xl:flex xl:flex-col w-96 h-[calc(100vh-4rem)] sticky top-16 border-l border-reddit-border bg-reddit-dark overflow-hidden flex-shrink-0">
+        <aside className="hidden xl:flex xl:flex-col w-96 h-[calc(100vh-4rem)] sticky top-16 border-l border-reddit-border bg-reddit-bg overflow-hidden flex-shrink-0">
           <NotesPanel topicId={topic.id} topicTitle={topic.title} />
           <AIChatbot
             topicTitle={topic.title}

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
+import { WebSocketProvider } from "./context/WebSocketContext";
 
 import LeftSidebar from "./components/layout/LeftSidebar";
 import RightSidebar from "./components/layout/RightSidebar";
@@ -31,6 +32,12 @@ import { toast } from "sonner";
 import { supabase } from "./utils/supabase";
 import "./App.css";
 
+// Legal Pages
+import TermsOfService from "./pages/legal/TermsOfService";
+import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
+import CookiePolicy from "./pages/legal/CookiePolicy";
+import Accessibility from "./pages/legal/Accessibility";
+
 function AppContent() {
   const { syncWithBackend } = useStudyGram();
 
@@ -59,14 +66,14 @@ function AppContent() {
     };
 
     handleHash();
-    
+
     // Also listen for supabase auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         // Only sync if we don't already have the token in localStorage to avoid redundant calls
         const currentToken = localStorage.getItem("studly_token");
         if (currentToken !== session.access_token) {
-           await syncWithBackend(session.access_token, session.refresh_token);
+          await syncWithBackend(session.access_token, session.refresh_token);
         }
       }
     });
@@ -105,7 +112,15 @@ function AppContent() {
                     <Route path="/post/:postId" element={<PostDetail />} />
                     <Route path="/ads/create" element={<CreateAd />} />
                     <Route path="/ads/dashboard" element={<AdsDashboard />} />
+
+
                     <Route path="/settings" element={<Settings />} />
+
+                    {/* Legal Routes */}
+                    <Route path="/terms" element={<TermsOfService />} />
+                    <Route path="/privacy" element={<PrivacyPolicy />} />
+                    <Route path="/cookie-policy" element={<CookiePolicy />} />
+                    <Route path="/accessibility" element={<Accessibility />} />
                   </Routes>
                 </main>
 
@@ -134,11 +149,13 @@ function AppContent() {
 
 function App() {
   return (
-    <StudyGramProvider>
-      <CoursePlayerProvider>
-        <AppContent />
-      </CoursePlayerProvider>
-    </StudyGramProvider>
+    <WebSocketProvider>
+      <StudyGramProvider>
+        <CoursePlayerProvider>
+          <AppContent />
+        </CoursePlayerProvider>
+      </StudyGramProvider>
+    </WebSocketProvider>
   );
 }
 

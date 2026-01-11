@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, AlertCircle, ChevronRight } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { useCoursePlayer } from '../../../context/CoursePlayerContext';
 
 const QuizScene = ({ scene, typedQuestion, isQuestionTyped, onComplete }) => {

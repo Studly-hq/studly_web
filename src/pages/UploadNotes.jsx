@@ -176,10 +176,10 @@ const UploadNotes = () => {
           className="space-y-6"
         >
           {/* Info Card */}
-          <div className="bg-gradient-to-br from-reddit-blue/10 to-reddit-orange/10 backdrop-blur-sm border border-reddit-blue/20 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-reddit-orange/10 to-reddit-orange/10 backdrop-blur-sm border border-reddit-orange/20 rounded-2xl p-6">
             <div className="flex items-start gap-4">
-              <div className="bg-reddit-blue/20 p-3 rounded-xl">
-                <Sparkles size={24} className="text-reddit-blue" />
+              <div className="bg-reddit-orange/20 p-3 rounded-xl">
+                <Sparkles size={24} className="text-reddit-orange" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-reddit-text mb-2">
@@ -206,8 +206,8 @@ const UploadNotes = () => {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${isDragging
-                    ? 'border-reddit-blue bg-reddit-blue/10'
-                    : 'border-reddit-border hover:border-reddit-textMuted bg-reddit-input'
+                  ? 'border-reddit-orange bg-reddit-orange/10'
+                  : 'border-reddit-border hover:border-reddit-textMuted bg-reddit-input'
                   }`}
               >
                 <input
@@ -221,7 +221,7 @@ const UploadNotes = () => {
                   animate={isDragging ? { scale: 1.1 } : { scale: 1 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Upload size={48} className={`mx-auto mb-4 ${isDragging ? 'text-reddit-blue' : 'text-reddit-textMuted'}`} />
+                  <Upload size={48} className={`mx-auto mb-4 ${isDragging ? 'text-reddit-orange' : 'text-reddit-textMuted'}`} />
                   <p className="text-reddit-text font-medium mb-2">
                     {isDragging ? 'Drop your file here' : 'Drag & drop your notes'}
                   </p>
@@ -241,8 +241,8 @@ const UploadNotes = () => {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="bg-reddit-blue/20 p-3 rounded-lg">
-                      <FileText size={24} className="text-reddit-blue" />
+                    <div className="bg-reddit-orange/20 p-3 rounded-lg">
+                      <FileText size={24} className="text-reddit-orange" />
                     </div>
                     <div>
                       <p className="text-reddit-text font-medium">{uploadedFile.name}</p>
@@ -285,7 +285,7 @@ const UploadNotes = () => {
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="e.g., Linear Algebra, World History, React Hooks..."
-              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-xl text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-blue transition-colors"
+              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-xl text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange transition-colors"
             />
             <p className="text-xs text-reddit-textMuted mt-2">
               This helps AI generate more relevant questions
@@ -304,7 +304,7 @@ const UploadNotes = () => {
                 max="30"
                 value={questionCount}
                 onChange={(e) => setQuestionCount(parseInt(e.target.value))}
-                className="flex-1 h-2 bg-reddit-border rounded-lg appearance-none cursor-pointer accent-reddit-blue"
+                className="flex-1 h-2 bg-reddit-border rounded-lg appearance-none cursor-pointer accent-reddit-orange"
               />
               <div className="bg-reddit-input border border-reddit-border rounded-lg px-4 py-2 min-w-[60px] text-center">
                 <span className="text-reddit-text font-bold text-lg">{questionCount}</span>
@@ -323,8 +323,8 @@ const UploadNotes = () => {
             whileHover={canGenerate && !isGenerating ? { scale: 1.02 } : {}}
             whileTap={canGenerate && !isGenerating ? { scale: 0.98 } : {}}
             className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${canGenerate && !isGenerating
-                ? 'bg-gradient-to-r from-reddit-blue to-reddit-orange hover:from-reddit-blue/90 hover:to-reddit-orange/90 text-white'
-                : 'bg-reddit-input text-reddit-textMuted cursor-not-allowed'
+              ? 'bg-gradient-to-r from-reddit-orange to-reddit-orange hover:from-reddit-orange/90 hover:to-reddit-orange/90 text-white'
+              : 'bg-reddit-input text-reddit-textMuted cursor-not-allowed'
               }`}
           >
             {isGenerating ? (

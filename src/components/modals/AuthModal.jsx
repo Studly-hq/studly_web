@@ -212,7 +212,7 @@ const AuthModal = () => {
                     onChange={handleChange}
                     placeholder="your@email.com"
                     required
-                    className="w-full bg-reddit-input border border-reddit-border rounded-lg px-4 py-2.5 text-reddit-text text-sm placeholder-reddit-textMuted outline-none focus:border-reddit-blue focus:ring-2 focus:ring-reddit-blue/20 transition-all"
+                    className="w-full bg-reddit-input border border-reddit-border rounded-lg px-4 py-2.5 text-reddit-text text-sm placeholder-reddit-textMuted outline-none focus:outline-none focus-visible:outline-none hover:border-reddit-orange focus:border-reddit-orange focus:ring-2 focus:ring-reddit-orange/20 transition-all"
                   />
                 </div>
 
@@ -228,7 +228,7 @@ const AuthModal = () => {
                       onChange={handleChange}
                       placeholder="Enter your password"
                       required
-                      className="w-full bg-reddit-input border border-reddit-border rounded-lg pl-4 pr-10 py-2.5 text-reddit-text text-sm placeholder-reddit-textMuted outline-none focus:border-reddit-blue focus:ring-2 focus:ring-reddit-blue/20 transition-all"
+                      className="w-full bg-reddit-input border border-reddit-border rounded-lg pl-4 pr-10 py-2.5 text-reddit-text text-sm placeholder-reddit-textMuted outline-none focus:outline-none focus-visible:outline-none hover:border-reddit-orange focus:border-reddit-orange focus:ring-2 focus:ring-reddit-orange/20 transition-all"
                     />
                     <button
                       type="button"
@@ -244,7 +244,7 @@ const AuthModal = () => {
                   <div className="flex justify-end">
                     <button
                       type="button"
-                      className="text-reddit-blue text-xs hover:text-reddit-blue/80 font-medium transition-colors"
+                      className="text-reddit-orange text-xs hover:text-reddit-orange/80 font-medium transition-colors"
                     >
                       Forgot password?
                     </button>
@@ -289,7 +289,7 @@ const AuthModal = () => {
             )}
           </div>
 
-          {/* Footer */}
+
           <div className="px-6 pb-6">
             <div className="relative my-5">
               <div className="absolute inset-0 flex items-center">

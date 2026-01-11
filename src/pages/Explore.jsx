@@ -75,7 +75,7 @@ const Explore = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search posts, tags, users..."
-              className="w-full pl-10 pr-10 py-2 bg-reddit-input border border-reddit-border rounded text-reddit-text text-sm placeholder-reddit-textMuted focus:outline-none focus:border-reddit-blue transition-colors"
+              className="w-full pl-10 pr-10 py-2 bg-reddit-input border border-reddit-border rounded text-reddit-text text-sm placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange transition-colors"
             />
             {searchQuery && (
               <button
@@ -96,11 +96,10 @@ const Explore = () => {
                 <motion.button
                   key={filter.id}
                   onClick={() => setSortBy(filter.id)}
-                  whileHover={!isActive ? { backgroundColor: '#272729' } : {}}
                   whileTap={{ scale: 0.97 }}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-all ${isActive
                     ? 'bg-reddit-orange text-white'
-                    : 'bg-reddit-card text-reddit-textMuted hover:text-reddit-text border border-reddit-border'
+                    : 'bg-reddit-card text-reddit-textMuted hover:text-reddit-orange hover:border-reddit-orange border border-reddit-border'
                     }`}
                 >
                   <Icon size={14} />
@@ -125,7 +124,7 @@ const Explore = () => {
                 className="bg-reddit-card rounded-md p-3 border border-reddit-border flex items-center justify-between"
               >
                 <div className="flex items-center gap-2">
-                  <Hash size={16} className="text-reddit-blue" />
+                  <Hash size={16} className="text-reddit-orange" />
                   <span className="text-reddit-text text-sm font-medium">#{selectedTag}</span>
                   <span className="text-reddit-textMuted text-xs">
                     ({filteredPosts.length} {filteredPosts.length === 1 ? 'post' : 'posts'})
@@ -162,7 +161,7 @@ const Explore = () => {
                       onClick={clearFilters}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="px-4 py-2 bg-reddit-blue hover:bg-reddit-blue/90 text-white text-sm rounded font-medium transition-colors"
+                      className="px-4 py-2 bg-reddit-orange hover:bg-reddit-orange/90 text-white text-sm rounded font-medium transition-colors"
                     >
                       Clear Filters
                     </motion.button>
@@ -184,7 +183,7 @@ const Explore = () => {
           </div>
 
           {/* Sidebar - Trending Tags */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 order-first lg:order-last">
             <div className="sticky top-32 space-y-3">
               {/* Trending Tags Card */}
               <motion.div
@@ -207,7 +206,7 @@ const Explore = () => {
                       onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
                       whileHover={{ backgroundColor: selectedTag === tag ? undefined : '#272729' }}
                       className={`w-full flex items-center justify-between px-2 py-1.5 rounded text-left transition-colors ${selectedTag === tag
-                        ? 'bg-reddit-blue text-white'
+                        ? 'bg-reddit-orange text-white'
                         : ''
                         }`}
                     >
@@ -215,7 +214,7 @@ const Explore = () => {
                         <Hash size={12} className="flex-shrink-0" />
                         <span className={`text-xs truncate ${selectedTag === tag ? 'text-white' : 'text-reddit-text'}`}>{tag}</span>
                       </div>
-                      <span className={`text-[10px] ${selectedTag === tag ? 'text-blue-200' : 'text-reddit-textMuted'}`}>
+                      <span className={`text-[10px] ${selectedTag === tag ? 'text-orange-200' : 'text-reddit-textMuted'}`}>
                         {count} posts
                       </span>
                     </motion.button>
@@ -223,7 +222,7 @@ const Explore = () => {
                 </div>
 
                 {allTags.length > 4 && (
-                  <button className="w-full px-3 py-2 text-reddit-blue hover:bg-reddit-cardHover text-xs font-medium border-t border-reddit-border transition-colors">
+                  <button className="w-full px-3 py-2 text-reddit-orange hover:bg-reddit-cardHover text-xs font-medium border-t border-reddit-border transition-colors">
                     View all topics
                   </button>
                 )}

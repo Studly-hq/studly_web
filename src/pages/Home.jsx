@@ -7,8 +7,7 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState('foryou');
 
   const tabs = [
-    { id: 'foryou', label: 'For you' },
-    { id: 'following', label: 'Following' }
+    { id: 'foryou', label: 'For you' }
   ];
 
   return (

@@ -82,20 +82,20 @@ const CreatePostModal = () => {
 
     setIsSubmitting(true);
     setUploadProgress("");
-    
+
     try {
       let uploadedImageUrls = [];
 
       // If there are images, upload them to Cloudinary first
       if (images.length > 0) {
         setUploadProgress(`Uploading ${images.length} image${images.length > 1 ? 's' : ''}...`);
-        
+
         // Extract the File objects from the images array
         const files = images.map(img => img.file);
-        
+
         // Upload all images to Cloudinary in parallel
         uploadedImageUrls = await uploadMultipleToCloudinary(files);
-        
+
         setUploadProgress("Creating post...");
       }
 
@@ -147,7 +147,7 @@ const CreatePostModal = () => {
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-reddit-border">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-reddit-blue rounded flex items-center justify-center">
+              <div className="w-10 h-10 bg-reddit-orange rounded flex items-center justify-center">
                 <Sparkles className="text-white" size={20} />
               </div>
               <div>
@@ -175,7 +175,7 @@ const CreatePostModal = () => {
             <img
               src={currentUser?.avatar}
               alt={currentUser?.displayName}
-              className="w-12 h-12 rounded-full border-2 border-reddit-blue"
+              className="w-12 h-12 rounded-full border-2 border-reddit-orange"
             />
             <div>
               <h3 className="text-reddit-text font-semibold">
@@ -264,8 +264,8 @@ const CreatePostModal = () => {
                               key={index}
                               onClick={() => setPreviewIndex(index)}
                               className={`h-2 rounded-full transition-all duration-300 ${index === previewIndex
-                                  ? "bg-white w-6"
-                                  : "bg-white/50 w-2"
+                                ? "bg-white w-6"
+                                : "bg-white/50 w-2"
                                 }`}
                             />
                           ))}
@@ -326,10 +326,10 @@ const CreatePostModal = () => {
                   <Type size={18} className="text-reddit-textMuted" />
                 )}
                 {postType === "single-image" && (
-                  <Image size={18} className="text-reddit-blue" />
+                  <Image size={18} className="text-reddit-orange" />
                 )}
                 {postType === "carousel" && (
-                  <div className="flex items-center gap-1 text-reddit-blue">
+                  <div className="flex items-center gap-1 text-reddit-orange">
                     <Image size={18} />
                     <span className="text-xs font-medium">
                       ×{images.length}
@@ -353,8 +353,8 @@ const CreatePostModal = () => {
               }}
               transition={{ duration: 0.2 }}
               className={`w-full py-3 rounded font-semibold transition-all duration-200 ${(content.trim() || images.length > 0) && !isSubmitting
-                  ? "bg-reddit-blue hover:bg-reddit-blue/90 text-white"
-                  : "bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed"
+                ? "bg-reddit-orange hover:bg-reddit-orange/90 text-white"
+                : "bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed"
                 }`}
             >
               {isSubmitting ? (uploadProgress || "Posting...") : "Post"}

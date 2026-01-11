@@ -259,88 +259,7 @@ const CourseAdmin = () => {
     }));
   };
 
-  const addAnswer = (sectionIndex, questionIndex) => {
-    setCourseData(prev => ({
-      ...prev,
-      sections: prev.sections.map((section, i) =>
-        i === sectionIndex
-          ? {
-            ...section,
-            quiz: {
-              ...section.quiz,
-              questions: section.quiz.questions.map((q, qi) =>
-                qi === questionIndex
-                  ? {
-                    ...q,
-                    answers: [
-                      ...q.answers,
-                      {
-                        answer_text: '',
-                        is_correct: false,
-                        order_index: q.answers.length + 1
-                      }
-                    ]
-                  }
-                  : q
-              )
-            }
-          }
-          : section
-      )
-    }));
-  };
 
-  const removeAnswer = (sectionIndex, questionIndex, answerIndex) => {
-    setCourseData(prev => ({
-      ...prev,
-      sections: prev.sections.map((section, i) =>
-        i === sectionIndex
-          ? {
-            ...section,
-            quiz: {
-              ...section.quiz,
-              questions: section.quiz.questions.map((q, qi) =>
-                qi === questionIndex
-                  ? {
-                    ...q,
-                    answers: q.answers
-                      .filter((_, ai) => ai !== answerIndex)
-                      .map((a, ai) => ({ ...a, order_index: ai + 1 }))
-                  }
-                  : q
-              )
-            }
-          }
-          : section
-      )
-    }));
-  };
-
-  const updateAnswer = (sectionIndex, questionIndex, answerIndex, field, value) => {
-    setCourseData(prev => ({
-      ...prev,
-      sections: prev.sections.map((section, i) =>
-        i === sectionIndex
-          ? {
-            ...section,
-            quiz: {
-              ...section.quiz,
-              questions: section.quiz.questions.map((q, qi) =>
-                qi === questionIndex
-                  ? {
-                    ...q,
-                    answers: q.answers.map((a, ai) =>
-                      ai === answerIndex ? { ...a, [field]: value } : a
-                    )
-                  }
-                  : q
-              )
-            }
-          }
-          : section
-      )
-    }));
-  };
 
   const validateStep = (step) => {
     switch (step) {
@@ -375,7 +294,7 @@ const CourseAdmin = () => {
 
       await createCourse(cleanedData);
       toast.success('Course created successfully!');
-      
+
       // Reset form
       setCourseData({
         name: '',
@@ -462,13 +381,12 @@ const CourseAdmin = () => {
                 <motion.div
                   initial={{ scale: 0.9 }}
                   animate={{ scale: currentStep >= step.id ? 1 : 0.9 }}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all ${
-                    currentStep > step.id
+                  className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all ${currentStep > step.id
                       ? 'bg-green-500 text-white'
                       : currentStep === step.id
-                      ? 'bg-reddit-orange text-white'
-                      : 'bg-reddit-cardHover text-reddit-placeholder border border-reddit-border'
-                  }`}
+                        ? 'bg-reddit-orange text-white'
+                        : 'bg-reddit-cardHover text-reddit-placeholder border border-reddit-border'
+                    }`}
                 >
                   {currentStep > step.id ? <Check size={20} /> : <step.icon size={18} />}
                 </motion.div>
@@ -824,8 +742,8 @@ const CourseAdmin = () => {
                                 Answers (4 Options) <span className="text-red-500">*</span>
                               </span>
                               <p className="text-xs text-reddit-placeholder mt-1">
-                                {question.question_type === 'single_choice' 
-                                  ? 'Select one correct answer' 
+                                {question.question_type === 'single_choice'
+                                  ? 'Select one correct answer'
                                   : 'Select one or more correct answers'}
                               </p>
                             </div>
@@ -861,7 +779,7 @@ const CourseAdmin = () => {
                                           if (!newAnswers[answerIndex]) {
                                             newAnswers[answerIndex] = { answer_text: '', is_correct: false, order_index: answerIndex + 1 };
                                           }
-                                          
+
                                           if (question.question_type === 'single_choice') {
                                             // For single choice, uncheck all others
                                             newAnswers.forEach((a, i) => {

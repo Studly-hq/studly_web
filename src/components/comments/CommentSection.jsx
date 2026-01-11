@@ -169,7 +169,7 @@ const CommentSection = () => {
               >
                 <span className="text-reddit-textMuted">
                   Replying to{' '}
-                  <span className="text-reddit-blue font-semibold">
+                  <span className="text-reddit-orange font-semibold">
                     {getUserById(replyingTo.userId)?.displayName}
                   </span>
                 </span>
@@ -231,7 +231,7 @@ const CommentSection = () => {
                   whileTap={commentText.trim() ? { scale: 0.98 } : {}}
                   transition={{ duration: 0.2 }}
                   className={`p-3 rounded transition-all duration-200 flex-shrink-0 ${commentText.trim()
-                    ? 'bg-reddit-blue hover:bg-reddit-blue/90 text-white'
+                    ? 'bg-reddit-orange hover:bg-reddit-orange/90 text-white'
                     : 'bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed'
                     }`}
                 >

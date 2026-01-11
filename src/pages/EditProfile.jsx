@@ -75,19 +75,19 @@ const EditProfile = () => {
     try {
       // Build payload with only non-empty fields to avoid "Invalid input data" error
       const payload = {};
-      
+
       if (formData.name && formData.name.trim()) {
         payload.name = formData.name.trim();
       }
-      
+
       if (formData.username && formData.username.trim() && formData.username.trim() !== currentUser?.username) {
         payload.username = formData.username.trim();
       }
-      
+
       if (formData.bio && formData.bio.trim()) {
         payload.bio = formData.bio.trim();
       }
-      
+
       if (formData.avatar && formData.avatar.trim()) {
         payload.avatar_url = formData.avatar.trim();
       }
@@ -147,7 +147,7 @@ const EditProfile = () => {
               disabled={isSaving}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 bg-reddit-blue hover:bg-reddit-blue/90 disabled:bg-reddit-blue/50 text-white rounded-lg font-semibold flex items-center gap-2 transition-colors"
+              className="px-4 py-2 bg-reddit-orange hover:bg-reddit-orange/90 disabled:bg-reddit-orange/50 text-white rounded-lg font-semibold flex items-center gap-2 transition-colors"
             >
               {isSaving ? (
                 <>
@@ -178,7 +178,7 @@ const EditProfile = () => {
               <img
                 src={formData.avatar || "https://i.pravatar.cc/150?u=default"}
                 alt="Profile"
-                className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-blue object-cover"
+                className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-orange object-cover"
               />
               <motion.button
                 onClick={() => document.getElementById("avatarUpload").click()}
@@ -186,7 +186,7 @@ const EditProfile = () => {
                 whileTap={{ scale: 0.9 }}
                 type="button"
                 disabled={isUploadingAvatar}
-                className="absolute bottom-0 right-0 p-2 md:p-3 bg-reddit-blue hover:bg-reddit-blue/90 disabled:bg-reddit-blue/50 rounded-full text-white transition-colors"
+                className="absolute bottom-0 right-0 p-2 md:p-3 bg-reddit-orange hover:bg-reddit-orange/90 disabled:bg-reddit-orange/50 rounded-full text-white transition-colors"
               >
                 {isUploadingAvatar ? (
                   <LoadingSpinner size={18} color="#ffffff" />
@@ -203,8 +203,8 @@ const EditProfile = () => {
               />
             </div>
             <p className="text-xs md:text-sm text-reddit-textMuted text-center">
-              {isUploadingAvatar 
-                ? "Uploading avatar..." 
+              {isUploadingAvatar
+                ? "Uploading avatar..."
                 : "Click the camera icon to change your profile picture"}
             </p>
           </div>
@@ -219,7 +219,7 @@ const EditProfile = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-blue transition-colors"
+              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange transition-colors"
               placeholder="Your display name"
             />
           </div>
@@ -238,7 +238,7 @@ const EditProfile = () => {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full pl-8 pr-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-blue transition-colors"
+                className="w-full pl-8 pr-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange transition-colors"
                 placeholder="username"
               />
             </div>
@@ -258,7 +258,7 @@ const EditProfile = () => {
               onChange={handleChange}
               rows={4}
               maxLength={160}
-              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-blue transition-colors resize-none"
+              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange transition-colors resize-none"
               placeholder="Tell others about yourself..."
             />
             <div className="flex items-center justify-between mt-1">

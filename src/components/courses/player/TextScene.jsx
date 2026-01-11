@@ -86,7 +86,7 @@ const TextScene = ({ content, typedContent, showCursor, isTyping }) => {
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-reddit-blue hover:text-white transition-colors underline decoration-reddit-blue/30 hover:decoration-white/50"
+              className="text-reddit-orange hover:text-white transition-colors underline decoration-reddit-orange/30 hover:decoration-white/50"
             >
               {children}
             </a>

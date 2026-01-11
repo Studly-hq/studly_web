@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, Bot } from 'lucide-react';
 import LoadingSpinner from '../../common/LoadingSpinner';
 
 const AIChatbot = ({ topicTitle, currentSectionTitle }) => {

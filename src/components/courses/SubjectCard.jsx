@@ -1,12 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCoursePlayer } from "../../context/CoursePlayerContext";
-import { useStudyGram } from "../../context/StudyGramContext";
-import { enrollInCourse } from "../../api/coursebank";
-import { toast } from "sonner";
+// import { useStudyGram } from "../../context/StudyGramContext";
 import * as Icons from "lucide-react";
-import LoadingSpinner from "../common/LoadingSpinner";
 
 const SubjectCard = ({
   topic,
@@ -16,8 +13,7 @@ const SubjectCard = ({
 }) => {
   const navigate = useNavigate();
   const { getTopicProgress } = useCoursePlayer();
-  const { isAuthenticated, setShowAuthModal } = useStudyGram();
-  const [enrolling, setEnrolling] = useState(false);
+  // const { isAuthenticated, setShowAuthModal } = useStudyGram(); // Unused for now as handleEnroll is unused
 
   const progress = getTopicProgress(topic.id);
   const progressPercentage = progress ? calculateProgress(topic, progress) : 0;
@@ -29,41 +25,10 @@ const SubjectCard = ({
   // Calculate total topics
   const totalTopics = topic.sections.length;
 
-  // Difficulty badge colors
-  const difficultyColors = {
-    Beginner: "bg-green-500/20 text-green-400 border-green-500/30",
-    Intermediate: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    Advanced: "bg-red-500/20 text-red-400 border-red-500/30",
-  };
-
   const handleClick = () => {
     // Only navigate if enrolled or it's a mock course (no isApiCourse flag)
     if (isEnrolled || !topic.isApiCourse) {
       navigate(`/courses/${topic.id}`);
-    }
-  };
-
-  const handleEnroll = async (e) => {
-    e.stopPropagation(); // Prevent card click
-
-    if (!isAuthenticated) {
-      toast.error("Please log in to enroll in courses");
-      setShowAuthModal(true);
-      return;
-    }
-
-    setEnrolling(true);
-    try {
-      await enrollInCourse(topic.id);
-      toast.success(`Successfully enrolled in ${topic.title}!`);
-      if (onEnrollmentChange) {
-        onEnrollmentChange(topic.id, true);
-      }
-    } catch (error) {
-      console.error("Enrollment failed:", error);
-      toast.error("Failed to enroll. Please try again.");
-    } finally {
-      setEnrolling(false);
     }
   };
 
@@ -78,7 +43,7 @@ const SubjectCard = ({
       }}
       whileHover={{ scale: 1.02 }}
       onClick={handleClick}
-      className="group relative bg-white/5 hover:bg-white/[0.07] rounded-2xl p-6 transition-all duration-300 cursor-pointer overflow-hidden backdrop-blur-sm border border-white/5 hover:border-white/10"
+      className="group relative bg-white/5 hover:bg-white/[0.07] rounded-2xl p-4 md:p-6 transition-all duration-300 cursor-pointer overflow-hidden backdrop-blur-sm border border-white/5 hover:border-white/10"
     >
       {/* Sleek hover gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-reddit-orange/0 via-reddit-orange/0 to-reddit-orange/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -139,7 +104,7 @@ const SubjectCard = ({
               <span className="text-xs font-medium text-white/30 group-hover:text-white/50 transition-colors">
                 {topic.isApiCourse && !isEnrolled ? 'Tap to Enroll' : 'Start Learning'}
               </span>
-              <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-reddit-orange group-hover:text-white transition-all duration-300 transform group-hover:translate-x-1">
+              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-reddit-orange group-hover:text-white transition-all duration-300 transform group-hover:translate-x-1">
                 {topic.isApiCourse && !isEnrolled ? <Icons.Plus className="w-4 h-4" /> : <Icons.ArrowRight className="w-4 h-4" />}
               </div>
             </div>

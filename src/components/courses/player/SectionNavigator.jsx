@@ -2,11 +2,8 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2,
-  Circle,
   PlayCircle,
-  Lock,
   ChevronDown,
-  ChevronRight,
   BookOpen,
   Film,
   HelpCircle,
@@ -76,7 +73,7 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
       {/* Navigator */}
       <aside
         className={`
-          fixed md:static top-0 left-0 h-full w-80 bg-reddit-dark border-r border-white/5
+          fixed md:static top-0 left-0 h-full w-80 bg-reddit-card border-r border-white/5
           overflow-y-auto custom-scrollbar z-50 transition-all duration-300 ease-in-out flex-shrink-0
           ${isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full md:translate-x-0 md:w-0 md:opacity-0 md:overflow-hidden'}
         `}

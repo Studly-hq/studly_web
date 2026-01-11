@@ -4,14 +4,17 @@ import { Image, Smile, X, User } from 'lucide-react';
 import { useStudyGram } from '../../context/StudyGramContext';
 import { toast } from 'sonner';
 import LoadingSpinner from '../common/LoadingSpinner';
+import EmojiPicker from 'emoji-picker-react';
 
 const FeedComposer = () => {
     const { currentUser, isAuthenticated, createPost, setShowAuthModal } = useStudyGram();
     const [content, setContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const fileInputRef = useRef(null);
     const textareaRef = useRef(null);
+    const [avatarError, setAvatarError] = useState(false);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -31,6 +34,11 @@ const FeedComposer = () => {
             setSelectedImage(null);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
+    };
+
+    const onEmojiClick = (emojiObject) => {
+        setContent(prev => prev + emojiObject.emoji);
+        setShowEmojiPicker(false);
     };
 
     const handleSubmit = async () => {
@@ -68,10 +76,11 @@ const FeedComposer = () => {
     return (
         <div className="border-b border-reddit-border p-4">
             <div className="flex gap-3">
-                {currentUser?.avatar ? (
+                {currentUser?.avatar && !avatarError ? (
                     <img
                         src={currentUser.avatar}
                         alt={currentUser?.displayName || "User"}
+                        onError={() => setAvatarError(true)}
                         className="w-10 h-10 rounded-full bg-gray-700 flex-shrink-0 object-cover"
                     />
                 ) : (
@@ -112,7 +121,7 @@ const FeedComposer = () => {
                         )}
                     </AnimatePresence>
 
-                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-reddit-border/30">
+                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-reddit-border/30 relative">
                         <div className="flex items-center gap-1">
                             <input
                                 type="file"
@@ -128,13 +137,34 @@ const FeedComposer = () => {
                             >
                                 <Image size={20} className="text-reddit-orange group-hover:opacity-80" />
                             </button>
-                            <button
-                                onClick={() => !isAuthenticated && setShowAuthModal(true)}
-                                className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors group"
-                                title="Emoji"
-                            >
-                                <Smile size={20} className="text-reddit-orange group-hover:opacity-80" />
-                            </button>
+                            <div className="relative">
+                                <button
+                                    onClick={() => {
+                                        if (!isAuthenticated) {
+                                            setShowAuthModal(true);
+                                            return;
+                                        }
+                                        setShowEmojiPicker(!showEmojiPicker);
+                                    }}
+                                    className={`p-2 rounded-full hover:bg-reddit-cardHover transition-colors group ${showEmojiPicker ? 'bg-reddit-cardHover' : ''}`}
+                                    title="Emoji"
+                                >
+                                    <Smile size={20} className="text-reddit-orange group-hover:opacity-80" />
+                                </button>
+                                {showEmojiPicker && (
+                                    <div className="absolute top-full left-0 mt-2 z-50">
+                                        <div className="fixed inset-0 z-40" onClick={() => setShowEmojiPicker(false)} />
+                                        <div className="relative z-50">
+                                            <EmojiPicker
+                                                onEmojiClick={onEmojiClick}
+                                                theme="dark"
+                                                width={320}
+                                                height={400}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <button

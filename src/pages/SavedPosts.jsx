@@ -96,7 +96,7 @@ const SavedPosts = () => {
                 onClick={() => navigate("/")}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-5 py-2 bg-reddit-blue hover:bg-reddit-blue/90 text-white text-sm rounded font-medium transition-colors"
+                className="px-5 py-2 bg-reddit-orange hover:bg-reddit-orange/90 text-white text-sm rounded font-medium transition-colors"
               >
                 Explore Feed
               </motion.button>

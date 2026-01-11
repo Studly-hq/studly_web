@@ -13,7 +13,6 @@ import {
   login as apiLogin,
   logout as apiLogout,
   sync as apiSync,
-  refreshToken as apiRefreshToken,
 } from "../api/auth";
 import { getProfile, updateProfile } from "../api/profile";
 import { supabase } from "../utils/supabase";
@@ -31,6 +30,8 @@ import {
   getBookmarks as apiGetBookmarks,
 } from "../api/contents";
 import { toast } from "sonner";
+import { useWebSocket } from "../hooks/useWebSocket";
+import { useWebSocketContext } from "./WebSocketContext";
 
 const StudyGramContext = createContext();
 
@@ -81,7 +82,11 @@ export const StudyGramProvider = ({ children }) => {
             const userProfile = await getProfile();
             if (userProfile) {
               setIsAuthenticated(true);
-              setCurrentUser(userProfile);
+              setIsAuthenticated(true);
+              setCurrentUser({
+                ...userProfile,
+                avatar: userProfile.avatar || `https://i.pravatar.cc/150?u=${userProfile.id}`
+              });
               return;
             }
           } catch (err) {
@@ -103,8 +108,8 @@ export const StudyGramProvider = ({ children }) => {
     (post) => {
       const images = Array.isArray(post.post_media)
         ? post.post_media
-            .filter((url) => url !== "placeholder")
-            .map((url) => ({ url: url, alt: "Post Image" }))
+          .filter((url) => url !== "placeholder")
+          .map((url) => ({ url: url, alt: "Post Image" }))
         : [];
 
       const postUser = {
@@ -186,11 +191,25 @@ export const StudyGramProvider = ({ children }) => {
   const fetchPostById = useCallback(
     async (postId) => {
       try {
-        const existingPost = posts.find((p) => p.id === parseInt(postId));
+        // First, check if the post is already in the local state
+        // Use String comparison to handle both UUIDs and numeric IDs
+        const existingPost = posts.find((p) => String(p.id) === String(postId));
         if (existingPost) return existingPost;
-        const serverPost = await apiGetPost(postId);
-        if (serverPost) {
-          return mapBackendPostToFrontend(serverPost);
+
+        // Try to fetch the single post (works only for authenticated users)
+        try {
+          const serverPost = await apiGetPost(postId);
+          if (serverPost) {
+            return mapBackendPostToFrontend(serverPost);
+          }
+        } catch (singlePostError) {
+          // If we get a 401 or any error, fall back to fetching from the public feed
+          console.log("Single post API failed, fetching from public feed...", singlePostError.message);
+          const allPosts = await apiGetPosts();
+          const targetPost = allPosts.find((p) => String(p.post_id) === String(postId));
+          if (targetPost) {
+            return mapBackendPostToFrontend(targetPost);
+          }
         }
         return null;
       } catch (error) {
@@ -229,12 +248,16 @@ export const StudyGramProvider = ({ children }) => {
         // Store tokens if present in response
         if (data.token) localStorage.setItem("studly_token", data.token);
         if (data.refresh_token) localStorage.setItem("studly_refresh_token", data.refresh_token);
-        
+
         const userProfile = await getProfile();
-        const user = userProfile || {
+        const user = userProfile ? {
+          ...userProfile,
+          avatar: userProfile.avatar || `https://i.pravatar.cc/150?u=${userProfile.id}`
+        } : {
           ...mockUsers.currentUser,
           ...data.user,
           email: email,
+          avatar: data.user?.avatar || `https://i.pravatar.cc/150?u=${data.user?.id || 'default'}`
         };
         setCurrentUser(user);
         setIsAuthenticated(true);
@@ -271,9 +294,13 @@ export const StudyGramProvider = ({ children }) => {
       const data = await apiSync(accessToken, refreshToken);
       if (data.token) localStorage.setItem("studly_token", data.token);
       if (data.refresh_token) localStorage.setItem("studly_refresh_token", data.refresh_token);
-      
+
       const userProfile = await getProfile();
-      setCurrentUser(userProfile);
+
+      setCurrentUser({
+        ...userProfile,
+        avatar: userProfile.avatar || `https://i.pravatar.cc/150?u=${userProfile.id}`
+      });
       setIsAuthenticated(true);
       setShowAuthModal(false);
       return true;
@@ -445,7 +472,7 @@ export const StudyGramProvider = ({ children }) => {
           id: c.commenter_user_id,
           username: c.commenter_username,
           name: c.commenter_name,
-          avatar: c.commenter_avatar,
+          avatar: c.commenter_avatar || `https://i.pravatar.cc/150?u=${c.commenter_user_id}`,
         },
         replies: [],
       }));
@@ -646,6 +673,7 @@ export const StudyGramProvider = ({ children }) => {
     () => ({
       // Auth
       isAuthenticated,
+      isAuthLoading,
       currentUser,
       login,
       signup,
@@ -690,6 +718,7 @@ export const StudyGramProvider = ({ children }) => {
     }),
     [
       isAuthenticated,
+      isAuthLoading,
       currentUser,
       login,
       signup,
@@ -724,6 +753,88 @@ export const StudyGramProvider = ({ children }) => {
       isMobileMenuOpen,
     ]
   );
+
+  const { connect, disconnect } = useWebSocketContext();
+
+  // Manage WebSocket connection based on auth state
+  useEffect(() => {
+    if (isAuthenticated) {
+      connect();
+    } else {
+      disconnect();
+    }
+  }, [isAuthenticated, connect, disconnect]);
+
+
+  // WebSocket Event Listeners
+  useWebSocket('like_update', (data) => {
+    console.log('WS: Received like_update', data);
+    const { post_id, comment_id, like_count } = data;
+
+    if (post_id && !comment_id) {
+      // Update Post Like Count
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          // Compare both as strings to be safe (API uses UUID strings)
+          if (String(post.id) === String(post_id)) {
+            // Only update if count is different to avoid unnecessary renders
+            if (post.likeCount !== like_count) {
+              return { ...post, likeCount: like_count };
+            }
+          }
+          return post;
+        })
+      );
+
+      // Also update if it's in the detailed view locally
+      if (selectedPost && String(selectedPost.id) === String(post_id)) {
+        if (selectedPost.likeCount !== like_count) {
+          setSelectedPost(prev => ({ ...prev, likeCount: like_count }));
+        }
+      }
+    } else if (comment_id && post_id) {
+      // Update Comment Like Count
+      setComments(prevComments => {
+        const postComments = prevComments[post_id] || [];
+
+        // Function to recursively update comment tree
+        const updateCommentInList = (list) => {
+          return list.map(comment => {
+            if (String(comment.id) === String(comment_id)) {
+              return { ...comment, likeCount: like_count };
+            }
+            if (comment.replies && comment.replies.length > 0) {
+              return { ...comment, replies: updateCommentInList(comment.replies) };
+            }
+            return comment;
+          });
+        };
+
+        const updatedPostComments = updateCommentInList(postComments);
+        // Optimization: check if anything actually changed before returning new object
+        if (JSON.stringify(updatedPostComments) !== JSON.stringify(postComments)) {
+          return { ...prevComments, [post_id]: updatedPostComments };
+        }
+        return prevComments;
+      });
+    }
+  });
+
+  useWebSocket('aura_point_update', (data) => {
+    console.log('WS: Received aura_point_update', data);
+    const { user_id, points } = data;
+
+    // Only update if it allows current user
+    if (currentUser && String(currentUser.id) === String(user_id)) {
+      setCurrentUser(prev => {
+        if (prev.auraPoints !== points) {
+          return { ...prev, auraPoints: points };
+        }
+        return prev;
+      });
+      toast.success(`Aura points updated: ${points}`, { id: 'aura-update' });
+    }
+  });
 
   return (
     <StudyGramContext.Provider value={value}>

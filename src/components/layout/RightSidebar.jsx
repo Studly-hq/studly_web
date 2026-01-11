@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Settings,
   LogOut,
   Bookmark,
   Upload,
-  Edit3,
   Flame,
   Trophy,
   Search,
@@ -47,8 +45,7 @@ const RightSidebar = () => {
 
   const shortcuts = [
     { icon: Bookmark, label: 'Saved Posts', id: 'saved', path: '/saved' },
-    { icon: Upload, label: 'Upload Notes', id: 'upload', path: '/upload' },
-    { icon: Edit3, label: 'Edit Profile', id: 'edit', path: '/profile/edit' }
+    { icon: Upload, label: 'Upload Notes', id: 'upload', path: '/upload' }
   ];
 
   const handleSearch = (e) => {
@@ -164,15 +161,7 @@ const RightSidebar = () => {
                 </div>
               </div>
             ))}
-            {/* Settings & Logout */}
-            <div
-              onClick={() => navigate('/settings')}
-              className="px-4 py-3 hover:bg-[#1d1f23] transition-colors cursor-pointer flex items-center gap-3"
-            >
-              <Settings size={18} className="text-gray-400" />
-              <span className="font-bold text-[15px]">Settings</span>
-            </div>
-
+            {/* Logout */}
             <div
               onClick={logout}
               className="px-4 py-3 hover:bg-[#1d1f23] transition-colors cursor-pointer flex items-center gap-3 text-red-500"
@@ -186,10 +175,10 @@ const RightSidebar = () => {
 
       {/* Footer */}
       <div className="px-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-        <span className="hover:underline cursor-pointer">Terms of Service</span>
-        <span className="hover:underline cursor-pointer">Privacy Policy</span>
-        <span className="hover:underline cursor-pointer">Cookie Policy</span>
-        <span className="hover:underline cursor-pointer">Accessibility</span>
+        <span onClick={() => navigate('/terms')} className="hover:underline cursor-pointer">Terms of Service</span>
+        <span onClick={() => navigate('/privacy')} className="hover:underline cursor-pointer">Privacy Policy</span>
+        <span onClick={() => navigate('/cookie-policy')} className="hover:underline cursor-pointer">Cookie Policy</span>
+        <span onClick={() => navigate('/accessibility')} className="hover:underline cursor-pointer">Accessibility</span>
         <span>© 2025 Studly, Inc.</span>
       </div>
     </motion.aside>

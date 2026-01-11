@@ -26,7 +26,6 @@ const UserProfileContent = () => {
   const {
     currentUser,
     isAuthenticated,
-    posts,
     fetchUserPosts,
     isAuthLoading,
     bookmarkedPosts,
@@ -148,7 +147,7 @@ const UserProfileContent = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-reddit-bg pt-16">
+    <div className="min-h-screen bg-reddit-bg">
       {/* Header */}
       <div className="sticky top-16 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
         <div className="max-w-2xl mx-auto px-4 py-4">
@@ -188,17 +187,17 @@ const UserProfileContent = () => {
                   <img
                     src={profileUser.avatar}
                     alt={profileUser.displayName}
-                    className="w-20 md:w-24 h-20 md:h-24 rounded-full border-3 md:border-4 border-reddit-blue object-cover"
+                    className="w-20 md:w-24 h-20 md:h-24 rounded-full border-3 md:border-4 border-reddit-orange object-cover"
                   />
                 ) : (
-                  <div className="w-20 md:w-24 h-20 md:h-24 rounded-full border-3 md:border-4 border-reddit-blue bg-reddit-cardHover flex items-center justify-center">
+                  <div className="w-20 md:w-24 h-20 md:h-24 rounded-full border-3 md:border-4 border-reddit-orange bg-reddit-cardHover flex items-center justify-center">
                     <User
                       size={32}
                       className="text-reddit-textMuted md:w-10 md:h-10"
                     />
                   </div>
                 )}
-                <div className="absolute -bottom-1 md:-bottom-2 -right-1 md:-right-2 bg-reddit-blue rounded-full p-1.5 md:p-2">
+                <div className="absolute -bottom-1 md:-bottom-2 -right-1 md:-right-2 bg-reddit-orange rounded-full p-1.5 md:p-2">
                   <Trophy size={14} className="text-white md:w-4 md:h-4" />
                 </div>
               </div>
@@ -225,7 +224,7 @@ const UserProfileContent = () => {
                   <div className="flex items-center gap-1 text-xs md:text-sm">
                     <Trophy
                       size={14}
-                      className="text-reddit-blue md:w-4 md:h-4"
+                      className="text-reddit-orange md:w-4 md:h-4"
                     />
                     <span className="text-reddit-text font-semibold">
                       {profileUser.auraPoints}
@@ -250,7 +249,7 @@ const UserProfileContent = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-3 md:px-4 py-2 bg-reddit-blue hover:bg-reddit-blue/90 text-white rounded text-sm md:text-base font-semibold flex items-center gap-2 transition-colors w-full sm:w-auto justify-center"
+                className="px-3 md:px-4 py-2 bg-reddit-orange hover:bg-reddit-orange/90 text-white rounded text-sm md:text-base font-semibold flex items-center gap-2 transition-colors w-full sm:w-auto justify-center"
               >
                 <UserPlus size={16} />
                 Follow
@@ -283,25 +282,7 @@ const UserProfileContent = () => {
             </div>
           </div>
 
-          {/* Following Stats */}
-          <div className="flex items-center gap-4 md:gap-6 pt-3 md:pt-4 border-t border-reddit-border">
-            <button className="hover:underline">
-              <span className="text-reddit-text font-bold text-sm md:text-base">
-                {profileUser.following}
-              </span>
-              <span className="text-reddit-textMuted ml-1 text-xs md:text-sm">
-                Following
-              </span>
-            </button>
-            <button className="hover:underline">
-              <span className="text-reddit-text font-bold text-sm md:text-base">
-                {profileUser.followers}
-              </span>
-              <span className="text-reddit-textMuted ml-1 text-xs md:text-sm">
-                Followers
-              </span>
-            </button>
-          </div>
+
         </motion.div>
 
         {/* Tabs */}
@@ -312,11 +293,10 @@ const UserProfileContent = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-2 md:px-4 py-2 md:py-3 rounded text-xs md:text-sm font-semibold transition-all ${
-                  activeTab === tab.id
-                    ? "bg-reddit-blue text-white"
-                    : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
-                }`}
+                className={`flex-1 px-2 md:px-4 py-2 md:py-3 rounded text-xs md:text-sm font-semibold transition-all ${activeTab === tab.id
+                  ? "bg-reddit-orange text-white"
+                  : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
+                  }`}
               >
                 {tab.label} {tab.count > 0 && `(${tab.count})`}
               </button>

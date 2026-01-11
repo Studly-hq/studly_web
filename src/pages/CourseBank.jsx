@@ -140,7 +140,7 @@ const CourseBank = () => {
   }, [activeCategory, searchQuery, allCourses, usingFallback]);
 
   return (
-    <div className="min-h-screen bg-reddit-dark text-white overflow-x-hidden">
+    <div className="min-h-screen bg-reddit-bg text-white overflow-x-hidden">
       {/* Full width, no sidebars */}
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Sticky Header */}
@@ -156,7 +156,7 @@ const CourseBank = () => {
                 <ArrowLeft className="w-5 h-5 text-white/50 group-hover:text-white" />
               </button>
               <div className="flex-1">
-                <h1 className="text-3xl font-bold tracking-tight text-white mb-1">Studly Dock</h1>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white mb-1">Studly Dock</h1>
                 <p className="text-base text-white/40 font-medium">
                   Interactive learning modules
                   {usingFallback && (

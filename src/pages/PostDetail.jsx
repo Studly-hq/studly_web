@@ -16,6 +16,8 @@ const PostDetail = () => {
     getCommentsForPost,
     addComment,
     currentUser,
+    isAuthenticated,
+    setShowAuthModal,
   } = useStudyGram();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -64,7 +66,7 @@ const PostDetail = () => {
         <p className="text-xl mb-4">{error || "Post not found"}</p>
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-reddit-blue hover:underline"
+          className="flex items-center gap-2 text-reddit-orange hover:underline"
         >
           <ArrowLeft size={20} /> Go Back
         </button>
@@ -98,28 +100,37 @@ const PostDetail = () => {
 
           {/* Comment Input */}
           <div className="p-4 bg-reddit-cardHover/10 border-b border-reddit-border">
-            <form onSubmit={handleCommentSubmit} className="flex gap-3">
-              <img
-                src={currentUser?.avatar}
-                alt={currentUser?.displayName}
-                className="w-8 h-8 rounded-full"
-              />
-              <div className="flex-1 flex gap-2">
-                <input
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="Write a comment..."
-                  className="flex-1 bg-reddit-input rounded-md px-4 py-2 outline-none text-sm"
+            {isAuthenticated ? (
+              <form onSubmit={handleCommentSubmit} className="flex gap-3">
+                <img
+                  src={currentUser?.avatar}
+                  alt={currentUser?.displayName}
+                  className="w-8 h-8 rounded-full"
                 />
-                <button
-                  type="submit"
-                  disabled={!commentText.trim()}
-                  className="bg-reddit-blue text-white px-4 py-2 rounded-md disabled:opacity-50 text-sm font-semibold"
-                >
-                  Post
-                </button>
-              </div>
-            </form>
+                <div className="flex-1 flex gap-2">
+                  <input
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="Write a comment..."
+                    className="flex-1 bg-reddit-input rounded-md px-4 py-2 outline-none text-sm"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!commentText.trim()}
+                    className="bg-reddit-orange text-white px-4 py-2 rounded-md disabled:opacity-50 text-sm font-semibold"
+                  >
+                    Post
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="w-full text-center py-3 text-reddit-textMuted hover:text-reddit-text transition-colors"
+              >
+                <span className="text-reddit-orange hover:underline">Log in</span> to add a comment
+              </button>
+            )}
           </div>
 
           {/* Comment List */}

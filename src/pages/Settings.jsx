@@ -61,7 +61,7 @@ const Settings = () => {
   const SettingSection = ({ title, icon: Icon, children }) => (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-3">
-        <Icon size={18} className="text-reddit-blue" />
+        <Icon size={18} className="text-reddit-orange" />
         <h3 className="text-sm font-semibold text-reddit-textMuted uppercase tracking-wider">
           {title}
         </h3>
@@ -199,7 +199,7 @@ const Settings = () => {
                       oldPassword: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-blue"
+                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-orange"
                   placeholder="Enter current password"
                 />
               </div>
@@ -217,7 +217,7 @@ const Settings = () => {
                       newPassword: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-blue"
+                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-orange"
                   placeholder="Enter new password"
                 />
               </div>
@@ -235,7 +235,7 @@ const Settings = () => {
                       confirmPassword: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-blue"
+                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-orange"
                   placeholder="Confirm new password"
                 />
               </div>
@@ -251,7 +251,7 @@ const Settings = () => {
                 <button
                   type="submit"
                   disabled={isChangingPassword}
-                  className="flex-1 px-4 py-2 bg-reddit-blue text-white rounded-lg hover:bg-reddit-blue/90 transition-colors font-medium disabled:opacity-50 flex justify-center items-center"
+                  className="flex-1 px-4 py-2 bg-reddit-orange text-white rounded-lg hover:bg-reddit-orange/90 transition-colors font-medium disabled:opacity-50 flex justify-center items-center"
                 >
                   {isChangingPassword ? (
                     <LoadingSpinner size={20} color="#ffffff" />
