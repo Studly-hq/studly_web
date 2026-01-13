@@ -60,7 +60,7 @@ const Feed = ({ activeTab }) => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center py-20 bg-reddit-card border border-reddit-border rounded-md"
+            className="flex flex-col items-center justify-center py-20"
           >
             <div className="w-16 h-16 bg-reddit-cardHover rounded-full flex items-center justify-center mb-4">
               <Layout size={32} className="text-reddit-textMuted opacity-50" />

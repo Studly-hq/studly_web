@@ -176,7 +176,7 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
         onClick={handleCardClick}
-        className="bg-reddit-item bg-opacity-50 hover:bg-opacity-100 rounded-lg overflow-hidden mb-4 border border-reddit-border hover:border-reddit-textMuted transition-all cursor-pointer"
+        className="border-b border-reddit-border hover:bg-white/5 transition-all cursor-pointer"
       >
         {/* Post Header */}
         <div className="flex items-center justify-between p-3">

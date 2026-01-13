@@ -20,7 +20,7 @@ const CookiePolicy = () => {
                 Back
             </button>
 
-            <div className="bg-reddit-card border border-reddit-border rounded-lg p-8">
+            <div className="">
                 <h1 className="text-3xl font-bold mb-6">Cookie Policy</h1>
 
                 <div className="space-y-6 text-gray-300">
