@@ -4,6 +4,7 @@ import { useCoursePlayer } from '../../../context/CoursePlayerContext';
 import TextScene from './TextScene';
 import QuizScene from './QuizScene';
 import MediaScene from './MediaScene';
+import VideoScene from './VideoScene';
 import { toast } from 'react-hot-toast';
 
 const ContentPlayer = ({ topic }) => {
@@ -83,6 +84,9 @@ const ContentPlayer = ({ topic }) => {
 
       case 'media':
         return <MediaScene scene={currentScene} />;
+
+      case 'video':
+        return <VideoScene scene={currentScene} />;
 
       default:
         return (

@@ -28,6 +28,14 @@ Think of HTML as the skeleton of a website. Just like how your skeleton gives yo
 Every website you visit—from social media platforms to online stores—uses HTML to organize and display content.`,
           },
           {
+            id: 'html-intro-video',
+            type: 'video',
+            videoId: 'pQN-pnXPaVg',
+            title: 'HTML Crash Course for Beginners',
+            description: 'Watch this comprehensive video to understand the basics of HTML structure and tags.',
+            points: 20
+          },
+          {
             id: 'quiz-html-1',
             type: 'quiz',
             question: 'What does HTML stand for?',

@@ -179,7 +179,7 @@ const RightSidebar = () => {
         <span onClick={() => navigate('/privacy')} className="hover:underline cursor-pointer">Privacy Policy</span>
         <span onClick={() => navigate('/cookie-policy')} className="hover:underline cursor-pointer">Cookie Policy</span>
         <span onClick={() => navigate('/accessibility')} className="hover:underline cursor-pointer">Accessibility</span>
-        <span>© 2025 Studly, Inc.</span>
+        <span>© {new Date().getFullYear()} Studly, Inc.</span>
       </div>
     </motion.aside>
   );

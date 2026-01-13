@@ -10,6 +10,7 @@ import AuthModal from "./components/modals/AuthModal";
 import CreatePostModal from "./components/modals/CreatePostModal";
 import CommentSection from "./components/comments/CommentSection";
 import { Toaster } from "sonner";
+import { Analytics } from '@vercel/analytics/react';
 
 // Pages
 import Home from "./pages/Home";
@@ -147,12 +148,15 @@ function AppContent() {
   );
 }
 
+
+
 function App() {
   return (
     <WebSocketProvider>
       <StudyGramProvider>
         <CoursePlayerProvider>
           <AppContent />
+          <Analytics />
         </CoursePlayerProvider>
       </StudyGramProvider>
     </WebSocketProvider>
