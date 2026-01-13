@@ -166,7 +166,7 @@ export const StudyGramProvider = ({ children }) => {
     setIsFeedLoading(true);
     try {
       const serverPosts = await apiGetPosts();
-      const mappedPosts = serverPosts.map(mapBackendPostToFrontend);
+      const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend);
       setPosts(mappedPosts);
     } catch (error) {
       console.error("Failed to fetch feed posts:", error);

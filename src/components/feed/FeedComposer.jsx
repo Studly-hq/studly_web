@@ -52,7 +52,7 @@ const FeedComposer = () => {
         try {
             const postData = {
                 content,
-                images: selectedImage ? [{ url: selectedImage.url }] : []
+                media: selectedImage ? [selectedImage.url] : []
             };
             await createPost(postData);
             setContent('');
