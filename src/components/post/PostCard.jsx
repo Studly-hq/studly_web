@@ -15,6 +15,7 @@ import {
   User,
   X,
   AlertTriangle,
+  Link as LinkIcon,
 } from "lucide-react";
 import { useStudyGram } from "../../context/StudyGramContext";
 import { editPost, deletePost } from "../../api/contents";
@@ -37,7 +38,20 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const [isSaving, setIsSaving] = useState(false);
   const menuRef = useRef(null);
 
-  const isLiked = currentUser && post.likes.includes(currentUser.id);
+  // Optimistic Like State
+  const [optimisticLikeState, setOptimisticLikeState] = useState(null);
+
+  // Sync state when props change
+  // Sync state when props change - REMOVED to prevent flicker
+  // The optimistic state will naturally match the props eventually, so keeping it is safe until component unmounts or ID changes.
+  useEffect(() => {
+    // If the post ID changes, we MUST reset optimistic state
+    setOptimisticLikeState(null);
+  }, [post.id]);
+
+  const isLiked = optimisticLikeState ? optimisticLikeState.isLiked : (currentUser && post.likes.includes(currentUser.id));
+  const likeCount = optimisticLikeState ? optimisticLikeState.likeCount : post.likeCount;
+
   const isBookmarked =
     currentUser && bookmarkedPosts.some((p) => p.id === post.id);
 
@@ -111,11 +125,26 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     }
     setIsSaving(true);
     try {
-      await editPost(post.id, editContent);
+      // Extract hashtags
+      const tags = (editContent.match(/#[a-zA-Z0-9_]+/g) || []).map(tag => tag.slice(1));
+
+      await editPost(post.id, editContent, tags);
       toast.success("Post updated successfully");
       setShowEditModal(false);
+      // Optimistically update
       if (onPostUpdated) {
+        // Pass tags as well if possible, or trigger reload if deep update needed
+        // Assuming updatePostInState handles generic updates or just content?
+        // updatePostInState signature: (postId, newContent) in StudyGramContext.jsx 
+        // We might need to update that to accept full object or tags.
+        // For now, reload if tags changed? Or just rely on content update.
+        // If we want tags to show up immediately in UI without refresh, we need to update local state logic too.
+        // But let's just send it first.
         onPostUpdated(post.id, editContent);
+        // Force reload to fetch new tags if context doesn't support tag updates
+        if (tags.length > 0) {
+          window.location.reload();
+        }
       } else {
         window.location.reload();
       }
@@ -172,6 +201,22 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     navigate(`/post/${post.id}`);
   };
 
+  const handleLike = async (e) => {
+    e.stopPropagation();
+    if (!currentUser) {
+      handleLikePost(post.id); // Triggers auth modal
+      return;
+    }
+
+    const newIsLiked = !isLiked;
+    const newCount = isLiked ? likeCount - 1 : likeCount + 1;
+
+    setOptimisticLikeState({ isLiked: newIsLiked, likeCount: newCount });
+
+    // Call context with explicit action
+    await handleLikePost(post.id, isLiked ? 'unlike' : 'like');
+  };
+
   const renderPostContent = () => {
     if (!post.content) return null;
 
@@ -179,7 +224,6 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     if (post.tags && post.tags.length > 0) {
       post.tags.forEach((tag) => {
         // Remove hashtag if it exists in the tags array
-        // This handles #tag, #Tag, etc. followed by space or end of line
         const regex = new RegExp(`#${tag}\\b`, "gi");
         displayContent = displayContent.replace(regex, "");
       });
@@ -188,9 +232,33 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     // Clean up extra spaces
     displayContent = displayContent.trim().replace(/\s\s+/g, " ");
 
+    // URL Regex
+    const urlRegex = /((?:https?:\/\/|www\.)[^\s]+)/g;
+    const parts = displayContent.split(urlRegex);
+
     return (
-      <p className="text-reddit-text text-sm leading-relaxed whitespace-pre-wrap">
-        {displayContent}
+      <p className="text-reddit-text text-sm leading-relaxed whitespace-pre-wrap break-words">
+        {parts.map((part, index) => {
+          if (part.match(urlRegex)) {
+            let href = part;
+            if (part.startsWith('www.')) {
+              href = `https://${part}`;
+            }
+            return (
+              <a
+                key={index}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-reddit-orange hover:underline"
+              >
+                {part}
+              </a>
+            );
+          }
+          return part;
+        })}
       </p>
     );
   };
@@ -460,7 +528,7 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                 transition={{ duration: 0.15 }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleLikePost(post.id);
+                  handleLike(e);
                 }}
                 className={`flex items-center gap-1 p-2 rounded-full ${isLiked
                   ? "text-reddit-orange"
@@ -472,7 +540,7 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                   fill={isLiked ? "currentColor" : "none"}
                   strokeWidth={2}
                 />
-                <span className="text-xs font-bold">{post.likeCount}</span>
+                <span className="text-xs font-bold">{likeCount}</span>
               </motion.button>
 
               {/* Comment Button */}

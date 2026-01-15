@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import { mockQuizzes } from "../data/quizData";
 import {
@@ -15,6 +16,7 @@ import {
 } from "../api/auth";
 import { getProfile, updateProfile } from "../api/profile";
 import { supabase } from "../utils/supabase";
+import { useWebSocketContext } from "./WebSocketContext";
 import {
   createPost as apiCreatePost,
   getPosts as apiGetPosts,
@@ -44,6 +46,7 @@ export const useStudyGram = () => {
 
 export const StudyGramProvider = ({ children }) => {
   const { reportError } = useLumelyReport();
+  const { connect, disconnect } = useWebSocketContext();
   // Auth State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -229,6 +232,29 @@ export const StudyGramProvider = ({ children }) => {
     [posts, mapBackendPostToFrontend]
   );
 
+  // Loading Bar Logic
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const loadingInterval = React.useRef(null);
+
+  const startLoading = useCallback(() => {
+    setLoadingProgress(30);
+    if (loadingInterval.current) clearInterval(loadingInterval.current);
+    loadingInterval.current = setInterval(() => {
+      setLoadingProgress((prev) => {
+        if (prev >= 90) return prev;
+        return prev + Math.random() * 10;
+      });
+    }, 500);
+  }, []);
+
+  const finishLoading = useCallback(() => {
+    if (loadingInterval.current) clearInterval(loadingInterval.current);
+    setLoadingProgress(100);
+    setTimeout(() => {
+      setLoadingProgress(0);
+    }, 500);
+  }, []);
+
   // Optimistic UI Updates
   const updatePostInState = (postId, newContent) => {
     setPosts(prevPosts => prevPosts.map(post =>
@@ -327,6 +353,14 @@ export const StudyGramProvider = ({ children }) => {
         if (data.token) localStorage.setItem("studly_token", data.token);
         if (data.refresh_token) localStorage.setItem("studly_refresh_token", data.refresh_token);
 
+        // Sync Supabase client session for WebSocket robustness
+        if (data.token && data.refresh_token) {
+          await supabase.auth.setSession({
+            access_token: data.token,
+            refresh_token: data.refresh_token
+          });
+        }
+
         const userProfile = await getProfile();
         const user = userProfile ? {
           ...userProfile,
@@ -346,7 +380,10 @@ export const StudyGramProvider = ({ children }) => {
             window.scrollTo(0, scrollPosition);
           }, 100);
         }
+
         setShowAuthModal(false);
+        // Connect WebSocket
+        if (data.token) connect(data.token);
         return data;
       } catch (error) {
         console.error("Login failed context:", error);
@@ -374,6 +411,14 @@ export const StudyGramProvider = ({ children }) => {
       if (data.token) localStorage.setItem("studly_token", data.token);
       if (data.refresh_token) localStorage.setItem("studly_refresh_token", data.refresh_token);
 
+      // Sync Supabase client session for WebSocket robustness
+      if (data.token && data.refresh_token) {
+        await supabase.auth.setSession({
+          access_token: data.token,
+          refresh_token: data.refresh_token
+        });
+      }
+
       const userProfile = await getProfile();
 
       setCurrentUser({
@@ -382,6 +427,10 @@ export const StudyGramProvider = ({ children }) => {
       });
       setIsAuthenticated(true);
       setShowAuthModal(false);
+
+      // Connect WebSocket
+      const token = localStorage.getItem("studly_token");
+      if (token) connect(token);
       return true;
     } catch (error) {
       // If error is 409 (Conflict), it means user already exists/synced, which is fine
@@ -396,6 +445,10 @@ export const StudyGramProvider = ({ children }) => {
           });
           setIsAuthenticated(true);
           setShowAuthModal(false);
+
+          // Connect WebSocket
+          const token = localStorage.getItem("studly_token");
+          if (token) connect(token);
           return true;
         } catch (profileError) {
           console.error("Failed to fetch profile after sync conflict:", profileError);
@@ -420,6 +473,7 @@ export const StudyGramProvider = ({ children }) => {
     setCurrentUser(null);
     localStorage.removeItem("studly_token");
     localStorage.removeItem("studly_refresh_token");
+    disconnect();
     await supabase.auth.signOut();
   }, []);
 
@@ -429,7 +483,9 @@ export const StudyGramProvider = ({ children }) => {
         if (!currentUser) return;
         const currentUsername = currentUser.username;
         const response = await updateProfile(currentUsername, updatedData);
-        const updatedUser = { ...currentUser, ...updatedData };
+        // Use the response which is properly mapped (avatar_url -> avatar)
+        // Merge with current user to be safe, though response should be complete
+        const updatedUser = { ...currentUser, ...response };
         setCurrentUser(updatedUser);
         return response;
       } catch (error) {
@@ -456,7 +512,7 @@ export const StudyGramProvider = ({ children }) => {
 
   // Post Functions
   const handleLikePost = useCallback(
-    async (postId, skipAuth = false) => {
+    async (postId, action = null, skipAuth = false) => {
       if (!skipAuth && !isAuthenticated) {
         setScrollPosition(window.scrollY);
         setPendingAction({ type: "like", postId });
@@ -469,25 +525,52 @@ export const StudyGramProvider = ({ children }) => {
         return prevPosts.map((post) => {
           if (post.id === postId) {
             const hasLiked = post.likes.includes(currentUser.id);
+            // If action is provided, ensure state matches action
+            // If action is NOT provided, toggle (default behavior)
+            const shouldLike = action ? action === 'like' : !hasLiked;
+
+            if (shouldLike === hasLiked) return post; // No change needed
+
             return {
               ...post,
-              likes: hasLiked
-                ? post.likes.filter((id) => id !== currentUser.id)
-                : [...post.likes, currentUser.id],
-              likeCount: hasLiked ? post.likeCount - 1 : post.likeCount + 1,
+              likes: shouldLike
+                ? [...post.likes, currentUser.id]
+                : post.likes.filter((id) => id !== currentUser.id),
+              likeCount: shouldLike ? post.likeCount + 1 : post.likeCount - 1,
             };
           }
           return post;
         });
       });
       try {
-        const currentPost = posts.find((p) => p.id === postId);
-        if (!currentPost) return;
-        const alreadyLiked = currentPost.likes.includes(currentUser.id);
-        if (alreadyLiked) {
-          await apiUnlikePost(postId);
+        let shouldLikeAction = false;
+
+        // Determine action based on explicit arg OR state lookup
+        if (action) {
+          shouldLikeAction = (action === 'like');
         } else {
+          const currentPost = posts.find((p) => p.id === postId);
+          if (currentPost) {
+            // We toggled it in optimistic update above!
+            // Wait, optimistic update runs first.
+            // But 'posts' here is from closure (dependency [posts]).
+            // So 'posts' is the OLD state.
+            const alreadyLiked = currentPost.likes.includes(currentUser.id);
+            shouldLikeAction = !alreadyLiked;
+          } else {
+            // Fallback: If not in posts, and no action provided, we can't fetch?
+            // But wait, if we are in PostDetail, we probably want to support it.
+            // So we assume 'like' if unknown? Risk of double like.
+            // Better: Pass action from component!
+            console.warn("handleLikePost called without action for external post", postId);
+            return;
+          }
+        }
+
+        if (shouldLikeAction) {
           await apiLikePost(postId);
+        } else {
+          await apiUnlikePost(postId);
         }
       } catch (error) {
         console.error("Failed to toggle like:", error);
@@ -821,6 +904,18 @@ export const StudyGramProvider = ({ children }) => {
       setShowComments,
       isMobileMenuOpen,
       setIsMobileMenuOpen,
+      isMobileMenuOpen,
+      setIsMobileMenuOpen,
+      // Loading Bar
+      loadingProgress,
+      startLoading,
+      finishLoading,
+      setLoadingProgress,
+      // State Updates
+      updatePostInState,
+      deletePostFromState,
+      updateCommentInState,
+      deleteCommentFromState,
     }),
     [
       isAuthenticated,

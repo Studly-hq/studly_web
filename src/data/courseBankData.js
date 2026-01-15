@@ -17,6 +17,14 @@ export const courseBankTopics = [
         order: 1,
         scenes: [
           {
+            id: 'html-intro-video',
+            type: 'video',
+            videoId: 'pQN-pnXPaVg',
+            title: 'HTML Crash Course for Beginners',
+            description: 'Watch this comprehensive video to understand the basics of HTML structure and tags.',
+            points: 20
+          },
+          {
             id: 'html-intro-1',
             type: 'text',
             content: `Welcome to HTML Fundamentals!
@@ -26,14 +34,6 @@ HTML stands for **HyperText Markup Language**. It's the standard language used t
 Think of HTML as the skeleton of a website. Just like how your skeleton gives your body structure, HTML gives structure to web pages.
 
 Every website you visit—from social media platforms to online stores—uses HTML to organize and display content.`,
-          },
-          {
-            id: 'html-intro-video',
-            type: 'video',
-            videoId: 'pQN-pnXPaVg',
-            title: 'HTML Crash Course for Beginners',
-            description: 'Watch this comprehensive video to understand the basics of HTML structure and tags.',
-            points: 20
           },
           {
             id: 'quiz-html-1',

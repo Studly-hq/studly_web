@@ -152,18 +152,20 @@ const PostDetail = () => {
                   </div>
                 )}
                 <div className="flex-1 flex flex-col gap-3">
-                  <textarea
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="Write a comment..."
-                    disabled={isSubmittingComment}
-                    className="w-full bg-reddit-input rounded-xl px-4 py-3 outline-none text-sm border border-reddit-border focus:border-reddit-orange/50 transition-colors resize-none min-h-[100px] disabled:opacity-50"
-                  />
+                  <div className="w-full bg-reddit-input rounded-xl border border-transparent hover:border-reddit-orange focus-within:border-reddit-orange focus-within:ring-1 focus-within:ring-reddit-orange transition-all duration-200">
+                    <textarea
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      placeholder="Write a comment..."
+                      disabled={isSubmittingComment}
+                      className="w-full bg-transparent text-reddit-text placeholder-reddit-textMuted px-4 py-3 !outline-none !border-none !ring-0 text-sm resize-none min-h-[100px] disabled:opacity-50 block"
+                    />
+                  </div>
                   <div className="flex justify-end">
                     <button
                       type="submit"
                       disabled={!commentText.trim() || isSubmittingComment}
-                      className="bg-reddit-orange hover:bg-reddit-orange/90 text-white px-6 py-2 rounded-full disabled:opacity-50 text-sm font-bold transition-all shadow-lg shadow-reddit-orange/10 flex items-center gap-2"
+                      className="bg-reddit-orange hover:bg-reddit-orange/90 text-white px-6 py-2 rounded-full disabled:opacity-50 text-sm font-bold transition-all flex items-center gap-2"
                     >
                       {isSubmittingComment && <LoadingSpinner size={14} color="#ffffff" />}
                       {isSubmittingComment ? "Posting..." : "Post Comment"}

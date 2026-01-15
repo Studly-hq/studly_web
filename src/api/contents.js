@@ -48,11 +48,13 @@ export const getPost = async (postId) => {
   }
 };
 
-export const editPost = async (postId, content) => {
+export const editPost = async (postId, content, tags) => {
   try {
-    const response = await client.put(`/studlygram/post/${postId}`, {
-      content,
-    });
+    const payload = { content };
+    if (tags) {
+      payload.tags = tags;
+    }
+    const response = await client.put(`/studlygram/post/${postId}`, payload);
     console.log("Edit Post Response:", response.data);
     return response.data;
   } catch (error) {

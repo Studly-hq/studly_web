@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
+import TopLoadingBar from "./components/common/TopLoadingBar";
+import { WebSocketProvider } from "./context/WebSocketContext";
 import ComingSoon from "./components/common/ComingSoon";
 
 import LeftSidebar from "./components/layout/LeftSidebar";
@@ -151,12 +153,15 @@ function AppContent() {
 
 function App() {
   return (
-    <StudyGramProvider>
-      <CoursePlayerProvider>
-        <AppContent />
-        <Analytics />
-      </CoursePlayerProvider>
-    </StudyGramProvider>
+    <WebSocketProvider>
+      <StudyGramProvider>
+        <CoursePlayerProvider>
+          <TopLoadingBar />
+          <AppContent />
+          <Analytics />
+        </CoursePlayerProvider>
+      </StudyGramProvider>
+    </WebSocketProvider>
   );
 }
 

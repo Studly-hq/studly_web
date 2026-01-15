@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useLumelyReport } from "lumely-react";
+import { supabase } from "../utils/supabase";
 
 const WebSocketContext = createContext();
 
@@ -29,7 +30,22 @@ export const WebSocketProvider = ({ children }) => {
     const MAX_RECONNECT_ATTEMPTS = 5;
     const BASE_RECONNECT_DELAY = 1000;
 
-    const connect = useCallback(() => {
+    const connect = useCallback(async (tokenProp) => {
+        let token = tokenProp;
+        if (!token) {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                token = session?.access_token;
+            } catch (err) {
+                console.warn("WS: Failed to get session", err);
+            }
+        }
+
+        if (!token) {
+            console.warn("WS: No token found, skipping connection");
+            return;
+        }
+
         isIntentionalDisconnect.current = false;
 
         // Use localhost:8080 as per guide
@@ -37,7 +53,7 @@ export const WebSocketProvider = ({ children }) => {
 
         console.log('Connecting to WebSocket:', wsUrl);
         // Clean up existing socket if any before connecting a new one, just in case
-        setSocket(prevSocket => {
+        setSocket((prevSocket) => {
             if (prevSocket) {
                 prevSocket.close();
             }
@@ -47,7 +63,10 @@ export const WebSocketProvider = ({ children }) => {
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
-            console.log('WebSocket Connected');
+            console.log('WebSocket Connected, sending AUTH...');
+            if (token) {
+                ws.send(JSON.stringify({ type: 'AUTH', token }));
+            }
             setIsConnected(true);
             setConnectionError(null);
             reconnectAttemptsRef.current = 0;
@@ -63,8 +82,7 @@ export const WebSocketProvider = ({ children }) => {
                     subscribersRef.current[type].forEach(callback => callback(data));
                 }
             } catch (error) {
-                console.error('Error parsing WebSocket message:', error);
-                reportError(error);
+                console.warn('WS: Non-JSON message received', event.data);
             }
         };
 
@@ -79,6 +97,12 @@ export const WebSocketProvider = ({ children }) => {
                 console.log(`Reconnecting in ${delay}ms... (Attempt ${reconnectAttemptsRef.current + 1})`);
                 reconnectTimeoutRef.current = setTimeout(() => {
                     reconnectAttemptsRef.current += 1;
+                    // Try to get fresh token if we can, otherwise use what we have (needs logic in callsite ideally)
+                    // For now, we will just reconnect. Caller should handle "auth_failed" close if possible.
+                    // But here we don't have the token stored in this scope easily unless we use a Ref or check localStorage.
+                    // The plan says: "Reconnect with fresh token on auth failure".
+                    // Best way: read from localStorage here.
+                    // Reconnect using fresh session logic inside connect()
                     connect();
                 }, delay);
             }

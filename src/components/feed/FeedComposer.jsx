@@ -10,7 +10,7 @@ import { uploadMultipleToCloudinary } from '../../utils/uploadToCloudinary';
 const MAX_IMAGES = 10;
 
 const FeedComposer = () => {
-    const { currentUser, isAuthenticated, createPost, setShowAuthModal } = useStudyGram();
+    const { currentUser, isAuthenticated, createPost, setShowAuthModal, startLoading, finishLoading } = useStudyGram();
     const [content, setContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedImages, setSelectedImages] = useState([]);
@@ -82,6 +82,7 @@ const FeedComposer = () => {
         if (!content.trim() && selectedImages.length === 0) return;
 
         setIsSubmitting(true);
+        startLoading();
         try {
             let uploadedImageUrls = [];
 
@@ -104,6 +105,7 @@ const FeedComposer = () => {
             toast.error("Failed to create post");
         } finally {
             setIsSubmitting(false);
+            finishLoading();
         }
     };
 
@@ -146,7 +148,7 @@ const FeedComposer = () => {
                         }}
                         onClick={() => !isAuthenticated && setShowAuthModal(true)}
                         placeholder="Say something..."
-                        className="w-full bg-transparent text-reddit-text placeholder-gray-500 text-[15px] resize-none outline-none min-h-[40px]"
+                        className="w-full bg-transparent text-reddit-text placeholder-gray-500 text-[15px] resize-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none min-h-[40px]"
                         rows={1}
                     />
 

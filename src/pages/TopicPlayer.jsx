@@ -31,6 +31,7 @@ const TopicPlayer = () => {
   const [topic, setTopic] = useState(null);
 
   // Load topic
+  // Load topic
   useEffect(() => {
     const foundTopic = getTopicById(topicId);
 
@@ -39,8 +40,21 @@ const TopicPlayer = () => {
       return;
     }
 
-    setTopic(foundTopic);
-    loadTopic(foundTopic);
+    // Reorder scenes: Video first rule
+    const sortedTopic = {
+      ...foundTopic,
+      sections: foundTopic.sections.map(section => ({
+        ...section,
+        scenes: [...section.scenes].sort((a, b) => {
+          if (a.type === 'video' && b.type !== 'video') return -1;
+          if (a.type !== 'video' && b.type === 'video') return 1;
+          return 0;
+        })
+      }))
+    };
+
+    setTopic(sortedTopic);
+    loadTopic(sortedTopic);
   }, [topicId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!topic || !currentTopic) {

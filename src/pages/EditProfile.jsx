@@ -170,7 +170,7 @@ const EditProfile = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-reddit-card rounded-2xl p-6 border border-reddit-border space-y-6"
+          className="space-y-6"
         >
           {/* Avatar Upload */}
           <div className="flex flex-col items-center">

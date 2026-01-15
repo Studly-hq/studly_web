@@ -149,29 +149,42 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
                         className="overflow-hidden"
                       >
                         <div className="pl-[52px] pt-4 space-y-1">
-                          {section.scenes.map((scene, sceneIndex) => {
-                            const isSceneCurrent = isCurrent && sceneIndex === currentSceneIndex;
-                            const isCompleted = isSceneCompleted(scene.id);
+                          {(() => {
+                            let lessonCount = 0;
+                            let quizCount = 0;
+                            return section.scenes.map((scene, sceneIndex) => {
+                              const isQuiz = scene.type === 'quiz';
+                              if (isQuiz) {
+                                quizCount++;
+                              } else {
+                                lessonCount++;
+                              }
 
-                            return (
-                              <button
-                                key={scene.id}
-                                onClick={() => onSceneClick(sectionIndex, sceneIndex)}
-                                className={`
-                                  w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 text-left border border-transparent
-                                  ${isSceneCurrent
-                                    ? 'bg-reddit-orange/10 text-white border-reddit-orange/20 font-medium'
-                                    : 'text-reddit-textMuted hover:text-white hover:bg-white/5'
-                                  }
-                                `}
-                              >
-                                {getSceneIcon(scene.type, isCompleted, isSceneCurrent)}
-                                <span className="truncate">
-                                  {scene.type === 'quiz' ? 'Quiz' : scene.type === 'text' ? 'Lesson' : 'Media'} {sceneIndex + 1}
-                                </span>
-                              </button>
-                            );
-                          })}
+                              const displayLabel = isQuiz ? `Quiz ${quizCount}` : `Lesson ${lessonCount}`;
+
+                              const isSceneCurrent = isCurrent && sceneIndex === currentSceneIndex;
+                              const isCompleted = isSceneCompleted(scene.id);
+
+                              return (
+                                <button
+                                  key={scene.id}
+                                  onClick={() => onSceneClick(sectionIndex, sceneIndex)}
+                                  className={`
+                                    w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 text-left border border-transparent
+                                    ${isSceneCurrent
+                                      ? 'bg-reddit-orange/10 text-white border-reddit-orange/20 font-medium'
+                                      : 'text-reddit-textMuted hover:text-white hover:bg-white/5'
+                                    }
+                                  `}
+                                >
+                                  {getSceneIcon(scene.type, isCompleted, isSceneCurrent)}
+                                  <span className="truncate">
+                                    {displayLabel}
+                                  </span>
+                                </button>
+                              );
+                            });
+                          })()}
                         </div>
                       </motion.div>
                     )}

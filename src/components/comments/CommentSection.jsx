@@ -202,7 +202,7 @@ const CommentSection = () => {
                 </div>
               )}
               <div className="flex-1 flex items-start gap-2">
-                <div className="flex-1 bg-reddit-input rounded">
+                <div className="flex-1 bg-reddit-input rounded-lg border border-transparent hover:border-reddit-orange focus-within:border-reddit-orange focus-within:ring-1 focus-within:ring-reddit-orange transition-all duration-200">
                   <textarea
                     ref={inputRef}
                     value={commentText}
@@ -213,7 +213,7 @@ const CommentSection = () => {
                         : 'Write a comment...'
                     }
                     rows={1}
-                    className="w-full bg-transparent text-reddit-text placeholder-reddit-textMuted px-4 py-3 outline-none resize-none max-h-32 overflow-y-auto "
+                    className="w-full bg-transparent text-reddit-text placeholder-reddit-textMuted px-4 py-3 !outline-none !border-none !ring-0 resize-none max-h-32 overflow-y-auto block"
                     style={{ minHeight: '44px' }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
