@@ -8,7 +8,7 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const SavedPosts = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, bookmarkedPosts, fetchBookmarks, isBookmarksLoading } = useStudyGram();
+  const { isAuthenticated, bookmarkedPosts, fetchBookmarks, isBookmarksLoading, updatePostInState, deletePostFromState } = useStudyGram();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -111,7 +111,11 @@ const SavedPosts = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.3 }}
               >
-                <PostCard post={post} />
+                <PostCard
+                  post={post}
+                  onPostUpdated={updatePostInState}
+                  onPostDeleted={deletePostFromState}
+                />
               </motion.div>
             ))}
           </div>

@@ -56,10 +56,6 @@ const AuthModal = () => {
 
         setShowAuthModal(false);
         setFormData({ name: "", email: "", password: "" });
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 700);
       } else {
         // Signup
         if (formData.password.length < 8) {
@@ -192,7 +188,7 @@ const AuthModal = () => {
                       setSignupSuccess(false);
                       setActiveTab("login");
                     }}
-                    className="w-full bg-reddit-orange text-white py-3 rounded-lg text-sm font-bold shadow-lg shadow-reddit-orange/20"
+                    className="w-full bg-reddit-orange text-white py-3 rounded-lg text-sm font-bold"
                   >
                     Continue to Log In
                   </motion.button>

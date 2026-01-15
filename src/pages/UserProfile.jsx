@@ -30,6 +30,9 @@ const UserProfileContent = () => {
     isAuthLoading,
     bookmarkedPosts,
     fetchBookmarks,
+    setShowAuthModal,
+    updatePostInState,
+    deletePostFromState,
   } = useStudyGram();
 
   const [activeTab, setActiveTab] = useState("posts");
@@ -90,8 +93,11 @@ const UserProfileContent = () => {
             setUserPosts(initialPosts);
           } else {
             setProfileUser(null);
-            // If we are not logged in and no username is provided, we might want to stay in "Not Found" or handle redirect elsewhere.
-            // For now, consistent with previous behavior.
+            // Non-authenticated user trying to view '/profile'
+            if (!isAuthenticated) {
+              setLoading(false);
+              return;
+            }
           }
         }
       } catch (err) {
@@ -104,7 +110,7 @@ const UserProfileContent = () => {
     };
 
     fetchProfile();
-  }, [username, currentUser, fetchUserPosts, isAuthLoading]);
+  }, [username, currentUser, fetchUserPosts, isAuthLoading, isAuthenticated]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -123,18 +129,57 @@ const UserProfileContent = () => {
     );
   }
 
-  if (error || !profileUser) {
+  // Handle guest state for /profile (no username)
+  if (!isAuthenticated && !username) {
     return (
-      <div className="min-h-screen bg-reddit-bg pt-20 px-4">
-        <div className="max-w-2xl mx-auto text-center py-20">
-          <h2 className="text-2xl font-bold text-reddit-text mb-2">
-            User Not Found
-          </h2>
-          <p className="text-reddit-textMuted">This user doesn't exist</p>
+      <div className="min-h-screen bg-reddit-bg flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-reddit-cardHover/5 border border-dashed border-reddit-border rounded-3xl p-12 text-center flex flex-col items-center gap-6">
+          <div className="w-20 h-20 rounded-full bg-reddit-orange/10 flex items-center justify-center">
+            <User size={40} className="text-reddit-orange" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-reddit-text mb-2">Join Studly</h2>
+            <p className="text-reddit-textMuted">Log in to view your profile and track your study journey!</p>
+          </div>
+          <button
+            onClick={() => setShowAuthModal(true)}
+            className="w-full bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-3 rounded-full transition-all shadow-lg shadow-reddit-orange/10"
+          >
+            Sign In / Sign Up
+          </button>
         </div>
       </div>
     );
   }
+
+  if (error || (!profileUser && username)) {
+    return (
+      <div className="min-h-screen bg-reddit-bg flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center py-20">
+          <h2 className="text-2xl font-bold text-reddit-text mb-2">
+            User Not Found
+          </h2>
+          <p className="text-reddit-textMuted">The user @{username} doesn't exist</p>
+          <button
+            onClick={() => navigate("/")}
+            className="mt-6 text-reddit-orange hover:underline font-medium"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const handlePostUpdated = (postId, newContent) => {
+    setUserPosts(prev => prev.map(p => String(p.id) === String(postId) ? { ...p, content: newContent } : p));
+    updatePostInState(postId, newContent);
+  };
+
+  const handlePostDeleted = (postId) => {
+    setUserPosts(prev => prev.filter(p => String(p.id) !== String(postId)));
+    deletePostFromState(postId);
+  };
 
   const tabs = [
     { id: "posts", label: "Posts", count: userPosts.length },
@@ -149,8 +194,8 @@ const UserProfileContent = () => {
   return (
     <div className="min-h-screen bg-reddit-bg">
       {/* Header */}
-      <div className="sticky top-16 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
-        <div className="max-w-2xl mx-auto px-4 py-4">
+      <div className="sticky top-0 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
+        <div className="max-w-2xl mx-auto px-4 py-3">
           <div className="flex items-center gap-4">
             <motion.button
               onClick={() => navigate(-1)}
@@ -177,7 +222,7 @@ const UserProfileContent = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-reddit-card rounded-md p-6 border border-reddit-border mb-6"
+          className="py-6 mb-6"
         >
           {/* Profile Image & Basic Info */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
@@ -245,27 +290,11 @@ const UserProfileContent = () => {
                 Edit
               </motion.button>
             )}
-            {!isOwnProfile && isAuthenticated && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-3 md:px-4 py-2 bg-reddit-orange hover:bg-reddit-orange/90 text-white rounded text-sm md:text-base font-semibold flex items-center gap-2 transition-colors w-full sm:w-auto justify-center"
-              >
-                <UserPlus size={16} />
-                Follow
-              </motion.button>
-            )}
           </div>
 
           {/* Bio */}
           {profileUser.bio && (
             <p className="text-reddit-text mb-4">{profileUser.bio}</p>
-          )}
-
-          {profileUser.email && (
-            <p className="text-sm md:text-base text-reddit-textMuted mb-2">
-              {profileUser.email}
-            </p>
           )}
 
           {/* Meta Info */}
@@ -309,7 +338,7 @@ const UserProfileContent = () => {
           {activeTab === "posts" && (
             <>
               {userPosts.length === 0 ? (
-                <div className="text-center py-20 bg-reddit-card rounded-md border border-reddit-border">
+                <div className="flex flex-col items-center justify-center py-20">
                   <BookOpen
                     size={48}
                     className="text-reddit-textMuted mx-auto mb-4 opacity-50"
@@ -331,7 +360,11 @@ const UserProfileContent = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <PostCard post={post} />
+                    <PostCard
+                      post={post}
+                      onPostUpdated={handlePostUpdated}
+                      onPostDeleted={handlePostDeleted}
+                    />
                   </motion.div>
                 ))
               )}
@@ -341,7 +374,7 @@ const UserProfileContent = () => {
           {activeTab === "saved" && isOwnProfile && (
             <>
               {savedPosts.length === 0 ? (
-                <div className="text-center py-20 bg-reddit-card rounded-md border border-reddit-border">
+                <div className="flex flex-col items-center justify-center py-20">
                   <BookOpen
                     size={48}
                     className="text-reddit-textMuted mx-auto mb-4 opacity-50"
@@ -362,7 +395,11 @@ const UserProfileContent = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <PostCard post={post} />
+                      <PostCard
+                        post={post}
+                        onPostUpdated={handlePostUpdated}
+                        onPostDeleted={handlePostDeleted}
+                      />
                     </motion.div>
                   ))}
                 </div>

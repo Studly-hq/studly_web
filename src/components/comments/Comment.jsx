@@ -105,12 +105,12 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
       setShowDeleteModal(false);
       if (onCommentDeleted) {
         onCommentDeleted(comment.id);
+      } else {
+        window.location.reload();
       }
-      // Reload the page to refresh comments
-      window.location.reload();
     } catch (error) {
       console.error("Failed to delete comment:", error);
-      toast.error("Failed to delete comment. Please try again.");
+      toast.error(error.response?.data?.error || "Failed to delete comment. Please try again.");
     } finally {
       setIsDeleting(false);
     }
@@ -123,17 +123,17 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
     }
     setIsSaving(true);
     try {
-      await editComment(comment.id, editContent);
+      await editComment(comment.id, editContent, comment.userId, postId);
       toast.success("Comment updated successfully");
       setShowEditModal(false);
       if (onCommentUpdated) {
         onCommentUpdated(comment.id, editContent);
+      } else {
+        window.location.reload();
       }
-      // Reload the page to refresh comments
-      window.location.reload();
     } catch (error) {
       console.error("Failed to update comment:", error);
-      toast.error("Failed to update comment. Please try again.");
+      toast.error(error.response?.data?.error || "Failed to update comment. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -158,7 +158,10 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
     }
   };
 
-  const isOwnComment = currentUser && comment.userId === currentUser.id;
+  const isOwnComment = currentUser && (
+    (currentUser.id && String(comment.userId) === String(currentUser.id)) ||
+    (currentUser.username && comment.user?.username === currentUser.username)
+  );
 
   return (
     <>
@@ -181,26 +184,26 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
 
           {/* Comment Content */}
           <div className="flex-1 min-w-0">
-            <div className="bg-reddit-cardHover rounded px-3 py-2">
+            <div className="group/content relative">
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   <span
                     onClick={() => navigate(`/profile/${comment.userId}`)}
-                    className="text-reddit-text font-semibold text-sm hover:text-reddit-orange cursor-pointer transition-colors duration-200"
+                    className="text-reddit-text font-bold text-sm hover:text-reddit-orange cursor-pointer transition-colors"
                   >
                     {commentUser?.username}
                   </span>
-                  <span className="text-reddit-textMuted text-xs">
+                  <span className="text-reddit-textMuted text-[10px]">
                     {formatTimestamp(comment.timestamp)}
                   </span>
                 </div>
                 <div className="relative" ref={menuRef}>
                   <motion.button
-                    whileHover={{ rotate: 90 }}
+                    whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.05)" }}
                     whileTap={{ scale: 0.9 }}
                     transition={{ duration: 0.2 }}
                     onClick={() => setShowMenu(!showMenu)}
-                    className="text-reddit-textMuted hover:text-reddit-text transition-colors duration-200"
+                    className="p-1 rounded-full text-reddit-textMuted hover:text-reddit-text transition-colors"
                   >
                     <MoreHorizontal size={14} />
                   </motion.button>

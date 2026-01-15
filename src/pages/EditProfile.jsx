@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Camera, Save } from "lucide-react";
+import { ArrowLeft, Camera, Save, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useStudyGram } from "../context/StudyGramContext";
 import { toast } from "sonner";
@@ -175,11 +175,17 @@ const EditProfile = () => {
           {/* Avatar Upload */}
           <div className="flex flex-col items-center">
             <div className="relative mb-4">
-              <img
-                src={formData.avatar || "https://i.pravatar.cc/150?u=default"}
-                alt="Profile"
-                className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-orange object-cover"
-              />
+              {formData.avatar ? (
+                <img
+                  src={formData.avatar}
+                  alt="Profile"
+                  className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-orange object-cover"
+                />
+              ) : (
+                <div className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-orange bg-reddit-cardHover flex items-center justify-center">
+                  <User size={48} className="text-reddit-textMuted" />
+                </div>
+              )}
               <motion.button
                 onClick={() => document.getElementById("avatarUpload").click()}
                 whileHover={{ scale: 1.1 }}

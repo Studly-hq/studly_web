@@ -6,7 +6,6 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { mockUsers, mockComments, getUserById } from "../data/studygramData";
 import { mockQuizzes } from "../data/quizData";
 import {
   signup as apiSignup,
@@ -30,8 +29,8 @@ import {
   getBookmarks as apiGetBookmarks,
 } from "../api/contents";
 import { toast } from "sonner";
-import { useWebSocket } from "../hooks/useWebSocket";
-import { useWebSocketContext } from "./WebSocketContext";
+
+import { useLumelyReport } from "lumely-react";
 
 const StudyGramContext = createContext();
 
@@ -44,6 +43,7 @@ export const useStudyGram = () => {
 };
 
 export const StudyGramProvider = ({ children }) => {
+  const { reportError } = useLumelyReport();
   // Auth State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -54,7 +54,7 @@ export const StudyGramProvider = ({ children }) => {
   const [isFeedLoading, setIsFeedLoading] = useState(true);
   const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
   const [isBookmarksLoading, setIsBookmarksLoading] = useState(false);
-  const [comments, setComments] = useState(mockComments);
+  const [comments, setComments] = useState({});
 
   // Quiz State
   const [quizzes, setQuizzes] = useState(mockQuizzes);
@@ -82,15 +82,16 @@ export const StudyGramProvider = ({ children }) => {
             const userProfile = await getProfile();
             if (userProfile) {
               setIsAuthenticated(true);
-              setIsAuthenticated(true);
+
               setCurrentUser({
                 ...userProfile,
-                avatar: userProfile.avatar || `https://i.pravatar.cc/150?u=${userProfile.id}`
+                avatar: userProfile.avatar || null
               });
               return;
             }
           } catch (err) {
             console.log("Session validation failed:", err.message);
+            reportError(err);
             // If token is invalid, clear it
             localStorage.removeItem("studly_token");
             localStorage.removeItem("studly_refresh_token");
@@ -120,8 +121,7 @@ export const StudyGramProvider = ({ children }) => {
           post.creator_username ||
           `User ${post.creator_id}`,
         avatar:
-          post.creator_avatar ||
-          `https://i.pravatar.cc/150?u=${post.creator_id}`,
+          post.creator_avatar || null,
       };
 
       let timestamp = new Date().toISOString();
@@ -170,6 +170,13 @@ export const StudyGramProvider = ({ children }) => {
       setPosts(mappedPosts);
     } catch (error) {
       console.error("Failed to fetch feed posts:", error);
+      reportError(error);
+
+      // Check for specific "User record not found" error which implies invalid auth state
+      if (error.response?.status === 401 && error.response?.data?.error === "User record not found") {
+        console.warn("User record missing on backend. Logging out.");
+        logout();
+      }
     } finally {
       setIsFeedLoading(false);
     }
@@ -182,6 +189,7 @@ export const StudyGramProvider = ({ children }) => {
         return serverPosts.map(mapBackendPostToFrontend);
       } catch (error) {
         console.error("Failed to fetch user posts:", error);
+        reportError(error);
         return [];
       }
     },
@@ -214,11 +222,80 @@ export const StudyGramProvider = ({ children }) => {
         return null;
       } catch (error) {
         console.error("Failed to fetch post:", error);
+        reportError(error);
         return null;
       }
     },
     [posts, mapBackendPostToFrontend]
   );
+
+  // Optimistic UI Updates
+  const updatePostInState = (postId, newContent) => {
+    setPosts(prevPosts => prevPosts.map(post =>
+      String(post.id) === String(postId)
+        ? { ...post, content: newContent }
+        : post
+    ));
+    // Also update selectedPost if it matches
+    if (selectedPost && String(selectedPost.id) === String(postId)) {
+      setSelectedPost(prev => ({ ...prev, content: newContent }));
+    }
+    setBookmarkedPosts(prev => prev.map(p => String(p.id) === String(postId) ? { ...p, content: newContent } : p));
+  };
+
+  const deletePostFromState = (postId) => {
+    setPosts(prevPosts => prevPosts.filter(post => String(post.id) !== String(postId)));
+    if (selectedPost && String(selectedPost.id) === String(postId)) {
+      setSelectedPost(null);
+    }
+    setBookmarkedPosts(prev => prev.filter(p => String(p.id) !== String(postId)));
+  };
+
+  const updateCommentInState = (postId, commentId, newContent) => {
+    setComments(prevComments => {
+      const postComments = prevComments[postId];
+      if (!postComments) return prevComments;
+
+      const updateInTree = (list) => {
+        return list.map(comment => {
+          if (String(comment.id) === String(commentId)) {
+            return { ...comment, content: newContent };
+          }
+          if (comment.replies && comment.replies.length > 0) {
+            return { ...comment, replies: updateInTree(comment.replies) };
+          }
+          return comment;
+        });
+      };
+
+      return {
+        ...prevComments,
+        [postId]: updateInTree(postComments)
+      };
+    });
+  };
+
+  const deleteCommentFromState = (postId, commentId) => {
+    setComments(prevComments => {
+      const postComments = prevComments[postId];
+      if (!postComments) return prevComments;
+
+      const deleteFromTree = (list) => {
+        return list.filter(comment => String(comment.id) !== String(commentId))
+          .map(comment => {
+            if (comment.replies && comment.replies.length > 0) {
+              return { ...comment, replies: deleteFromTree(comment.replies) };
+            }
+            return comment;
+          });
+      };
+
+      return {
+        ...prevComments,
+        [postId]: deleteFromTree(postComments)
+      };
+    });
+  };
 
   const fetchBookmarks = useCallback(async () => {
     setIsBookmarksLoading(true);
@@ -228,6 +305,7 @@ export const StudyGramProvider = ({ children }) => {
       setBookmarkedPosts(mappedBookmarks);
     } catch (error) {
       console.error("Failed to fetch bookmarks:", error);
+      reportError(error);
     } finally {
       setIsBookmarksLoading(false);
     }
@@ -252,12 +330,11 @@ export const StudyGramProvider = ({ children }) => {
         const userProfile = await getProfile();
         const user = userProfile ? {
           ...userProfile,
-          avatar: userProfile.avatar || `https://i.pravatar.cc/150?u=${userProfile.id}`
+          avatar: userProfile.avatar || null
         } : {
-          ...mockUsers.currentUser,
           ...data.user,
           email: email,
-          avatar: data.user?.avatar || `https://i.pravatar.cc/150?u=${data.user?.id || 'default'}`
+          avatar: data.user?.avatar || null
         };
         setCurrentUser(user);
         setIsAuthenticated(true);
@@ -273,6 +350,7 @@ export const StudyGramProvider = ({ children }) => {
         return data;
       } catch (error) {
         console.error("Login failed context:", error);
+        reportError(error);
         throw error;
       }
     },
@@ -285,6 +363,7 @@ export const StudyGramProvider = ({ children }) => {
       return data;
     } catch (error) {
       console.error("Signup failed:", error);
+      reportError(error);
       throw error;
     }
   }, []);
@@ -299,13 +378,33 @@ export const StudyGramProvider = ({ children }) => {
 
       setCurrentUser({
         ...userProfile,
-        avatar: userProfile.avatar || `https://i.pravatar.cc/150?u=${userProfile.id}`
+        avatar: userProfile.avatar || null
       });
       setIsAuthenticated(true);
       setShowAuthModal(false);
       return true;
     } catch (error) {
+      // If error is 409 (Conflict), it means user already exists/synced, which is fine
+      if (error.response?.status === 409) {
+        console.log("User already exists (sync conflict), proceeding as successful.");
+        // We still need to set the user profile locally
+        try {
+          const userProfile = await getProfile();
+          setCurrentUser({
+            ...userProfile,
+            avatar: userProfile.avatar || null
+          });
+          setIsAuthenticated(true);
+          setShowAuthModal(false);
+          return true;
+        } catch (profileError) {
+          console.error("Failed to fetch profile after sync conflict:", profileError);
+          return false;
+        }
+      }
+
       console.error("Sync failed:", error);
+      reportError(error);
       return false;
     }
   }, []);
@@ -315,6 +414,7 @@ export const StudyGramProvider = ({ children }) => {
       await apiLogout();
     } catch (error) {
       console.error("Logout failed on server:", error);
+      reportError(error);
     }
     setIsAuthenticated(false);
     setCurrentUser(null);
@@ -334,6 +434,7 @@ export const StudyGramProvider = ({ children }) => {
         return response;
       } catch (error) {
         console.error("Update user failed:", error);
+        reportError(error);
         throw error;
       }
     },
@@ -390,6 +491,7 @@ export const StudyGramProvider = ({ children }) => {
         }
       } catch (error) {
         console.error("Failed to toggle like:", error);
+        reportError(error);
         setPosts(previousPosts);
         toast.error("Failed to update like.");
       }
@@ -451,6 +553,7 @@ export const StudyGramProvider = ({ children }) => {
         }
       } catch (error) {
         console.error("Failed to toggle bookmark:", error);
+        reportError(error);
         setPosts(previousPosts);
         setBookmarkedPosts(previousBookmarks);
         toast.error("Failed to update bookmark.");
@@ -472,13 +575,14 @@ export const StudyGramProvider = ({ children }) => {
           id: c.commenter_user_id,
           username: c.commenter_username,
           name: c.commenter_name,
-          avatar: c.commenter_avatar || `https://i.pravatar.cc/150?u=${c.commenter_user_id}`,
+          avatar: c.commenter_avatar || null,
         },
         replies: [],
       }));
       setComments((prev) => ({ ...prev, [postId]: formattedComments }));
     } catch (error) {
       console.error("Failed to fetch comments", error);
+      reportError(error);
     }
   }, []);
 
@@ -513,6 +617,7 @@ export const StudyGramProvider = ({ children }) => {
         return response;
       } catch (error) {
         console.error("Failed to create post:", error);
+        reportError(error);
         throw error;
       }
     },
@@ -591,6 +696,7 @@ export const StudyGramProvider = ({ children }) => {
         return true;
       } catch (error) {
         console.error("Failed to add comment:", error);
+        reportError(error);
         toast.error("Failed to post comment.");
         return false;
       }
@@ -658,7 +764,7 @@ export const StudyGramProvider = ({ children }) => {
       posts
         .map((post) => ({
           ...post,
-          user: getUserById(post.userId) || post.user,
+          user: post.user,
         }))
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)),
     [posts]
@@ -743,6 +849,10 @@ export const StudyGramProvider = ({ children }) => {
       fetchCommentsForPost,
       handleLikeComment,
       getCommentsForPostSelector,
+      updatePostInState,
+      deletePostFromState,
+      updateCommentInState,
+      deleteCommentFromState,
       quizzes,
       handleLikeQuiz,
       handleSaveQuiz,
@@ -753,88 +863,6 @@ export const StudyGramProvider = ({ children }) => {
       isMobileMenuOpen,
     ]
   );
-
-  const { connect, disconnect } = useWebSocketContext();
-
-  // Manage WebSocket connection based on auth state
-  useEffect(() => {
-    if (isAuthenticated) {
-      connect();
-    } else {
-      disconnect();
-    }
-  }, [isAuthenticated, connect, disconnect]);
-
-
-  // WebSocket Event Listeners
-  useWebSocket('like_update', (data) => {
-    console.log('WS: Received like_update', data);
-    const { post_id, comment_id, like_count } = data;
-
-    if (post_id && !comment_id) {
-      // Update Post Like Count
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => {
-          // Compare both as strings to be safe (API uses UUID strings)
-          if (String(post.id) === String(post_id)) {
-            // Only update if count is different to avoid unnecessary renders
-            if (post.likeCount !== like_count) {
-              return { ...post, likeCount: like_count };
-            }
-          }
-          return post;
-        })
-      );
-
-      // Also update if it's in the detailed view locally
-      if (selectedPost && String(selectedPost.id) === String(post_id)) {
-        if (selectedPost.likeCount !== like_count) {
-          setSelectedPost(prev => ({ ...prev, likeCount: like_count }));
-        }
-      }
-    } else if (comment_id && post_id) {
-      // Update Comment Like Count
-      setComments(prevComments => {
-        const postComments = prevComments[post_id] || [];
-
-        // Function to recursively update comment tree
-        const updateCommentInList = (list) => {
-          return list.map(comment => {
-            if (String(comment.id) === String(comment_id)) {
-              return { ...comment, likeCount: like_count };
-            }
-            if (comment.replies && comment.replies.length > 0) {
-              return { ...comment, replies: updateCommentInList(comment.replies) };
-            }
-            return comment;
-          });
-        };
-
-        const updatedPostComments = updateCommentInList(postComments);
-        // Optimization: check if anything actually changed before returning new object
-        if (JSON.stringify(updatedPostComments) !== JSON.stringify(postComments)) {
-          return { ...prevComments, [post_id]: updatedPostComments };
-        }
-        return prevComments;
-      });
-    }
-  });
-
-  useWebSocket('aura_point_update', (data) => {
-    console.log('WS: Received aura_point_update', data);
-    const { user_id, points } = data;
-
-    // Only update if it allows current user
-    if (currentUser && String(currentUser.id) === String(user_id)) {
-      setCurrentUser(prev => {
-        if (prev.auraPoints !== points) {
-          return { ...prev, auraPoints: points };
-        }
-        return prev;
-      });
-      toast.success(`Aura points updated: ${points}`, { id: 'aura-update' });
-    }
-  });
 
   return (
     <StudyGramContext.Provider value={value}>

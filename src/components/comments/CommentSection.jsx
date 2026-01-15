@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, MessageSquare, User } from 'lucide-react';
 import { useStudyGram } from '../../context/StudyGramContext';
-import { getUserById } from '../../data/studygramData';
 import Comment from './Comment';
 
 const CommentSection = () => {
@@ -12,7 +11,9 @@ const CommentSection = () => {
     getCommentsForPost,
     addComment,
     posts,
-    currentUser
+    currentUser,
+    updateCommentInState,
+    deleteCommentFromState,
   } = useStudyGram();
 
   const [commentText, setCommentText] = useState('');
@@ -136,6 +137,8 @@ const CommentSection = () => {
                     comment={comment}
                     postId={showComments}
                     onReply={handleReply}
+                    onCommentUpdated={(commentId, content) => updateCommentInState(showComments, commentId, content)}
+                    onCommentDeleted={(commentId) => deleteCommentFromState(showComments, commentId)}
                   />
                 ))}
                 <div ref={commentsEndRef} />
@@ -170,7 +173,7 @@ const CommentSection = () => {
                 <span className="text-reddit-textMuted">
                   Replying to{' '}
                   <span className="text-reddit-orange font-semibold">
-                    {getUserById(replyingTo.userId)?.displayName}
+                    {replyingTo.user?.name || replyingTo.user?.displayName || 'User'}
                   </span>
                 </span>
                 <motion.button

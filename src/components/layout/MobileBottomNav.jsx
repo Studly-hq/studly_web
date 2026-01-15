@@ -27,10 +27,10 @@ const MobileBottomNav = () => {
     <motion.nav
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="xl:hidden fixed bottom-0 left-0 right-0 z-40 bg-reddit-card/95 backdrop-blur-xl border-t border-reddit-border"
+      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+      className="xl:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0a0a0a]/95 backdrop-blur-2xl border-t border-white/5"
     >
-      <div className="flex items-center justify-around px-2 py-2 safe-area-inset-bottom">
+      <div className="flex items-center justify-around px-2 py-1 safe-area-inset-bottom">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;
@@ -40,18 +40,16 @@ const MobileBottomNav = () => {
               key={item.id}
               onClick={() => handleNavClick(item)}
               whileTap={{ scale: 0.9 }}
-              className="flex flex-col items-center gap-1 px-4 py-1 relative"
+              className="flex flex-col items-center gap-0.5 px-4 py-1.5 relative"
             >
-
-
               {/* Icon */}
-              <div className={`transition-colors duration-200 ${isActive ? 'text-reddit-text' : 'text-reddit-textMuted'
+              <div className={`transition-colors duration-200 ${isActive ? 'text-white' : 'text-white/40'
                 }`}>
-                <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                <Icon size={22} strokeWidth={isActive ? 2.5 : 1.5} />
               </div>
 
               {/* Label */}
-              <span className={`text-xs font-medium transition-colors duration-200 ${isActive ? 'text-reddit-text' : 'text-reddit-textMuted'
+              <span className={`text-[10px] tracking-wide transition-all duration-200 ${isActive ? 'text-white font-bold' : 'text-white/40 font-medium'
                 }`}>
                 {item.label}
               </span>

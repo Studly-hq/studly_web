@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useLumelyReport } from "lumely-react";
 
 const CoursePlayerContext = createContext();
 
@@ -11,6 +12,7 @@ export const useCoursePlayer = () => {
 };
 
 export const CoursePlayerProvider = ({ children }) => {
+  const { reportError } = useLumelyReport();
   // Player state machine
   const [playerState, setPlayerState] = useState('idle'); // idle, typing, paused, awaiting_input, validating, showing_feedback, transitioning, completed
 
@@ -226,6 +228,7 @@ export const CoursePlayerProvider = ({ children }) => {
       setEventQueue([]);
     } catch (error) {
       console.error('Failed to sync events:', error);
+      reportError(error);
     }
   }, [eventQueue]);
 

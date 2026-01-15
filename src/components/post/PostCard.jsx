@@ -93,12 +93,12 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
       setShowDeleteModal(false);
       if (onPostDeleted) {
         onPostDeleted(post.id);
+      } else {
+        window.location.reload();
       }
-      // Reload the page to refresh the feed
-      window.location.reload();
     } catch (error) {
       console.error("Failed to delete post:", error);
-      toast.error("Failed to delete post. Please try again.");
+      toast.error(error.response?.data?.error || "Failed to delete post. Please try again.");
     } finally {
       setIsDeleting(false);
     }
@@ -116,12 +116,12 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
       setShowEditModal(false);
       if (onPostUpdated) {
         onPostUpdated(post.id, editContent);
+      } else {
+        window.location.reload();
       }
-      // Reload the page to refresh the feed
-      window.location.reload();
     } catch (error) {
       console.error("Failed to update post:", error);
-      toast.error("Failed to update post. Please try again.");
+      toast.error(error.response?.data?.error || "Failed to update post. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -160,13 +160,39 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     }
   };
 
-  const isOwnPost = currentUser && post.userId === currentUser.id;
+  const isOwnPost = currentUser && (
+    (currentUser.id && String(post.userId) === String(currentUser.id)) ||
+    (currentUser.username && post.user?.username === currentUser.username)
+  );
 
   const handleCardClick = (e) => {
     // Don't navigate if text is selected
     if (window.getSelection().toString().length > 0) return;
 
     navigate(`/post/${post.id}`);
+  };
+
+  const renderPostContent = () => {
+    if (!post.content) return null;
+
+    let displayContent = post.content;
+    if (post.tags && post.tags.length > 0) {
+      post.tags.forEach((tag) => {
+        // Remove hashtag if it exists in the tags array
+        // This handles #tag, #Tag, etc. followed by space or end of line
+        const regex = new RegExp(`#${tag}\\b`, "gi");
+        displayContent = displayContent.replace(regex, "");
+      });
+    }
+
+    // Clean up extra spaces
+    displayContent = displayContent.trim().replace(/\s\s+/g, " ");
+
+    return (
+      <p className="text-reddit-text text-sm leading-relaxed whitespace-pre-wrap">
+        {displayContent}
+      </p>
+    );
   };
 
   return (
@@ -322,26 +348,24 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
         {/* Post Content */}
         <div className="px-3 pb-2">
-          <p className="text-reddit-text text-sm leading-relaxed whitespace-pre-wrap">
-            {post.content}
-          </p>
+          {renderPostContent()}
         </div>
 
         {/* Post Images */}
         {post.type !== "text" && post.images && post.images.length > 0 && (
-          <div className="relative bg-black group">
+          <div className="relative bg-black group flex items-center justify-center overflow-hidden">
             {/* Image Container */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: imageLoaded ? 1 : 0 }}
               transition={{ duration: 0.3 }}
-              className="relative aspect-[4/3] overflow-hidden"
+              className="relative w-full max-h-[600px] flex items-center justify-center"
             >
               <img
                 src={post.images[currentImageIndex].url}
                 alt={post.images[currentImageIndex].alt}
                 onLoad={() => setImageLoaded(true)}
-                className="w-full h-full object-cover"
+                className="max-w-full max-h-[600px] object-contain"
               />
             </motion.div>
 

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import { useLumelyReport } from "lumely-react";
 
 const WebSocketContext = createContext();
 
@@ -11,6 +12,7 @@ export const useWebSocketContext = () => {
 };
 
 export const WebSocketProvider = ({ children }) => {
+    const { reportError } = useLumelyReport();
     const [socket, setSocket] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [connectionError, setConnectionError] = useState(null);
@@ -31,7 +33,7 @@ export const WebSocketProvider = ({ children }) => {
         isIntentionalDisconnect.current = false;
 
         // Use localhost:8080 as per guide
-        const wsUrl = 'wss://unesthetic-cretaceously-maris.ngrok-free.dev/ws';
+        const wsUrl = 'wss://studly-server-production.up.railway.app/ws';
 
         console.log('Connecting to WebSocket:', wsUrl);
         // Clean up existing socket if any before connecting a new one, just in case
@@ -62,6 +64,7 @@ export const WebSocketProvider = ({ children }) => {
                 }
             } catch (error) {
                 console.error('Error parsing WebSocket message:', error);
+                reportError(error);
             }
         };
 
@@ -83,6 +86,7 @@ export const WebSocketProvider = ({ children }) => {
 
         ws.onerror = (error) => {
             console.error('WebSocket Error:', error);
+            reportError(error);
             setConnectionError(error);
         };
 

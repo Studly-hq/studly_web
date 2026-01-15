@@ -106,9 +106,6 @@ const RightSidebar = () => {
           >
             Create account
           </button>
-          <p className="text-xs text-gray-500 mt-4">
-            By signing up, you agree to the Terms of Service and Privacy Policy, including Cookie Use.
-          </p>
         </div>
       )}
 

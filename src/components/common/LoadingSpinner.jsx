@@ -2,21 +2,61 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const LoadingSpinner = ({ size = 40, color = "#FF4500" }) => {
+    // Calculate dot size relative to container size
+    const dotSize = size * 0.25;
+
+    const dotTransition = {
+        duration: 0.5,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut"
+    };
+
     return (
-        <div className="flex items-center justify-center">
+        <div
+            className="flex items-center justify-center gap-1.5"
+            style={{ width: size, height: size }}
+        >
             <motion.div
                 style={{
-                    width: size,
-                    height: size,
-                    border: `3px solid ${color}30`,
-                    borderTop: `3px solid ${color}`,
+                    width: dotSize,
+                    height: dotSize,
+                    backgroundColor: color,
                     borderRadius: "50%",
                 }}
-                animate={{ rotate: 360 }}
+                animate={{
+                    y: [0, -dotSize]
+                }}
+                transition={dotTransition}
+            />
+            <motion.div
+                style={{
+                    width: dotSize,
+                    height: dotSize,
+                    backgroundColor: color,
+                    borderRadius: "50%",
+                }}
+                animate={{
+                    y: [0, -dotSize]
+                }}
                 transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    ease: "linear",
+                    ...dotTransition,
+                    delay: 0.1
+                }}
+            />
+            <motion.div
+                style={{
+                    width: dotSize,
+                    height: dotSize,
+                    backgroundColor: color,
+                    borderRadius: "50%",
+                }}
+                animate={{
+                    y: [0, -dotSize]
+                }}
+                transition={{
+                    ...dotTransition,
+                    delay: 0.2
                 }}
             />
         </div>

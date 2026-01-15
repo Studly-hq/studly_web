@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, MessageSquare } from "lucide-react";
+import { ArrowLeft, MessageSquare, User } from "lucide-react";
 import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
 import Comment from "../components/comments/Comment";
@@ -18,6 +18,10 @@ const PostDetail = () => {
     currentUser,
     isAuthenticated,
     setShowAuthModal,
+    updatePostInState,
+    deletePostFromState,
+    updateCommentInState,
+    deleteCommentFromState,
   } = useStudyGram();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,6 +29,7 @@ const PostDetail = () => {
 
   // Comment State
   const [commentText, setCommentText] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const comments = getCommentsForPost(postId);
 
   useEffect(() => {
@@ -45,11 +50,28 @@ const PostDetail = () => {
     }
   }, [postId, fetchPostById, fetchCommentsForPost]);
 
-  const handleCommentSubmit = (e) => {
+  // Sync local post state with global posts state (for real-time like updates)
+  const { posts } = useStudyGram();
+  useEffect(() => {
+    if (post && posts.length > 0) {
+      const updatedPost = posts.find(p => String(p.id) === String(postId));
+      if (updatedPost && (updatedPost.likeCount !== post.likeCount || updatedPost.likes.length !== post.likes.length)) {
+        setPost(prev => ({ ...prev, likeCount: updatedPost.likeCount, likes: updatedPost.likes }));
+      }
+    }
+  }, [posts, postId, post]);
+
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!commentText.trim()) return;
-    addComment(postId, commentText);
-    setCommentText("");
+    if (!commentText.trim() || isSubmittingComment) return;
+
+    setIsSubmittingComment(true);
+    try {
+      await addComment(postId, commentText);
+      setCommentText("");
+    } finally {
+      setIsSubmittingComment(false);
+    }
   };
 
   if (loading) {
@@ -89,62 +111,101 @@ const PostDetail = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <PostCard post={post} />
+          <PostCard
+            post={post}
+            onPostUpdated={(postId, newContent) => {
+              setPost(prev => ({ ...prev, content: newContent }));
+              updatePostInState(postId, newContent);
+            }}
+            onPostDeleted={() => {
+              deletePostFromState(postId);
+              navigate(-1);
+            }}
+          />
         </motion.div>
 
         {/* Embedded Comment Section */}
-        <div className="bg-reddit-card border border-reddit-border rounded-lg mt-4 overflow-hidden">
-          <div className="p-4 border-b border-reddit-border">
-            <h3 className="font-bold text-lg">Comments</h3>
+        <div className="mt-8">
+          <div className="pb-4 border-b border-reddit-border/50 mb-6">
+            <h3 className="font-bold text-xl flex items-center gap-2">
+              <MessageSquare size={20} className="text-reddit-orange" />
+              Comments
+              <span className="text-sm font-normal text-reddit-textMuted ml-1">
+                ({comments.length})
+              </span>
+            </h3>
           </div>
 
           {/* Comment Input */}
-          <div className="p-4 bg-reddit-cardHover/10 border-b border-reddit-border">
+          <div className="mb-8">
             {isAuthenticated ? (
-              <form onSubmit={handleCommentSubmit} className="flex gap-3">
-                <img
-                  src={currentUser?.avatar}
-                  alt={currentUser?.displayName}
-                  className="w-8 h-8 rounded-full"
-                />
-                <div className="flex-1 flex gap-2">
-                  <input
+              <form onSubmit={handleCommentSubmit} className="flex gap-4">
+                {currentUser?.avatar ? (
+                  <img
+                    src={currentUser.avatar}
+                    alt={currentUser?.displayName}
+                    className="w-10 h-10 rounded-full border border-reddit-border object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-reddit-cardHover flex items-center justify-center border border-reddit-border">
+                    <User size={20} className="text-reddit-textMuted" />
+                  </div>
+                )}
+                <div className="flex-1 flex flex-col gap-3">
+                  <textarea
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder="Write a comment..."
-                    className="flex-1 bg-reddit-input rounded-md px-4 py-2 outline-none text-sm"
+                    disabled={isSubmittingComment}
+                    className="w-full bg-reddit-input rounded-xl px-4 py-3 outline-none text-sm border border-reddit-border focus:border-reddit-orange/50 transition-colors resize-none min-h-[100px] disabled:opacity-50"
                   />
-                  <button
-                    type="submit"
-                    disabled={!commentText.trim()}
-                    className="bg-reddit-orange text-white px-4 py-2 rounded-md disabled:opacity-50 text-sm font-semibold"
-                  >
-                    Post
-                  </button>
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={!commentText.trim() || isSubmittingComment}
+                      className="bg-reddit-orange hover:bg-reddit-orange/90 text-white px-6 py-2 rounded-full disabled:opacity-50 text-sm font-bold transition-all shadow-lg shadow-reddit-orange/10 flex items-center gap-2"
+                    >
+                      {isSubmittingComment && <LoadingSpinner size={14} color="#ffffff" />}
+                      {isSubmittingComment ? "Posting..." : "Post Comment"}
+                    </button>
+                  </div>
                 </div>
               </form>
             ) : (
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="w-full text-center py-3 text-reddit-textMuted hover:text-reddit-text transition-colors"
-              >
-                <span className="text-reddit-orange hover:underline">Log in</span> to add a comment
-              </button>
+              <div className="p-8 bg-reddit-cardHover/5 rounded-2xl border border-dashed border-reddit-border flex flex-col items-center gap-3">
+                <p className="text-reddit-textMuted">Join the conversation</p>
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="bg-reddit-orange hover:bg-reddit-orange/90 text-white px-8 py-2 rounded-full text-sm font-bold transition-all"
+                >
+                  Log in to Comment
+                </button>
+              </div>
             )}
           </div>
 
           {/* Comment List */}
-          <div className="p-4 space-y-4">
+          <div className="space-y-6">
             {comments.length > 0 ? (
               comments.map((comment) => (
                 <div key={comment.id}>
-                  <Comment comment={comment} postId={postId} />
+                  <Comment
+                    comment={comment}
+                    postId={postId}
+                    onCommentUpdated={(commentId, content) => updateCommentInState(postId, commentId, content)}
+                    onCommentDeleted={(commentId) => deleteCommentFromState(postId, commentId)}
+                  />
                 </div>
               ))
             ) : (
-              <div className="text-center text-reddit-textMuted py-8 flex flex-col items-center gap-2">
-                <MessageSquare size={32} className="opacity-50" />
-                <p>No comments yet. Be the first to share your thoughts!</p>
+              <div className="text-center text-reddit-textMuted py-16 flex flex-col items-center gap-4 bg-reddit-cardHover/5 rounded-2xl border border-dashed border-reddit-border">
+                <div className="w-16 h-16 rounded-full bg-reddit-cardHover flex items-center justify-center">
+                  <MessageSquare size={32} className="opacity-30" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-reddit-text">No comments yet</h4>
+                  <p className="text-sm">Be the first to share your thoughts!</p>
+                </div>
               </div>
             )}
           </div>

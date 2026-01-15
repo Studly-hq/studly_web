@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
-import { WebSocketProvider } from "./context/WebSocketContext";
+import ComingSoon from "./components/common/ComingSoon";
 
 import LeftSidebar from "./components/layout/LeftSidebar";
 import RightSidebar from "./components/layout/RightSidebar";
@@ -111,8 +111,7 @@ function AppContent() {
                     <Route path="/profile/edit" element={<EditProfile />} />
                     <Route path="/profile/:username" element={<UserProfile />} />
                     <Route path="/post/:postId" element={<PostDetail />} />
-                    <Route path="/ads/create" element={<CreateAd />} />
-                    <Route path="/ads/dashboard" element={<AdsDashboard />} />
+                    <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
 
 
                     <Route path="/settings" element={<Settings />} />
@@ -152,14 +151,12 @@ function AppContent() {
 
 function App() {
   return (
-    <WebSocketProvider>
-      <StudyGramProvider>
-        <CoursePlayerProvider>
-          <AppContent />
-          <Analytics />
-        </CoursePlayerProvider>
-      </StudyGramProvider>
-    </WebSocketProvider>
+    <StudyGramProvider>
+      <CoursePlayerProvider>
+        <AppContent />
+        <Analytics />
+      </CoursePlayerProvider>
+    </StudyGramProvider>
   );
 }
 

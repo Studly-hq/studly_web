@@ -5,35 +5,68 @@ import { useStudyGram } from '../../context/StudyGramContext';
 import { toast } from 'sonner';
 import LoadingSpinner from '../common/LoadingSpinner';
 import EmojiPicker from 'emoji-picker-react';
+import { uploadMultipleToCloudinary } from '../../utils/uploadToCloudinary';
+
+const MAX_IMAGES = 10;
 
 const FeedComposer = () => {
     const { currentUser, isAuthenticated, createPost, setShowAuthModal } = useStudyGram();
     const [content, setContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImages, setSelectedImages] = useState([]);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const fileInputRef = useRef(null);
     const textareaRef = useRef(null);
     const [avatarError, setAvatarError] = useState(false);
 
     const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        const remainingSlots = MAX_IMAGES - selectedImages.length;
+        if (remainingSlots <= 0) {
+            toast.error(`Maximum ${MAX_IMAGES} images allowed`);
+            return;
+        }
+
+        const filesToProcess = files.slice(0, remainingSlots);
+        const newImages = [];
+
+        filesToProcess.forEach((file) => {
             if (file.size > 5 * 1024 * 1024) {
-                toast.error("Image size too large (max 5MB)");
+                toast.error(`${file.name} is too large (max 5MB)`);
                 return;
             }
             const url = URL.createObjectURL(file);
-            setSelectedImage({ file, url });
+            newImages.push({ file, url, id: `${Date.now()}-${Math.random()}` });
+        });
+
+        if (newImages.length > 0) {
+            setSelectedImages((prev) => [...prev, ...newImages]);
         }
+
+        if (files.length > remainingSlots) {
+            toast.info(`Only ${remainingSlots} more image(s) can be added`);
+        }
+
+        // Reset input
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    const removeImage = () => {
-        if (selectedImage) {
-            URL.revokeObjectURL(selectedImage.url);
-            setSelectedImage(null);
-            if (fileInputRef.current) fileInputRef.current.value = '';
-        }
+    const removeImage = (imageId) => {
+        setSelectedImages((prev) => {
+            const imageToRemove = prev.find((img) => img.id === imageId);
+            if (imageToRemove) {
+                URL.revokeObjectURL(imageToRemove.url);
+            }
+            return prev.filter((img) => img.id !== imageId);
+        });
+    };
+
+    const clearAllImages = () => {
+        selectedImages.forEach((img) => URL.revokeObjectURL(img.url));
+        setSelectedImages([]);
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
     const onEmojiClick = (emojiObject) => {
@@ -46,17 +79,25 @@ const FeedComposer = () => {
             setShowAuthModal(true);
             return;
         }
-        if (!content.trim() && !selectedImage) return;
+        if (!content.trim() && selectedImages.length === 0) return;
 
         setIsSubmitting(true);
         try {
+            let uploadedImageUrls = [];
+
+            // Upload images to Cloudinary if any
+            if (selectedImages.length > 0) {
+                const files = selectedImages.map((img) => img.file);
+                uploadedImageUrls = await uploadMultipleToCloudinary(files);
+            }
+
             const postData = {
                 content,
-                media: selectedImage ? [selectedImage.url] : []
+                media: uploadedImageUrls.length > 0 ? uploadedImageUrls : undefined
             };
             await createPost(postData);
             setContent('');
-            removeImage();
+            clearAllImages();
             toast.success("Post created successfully!");
         } catch (error) {
             console.error(error);
@@ -73,8 +114,15 @@ const FeedComposer = () => {
         }
     };
 
+    const getGridClass = (count) => {
+        if (count === 1) return 'grid-cols-1';
+        if (count === 2) return 'grid-cols-2';
+        if (count <= 4) return 'grid-cols-2';
+        return 'grid-cols-3';
+    };
+
     return (
-        <div className="border-b border-reddit-border p-4">
+        <div className="border-b border-reddit-border p-4 mt-4">
             <div className="flex gap-3">
                 {currentUser?.avatar && !avatarError ? (
                     <img
@@ -102,21 +150,49 @@ const FeedComposer = () => {
                         rows={1}
                     />
 
+                    {/* Image Preview Grid */}
                     <AnimatePresence>
-                        {selectedImage && (
+                        {selectedImages.length > 0 && (
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                className="relative mt-2 rounded-xl overflow-hidden max-w-sm"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="mt-3"
                             >
-                                <img src={selectedImage.url} alt="Preview" className="w-full h-auto" />
-                                <button
-                                    onClick={removeImage}
-                                    className="absolute top-2 right-2 bg-black/70 p-1 rounded-full text-white hover:bg-black/90 transition-colors"
-                                >
-                                    <X size={16} />
-                                </button>
+                                <div className={`grid ${getGridClass(selectedImages.length)} gap-2`}>
+                                    {selectedImages.map((image, index) => (
+                                        <motion.div
+                                            key={image.id}
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.8 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            className={`relative rounded-xl overflow-hidden bg-reddit-cardHover ${selectedImages.length === 1 ? 'max-h-[300px]' : 'aspect-square'
+                                                }`}
+                                        >
+                                            <img
+                                                src={image.url}
+                                                alt={`Preview ${index + 1}`}
+                                                className={`w-full h-full ${selectedImages.length === 1 ? 'object-contain' : 'object-cover'
+                                                    }`}
+                                            />
+                                            <button
+                                                onClick={() => removeImage(image.id)}
+                                                className="absolute top-1 right-1 bg-black/70 hover:bg-black/90 p-1 rounded-full text-white transition-colors"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                                {selectedImages.length > 1 && (
+                                    <button
+                                        onClick={clearAllImages}
+                                        className="mt-2 text-xs text-reddit-textMuted hover:text-red-500 transition-colors"
+                                    >
+                                        Remove all ({selectedImages.length})
+                                    </button>
+                                )}
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -128,14 +204,24 @@ const FeedComposer = () => {
                                 ref={fileInputRef}
                                 onChange={handleImageUpload}
                                 accept="image/*"
+                                multiple
                                 className="hidden"
                             />
                             <button
                                 onClick={() => isAuthenticated ? fileInputRef.current?.click() : setShowAuthModal(true)}
-                                className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors group"
-                                title="Media"
+                                disabled={selectedImages.length >= MAX_IMAGES}
+                                className={`p-2 rounded-full hover:bg-reddit-cardHover transition-colors group ${selectedImages.length >= MAX_IMAGES ? 'opacity-50 cursor-not-allowed' : ''
+                                    }`}
+                                title={selectedImages.length >= MAX_IMAGES ? `Max ${MAX_IMAGES} images` : "Add images"}
                             >
-                                <Image size={20} className="text-reddit-orange group-hover:opacity-80" />
+                                <div className="relative">
+                                    <Image size={20} className="text-reddit-orange group-hover:opacity-80" />
+                                    {selectedImages.length > 0 && (
+                                        <span className="absolute -top-1 -right-1 bg-reddit-orange text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                                            {selectedImages.length}
+                                        </span>
+                                    )}
+                                </div>
                             </button>
                             <div className="relative">
                                 <button
@@ -169,8 +255,8 @@ const FeedComposer = () => {
 
                         <button
                             onClick={handleSubmit}
-                            disabled={(!content.trim() && !selectedImage) || isSubmitting}
-                            className={`bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold px-4 py-1.5 rounded-full transition-all text-[15px] flex items-center gap-2 ${(!content.trim() && !selectedImage) || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                            disabled={(!content.trim() && selectedImages.length === 0) || isSubmitting}
+                            className={`bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold px-4 py-1.5 rounded-full transition-all text-[15px] flex items-center gap-2 ${(!content.trim() && selectedImages.length === 0) || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                         >
                             {isSubmitting && <LoadingSpinner size={16} color="#ffffff" />}

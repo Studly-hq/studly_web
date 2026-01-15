@@ -6,12 +6,27 @@ import LoadingSpinner from "../common/LoadingSpinner";
 import { Layout } from "lucide-react";
 
 const Feed = ({ activeTab }) => {
-  const { posts, currentUser, isFeedLoading } = useStudyGram();
+  const {
+    posts,
+    currentUser,
+    isFeedLoading,
+    updatePostInState,
+    deletePostFromState
+  } = useStudyGram();
   const feedRef = useRef(null);
 
   const displayedPosts = activeTab === 'following'
     ? posts.filter(post => currentUser?.following?.includes(post.userId))
     : posts;
+
+  // Handlers for optimistic updates
+  const handlePostUpdated = (postId, newContent) => {
+    updatePostInState(postId, newContent);
+  };
+
+  const handlePostDeleted = (postId) => {
+    deletePostFromState(postId);
+  };
 
   useEffect(() => {
     const savedPosition = sessionStorage.getItem("feed-scroll-position");
@@ -53,7 +68,11 @@ const Feed = ({ activeTab }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.02, duration: 0.3 }}
             >
-              <PostCard post={post} />
+              <PostCard
+                post={post}
+                onPostUpdated={handlePostUpdated}
+                onPostDeleted={handlePostDeleted}
+              />
             </motion.div>
           ))
         ) : (

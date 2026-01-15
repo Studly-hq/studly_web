@@ -204,7 +204,7 @@ const CourseBank = () => {
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-20">
               <LoadingSpinner size={50} color="#FF4500" />
-              <p className="text-reddit-placeholder mt-4">Loading courses...</p>
+              <p className="text-reddit-placeholder mt-4">Loading dock...</p>
             </div>
           )}
 

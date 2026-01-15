@@ -1,14 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, TrendingUp, Hash, X, Flame, Sparkles, Clock } from 'lucide-react';
 import { useStudyGram } from '../context/StudyGramContext';
 import PostCard from '../components/post/PostCard';
 
 const Explore = () => {
-  const { posts } = useStudyGram();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { posts, updatePostInState, deletePostFromState } = useStudyGram();
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get('q') || '';
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedTag, setSelectedTag] = useState(null);
   const [sortBy, setSortBy] = useState('trending'); // trending, recent, top
+
+  // Sync search query with URL parameter changes
+  useEffect(() => {
+    const urlQuery = searchParams.get('q') || '';
+    if (urlQuery !== searchQuery) {
+      setSearchQuery(urlQuery);
+    }
+  }, [searchParams]);
 
   // Extract all unique tags from posts
   const allTags = [...new Set(posts.flatMap(post => post.tags || []))];
@@ -147,7 +158,7 @@ const Explore = () => {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-center py-16 bg-reddit-card rounded-md border border-reddit-border"
+                  className="flex flex-col items-center justify-center py-20"
                 >
                   <Search size={40} className="text-reddit-textMuted mx-auto mb-3 opacity-50" />
                   <h3 className="text-lg font-bold text-reddit-text mb-2">
@@ -175,7 +186,11 @@ const Explore = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.02, duration: 0.3 }}
                   >
-                    <PostCard post={post} />
+                    <PostCard
+                      post={post}
+                      onPostUpdated={updatePostInState}
+                      onPostDeleted={deletePostFromState}
+                    />
                   </motion.div>
                 ))
               )}
@@ -185,18 +200,18 @@ const Explore = () => {
           {/* Sidebar - Trending Tags */}
           <div className="lg:col-span-1 order-first lg:order-last">
             <div className="sticky top-32 space-y-3">
-              {/* Trending Tags Card */}
+              {/* Trending Topics - Sleeker Design */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-reddit-card rounded-md border border-reddit-border overflow-hidden"
+                className="pt-2"
               >
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-reddit-border">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-reddit-border/50 mb-2">
                   <TrendingUp size={16} className="text-reddit-orange" />
-                  <h2 className="text-sm font-bold text-reddit-text">Trending Topics</h2>
+                  <h2 className="text-sm font-bold text-reddit-text tracking-wide uppercase">Trending Topics</h2>
                 </div>
 
-                <div className="p-2 space-y-1">
+                <div className="space-y-1">
                   {trendingTags.map(({ tag, count }, index) => (
                     <motion.button
                       key={tag}
@@ -204,26 +219,26 @@ const Explore = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.03 }}
                       onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
-                      whileHover={{ backgroundColor: selectedTag === tag ? undefined : '#272729' }}
-                      className={`w-full flex items-center justify-between px-2 py-1.5 rounded text-left transition-colors ${selectedTag === tag
-                        ? 'bg-reddit-orange text-white'
-                        : ''
+                      whileHover={{ backgroundColor: selectedTag === tag ? undefined : 'rgba(255,255,255,0.03)' }}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-all ${selectedTag === tag
+                        ? 'bg-reddit-orange text-white shadow-lg shadow-reddit-orange/10'
+                        : 'text-reddit-text'
                         }`}
                     >
-                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                        <Hash size={12} className="flex-shrink-0" />
-                        <span className={`text-xs truncate ${selectedTag === tag ? 'text-white' : 'text-reddit-text'}`}>{tag}</span>
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <Hash size={14} className={selectedTag === tag ? 'text-white' : 'text-reddit-orange'} />
+                        <span className={`text-sm font-medium truncate ${selectedTag === tag ? 'text-white' : 'text-reddit-text'}`}>{tag}</span>
                       </div>
-                      <span className={`text-[10px] ${selectedTag === tag ? 'text-orange-200' : 'text-reddit-textMuted'}`}>
-                        {count} posts
+                      <span className={`text-xs ${selectedTag === tag ? 'text-white/80' : 'text-reddit-textMuted'}`}>
+                        {count} {count === 1 ? 'post' : 'posts'}
                       </span>
                     </motion.button>
                   ))}
                 </div>
 
                 {allTags.length > 4 && (
-                  <button className="w-full px-3 py-2 text-reddit-orange hover:bg-reddit-cardHover text-xs font-medium border-t border-reddit-border transition-colors">
-                    View all topics
+                  <button className="w-full mt-2 px-3 py-2 text-reddit-orange hover:text-reddit-orange/80 text-xs font-bold transition-colors text-right">
+                    View all topics →
                   </button>
                 )}
               </motion.div>

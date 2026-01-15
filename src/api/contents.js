@@ -13,14 +13,14 @@ export const createPost = async (postData) => {
 
 export const getPosts = async () => {
   try {
-    const response = await client.get("/studlygram/feed");
+    const response = await client.get("/studlygram/posts");
     console.log("Get Posts Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Get Posts Error:", error.response?.data || error.message);
     throw error;
   }
-};
+}
 
 export const getUserPosts = async (username) => {
   try {
@@ -72,11 +72,17 @@ export const deletePost = async (postId) => {
   }
 };
 
-export const editComment = async (commentId, content) => {
+export const editComment = async (commentId, content, userId, postId) => {
   try {
-    const response = await client.put(`/studlygram/comment/${commentId}`, {
+    const payload = {
       content,
-    });
+      comment_id: String(commentId)
+    };
+
+    // We already tried user_id/post_id and it failed. 
+    // Trying comment_id in body as fallback.
+
+    const response = await client.put(`/studlygram/comment/${commentId}`, payload);
     console.log("Edit Comment Response:", response.data);
     return response.data;
   } catch (error) {
