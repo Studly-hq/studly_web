@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useStudyGram } from '../../context/StudyGramContext';
+import { useUI } from '../../context/UIContext';
 
 const TopLoadingBar = () => {
-    const { loadingProgress } = useStudyGram();
+    const { loadingProgress } = useUI();
 
     return (
         <div className="fixed top-0 left-0 right-0 z-[100] h-1 pointer-events-none">

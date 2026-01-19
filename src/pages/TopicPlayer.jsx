@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
 import { useCoursePlayer } from '../context/CoursePlayerContext';
-import { getTopicById } from '../data/courseBankData';
+import { getCourse } from '../api/coursebank';
+import { mapApiCourseToTopic } from '../utils/courseMapper';
 import SectionNavigator from '../components/courses/player/SectionNavigator';
 import ContentPlayer from '../components/courses/player/ContentPlayer';
 import NotesPanel from '../components/courses/player/NotesPanel';
@@ -29,38 +30,54 @@ const TopicPlayer = () => {
 
   const [isNavOpen, setIsNavOpen] = useState(true); // Default open on desktop
   const [topic, setTopic] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Load topic
-  // Load topic
+  // Load topic from API
   useEffect(() => {
-    const foundTopic = getTopicById(topicId);
+    const fetchTopic = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getCourse(topicId);
+        if (!data) {
+          navigate('/courses');
+          return;
+        }
 
-    if (!foundTopic) {
-      navigate('/courses');
-      return;
-    }
-
-    // Reorder scenes: Video first rule
-    const sortedTopic = {
-      ...foundTopic,
-      sections: foundTopic.sections.map(section => ({
-        ...section,
-        scenes: [...section.scenes].sort((a, b) => {
-          if (a.type === 'video' && b.type !== 'video') return -1;
-          if (a.type !== 'video' && b.type === 'video') return 1;
-          return 0;
-        })
-      }))
+        const mappedTopic = mapApiCourseToTopic(data);
+        setTopic(mappedTopic);
+        loadTopic(mappedTopic);
+      } catch (err) {
+        console.error('Failed to fetch course details:', err);
+        setError('Failed to load course details. Please try again later.');
+        // Fallback to mock data if preferred, but for now we follow live source
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setTopic(sortedTopic);
-    loadTopic(sortedTopic);
+    fetchTopic();
   }, [topicId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!topic || !currentTopic) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-reddit-bg flex items-center justify-center">
         <LoadingSpinner size={50} color="#FF4500" />
+      </div>
+    );
+  }
+
+  if (error || !topic || !currentTopic) {
+    return (
+      <div className="min-h-screen bg-reddit-bg flex flex-col items-center justify-center p-4 text-center">
+        <h2 className="text-xl font-bold mb-4">{error || 'Topic not found'}</h2>
+        <button
+          onClick={() => navigate('/courses')}
+          className="px-6 py-2 bg-reddit-orange rounded-full font-medium"
+        >
+          Back to Courses
+        </button>
       </div>
     );
   }

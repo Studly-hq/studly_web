@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { useLumelyReport } from "lumely-react";
 import { supabase } from "../utils/supabase";
 
 const WebSocketContext = createContext();
@@ -13,7 +12,6 @@ export const useWebSocketContext = () => {
 };
 
 export const WebSocketProvider = ({ children }) => {
-    const { reportError } = useLumelyReport();
     const [socket, setSocket] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [connectionError, setConnectionError] = useState(null);
@@ -110,7 +108,6 @@ export const WebSocketProvider = ({ children }) => {
 
         ws.onerror = (error) => {
             console.error('WebSocket Error:', error);
-            reportError(error);
             setConnectionError(error);
         };
 

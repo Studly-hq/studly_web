@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, TrendingUp, Hash, X, Flame, Sparkles, Clock } from 'lucide-react';
-import { useStudyGram } from '../context/StudyGramContext';
+import { useFeed } from '../context/FeedContext';
 import PostCard from '../components/post/PostCard';
 
 const Explore = () => {
-  const { posts, updatePostInState, deletePostFromState } = useStudyGram();
+  const { posts, updatePostInState, deletePostFromState } = useFeed();
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   const [searchQuery, setSearchQuery] = useState(initialQuery);
@@ -19,7 +19,7 @@ const Explore = () => {
     if (urlQuery !== searchQuery) {
       setSearchQuery(urlQuery);
     }
-  }, [searchParams]);
+  }, [searchParams, searchQuery]);
 
   // Extract all unique tags from posts
   const allTags = [...new Set(posts.flatMap(post => post.tags || []))];

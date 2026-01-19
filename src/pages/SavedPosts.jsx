@@ -2,13 +2,15 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Bookmark, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useStudyGram } from "../context/StudyGramContext";
+import { useAuth } from "../context/AuthContext";
+import { useFeed } from "../context/FeedContext";
 import PostCard from "../components/post/PostCard";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const SavedPosts = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, bookmarkedPosts, fetchBookmarks, isBookmarksLoading, updatePostInState, deletePostFromState } = useStudyGram();
+  const { isAuthenticated } = useAuth();
+  const { bookmarkedPosts, fetchBookmarks, isBookmarksLoading, updatePostInState, deletePostFromState } = useFeed();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -20,7 +22,7 @@ const SavedPosts = () => {
     return (
       <div className="min-h-screen bg-reddit-bg pt-20 px-4">
         <div className="max-w-[640px] mx-auto text-center py-16">
-          <div className="bg-reddit-card rounded-md p-12 border border-reddit-border">
+          <div className="p-4">
             <Bookmark
               size={48}
               className="text-reddit-textMuted mx-auto mb-4 opacity-50"

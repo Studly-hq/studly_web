@@ -2,7 +2,9 @@ import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, User, PlayCircle, MoreHorizontal, LogIn } from 'lucide-react';
 import { useCoursePlayer } from '../../context/CoursePlayerContext';
-import { useStudyGram } from '../../context/StudyGramContext';
+import { useAuth } from '../../context/AuthContext';
+import { useUI } from '../../context/UIContext';
+import { useFeed } from '../../context/FeedContext';
 import logo from '../../assets/logo.png';
 
 
@@ -11,7 +13,9 @@ const LeftSidebar = () => {
   const navigate = useNavigate();
 
   const { hasAnyProgress } = useCoursePlayer();
-  const { isAuthenticated, currentUser, handleCreatePost, setShowAuthModal } = useStudyGram();
+  const { isAuthenticated, currentUser } = useAuth();
+  const { handleCreatePost } = useFeed();
+  const { setShowAuthModal } = useUI();
 
   const navItems = [
     {

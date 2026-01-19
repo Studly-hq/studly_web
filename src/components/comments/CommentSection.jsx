@@ -1,20 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, MessageSquare, User } from 'lucide-react';
-import { useStudyGram } from '../../context/StudyGramContext';
+import { useAuth } from '../../context/AuthContext';
+import { useFeed } from '../../context/FeedContext';
+import { useUI } from '../../context/UIContext';
 import Comment from './Comment';
 
 const CommentSection = () => {
+  const { currentUser } = useAuth();
   const {
-    showComments,
-    setShowComments,
     getCommentsForPost,
     addComment,
     posts,
-    currentUser,
     updateCommentInState,
     deleteCommentFromState,
-  } = useStudyGram();
+  } = useFeed();
+  const { showComments, setShowComments } = useUI();
 
   const [commentText, setCommentText] = useState('');
   const [replyingTo, setReplyingTo] = useState(null);

@@ -2,27 +2,34 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, MessageSquare, User } from "lucide-react";
-import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
 import Comment from "../components/comments/Comment";
 import LoadingSpinner from "../components/common/LoadingSpinner";
+import { useAuth } from "../context/AuthContext";
+import { useFeed } from "../context/FeedContext";
+import { useUI } from "../context/UIContext";
 
 const PostDetail = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
   const {
+    currentUser,
+    isAuthenticated,
+  } = useAuth();
+
+  const {
     fetchPostById,
     fetchCommentsForPost,
     getCommentsForPost,
     addComment,
-    currentUser,
-    isAuthenticated,
-    setShowAuthModal,
     updatePostInState,
     deletePostFromState,
     updateCommentInState,
     deleteCommentFromState,
-  } = useStudyGram();
+    posts
+  } = useFeed();
+
+  const { setShowAuthModal } = useUI();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -51,7 +58,6 @@ const PostDetail = () => {
   }, [postId, fetchPostById, fetchCommentsForPost]);
 
   // Sync local post state with global posts state (for real-time like updates)
-  const { posts } = useStudyGram();
   useEffect(() => {
     if (post && posts.length > 0) {
       const updatedPost = posts.find(p => String(p.id) === String(postId));

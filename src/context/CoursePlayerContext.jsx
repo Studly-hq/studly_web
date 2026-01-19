@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useLumelyReport } from "lumely-react";
+import { completeLesson, completeSection, submitQuiz } from '../api/coursebank';
+
 
 const CoursePlayerContext = createContext();
 
@@ -12,7 +13,7 @@ export const useCoursePlayer = () => {
 };
 
 export const CoursePlayerProvider = ({ children }) => {
-  const { reportError } = useLumelyReport();
+
   // Player state machine
   const [playerState, setPlayerState] = useState('idle'); // idle, typing, paused, awaiting_input, validating, showing_feedback, transitioning, completed
 
@@ -48,6 +49,38 @@ export const CoursePlayerProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : {};
   });
 
+  // Sync events (placeholder - implement API call)
+  const syncEvents = useCallback(async () => {
+    if (eventQueue.length === 0) return;
+
+    try {
+      // TODO: Implement API call to sync events
+      // await fetch('/api/player/event', { method: 'POST', body: JSON.stringify(eventQueue) });
+
+      // Clear queue on success
+      setEventQueue([]);
+    } catch (error) {
+      console.error('Failed to sync events:', error);
+    }
+  }, [eventQueue]);
+
+  // Event emission
+  const emitEvent = useCallback((eventType, data) => {
+    const event = {
+      type: eventType,
+      timestamp: Date.now(),
+      data
+    };
+
+    // Add to queue for sync
+    setEventQueue(prev => [...prev, event]);
+
+    // Try to sync if online
+    if (navigator.onLine) {
+      syncEvents();
+    }
+  }, [syncEvents]);
+
   // Persist progress to localStorage
   useEffect(() => {
     localStorage.setItem('courseProgress', JSON.stringify(progress));
@@ -72,6 +105,7 @@ export const CoursePlayerProvider = ({ children }) => {
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
+
 
   // Load topic
   const loadTopic = useCallback((topic) => {
@@ -123,6 +157,11 @@ export const CoursePlayerProvider = ({ children }) => {
     }
     // Check if there are more sections
     else if (currentSectionIndex < currentTopic.sections.length - 1) {
+      // Sync section completion with backend
+      if (currentTopic.isApiCourse) {
+        completeSection(currentSection.id).catch(err => console.error('Section sync failed:', err));
+      }
+
       setCurrentSectionIndex(prev => prev + 1);
       setCurrentSceneIndex(0);
       setPlayerState('transitioning');
@@ -151,10 +190,10 @@ export const CoursePlayerProvider = ({ children }) => {
     }
   }, [currentTopic, currentSectionIndex, currentSceneIndex]);
 
-  // Mark scene as completed
-  const completeScene = useCallback((sceneId) => {
+  const completeScene = useCallback(async (sceneId) => {
     if (!currentTopic) return;
 
+    // Update local state first for responsiveness
     setProgress(prev => ({
       ...prev,
       [currentTopic.id]: {
@@ -170,18 +209,26 @@ export const CoursePlayerProvider = ({ children }) => {
     }));
 
     emitEvent('scene_completed', { sceneId, topicId: currentTopic.id });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentTopic]);
+
+    // Sync with backend if it's an API lesson
+    if (currentTopic.isApiCourse) {
+      try {
+        await completeLesson(sceneId);
+      } catch (error) {
+        console.error('Failed to sync lesson completion:', error);
+      }
+    }
+  }, [currentTopic, emitEvent]);
 
   // Handle quiz submission
-  const submitQuizAnswer = useCallback((quizId, selectedChoices, correctChoiceIds) => {
+  const submitQuizAnswer = useCallback(async (quizId, selectedChoices, correctChoiceIds) => {
     if (!currentTopic) return;
 
     const isCorrect = JSON.stringify(selectedChoices.sort()) === JSON.stringify(correctChoiceIds.sort());
     const currentScene = currentTopic.sections[currentSectionIndex].scenes[currentSceneIndex];
     const points = isCorrect ? (currentScene.points || 10) : 0;
 
-    // Update score
+    // Update score locally
     setProgress(prev => ({
       ...prev,
       [currentTopic.id]: {
@@ -199,7 +246,7 @@ export const CoursePlayerProvider = ({ children }) => {
       }
     }));
 
-    // Award aura points
+    // Award aura points locally
     if (isCorrect) {
       setAuraPoints(prev => prev + points);
     }
@@ -212,42 +259,20 @@ export const CoursePlayerProvider = ({ children }) => {
       selectedChoices
     });
 
+    // Sync with backend if it's an API course
+    if (currentTopic.isApiCourse) {
+      try {
+        // Map answers to backend format if necessary
+        const answers = selectedChoices.map(id => ({ question_id: quizId, answer_id: id }));
+        await submitQuiz(quizId, answers);
+      } catch (error) {
+        console.error('Failed to sync quiz submission:', error);
+      }
+    }
+
     return { isCorrect, points };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentTopic, currentSectionIndex, currentSceneIndex]);
+  }, [currentTopic, currentSectionIndex, currentSceneIndex, emitEvent]);
 
-  // Sync events (placeholder - implement API call)
-  const syncEvents = useCallback(async () => {
-    if (eventQueue.length === 0) return;
-
-    try {
-      // TODO: Implement API call to sync events
-      // await fetch('/api/player/event', { method: 'POST', body: JSON.stringify(eventQueue) });
-
-      // Clear queue on success
-      setEventQueue([]);
-    } catch (error) {
-      console.error('Failed to sync events:', error);
-      reportError(error);
-    }
-  }, [eventQueue]);
-
-  // Event emission
-  const emitEvent = useCallback((eventType, data) => {
-    const event = {
-      type: eventType,
-      timestamp: Date.now(),
-      data
-    };
-
-    // Add to queue for sync
-    setEventQueue(prev => [...prev, event]);
-
-    // Try to sync if online
-    if (navigator.onLine) {
-      syncEvents();
-    }
-  }, [syncEvents]);
 
   // Notes management
   const saveNotes = useCallback((topicId, noteContent) => {

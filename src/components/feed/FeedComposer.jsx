@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image, Smile, X, User } from 'lucide-react';
-import { useStudyGram } from '../../context/StudyGramContext';
+import { useAuth } from '../../context/AuthContext';
+import { useFeed } from '../../context/FeedContext';
+import { useUI } from '../../context/UIContext';
 import { toast } from 'sonner';
 import LoadingSpinner from '../common/LoadingSpinner';
 import EmojiPicker from 'emoji-picker-react';
@@ -10,7 +12,9 @@ import { uploadMultipleToCloudinary } from '../../utils/uploadToCloudinary';
 const MAX_IMAGES = 10;
 
 const FeedComposer = () => {
-    const { currentUser, isAuthenticated, createPost, setShowAuthModal, startLoading, finishLoading } = useStudyGram();
+    const { currentUser, isAuthenticated } = useAuth();
+    const { createPost } = useFeed();
+    const { setShowAuthModal, startLoading, finishLoading } = useUI();
     const [content, setContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedImages, setSelectedImages] = useState([]);

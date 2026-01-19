@@ -12,14 +12,16 @@ import {
   AlertTriangle,
   Send,
 } from "lucide-react";
-import { useStudyGram } from "../../context/StudyGramContext";
+import { useAuth } from "../../context/AuthContext";
+import { useFeed } from "../../context/FeedContext";
 import { editComment, deleteComment } from "../../api/contents";
 import { toast } from "sonner";
 import LoadingSpinner from "../common/LoadingSpinner";
 
 const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, onCommentUpdated }) => {
   const navigate = useNavigate();
-  const { currentUser, handleLikeComment, requireAuth, addComment } = useStudyGram();
+  const { currentUser } = useAuth();
+  const { handleLikeComment, requireAuth, addComment } = useFeed();
   const [showReplies, setShowReplies] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);

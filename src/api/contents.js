@@ -2,7 +2,7 @@ import client from "./client";
 
 export const createPost = async (postData) => {
   try {
-    const response = await client.post("studlygram/post", postData);
+    const response = await client.post("/studlygram/post", postData);
     console.log("Create Post Response:", response.data);
     return response.data;
   } catch (error) {

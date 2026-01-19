@@ -10,14 +10,16 @@ import {
   Search,
   X
 } from 'lucide-react';
-import { useStudyGram } from '../../context/StudyGramContext';
+import { useAuth } from '../../context/AuthContext';
+import { useUI } from '../../context/UIContext';
 import { getUserStreak, getUserAuraPoints } from '../../api/profile';
 import AdPromotionWidget from '../ads/AdPromotionWidget';
 
 const RightSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, currentUser, logout, setShowAuthModal } = useStudyGram();
+  const { isAuthenticated, currentUser, logout } = useAuth();
+  const { setShowAuthModal } = useUI();
   const [searchQuery, setSearchQuery] = useState('');
   const [adWidgetDismissed, setAdWidgetDismissed] = useState(false);
   const [stats, setStats] = useState({ streak: 0, auraPoints: 0 });

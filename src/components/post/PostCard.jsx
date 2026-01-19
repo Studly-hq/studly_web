@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, memo, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -15,17 +15,17 @@ import {
   User,
   X,
   AlertTriangle,
-  Link as LinkIcon,
 } from "lucide-react";
-import { useStudyGram } from "../../context/StudyGramContext";
+import { useAuth } from "../../context/AuthContext";
+import { useFeed } from "../../context/FeedContext";
 import { editPost, deletePost } from "../../api/contents";
 import { toast } from "sonner";
 import LoadingSpinner from "../common/LoadingSpinner";
 
 const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const navigate = useNavigate();
-  const { currentUser, bookmarkedPosts, handleLikePost, handleBookmarkPost } =
-    useStudyGram();
+  const { currentUser } = useAuth();
+  const { bookmarkedPosts, handleLikePost, handleBookmarkPost } = useFeed();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -217,22 +217,19 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     await handleLikePost(post.id, isLiked ? 'unlike' : 'like');
   };
 
-  const renderPostContent = () => {
+  const renderedContent = useMemo(() => {
     if (!post.content) return null;
 
     let displayContent = post.content;
     if (post.tags && post.tags.length > 0) {
       post.tags.forEach((tag) => {
-        // Remove hashtag if it exists in the tags array
         const regex = new RegExp(`#${tag}\\b`, "gi");
         displayContent = displayContent.replace(regex, "");
       });
     }
 
-    // Clean up extra spaces
     displayContent = displayContent.trim().replace(/\s\s+/g, " ");
 
-    // URL Regex
     const urlRegex = /((?:https?:\/\/|www\.)[^\s]+)/g;
     const parts = displayContent.split(urlRegex);
 
@@ -261,7 +258,7 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         })}
       </p>
     );
-  };
+  }, [post.content, post.tags]);
 
   return (
     <>
@@ -416,7 +413,7 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
         {/* Post Content */}
         <div className="px-3 pb-2">
-          {renderPostContent()}
+          {renderedContent}
         </div>
 
         {/* Post Images */}
@@ -730,4 +727,4 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   );
 };
 
-export default PostCard;
+export default memo(PostCard);

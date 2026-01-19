@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Camera, Save, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useStudyGram } from "../context/StudyGramContext";
+import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { uploadAvatarToCloudinary } from "../utils/uploadAvatar";
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated, updateUser } = useStudyGram();
+  const { currentUser, isAuthenticated, updateUser } = useAuth();
 
   const [formData, setFormData] = useState({
     name: currentUser?.name || currentUser?.displayName || "",

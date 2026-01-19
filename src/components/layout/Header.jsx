@@ -7,16 +7,19 @@ import {
   Bell,
   X
 } from 'lucide-react';
-import { useStudyGram } from '../../context/StudyGramContext';
+import { useAuth } from '../../context/AuthContext';
+import { useFeed } from '../../context/FeedContext';
+import { useUI } from '../../context/UIContext';
 
 const Header = () => {
   const navigate = useNavigate();
   const {
     isAuthenticated,
     currentUser,
-    handleCreatePost,
-    setShowAuthModal
-  } = useStudyGram();
+  } = useAuth();
+
+  const { handleCreatePost } = useFeed();
+  const { setShowAuthModal } = useUI();
 
   const [searchQuery, setSearchQuery] = useState('');
 

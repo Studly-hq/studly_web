@@ -9,7 +9,9 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useStudyGram } from "../../context/StudyGramContext";
+import { useAuth } from "../../context/AuthContext";
+import { useUI } from "../../context/UIContext";
+import { useFeed } from "../../context/FeedContext";
 import { toast } from "sonner";
 import { uploadMultipleToCloudinary } from "../../utils/uploadToCloudinary";
 
@@ -17,9 +19,10 @@ const CreatePostModal = () => {
   const {
     showCreatePostModal,
     setShowCreatePostModal,
-    createPost,
-    currentUser,
-  } = useStudyGram();
+  } = useUI();
+
+  const { createPost } = useFeed();
+  const { currentUser } = useAuth();
 
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);

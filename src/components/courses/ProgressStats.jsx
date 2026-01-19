@@ -1,41 +1,47 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useCoursePlayer } from '../../context/CoursePlayerContext';
-import { courseBankTopics } from '../../data/courseBankData';
 import * as Icons from 'lucide-react';
 
-const ProgressStats = () => {
+const ProgressStats = ({ courses = [] }) => {
   const { progress, auraPoints } = useCoursePlayer();
 
+  // If no courses provided and we have progress, we can't calculate properly
+  // but we can at least show aura points
+  const activeCourses = courses.length > 0 ? courses : [];
+
   // Calculate stats
-  const totalTopics = courseBankTopics.length;
+  const totalTopics = activeCourses.length;
   const startedTopics = Object.keys(progress).length;
   const completedTopics = Object.values(progress).filter(p => {
-    // A topic is considered completed if all scenes are done
-    const topic = courseBankTopics.find(t => t.id === Object.keys(progress).find(id => progress[id] === p));
+    // Find the topic ID from the progress object
+    const topicId = Object.keys(progress).find(id => progress[id] === p);
+    const topic = activeCourses.find(t => String(t.id) === String(topicId));
     if (!topic) return false;
 
-    const totalScenes = topic.sections.reduce((sum, sec) => sum + sec.scenes.length, 0);
+    const totalScenes = topic.sections.reduce((sum, sec) => sum + (sec.scenes?.length || 0), 0);
     const completedScenes = Object.keys(p.scenes || {}).length;
-    return completedScenes >= totalScenes;
+    return totalScenes > 0 && completedScenes >= totalScenes;
   }).length;
 
-  // Calculate total learning time (mock - in real app, track actual time)
+  // Calculate total learning time
   const totalMinutes = Object.values(progress).reduce((sum, p) => {
-    const topic = courseBankTopics.find(t => t.id === Object.keys(progress).find(id => progress[id] === p));
+    const topicId = Object.keys(progress).find(id => progress[id] === p);
+    const topic = activeCourses.find(t => String(t.id) === String(topicId));
     if (!topic) return sum;
 
     const completedScenes = Object.keys(p.scenes || {}).length;
-    const totalScenes = topic.sections.reduce((s, sec) => s + sec.scenes.length, 0);
-    const percentage = completedScenes / totalScenes;
+    const totalScenes = topic.sections.reduce((s, sec) => s + (sec.scenes?.length || 0), 0);
+    if (totalScenes === 0) return sum;
 
+    const percentage = completedScenes / totalScenes;
     return sum + (topic.estimatedMinutes * percentage);
   }, 0);
 
   const hours = Math.floor(totalMinutes / 60);
   const minutes = Math.round(totalMinutes % 60);
 
-  // Calculate average quiz accuracy (mock)
+  // Calculate average quiz accuracy
   const quizAttempts = Object.values(progress).reduce((sum, p) => {
     return sum + Object.values(p.scenes || {}).filter(s => s.correct !== undefined).length;
   }, 0);
@@ -58,7 +64,7 @@ const ProgressStats = () => {
     {
       icon: Icons.BookCheck,
       label: 'Topics Completed',
-      value: `${completedTopics}/${totalTopics}`,
+      value: totalTopics > 0 ? `${completedTopics}/${totalTopics}` : `${completedTopics}`,
       color: 'text-green-400',
       bgColor: 'bg-green-500/10',
       borderColor: 'border-green-500/20'

@@ -16,12 +16,13 @@ import {
   searchTopics,
 } from "../data/courseBankData";
 import { getCourses, getEnrolledCourses } from "../api/coursebank";
-import { useStudyGram } from "../context/StudyGramContext";
-import LoadingSpinner from "../components/common/LoadingSpinner";
+import { mapApiCourseToTopic } from "../utils/courseMapper";
+import { useAuth } from "../context/AuthContext";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 const CourseBank = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useStudyGram();
+  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -39,20 +40,8 @@ const CourseBank = () => {
 
     try {
       const courses = await getCourses();
-      // Map API response to match our frontend structure
-      const mappedCourses = courses.map((course) => ({
-        id: course.course_id || course.id,
-        title: course.name || course.title,
-        subtitle: course.description || "",
-        category: "Tech", // Default category, adjust based on API
-        difficulty: course.level || "Beginner",
-        estimatedMinutes: course.duration_minutes || 30,
-        icon: "BookOpen",
-        tags: course.tags || [],
-        sections: course.sections || [],
-        imageUrl: course.image_url,
-        isApiCourse: true, // Flag to distinguish from mock data
-      }));
+      // Use centralized mapper
+      const mappedCourses = (courses || []).map(mapApiCourseToTopic);
       setApiCourses(mappedCourses);
       setUsingFallback(false);
     } catch (err) {
@@ -198,7 +187,7 @@ const CourseBank = () => {
         {/* Content */}
         <div className="px-4 sm:px-6 lg:px-8 py-6">
           {/* Progress Stats */}
-          <ProgressStats />
+          <ProgressStats courses={allCourses} />
 
           {/* Loading State */}
           {isLoading && (

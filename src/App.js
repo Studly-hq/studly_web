@@ -1,8 +1,12 @@
+import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
 import TopLoadingBar from "./components/common/TopLoadingBar";
 import { WebSocketProvider } from "./context/WebSocketContext";
+import { UIProvider } from "./context/UIContext";
+import { AuthProvider } from "./context/AuthContext";
+import { FeedProvider } from "./context/FeedContext";
 import ComingSoon from "./components/common/ComingSoon";
 
 import LeftSidebar from "./components/layout/LeftSidebar";
@@ -14,23 +18,27 @@ import CommentSection from "./components/comments/CommentSection";
 import { Toaster } from "sonner";
 import { Analytics } from '@vercel/analytics/react';
 
-// Pages
-import Home from "./pages/Home";
-import Explore from "./pages/Explore";
-import SavedPosts from "./pages/SavedPosts";
-import UserProfile from "./pages/UserProfile";
-import EditProfile from "./pages/EditProfile";
-import Settings from "./pages/Settings";
-import UploadNotes from "./pages/UploadNotes";
-import QuizFeed from "./pages/QuizFeed";
-import CourseBank from "./pages/CourseBank";
-import TopicPlayer from "./pages/TopicPlayer";
-import PostDetail from "./pages/PostDetail";
-import CreateAd from "./pages/CreateAd";
-import AdsDashboard from "./pages/AdsDashboard";
-import CourseAdmin from "./pages/CourseAdmin";
-import { useStudyGram } from "./context/StudyGramContext";
-import { useEffect } from "react";
+// Pages (Lazy loaded for better performance)
+const Home = lazy(() => import("./pages/Home"));
+const Explore = lazy(() => import("./pages/Explore"));
+const SavedPosts = lazy(() => import("./pages/SavedPosts"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
+const EditProfile = lazy(() => import("./pages/EditProfile"));
+const Settings = lazy(() => import("./pages/Settings"));
+const UploadNotes = lazy(() => import("./pages/UploadNotes"));
+const QuizFeed = lazy(() => import("./pages/QuizFeed"));
+const CourseBank = lazy(() => import("./pages/CourseBank"));
+const TopicPlayer = lazy(() => import("./pages/TopicPlayer"));
+const PostDetail = lazy(() => import("./pages/PostDetail"));
+const CourseAdmin = lazy(() => import("./pages/CourseAdmin"));
+
+// Legal Pages (Lazy loaded)
+const TermsOfService = lazy(() => import("./pages/legal/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
+const CookiePolicy = lazy(() => import("./pages/legal/CookiePolicy"));
+const Accessibility = lazy(() => import("./pages/legal/Accessibility"));
+
+import { useAuth } from "./context/AuthContext";
 import { toast } from "sonner";
 import { supabase } from "./utils/supabase";
 import "./App.css";
@@ -42,7 +50,7 @@ import CookiePolicy from "./pages/legal/CookiePolicy";
 import Accessibility from "./pages/legal/Accessibility";
 
 function AppContent() {
-  const { syncWithBackend } = useStudyGram();
+  const { syncWithBackend } = useAuth();
 
   // Handle URL hash for Supabase auth redirects (e.g., email verification)
   useEffect(() => {
@@ -88,9 +96,9 @@ function AppContent() {
     <Router>
       <Routes>
         {/* Course Bank routes (full screen, no header/sidebars) */}
-        <Route path="/courses" element={<CourseBank />} />
-        <Route path="/courses/:topicId" element={<TopicPlayer />} />
-        <Route path="/courses/admin" element={<CourseAdmin />} />
+        <Route path="/courses" element={<Suspense fallback={null}><CourseBank /></Suspense>} />
+        <Route path="/courses/:topicId" element={<Suspense fallback={null}><TopicPlayer /></Suspense>} />
+        <Route path="/courses/admin" element={<Suspense fallback={null}><CourseAdmin /></Suspense>} />
 
         {/* Main app routes (with sidebars) */}
         <Route
@@ -103,27 +111,33 @@ function AppContent() {
 
                 {/* Center Content - Routes */}
                 <main className="flex-1 min-w-0 border-x border-reddit-border pb-20 xl:pb-0">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/explore" element={<Explore />} />
-                    <Route path="/saved" element={<SavedPosts />} />
-                    <Route path="/upload" element={<UploadNotes />} />
-                    <Route path="/quiz-feed" element={<QuizFeed />} />
-                    <Route path="/profile" element={<UserProfile />} />
-                    <Route path="/profile/edit" element={<EditProfile />} />
-                    <Route path="/profile/:username" element={<UserProfile />} />
-                    <Route path="/post/:postId" element={<PostDetail />} />
-                    <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
+                  <Suspense fallback={
+                    <div className="flex justify-center p-10">
+                      <LoadingSpinner size={40} color="#FF4500" />
+                    </div>
+                  }>
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/explore" element={<Explore />} />
+                      <Route path="/saved" element={<SavedPosts />} />
+                      <Route path="/upload" element={<UploadNotes />} />
+                      <Route path="/quiz-feed" element={<QuizFeed />} />
+                      <Route path="/profile" element={<UserProfile />} />
+                      <Route path="/profile/edit" element={<EditProfile />} />
+                      <Route path="/profile/:username" element={<UserProfile />} />
+                      <Route path="/post/:postId" element={<PostDetail />} />
+                      <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
 
 
-                    <Route path="/settings" element={<Settings />} />
+                      <Route path="/settings" element={<Settings />} />
 
-                    {/* Legal Routes */}
-                    <Route path="/terms" element={<TermsOfService />} />
-                    <Route path="/privacy" element={<PrivacyPolicy />} />
-                    <Route path="/cookie-policy" element={<CookiePolicy />} />
-                    <Route path="/accessibility" element={<Accessibility />} />
-                  </Routes>
+                      {/* Legal Routes */}
+                      <Route path="/terms" element={<TermsOfService />} />
+                      <Route path="/privacy" element={<PrivacyPolicy />} />
+                      <Route path="/cookie-policy" element={<CookiePolicy />} />
+                      <Route path="/accessibility" element={<Accessibility />} />
+                    </Routes>
+                  </Suspense>
                 </main>
 
                 {/* Right Sidebar */}
@@ -154,13 +168,19 @@ function AppContent() {
 function App() {
   return (
     <WebSocketProvider>
-      <StudyGramProvider>
-        <CoursePlayerProvider>
-          <TopLoadingBar />
-          <AppContent />
-          <Analytics />
-        </CoursePlayerProvider>
-      </StudyGramProvider>
+      <UIProvider>
+        <AuthProvider>
+          <FeedProvider>
+            <StudyGramProvider>
+              <CoursePlayerProvider>
+                <TopLoadingBar />
+                <AppContent />
+                <Analytics />
+              </CoursePlayerProvider>
+            </StudyGramProvider>
+          </FeedProvider>
+        </AuthProvider>
+      </UIProvider>
     </WebSocketProvider>
   );
 }

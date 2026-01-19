@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { useStudyGram } from "../../context/StudyGramContext";
+import { useFeed } from "../../context/FeedContext";
+import { useAuth } from "../../context/AuthContext";
 import PostCard from "../post/PostCard";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { Layout } from "lucide-react";
@@ -8,11 +9,11 @@ import { Layout } from "lucide-react";
 const Feed = ({ activeTab }) => {
   const {
     posts,
-    currentUser,
     isFeedLoading,
     updatePostInState,
     deletePostFromState
-  } = useStudyGram();
+  } = useFeed();
+  const { currentUser } = useAuth();
   const feedRef = useRef(null);
 
   const displayedPosts = activeTab === 'following'

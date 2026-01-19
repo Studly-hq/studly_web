@@ -6,14 +6,15 @@ import {
   Edit3,
   Flame,
   Trophy,
-  UserPlus,
   BookOpen,
   User,
 } from "lucide-react";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { useStudyGram } from "../context/StudyGramContext";
 import PostCard from "../components/post/PostCard";
+import { useAuth } from "../context/AuthContext";
+import { useFeed } from "../context/FeedContext";
+import { useUI } from "../context/UIContext";
 import {
   getProfileByUsername,
   getUserStreak,
@@ -26,14 +27,18 @@ const UserProfileContent = () => {
   const {
     currentUser,
     isAuthenticated,
-    fetchUserPosts,
     isAuthLoading,
+  } = useAuth();
+
+  const {
+    fetchUserPosts,
     bookmarkedPosts,
     fetchBookmarks,
-    setShowAuthModal,
     updatePostInState,
     deletePostFromState,
-  } = useStudyGram();
+  } = useFeed();
+
+  const { setShowAuthModal } = useUI();
 
   const [activeTab, setActiveTab] = useState("posts");
   const [profileUser, setProfileUser] = useState(null);
@@ -143,7 +148,7 @@ const UserProfileContent = () => {
           </div>
           <button
             onClick={() => setShowAuthModal(true)}
-            className="w-full bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-3 rounded-full transition-all shadow-lg shadow-reddit-orange/10"
+            className="w-full bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-3 rounded-full transition-all"
           >
             Sign In / Sign Up
           </button>
@@ -167,6 +172,14 @@ const UserProfileContent = () => {
             Back to Home
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (!profileUser) {
+    return (
+      <div className="min-h-screen bg-reddit-bg pt-20 px-4 flex items-center justify-center">
+        <LoadingSpinner size={40} color="#FF4500" />
       </div>
     );
   }
@@ -325,7 +338,7 @@ const UserProfileContent = () => {
                 className={`flex-1 px-2 md:px-4 py-2 md:py-3 rounded text-xs md:text-sm font-semibold transition-all ${activeTab === tab.id
                   ? "bg-reddit-orange text-white"
                   : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover"
-                  }`}
+                  } `}
               >
                 {tab.label} {tab.count > 0 && `(${tab.count})`}
               </button>

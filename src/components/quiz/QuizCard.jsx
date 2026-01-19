@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Bookmark, Check, X } from 'lucide-react';
-import { useStudyGram } from '../../context/StudyGramContext';
+import { useAuth } from '../../context/AuthContext';
 
 const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions }) => {
-  const { currentUser, isAuthenticated } = useStudyGram();
+  const { currentUser, isAuthenticated } = useAuth();
   const [isLiked, setIsLiked] = useState(quiz.likes?.includes(currentUser?.id));
   const [isSaved, setIsSaved] = useState(quiz.savedBy?.includes(currentUser?.id));
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -96,9 +96,8 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
                         transition={{ delay: index * 0.05 }}
                         onClick={() => handleAnswerSelect(index)}
                         disabled={selectedAnswer !== null}
-                        className={`w-full p-3 sm:p-4 rounded-lg sm:rounded-xl border backdrop-blur-sm transition-all ${bgColor} ${
-                          selectedAnswer === null ? 'hover:border-white/30 active:scale-95' : ''
-                        }`}
+                        className={`w-full p-3 sm:p-4 rounded-lg sm:rounded-xl border backdrop-blur-sm transition-all ${bgColor} ${selectedAnswer === null ? 'hover:border-white/30 active:scale-95' : ''
+                          }`}
                       >
                         <div className="flex items-center gap-2 sm:gap-3">
                           <span className={`text-base sm:text-lg font-bold ${textColor} flex-shrink-0`}>
@@ -188,9 +187,8 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
           whileTap={{ scale: 0.9 }}
           className="flex flex-col items-center gap-1"
         >
-          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${
-            isLiked ? 'bg-red-500' : 'bg-white/10 hover:bg-white/20'
-          }`}>
+          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${isLiked ? 'bg-red-500' : 'bg-white/10 hover:bg-white/20'
+            }`}>
             <Heart
               size={20}
               className={isLiked ? 'text-white fill-white' : 'text-white'}
@@ -208,9 +206,8 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
           whileTap={{ scale: 0.9 }}
           className="flex flex-col items-center gap-1"
         >
-          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${
-            isSaved ? 'bg-yellow-500' : 'bg-white/10 hover:bg-white/20'
-          }`}>
+          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${isSaved ? 'bg-yellow-500' : 'bg-white/10 hover:bg-white/20'
+            }`}>
             <Bookmark
               size={20}
               className={isSaved ? 'text-white fill-white' : 'text-white'}

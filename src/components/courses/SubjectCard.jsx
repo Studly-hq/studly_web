@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCoursePlayer } from "../../context/CoursePlayerContext";
@@ -128,4 +128,4 @@ const calculateProgress = (topic, progressData) => {
   return Math.round((completedScenes / totalScenes) * 100);
 };
 
-export default SubjectCard;
+export default memo(SubjectCard);

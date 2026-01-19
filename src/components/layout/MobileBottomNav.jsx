@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, GraduationCap, User } from 'lucide-react';
-import { useStudyGram } from '../../context/StudyGramContext';
+import { useAuth } from '../../context/AuthContext';
+import { useUI } from '../../context/UIContext';
 
 const MobileBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, setShowAuthModal } = useStudyGram();
+  const { isAuthenticated } = useAuth();
+  const { setShowAuthModal } = useUI();
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/', id: 'home' },
