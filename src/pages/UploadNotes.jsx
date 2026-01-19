@@ -10,12 +10,12 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useStudyGram } from '../context/StudyGramContext';
+import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const UploadNotes = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useStudyGram();
+  const { isAuthenticated } = useAuth();
 
   const [uploadedFile, setUploadedFile] = useState(null);
   const [topic, setTopic] = useState('');

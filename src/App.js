@@ -3,10 +3,12 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
 import TopLoadingBar from "./components/common/TopLoadingBar";
+import LoadingSpinner from "./components/common/LoadingSpinner";
 import { WebSocketProvider } from "./context/WebSocketContext";
 import { UIProvider } from "./context/UIContext";
 import { AuthProvider } from "./context/AuthContext";
 import { FeedProvider } from "./context/FeedContext";
+import { useAuth } from "./context/AuthContext";
 import ComingSoon from "./components/common/ComingSoon";
 
 import LeftSidebar from "./components/layout/LeftSidebar";
@@ -16,7 +18,10 @@ import AuthModal from "./components/modals/AuthModal";
 import CreatePostModal from "./components/modals/CreatePostModal";
 import CommentSection from "./components/comments/CommentSection";
 import { Toaster } from "sonner";
+import { toast } from "sonner";
 import { Analytics } from '@vercel/analytics/react';
+import { supabase } from "./utils/supabase";
+import "./App.css";
 
 // Pages (Lazy loaded for better performance)
 const Home = lazy(() => import("./pages/Home"));
@@ -37,17 +42,6 @@ const TermsOfService = lazy(() => import("./pages/legal/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
 const CookiePolicy = lazy(() => import("./pages/legal/CookiePolicy"));
 const Accessibility = lazy(() => import("./pages/legal/Accessibility"));
-
-import { useAuth } from "./context/AuthContext";
-import { toast } from "sonner";
-import { supabase } from "./utils/supabase";
-import "./App.css";
-
-// Legal Pages
-import TermsOfService from "./pages/legal/TermsOfService";
-import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
-import CookiePolicy from "./pages/legal/CookiePolicy";
-import Accessibility from "./pages/legal/Accessibility";
 
 function AppContent() {
   const { syncWithBackend } = useAuth();

@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Globe, User, ChevronRight, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useStudyGram } from "../context/StudyGramContext";
+import { useAuth } from "../context/AuthContext";
 import { changePassword } from "../api/auth";
 import { toast } from "sonner";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, currentUser } = useStudyGram();
+  const { isAuthenticated, currentUser } = useAuth();
 
   // Change Password State
   const [showPasswordModal, setShowPasswordModal] = useState(false);

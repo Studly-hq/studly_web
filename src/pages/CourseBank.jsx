@@ -18,7 +18,7 @@ import {
 import { getCourses, getEnrolledCourses } from "../api/coursebank";
 import { mapApiCourseToTopic } from "../utils/courseMapper";
 import { useAuth } from "../context/AuthContext";
-import LoadingSpinner from "../common/LoadingSpinner";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const CourseBank = () => {
   const navigate = useNavigate();
