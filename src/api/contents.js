@@ -174,12 +174,18 @@ export const createComment = async (
   parentCommentId = null
 ) => {
   try {
-    const response = await client.post(`/studlygram/${postId}/comment`, {
+    const payload = {
       content,
       post_id: String(postId),
       user_id: String(userId),
-      parent_comment_id: parentCommentId ? String(parentCommentId) : null,
-    });
+    };
+
+    // Only include parent_comment_id if it's actually set (for replies)
+    if (parentCommentId) {
+      payload.parent_comment_id = String(parentCommentId);
+    }
+
+    const response = await client.post(`/studlygram/${postId}/comment`, payload);
     console.log("Create Comment Response:", response.data);
     return response.data;
   } catch (error) {

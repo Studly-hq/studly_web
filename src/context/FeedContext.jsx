@@ -126,9 +126,9 @@ export const FeedProvider = ({ children }) => {
         setBookmarkedPosts(prev => prev.filter(p => String(p.id) !== String(postId)));
     }, []);
 
-    const addComment = useCallback(async (postId, content) => {
+    const addComment = useCallback(async (postId, content, parentCommentId = null) => {
         try {
-            const newCommentData = await apiCreateComment(postId, content);
+            const newCommentData = await apiCreateComment(postId, content, currentUser.id, parentCommentId);
             const formattedComment = {
                 id: newCommentData.comment_id,
                 content: newCommentData.comment_content,
@@ -142,12 +142,33 @@ export const FeedProvider = ({ children }) => {
                     avatar: currentUser.avatar || null,
                 },
                 replies: [],
+                parentCommentId: parentCommentId,
             };
 
-            setComments((prev) => ({
-                ...prev,
-                [postId]: [formattedComment, ...(prev[postId] || [])],
-            }));
+            if (parentCommentId) {
+                // Add as a reply to the parent comment
+                setComments((prev) => {
+                    const postComments = prev[postId] || [];
+                    return {
+                        ...prev,
+                        [postId]: postComments.map((c) => {
+                            if (String(c.id) === String(parentCommentId)) {
+                                return {
+                                    ...c,
+                                    replies: [...(c.replies || []), formattedComment],
+                                };
+                            }
+                            return c;
+                        }),
+                    };
+                });
+            } else {
+                // Add as a top-level comment
+                setComments((prev) => ({
+                    ...prev,
+                    [postId]: [formattedComment, ...(prev[postId] || [])],
+                }));
+            }
 
             setPosts((prev) =>
                 prev.map((p) =>
@@ -340,9 +361,8 @@ export const FeedProvider = ({ children }) => {
     );
 
     const requireAuth = useCallback(
-        (callback, actionData = null) => {
+        (actionData = null) => {
             if (isAuthenticated) {
-                callback();
                 return true;
             } else {
                 setScrollPosition(window.scrollY);

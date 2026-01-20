@@ -17,7 +17,7 @@ export default {
         }
       },
       fontFamily: {
-        righteous: ['Righteous', 'cursive'],
+        inter: ['Inter', 'sans-serif'],
       }
     },
   },

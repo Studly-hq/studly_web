@@ -98,7 +98,7 @@ const FeedComposer = () => {
 
             const postData = {
                 content,
-                media: uploadedImageUrls.length > 0 ? uploadedImageUrls : undefined
+                media: uploadedImageUrls.length > 0 ? uploadedImageUrls : []
             };
             await createPost(postData);
             setContent('');

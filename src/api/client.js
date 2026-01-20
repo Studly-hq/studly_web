@@ -10,7 +10,7 @@ const client = axios.create({
   // baseURL is removed because we are using a proxy in package.json
   headers: {
     "Content-Type": "application/json", // We are sending data in JSON format
-
+    "ngrok-skip-browser-warning": "true", // Skip ngrok's free tier warning page
   },
   withCredentials: true, // Ensure cookies are sent with requests
 });

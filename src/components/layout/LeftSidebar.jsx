@@ -4,7 +4,6 @@ import { Home, Compass, User, PlayCircle, MoreHorizontal, LogIn } from 'lucide-r
 import { useCoursePlayer } from '../../context/CoursePlayerContext';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
-import { useFeed } from '../../context/FeedContext';
 import logo from '../../assets/logo.png';
 
 
@@ -14,8 +13,7 @@ const LeftSidebar = () => {
 
   const { hasAnyProgress } = useCoursePlayer();
   const { isAuthenticated, currentUser } = useAuth();
-  const { handleCreatePost } = useFeed();
-  const { setShowAuthModal } = useUI();
+  const { setShowAuthModal, setShowCreatePostModal } = useUI();
 
   const navItems = [
     {
@@ -94,7 +92,7 @@ const LeftSidebar = () => {
           {/* Post Button */}
           <div className="mt-2 px-2">
             <button
-              onClick={() => isAuthenticated ? handleCreatePost() : setShowAuthModal(true)}
+              onClick={() => isAuthenticated ? setShowCreatePostModal(true) : setShowAuthModal(true)}
               className="w-[90%] bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-2.5 rounded-full shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] text-lg"
             >
               Post

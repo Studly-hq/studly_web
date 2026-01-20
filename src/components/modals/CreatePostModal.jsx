@@ -103,10 +103,8 @@ const CreatePostModal = () => {
       }
 
       const postData = {
-        type: postType,
         content: content.trim(),
-        media: uploadedImageUrls.length > 0 ? uploadedImageUrls : undefined,
-        tags: extractHashtags(content),
+        media: uploadedImageUrls.length > 0 ? uploadedImageUrls : []
       };
 
       await createPost(postData);
