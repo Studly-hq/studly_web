@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -9,7 +9,7 @@ import {
   BookOpen,
   User,
 } from "lucide-react";
-import LoadingSpinner from "../components/common/LoadingSpinner";
+import { ProfileHeaderSkeleton, FeedSkeleton } from "../components/common/Skeleton";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import PostCard from "../components/post/PostCard";
 import { useAuth } from "../context/AuthContext";
@@ -46,6 +46,9 @@ const UserProfileContent = () => {
   const [userPosts, setUserPosts] = useState([]);
   const [error, setError] = useState(null);
 
+  // Track which profile we've loaded to prevent double-loading
+  const loadedProfileRef = useRef(null);
+
   // Determine if we're viewing our own profile or someone else's
   const isOwnProfile =
     !username || (isAuthenticated && currentUser?.username === username);
@@ -58,8 +61,17 @@ const UserProfileContent = () => {
         return;
       }
 
+      // Create a unique key for the current profile to load
+      const profileKey = username || currentUser?.username || 'guest';
+
+      // Skip if we've already loaded this profile
+      if (loadedProfileRef.current === profileKey) {
+        return;
+      }
+
       setLoading(true);
       setError(null);
+      loadedProfileRef.current = profileKey;
 
       try {
         if (username) {
@@ -115,7 +127,8 @@ const UserProfileContent = () => {
     };
 
     fetchProfile();
-  }, [username, currentUser, fetchUserPosts, isAuthLoading, isAuthenticated]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username, currentUser?.username, isAuthLoading, isAuthenticated]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -126,10 +139,36 @@ const UserProfileContent = () => {
   // Use bookmarkedPosts from context for the Saved tab
   const savedPosts = bookmarkedPosts;
 
+  // Loading state - show skeleton of the page structure
   if (loading) {
     return (
-      <div className="min-h-screen bg-reddit-bg pt-20 px-4 flex items-center justify-center">
-        <LoadingSpinner size={40} color="#FF4500" />
+      <div className="min-h-screen bg-reddit-bg">
+        {/* Header skeleton */}
+        <div className="sticky top-0 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
+          <div className="max-w-2xl mx-auto px-4 py-3">
+            <div className="flex items-center gap-4">
+              <div className="p-2 w-10 h-10 bg-reddit-cardHover rounded-full animate-pulse" />
+              <div>
+                <div className="w-32 h-5 bg-reddit-cardHover rounded animate-pulse mb-1" />
+                <div className="w-20 h-3 bg-reddit-cardHover rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Profile content skeleton */}
+        <div className="max-w-2xl mx-auto px-4 py-6">
+          <ProfileHeaderSkeleton />
+
+          {/* Tabs skeleton */}
+          <div className="flex items-center gap-1 mb-6 bg-reddit-card rounded p-1 border border-reddit-border">
+            <div className="flex-1 h-10 bg-reddit-cardHover rounded animate-pulse" />
+            <div className="flex-1 h-10 bg-reddit-cardHover rounded animate-pulse" />
+          </div>
+
+          {/* Posts skeleton */}
+          <FeedSkeleton count={2} />
+        </div>
       </div>
     );
   }
@@ -178,8 +217,11 @@ const UserProfileContent = () => {
 
   if (!profileUser) {
     return (
-      <div className="min-h-screen bg-reddit-bg pt-20 px-4 flex items-center justify-center">
-        <LoadingSpinner size={40} color="#FF4500" />
+      <div className="min-h-screen bg-reddit-bg">
+        <div className="max-w-2xl mx-auto px-4 py-6">
+          <ProfileHeaderSkeleton />
+          <FeedSkeleton count={2} />
+        </div>
       </div>
     );
   }

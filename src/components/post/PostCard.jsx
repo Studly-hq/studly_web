@@ -141,12 +141,6 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         // If we want tags to show up immediately in UI without refresh, we need to update local state logic too.
         // But let's just send it first.
         onPostUpdated(post.id, editContent);
-        // Force reload to fetch new tags if context doesn't support tag updates
-        if (tags.length > 0) {
-          window.location.reload();
-        }
-      } else {
-        window.location.reload();
       }
     } catch (error) {
       console.error("Failed to update post:", error);

@@ -106,8 +106,20 @@ function AppContent() {
                 {/* Center Content - Routes */}
                 <main className="flex-1 min-w-0 border-x border-reddit-border pb-20 xl:pb-0">
                   <Suspense fallback={
-                    <div className="flex justify-center p-10">
-                      <LoadingSpinner size={40} color="#FF4500" />
+                    <div className="max-w-[640px] mx-auto px-4 py-5">
+                      <div className="bg-reddit-card rounded border border-reddit-border p-4 animate-pulse mb-3">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 bg-reddit-cardHover rounded-full" />
+                          <div className="flex-1">
+                            <div className="w-24 h-3 bg-reddit-cardHover rounded mb-2" />
+                            <div className="w-16 h-2 bg-reddit-cardHover rounded" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="h-3 bg-reddit-cardHover rounded" />
+                          <div className="h-3 bg-reddit-cardHover rounded w-[90%]" />
+                        </div>
+                      </div>
                     </div>
                   }>
                     <Routes>

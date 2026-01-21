@@ -14,6 +14,7 @@ import { useFeed } from "../context/FeedContext";
 import { useUI } from "../context/UIContext";
 import Comment from "../components/comments/Comment";
 import LoadingSpinner from "../components/common/LoadingSpinner";
+import { PostCardSkeleton } from "../components/common/Skeleton";
 
 const PostPage = () => {
   const { postId } = useParams();
@@ -232,8 +233,8 @@ const PostPage = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-white">
-        <LoadingSpinner size={60} color="#FF4500" />
+      <div className="max-w-[600px] mx-auto px-4 py-8">
+        <PostCardSkeleton />
       </div>
     );
   }
@@ -365,8 +366,8 @@ const PostPage = () => {
           <button
             onClick={() => handleBookmarkPost(post.id, post)}
             className={`group flex items-center justify-center p-2 rounded-full transition-colors ${isBookmarked
-                ? "text-yellow-500"
-                : "text-gray-500 hover:text-yellow-500"
+              ? "text-yellow-500"
+              : "text-gray-500 hover:text-yellow-500"
               }`}
           >
             <div className="p-2 rounded-full group-hover:bg-yellow-500/10">

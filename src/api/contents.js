@@ -136,8 +136,8 @@ export const unlikePost = async (postId) => {
 
 export const likeComment = async (commentId, postId) => {
   try {
+    // Backend expects ONLY comment_id for comment likes (not both post_id and comment_id)
     const response = await client.post("/studlygram/like", {
-      post_id: String(postId),
       comment_id: String(commentId),
     });
     console.log("Like Comment Response:", response.data);
@@ -150,9 +150,9 @@ export const likeComment = async (commentId, postId) => {
 
 export const unlikeComment = async (commentId, postId) => {
   try {
+    // Backend expects ONLY comment_id for comment unlikes (not both post_id and comment_id)
     const response = await client.delete("/studlygram/like", {
       data: {
-        post_id: String(postId),
         comment_id: String(commentId),
       },
     });

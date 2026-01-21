@@ -18,7 +18,7 @@ import {
 import { getCourses, getEnrolledCourses } from "../api/coursebank";
 import { mapApiCourseToTopic } from "../utils/courseMapper";
 import { useAuth } from "../context/AuthContext";
-import LoadingSpinner from "../components/common/LoadingSpinner";
+import { CourseCardSkeleton } from "../components/common/Skeleton";
 
 const CourseBank = () => {
   const navigate = useNavigate();
@@ -191,9 +191,10 @@ const CourseBank = () => {
 
           {/* Loading State */}
           {isLoading && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <LoadingSpinner size={50} color="#FF4500" />
-              <p className="text-reddit-placeholder mt-4">Loading dock...</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <CourseCardSkeleton key={i} />
+              ))}
             </div>
           )}
 

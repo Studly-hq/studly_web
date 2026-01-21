@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useFeed } from "../../context/FeedContext";
 import { useAuth } from "../../context/AuthContext";
 import PostCard from "../post/PostCard";
-import LoadingSpinner from "../common/LoadingSpinner";
+import { FeedSkeleton } from "../common/Skeleton";
 import { Layout } from "lucide-react";
 
 const Feed = ({ activeTab }) => {
@@ -49,8 +49,8 @@ const Feed = ({ activeTab }) => {
 
   if (isFeedLoading) {
     return (
-      <div className="flex justify-center p-10">
-        <LoadingSpinner size={50} color="#FF4500" />
+      <div className="flex-1 max-w-[640px] mx-auto px-4 pt-4 pb-5">
+        <FeedSkeleton count={4} />
       </div>
     );
   }

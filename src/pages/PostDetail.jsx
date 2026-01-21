@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, MessageSquare, User } from "lucide-react";
 import PostCard from "../components/post/PostCard";
 import Comment from "../components/comments/Comment";
 import LoadingSpinner from "../components/common/LoadingSpinner";
+import { PostCardSkeleton, CommentsSkeleton } from "../components/common/Skeleton";
 import { useAuth } from "../context/AuthContext";
 import { useFeed } from "../context/FeedContext";
 import { useUI } from "../context/UIContext";
@@ -34,6 +35,9 @@ const PostDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Track which postId we've loaded to prevent double-loading
+  const loadedPostIdRef = useRef(null);
+
   // Comment State
   const [commentText, setCommentText] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
@@ -41,31 +45,47 @@ const PostDetail = () => {
 
   useEffect(() => {
     const loadPost = async () => {
-      setLoading(true);
-      const fetchedPost = await fetchPostById(postId);
-      if (fetchedPost) {
-        setPost(fetchedPost);
-        await fetchCommentsForPost(postId);
+      // Check if we already have this post in global state
+      const existingPost = posts.find(p => String(p.id) === String(postId));
+
+      if (existingPost) {
+        setPost(existingPost);
+        // We can skip initial "heavy" loading if we have the post
+        if (loadedPostIdRef.current !== postId) {
+          // But we still want to fetch fresh comments in the background
+          fetchCommentsForPost(postId);
+          loadedPostIdRef.current = postId;
+        }
+        setLoading(false);
       } else {
-        setError("Post not found, Please try again!");
+        // Only show full-page loading skeleton if we don't have the post at all
+        if (loadedPostIdRef.current !== postId) {
+          setLoading(true);
+          loadedPostIdRef.current = postId;
+
+          const fetchedPost = await fetchPostById(postId);
+          if (fetchedPost) {
+            setPost(fetchedPost);
+            await fetchCommentsForPost(postId);
+          } else {
+            setError("Post not found, Please try again!");
+          }
+          setLoading(false);
+        }
       }
-      setLoading(false);
     };
 
     if (postId) {
       loadPost();
     }
-  }, [postId, fetchPostById, fetchCommentsForPost]);
+  }, [postId, posts, fetchPostById, fetchCommentsForPost]);
 
-  // Sync local post state with global posts state (for real-time like updates)
+  // Handle manual refreshes or tab switches
   useEffect(() => {
-    if (post && posts.length > 0) {
-      const updatedPost = posts.find(p => String(p.id) === String(postId));
-      if (updatedPost && (updatedPost.likeCount !== post.likeCount || updatedPost.likes.length !== post.likes.length)) {
-        setPost(prev => ({ ...prev, likeCount: updatedPost.likeCount, likes: updatedPost.likes }));
-      }
+    if (postId) {
+      fetchCommentsForPost(postId);
     }
-  }, [posts, postId, post]);
+  }, [postId, fetchCommentsForPost]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -82,8 +102,28 @@ const PostDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-reddit-bg text-reddit-text">
-        <LoadingSpinner size={50} color="#FF4500" />
+      <div className="min-h-screen bg-reddit-bg">
+        {/* Header skeleton */}
+        <div className="sticky top-0 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
+          <div className="max-w-[640px] mx-auto px-4 py-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-reddit-cardHover animate-pulse" />
+            <div className="w-24 h-5 bg-reddit-cardHover rounded animate-pulse" />
+          </div>
+        </div>
+
+        {/* Post skeleton */}
+        <div className="max-w-[640px] mx-auto px-4 py-5">
+          <PostCardSkeleton />
+
+          {/* Comments section skeleton */}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-5 h-5 bg-reddit-cardHover rounded animate-pulse" />
+              <div className="w-24 h-4 bg-reddit-cardHover rounded animate-pulse" />
+            </div>
+            <CommentsSkeleton count={3} />
+          </div>
+        </div>
       </div>
     );
   }

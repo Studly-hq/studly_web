@@ -10,7 +10,7 @@ import ContentPlayer from '../components/courses/player/ContentPlayer';
 import NotesPanel from '../components/courses/player/NotesPanel';
 import AIChatbot from '../components/courses/player/AIChatbot';
 import { Toaster } from 'react-hot-toast';
-import LoadingSpinner from '../components/common/LoadingSpinner';
+import { TopicPlayerSkeleton } from '../components/common/Skeleton';
 import CompletionScreen from '../components/courses/player/CompletionScreen';
 
 const TopicPlayer = () => {
@@ -61,11 +61,7 @@ const TopicPlayer = () => {
   }, [topicId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-reddit-bg flex items-center justify-center">
-        <LoadingSpinner size={50} color="#FF4500" />
-      </div>
-    );
+    return <TopicPlayerSkeleton />;
   }
 
   if (error || !topic || !currentTopic) {

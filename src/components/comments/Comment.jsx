@@ -306,24 +306,26 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
 
             {/* Comment Actions */}
             <div className="flex items-center gap-4 mt-2 px-2">
-              {/* Like */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                onClick={() => handleLikeComment(comment.id, postId)}
-                className={`flex items-center gap-1 text-xs font-medium transition-colors duration-200 ${isLiked
-                  ? "text-reddit-orange"
-                  : "text-reddit-textMuted hover:text-reddit-orange"
-                  }`}
-              >
-                <Heart
-                  size={14}
-                  fill={isLiked ? "currentColor" : "none"}
-                  strokeWidth={2}
-                />
-                {comment.likeCount > 0 && <span>{comment.likeCount}</span>}
-              </motion.button>
+              {/* Like - only show on top-level comments, not replies */}
+              {!isReply && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => handleLikeComment(postId, comment.id)}
+                  className={`flex items-center gap-1 text-xs font-medium transition-colors duration-200 ${isLiked
+                    ? "text-reddit-orange"
+                    : "text-reddit-textMuted hover:text-reddit-orange"
+                    }`}
+                >
+                  <Heart
+                    size={14}
+                    fill={isLiked ? "currentColor" : "none"}
+                    strokeWidth={2}
+                  />
+                  {comment.likeCount > 0 && <span>{comment.likeCount}</span>}
+                </motion.button>
+              )}
 
               {/* Reply */}
               {!isReply && (
@@ -339,8 +341,8 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
                 </motion.button>
               )}
 
-              {/* View Replies Toggle */}
-              {!isReply && comment.replies && comment.replies.length > 0 && (
+              {/* View Replies Toggle - allow on any comment that has replies */}
+              {comment.replies && comment.replies.length > 0 && (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -354,8 +356,8 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
               )}
             </div>
 
-            {/* Replies */}
-            {!isReply && comment.replies && comment.replies.length > 0 && (
+            {/* Replies - allow nesting for any comment depth */}
+            {comment.replies && comment.replies.length > 0 && (
               <AnimatePresence>
                 {showReplies && (
                   <motion.div

@@ -1,22 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Bookmark, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useFeed } from "../context/FeedContext";
 import PostCard from "../components/post/PostCard";
-import LoadingSpinner from "../components/common/LoadingSpinner";
+import { FeedSkeleton } from "../components/common/Skeleton";
 
 const SavedPosts = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { bookmarkedPosts, fetchBookmarks, isBookmarksLoading, updatePostInState, deletePostFromState } = useFeed();
 
+  // Track if we've already fetched bookmarks
+  const hasFetchedRef = useRef(false);
+
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
       fetchBookmarks();
     }
-  }, [isAuthenticated, fetchBookmarks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   if (!isAuthenticated) {
     return (
@@ -74,9 +79,7 @@ const SavedPosts = () => {
       {/* Content */}
       <div className="max-w-[640px] mx-auto px-4 py-5">
         {isBookmarksLoading ? (
-          <div className="flex justify-center py-20">
-            <LoadingSpinner size={50} color="#FF4500" />
-          </div>
+          <FeedSkeleton count={3} />
         ) : savedPosts.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}

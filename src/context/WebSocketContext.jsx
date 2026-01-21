@@ -47,7 +47,7 @@ export const WebSocketProvider = ({ children }) => {
         isIntentionalDisconnect.current = false;
 
         // Use localhost:8080 as per guide
-        const wsUrl = 'wss://unesthetic-cretaceously-maris.ngrok-free.dev/ws';
+        const wsUrl = 'wss://studly-server-production.up.railway.app/ws';
 
         console.log('Connecting to WebSocket:', wsUrl);
         // Clean up existing socket if any before connecting a new one, just in case

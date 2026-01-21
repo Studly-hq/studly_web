@@ -6,6 +6,8 @@ import {
     getPost as apiGetPost,
     likePost as apiLikePost,
     unlikePost as apiUnlikePost,
+    likeComment as apiLikeComment,
+    unlikeComment as apiUnlikeComment,
     createComment as apiCreateComment,
     getComments as apiGetComments,
     bookmarkPost as apiBookmarkPost,
@@ -129,37 +131,58 @@ export const FeedProvider = ({ children }) => {
     const addComment = useCallback(async (postId, content, parentCommentId = null) => {
         try {
             const newCommentData = await apiCreateComment(postId, content, currentUser.id, parentCommentId);
+            console.log("Create comment response:", newCommentData);
+
+            // Map backend response to frontend format
+            // Backend returns: comment_id, comment_content, comment_created_at, commenter_*, etc.
             const formattedComment = {
-                id: newCommentData.comment_id,
-                content: newCommentData.comment_content,
-                timestamp: newCommentData.comment_created_at,
+                id: newCommentData.comment_id || newCommentData.id || newCommentData.uuid || Math.random().toString(36).substr(2, 9),
+                content: newCommentData.comment_content || newCommentData.content || content,
+                timestamp: newCommentData.comment_created_at || newCommentData.created_at || new Date().toISOString(),
                 likes: [],
                 likeCount: 0,
+                userId: currentUser.id,
+                parentCommentId: parentCommentId || newCommentData.parent_comment_id || newCommentData.parent_id || null,
                 user: {
                     id: currentUser.id,
                     username: currentUser.username,
-                    name: currentUser.displayName,
-                    avatar: currentUser.avatar || null,
+                    name: currentUser.name || currentUser.username,
+                    avatar: currentUser.avatar,
                 },
                 replies: [],
-                parentCommentId: parentCommentId,
             };
 
+            console.log("DEBUG: Formatted comment after creation:", formattedComment);
+            console.log("DEBUG: Raw newCommentData from API:", newCommentData);
+
+            console.log("Formatted comment:", formattedComment);
+
             if (parentCommentId) {
-                // Add as a reply to the parent comment
+                // Add as a reply to the parent comment - need to search recursively
+                const addReplyToParent = (commentsList) => {
+                    return commentsList.map((c) => {
+                        if (String(c.id) === String(parentCommentId)) {
+                            return {
+                                ...c,
+                                replies: [...(c.replies || []), formattedComment],
+                            };
+                        }
+                        // Also check in nested replies
+                        if (c.replies && c.replies.length > 0) {
+                            return {
+                                ...c,
+                                replies: addReplyToParent(c.replies),
+                            };
+                        }
+                        return c;
+                    });
+                };
+
                 setComments((prev) => {
                     const postComments = prev[postId] || [];
                     return {
                         ...prev,
-                        [postId]: postComments.map((c) => {
-                            if (String(c.id) === String(parentCommentId)) {
-                                return {
-                                    ...c,
-                                    replies: [...(c.replies || []), formattedComment],
-                                };
-                            }
-                            return c;
-                        }),
+                        [postId]: addReplyToParent(postComments),
                     };
                 });
             } else {
@@ -216,25 +239,87 @@ export const FeedProvider = ({ children }) => {
     const fetchCommentsForPost = useCallback(async (postId) => {
         try {
             const commentsData = await apiGetComments(postId);
-            const formattedComments = commentsData.map((c) => ({
-                id: c.comment_id,
-                content: c.comment_content,
-                timestamp: c.comment_created_at,
-                likes: [],
-                likeCount: c.comment_like_count,
-                user: {
-                    id: c.commenter_user_id,
-                    username: c.commenter_username,
-                    name: c.commenter_name,
-                    avatar: c.commenter_avatar || null,
-                },
-                replies: [],
-            }));
-            setComments((prev) => ({ ...prev, [postId]: formattedComments }));
+
+            // First, map all comments to our frontend format with robust fallbacks
+            const allComments = commentsData.map((c, index) => {
+                // Diagnostic log for the first few comments to check field names
+                if (index < 2) {
+                    console.log("DEBUG: Raw comment data from API:", c);
+                }
+
+                return {
+                    id: String(c.comment_id || c.id || c.uuid),
+                    content: c.comment_content || c.content || "",
+                    timestamp: c.comment_created_at || c.created_at || new Date().toISOString(),
+                    likes: (c.comment_is_liked_by_requester || c.is_liked) && currentUser ? [currentUser.id] : [],
+                    likeCount: c.comment_like_count || c.like_count || 0,
+                    replyCount: c.comment_reply_count || c.reply_count || 0,
+                    userId: c.commenter_user_id || c.author_id || c.user_id,
+                    parentCommentId: c.parent_comment_id || c.parent_id || null,
+                    user: {
+                        id: c.commenter_user_id || c.author_id || c.user_id,
+                        username: c.commenter_username || c.author_username || c.username || "user",
+                        name: c.commenter_name || c.author_name || c.name || "",
+                        avatar: c.commenter_avatar || c.author_avatar || c.avatar_url || c.avatar || null,
+                    },
+                    replies: c.replies || [], // Preserve existing replies if any
+                };
+            });
+
+            // Build the hierarchy: separate top-level comments from replies
+            const commentMap = new Map();
+            const topLevelComments = [];
+
+            // First pass: create a map of all comments by ID
+            allComments.forEach((comment) => {
+                commentMap.set(String(comment.id), comment);
+            });
+
+            // Second pass: nest replies under their parent comments
+            allComments.forEach((comment) => {
+                if (comment.parentCommentId && String(comment.parentCommentId) !== "0") {
+                    // This is a reply - add it to its parent's replies array
+                    const parentId = String(comment.parentCommentId);
+                    const parent = commentMap.get(parentId);
+                    if (parent) {
+                        console.log(`DEBUG: Nesting comment ${comment.id} under parent ${parentId}`);
+                        parent.replies.push(comment);
+                    } else {
+                        console.warn(`DEBUG: Parent ${parentId} not found for comment ${comment.id}. Keys in map:`, Array.from(commentMap.keys()));
+                        // Parent not found, treat as top-level for visibility
+                        topLevelComments.push(comment);
+                    }
+                } else {
+                    // This is a top-level comment
+                    topLevelComments.push(comment);
+                }
+            });
+
+            // Recursive sorting function
+            const sortCommentsRecursive = (commentsList, newestFirst = true) => {
+                commentsList.sort((a, b) => {
+                    const dateA = new Date(a.timestamp);
+                    const dateB = new Date(b.timestamp);
+                    return newestFirst ? dateB - dateA : dateA - dateB;
+                });
+
+                commentsList.forEach(comment => {
+                    if (comment.replies && comment.replies.length > 0) {
+                        sortCommentsRecursive(comment.replies, false); // Replies use oldest first
+                    }
+                });
+            };
+
+            // Initial sort for top-level comments (newest first)
+            sortCommentsRecursive(topLevelComments, true);
+
+            console.log("DEBUG: Final built comment hierarchy:", topLevelComments);
+
+            setComments((prev) => ({ ...prev, [postId]: topLevelComments }));
         } catch (error) {
             console.error("Failed to fetch comments", error);
         }
-    }, []);
+    }, [currentUser]);
 
     const handleLikePost = useCallback(
         async (postId, action = null, skipAuth = false) => {
@@ -330,34 +415,95 @@ export const FeedProvider = ({ children }) => {
     );
 
     const handleLikeComment = useCallback(
-        (postId, commentId, skipAuth = false) => {
+        async (postId, commentId, skipAuth = false) => {
             if (!skipAuth && !isAuthenticated) {
                 setScrollPosition(window.scrollY);
                 setPendingAction({ type: "like-comment", postId, commentId });
                 setShowAuthModal(true);
                 return;
             }
+
+            // Store previous state for rollback
+            const previousComments = comments;
+
+            // Helper function to find a comment in the hierarchy (including replies)
+            const findComment = (commentsList, targetId) => {
+                for (const c of commentsList) {
+                    if (String(c.id) === String(targetId)) {
+                        return c;
+                    }
+                    if (c.replies && c.replies.length > 0) {
+                        const found = findComment(c.replies, targetId);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            };
+
+            // Helper function to update a comment in the hierarchy
+            const updateCommentInList = (commentsList, targetId, updateFn) => {
+                return commentsList.map((c) => {
+                    if (String(c.id) === String(targetId)) {
+                        return updateFn(c);
+                    }
+                    if (c.replies && c.replies.length > 0) {
+                        return {
+                            ...c,
+                            replies: updateCommentInList(c.replies, targetId, updateFn),
+                        };
+                    }
+                    return c;
+                });
+            };
+
+            // Perform update
+            const postComments = comments[postId] || [];
+            const targetComment = findComment(postComments, commentId);
+            const hasLiked = targetComment?.likes?.includes(currentUser.id);
+
             setComments((prev) => {
-                const postComments = prev[postId] || [];
+                const updatedPostComments = prev[postId] || [];
+
+                // Find current state of the comment from latest state
+                const currentComment = findComment(updatedPostComments, commentId);
+                if (!currentComment) return prev;
+
+                const alreadyLiked = currentComment.likes?.includes(currentUser.id);
+
+                // Toggle liked state
                 return {
                     ...prev,
-                    [postId]: postComments.map((c) => {
-                        if (String(c.id) === String(commentId)) {
-                            const hasLiked = c.likes?.includes(currentUser.id);
-                            return {
-                                ...c,
-                                likes: hasLiked
-                                    ? c.likes.filter((id) => id !== currentUser.id)
-                                    : [...(c.likes || []), currentUser.id],
-                                likeCount: hasLiked ? c.likeCount - 1 : c.likeCount + 1,
-                            };
-                        }
-                        return c;
+                    [postId]: updateCommentInList(updatedPostComments, commentId, (c) => {
+                        const isLikedNow = alreadyLiked;
+                        const newLikes = isLikedNow
+                            ? (c.likes || []).filter((id) => id !== currentUser.id)
+                            : [...new Set([...(c.likes || []), currentUser.id])]; // Use Set to prevent duplicates
+
+                        return {
+                            ...c,
+                            likes: newLikes,
+                            likeCount: isLikedNow
+                                ? Math.max(0, (c.likeCount || 1) - 1)
+                                : (c.likeCount || 0) + 1,
+                        };
                     }),
                 };
             });
+
+            // Call API based on the toggle state we calculated
+            try {
+                if (hasLiked) {
+                    await apiUnlikeComment(commentId, postId);
+                } else {
+                    await apiLikeComment(commentId, postId);
+                }
+            } catch (error) {
+                console.error("Failed to like/unlike comment:", error);
+                // Rollback on error
+                setComments(previousComments);
+            }
         },
-        [currentUser, isAuthenticated, setScrollPosition, setPendingAction, setShowAuthModal]
+        [comments, currentUser, isAuthenticated, setScrollPosition, setPendingAction, setShowAuthModal]
     );
 
     const requireAuth = useCallback(

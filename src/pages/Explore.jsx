@@ -4,9 +4,10 @@ import { motion } from 'framer-motion';
 import { Search, TrendingUp, Hash, X, Flame, Sparkles, Clock } from 'lucide-react';
 import { useFeed } from '../context/FeedContext';
 import PostCard from '../components/post/PostCard';
+import { FeedSkeleton } from '../components/common/Skeleton';
 
 const Explore = () => {
-  const { posts, updatePostInState, deletePostFromState } = useFeed();
+  const { posts, isFeedLoading, updatePostInState, deletePostFromState } = useFeed();
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   const [searchQuery, setSearchQuery] = useState(initialQuery);
@@ -154,7 +155,9 @@ const Explore = () => {
 
             {/* Posts */}
             <div className="space-y-3">
-              {filteredPosts.length === 0 ? (
+              {isFeedLoading ? (
+                <FeedSkeleton count={3} />
+              ) : filteredPosts.length === 0 ? (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
