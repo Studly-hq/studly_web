@@ -1,11 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image, Smile, X, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useFeed } from '../../context/FeedContext';
 import { useUI } from '../../context/UIContext';
 import { toast } from 'sonner';
-import LoadingSpinner from '../common/LoadingSpinner';
+import CircularProgress from '../common/CircularProgress';
 import EmojiPicker from 'emoji-picker-react';
 import { uploadMultipleToCloudinary } from '../../utils/uploadToCloudinary';
 
@@ -17,11 +17,13 @@ const FeedComposer = () => {
     const { setShowAuthModal, startLoading, finishLoading } = useUI();
     const [content, setContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [selectedImages, setSelectedImages] = useState([]);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const fileInputRef = useRef(null);
     const textareaRef = useRef(null);
     const [avatarError, setAvatarError] = useState(false);
+    const progressIntervalRef = useRef(null);
 
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
@@ -78,6 +80,26 @@ const FeedComposer = () => {
         setShowEmojiPicker(false);
     };
 
+    // Start progress animation
+    const startProgress = () => {
+        setUploadProgress(0);
+        progressIntervalRef.current = setInterval(() => {
+            setUploadProgress(prev => {
+                if (prev >= 90) return prev;
+                return prev + Math.random() * 15;
+            });
+        }, 300);
+    };
+
+    // Complete progress animation
+    const completeProgress = () => {
+        if (progressIntervalRef.current) {
+            clearInterval(progressIntervalRef.current);
+        }
+        setUploadProgress(100);
+        setTimeout(() => setUploadProgress(0), 500);
+    };
+
     const handleSubmit = async () => {
         if (!isAuthenticated) {
             setShowAuthModal(true);
@@ -87,26 +109,34 @@ const FeedComposer = () => {
 
         setIsSubmitting(true);
         startLoading();
+        startProgress();
+
+        // Store content locally before clearing
+        const postContent = content.trim();
+        const imagesToUpload = [...selectedImages];
+        const hasImages = imagesToUpload.length > 0;
+
         try {
             let uploadedImageUrls = [];
 
-            // Upload images to Cloudinary if any
-            if (selectedImages.length > 0) {
-                const files = selectedImages.map((img) => img.file);
+            if (hasImages) {
+                const files = imagesToUpload.map((img) => img.file);
                 uploadedImageUrls = await uploadMultipleToCloudinary(files);
             }
 
             const postData = {
-                content,
-                media: uploadedImageUrls.length > 0 ? uploadedImageUrls : []
+                content: postContent,
+                media: uploadedImageUrls
             };
             await createPost(postData);
             setContent('');
             clearAllImages();
+            completeProgress();
             toast.success("Post created successfully!");
         } catch (error) {
             console.error(error);
             toast.error("Failed to create post");
+            completeProgress();
         } finally {
             setIsSubmitting(false);
             finishLoading();
@@ -128,7 +158,24 @@ const FeedComposer = () => {
     };
 
     return (
-        <div className="border-b border-reddit-border p-4 mt-4">
+        <div className="border-b border-reddit-border p-4 mt-4 relative">
+            {/* Progress Overlay */}
+            <AnimatePresence>
+                {isSubmitting && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-reddit-bg/90 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg"
+                    >
+                        <div className="flex flex-col items-center gap-3">
+                            <CircularProgress progress={uploadProgress} size={70} strokeWidth={5} />
+                            <span className="text-reddit-textMuted text-sm font-medium">Posting...</span>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="flex gap-3">
                 {currentUser?.avatar && !avatarError ? (
                     <img
@@ -152,7 +199,8 @@ const FeedComposer = () => {
                         }}
                         onClick={() => !isAuthenticated && setShowAuthModal(true)}
                         placeholder="Say something..."
-                        className="w-full bg-transparent text-reddit-text placeholder-gray-500 text-[15px] resize-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none min-h-[40px]"
+                        disabled={isSubmitting}
+                        className="w-full bg-transparent text-reddit-text placeholder-gray-500 text-[15px] resize-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
                         rows={1}
                     />
 
@@ -215,8 +263,8 @@ const FeedComposer = () => {
                             />
                             <button
                                 onClick={() => isAuthenticated ? fileInputRef.current?.click() : setShowAuthModal(true)}
-                                disabled={selectedImages.length >= MAX_IMAGES}
-                                className={`p-2 rounded-full hover:bg-reddit-cardHover transition-colors group ${selectedImages.length >= MAX_IMAGES ? 'opacity-50 cursor-not-allowed' : ''
+                                disabled={selectedImages.length >= MAX_IMAGES || isSubmitting}
+                                className={`p-2 rounded-full hover:bg-reddit-cardHover transition-colors group ${(selectedImages.length >= MAX_IMAGES || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''
                                     }`}
                                 title={selectedImages.length >= MAX_IMAGES ? `Max ${MAX_IMAGES} images` : "Add images"}
                             >
@@ -238,7 +286,8 @@ const FeedComposer = () => {
                                         }
                                         setShowEmojiPicker(!showEmojiPicker);
                                     }}
-                                    className={`p-2 rounded-full hover:bg-reddit-cardHover transition-colors group ${showEmojiPicker ? 'bg-reddit-cardHover' : ''}`}
+                                    disabled={isSubmitting}
+                                    className={`p-2 rounded-full hover:bg-reddit-cardHover transition-colors group ${showEmojiPicker ? 'bg-reddit-cardHover' : ''} ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     title="Emoji"
                                 >
                                     <Smile size={20} className="text-reddit-orange group-hover:opacity-80" />
@@ -265,7 +314,6 @@ const FeedComposer = () => {
                             className={`bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold px-4 py-1.5 rounded-full transition-all text-[15px] flex items-center gap-2 ${(!content.trim() && selectedImages.length === 0) || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                         >
-                            {isSubmitting && <LoadingSpinner size={16} color="#ffffff" />}
                             Post
                         </button>
                     </div>

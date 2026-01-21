@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
+import { CelebrationProvider } from "./context/CelebrationContext";
 import TopLoadingBar from "./components/common/TopLoadingBar";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 import { WebSocketProvider } from "./context/WebSocketContext";
@@ -16,6 +17,7 @@ import RightSidebar from "./components/layout/RightSidebar";
 import MobileBottomNav from "./components/layout/MobileBottomNav";
 import AuthModal from "./components/modals/AuthModal";
 import CreatePostModal from "./components/modals/CreatePostModal";
+import CelebrationModal from "./components/modals/CelebrationModal";
 import CommentSection from "./components/comments/CommentSection";
 import { Toaster } from "sonner";
 import { toast } from "sonner";
@@ -158,6 +160,7 @@ function AppContent() {
               {/* Modals */}
               <AuthModal />
               <CreatePostModal />
+              <CelebrationModal />
               <CommentSection />
 
               <Toaster position="top-right" richColors />
@@ -179,9 +182,11 @@ function App() {
           <FeedProvider>
             <StudyGramProvider>
               <CoursePlayerProvider>
-                <TopLoadingBar />
-                <AppContent />
-                <Analytics />
+                <CelebrationProvider>
+                  <TopLoadingBar />
+                  <AppContent />
+                  <Analytics />
+                </CelebrationProvider>
               </CoursePlayerProvider>
             </StudyGramProvider>
           </FeedProvider>

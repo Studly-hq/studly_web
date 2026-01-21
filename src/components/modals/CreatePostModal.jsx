@@ -14,11 +14,16 @@ import { useUI } from "../../context/UIContext";
 import { useFeed } from "../../context/FeedContext";
 import { toast } from "sonner";
 import { uploadMultipleToCloudinary } from "../../utils/uploadToCloudinary";
+import CircularProgress from "../common/CircularProgress";
+
+const MAX_IMAGES = 10;
 
 const CreatePostModal = () => {
   const {
     showCreatePostModal,
     setShowCreatePostModal,
+    startLoading,
+    finishLoading,
   } = useUI();
 
   const { createPost } = useFeed();
@@ -26,43 +31,93 @@ const CreatePostModal = () => {
 
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
-  const [postType, setPostType] = useState("text"); // 'text', 'single-image', 'carousel'
+  const [postType, setPostType] = useState("text");
   const [previewIndex, setPreviewIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef(null);
+  const progressIntervalRef = useRef(null);
 
   const handleClose = () => {
+    if (isSubmitting) return; // Prevent closing while posting
+    images.forEach((img) => URL.revokeObjectURL(img.url));
     setShowCreatePostModal(false);
     setContent("");
     setImages([]);
     setPostType("text");
     setPreviewIndex(0);
-    setUploadProgress("");
+    setUploadProgress(0);
+  };
+
+  // Start progress animation
+  const startProgress = () => {
+    setUploadProgress(0);
+    progressIntervalRef.current = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + Math.random() * 15;
+      });
+    }, 300);
+  };
+
+  // Complete progress animation
+  const completeProgress = () => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+    setUploadProgress(100);
   };
 
   const handleImageSelect = (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
-    // Create preview URLs for selected images
-    const newImages = files.map((file) => ({
-      url: URL.createObjectURL(file),
-      alt: file.name,
-      file,
-    }));
+    const remainingSlots = MAX_IMAGES - images.length;
+    if (remainingSlots <= 0) {
+      toast.error(`Maximum ${MAX_IMAGES} images allowed`);
+      return;
+    }
 
-    setImages((prev) => [...prev, ...newImages]);
+    const filesToProcess = files.slice(0, remainingSlots);
+    const newImages = [];
+
+    filesToProcess.forEach((file) => {
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} is too large (max 5MB)`);
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      newImages.push({ url, alt: file.name, file, id: `${Date.now()}-${Math.random()}` });
+    });
+
+    if (newImages.length > 0) {
+      setImages((prev) => [...prev, ...newImages]);
+    }
+
+    if (files.length > remainingSlots) {
+      toast.info(`Only ${remainingSlots} more image(s) can be added`);
+    }
 
     // Determine post type based on number of images
-    if (images.length + newImages.length === 1) {
+    const totalImages = images.length + newImages.length;
+    if (totalImages === 1) {
       setPostType("single-image");
-    } else if (images.length + newImages.length > 1) {
+    } else if (totalImages > 1) {
       setPostType("carousel");
     }
+
+    // Reset input
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const removeImage = (index) => {
+    // Clean up blob URL for removed image
+    const imageToRemove = images[index];
+    if (imageToRemove) {
+      URL.revokeObjectURL(imageToRemove.url);
+    }
+
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
 
@@ -84,38 +139,49 @@ const CreatePostModal = () => {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    setUploadProgress("");
+    startLoading();
+    startProgress();
+
+    const postContent = content.trim();
+    const imagesToUpload = [...images];
+    const hasImages = imagesToUpload.length > 0;
 
     try {
       let uploadedImageUrls = [];
 
-      // If there are images, upload them to Cloudinary first
-      if (images.length > 0) {
-        setUploadProgress(`Uploading ${images.length} image${images.length > 1 ? 's' : ''}...`);
-
-        // Extract the File objects from the images array
-        const files = images.map(img => img.file);
-
-        // Upload all images to Cloudinary in parallel
+      if (hasImages) {
+        const files = imagesToUpload.map(img => img.file);
         uploadedImageUrls = await uploadMultipleToCloudinary(files);
-
-        setUploadProgress("Creating post...");
       }
 
       const postData = {
-        content: content.trim(),
-        media: uploadedImageUrls.length > 0 ? uploadedImageUrls : []
+        content: postContent,
+        media: uploadedImageUrls
       };
 
       await createPost(postData);
+      completeProgress();
       toast.success("Post created successfully!");
-      handleClose();
+
+      // Clean up and close after success
+      setTimeout(() => {
+        images.forEach((img) => URL.revokeObjectURL(img.url));
+        setShowCreatePostModal(false);
+        setContent("");
+        setImages([]);
+        setPostType("text");
+        setPreviewIndex(0);
+        setUploadProgress(0);
+        setIsSubmitting(false);
+        finishLoading();
+      }, 500);
     } catch (error) {
       console.error("Post creation error:", error);
       toast.error(error.message || "Failed to create post. Please try again.");
-    } finally {
+      completeProgress();
       setIsSubmitting(false);
-      setUploadProgress("");
+      finishLoading();
+      setUploadProgress(0);
     }
   };
 
@@ -143,8 +209,24 @@ const CreatePostModal = () => {
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-reddit-card border border-reddit-border rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+          className="bg-reddit-card border border-reddit-border rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden relative"
         >
+          {/* Progress Overlay */}
+          <AnimatePresence>
+            {isSubmitting && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-reddit-card/95 backdrop-blur-sm z-20 flex items-center justify-center"
+              >
+                <div className="flex flex-col items-center gap-4">
+                  <CircularProgress progress={uploadProgress} size={100} strokeWidth={6} />
+                  <span className="text-reddit-text text-lg font-medium">Creating your post...</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-reddit-border">
             <div className="flex items-center gap-3">
@@ -195,7 +277,8 @@ const CreatePostModal = () => {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="What's on your mind? Share your study notes, tips, or questions... Use #hashtags to categorize!"
-              className="w-full bg-transparent text-reddit-text placeholder-reddit-textMuted outline-none resize-none text-lg min-h-[120px]"
+              disabled={isSubmitting}
+              className="w-full bg-transparent text-reddit-text placeholder-reddit-textMuted outline-none resize-none text-lg min-h-[120px] disabled:opacity-50 disabled:cursor-not-allowed"
               autoFocus
               style={{
                 border: "none",
@@ -307,7 +390,8 @@ const CreatePostModal = () => {
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2 rounded bg-reddit-cardHover hover:bg-reddit-border text-reddit-text transition-all duration-200"
+                  disabled={isSubmitting}
+                  className={`flex items-center gap-2 px-4 py-2 rounded bg-reddit-cardHover hover:bg-reddit-border text-reddit-text transition-all duration-200 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <Image size={18} />
                   <span className="text-sm font-medium">Image</span>
@@ -358,7 +442,7 @@ const CreatePostModal = () => {
                 : "bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed"
                 }`}
             >
-              {isSubmitting ? (uploadProgress || "Posting...") : "Post"}
+              Post
             </motion.button>
           </div>
         </motion.div>

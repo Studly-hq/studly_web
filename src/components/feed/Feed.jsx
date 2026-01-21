@@ -64,7 +64,7 @@ const Feed = ({ activeTab }) => {
         {displayedPosts && displayedPosts.length > 0 ? (
           displayedPosts.map((post, index) => (
             <motion.div
-              key={post.id}
+              key={post.id || `post-${index}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.02, duration: 0.3 }}

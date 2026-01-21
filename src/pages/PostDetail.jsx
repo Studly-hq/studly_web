@@ -33,6 +33,7 @@ const PostDetail = () => {
   const { setShowAuthModal } = useUI();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [commentsLoading, setCommentsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Track which postId we've loaded to prevent double-loading
@@ -53,7 +54,9 @@ const PostDetail = () => {
         // We can skip initial "heavy" loading if we have the post
         if (loadedPostIdRef.current !== postId) {
           // But we still want to fetch fresh comments in the background
-          fetchCommentsForPost(postId);
+          setCommentsLoading(true);
+          await fetchCommentsForPost(postId);
+          setCommentsLoading(false);
           loadedPostIdRef.current = postId;
         }
         setLoading(false);
@@ -61,12 +64,14 @@ const PostDetail = () => {
         // Only show full-page loading skeleton if we don't have the post at all
         if (loadedPostIdRef.current !== postId) {
           setLoading(true);
+          setCommentsLoading(true);
           loadedPostIdRef.current = postId;
 
           const fetchedPost = await fetchPostById(postId);
           if (fetchedPost) {
             setPost(fetchedPost);
             await fetchCommentsForPost(postId);
+            setCommentsLoading(false);
           } else {
             setError("Post not found, Please try again!");
           }
@@ -82,10 +87,15 @@ const PostDetail = () => {
 
   // Handle manual refreshes or tab switches
   useEffect(() => {
-    if (postId) {
-      fetchCommentsForPost(postId);
+    if (postId && !commentsLoading) {
+      const refreshComments = async () => {
+        setCommentsLoading(true);
+        await fetchCommentsForPost(postId);
+        setCommentsLoading(false);
+      };
+      refreshComments();
     }
-  }, [postId, fetchCommentsForPost]);
+  }, []);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -177,7 +187,11 @@ const PostDetail = () => {
               <MessageSquare size={20} className="text-reddit-orange" />
               Comments
               <span className="text-sm font-normal text-reddit-textMuted ml-1">
-                ({comments.length})
+                {commentsLoading ? (
+                  <span className="inline-block w-6 h-4 bg-reddit-cardHover rounded animate-pulse" />
+                ) : (
+                  `(${comments.length})`
+                )}
               </span>
             </h3>
           </div>

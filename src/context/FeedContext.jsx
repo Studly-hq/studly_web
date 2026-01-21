@@ -459,7 +459,7 @@ export const FeedProvider = ({ children }) => {
             // Perform update
             const postComments = comments[postId] || [];
             const targetComment = findComment(postComments, commentId);
-            const hasLiked = targetComment?.likes?.includes(currentUser.id);
+            const hasLiked = targetComment?.likes?.some((id) => String(id) === String(currentUser.id));
 
             setComments((prev) => {
                 const updatedPostComments = prev[postId] || [];
@@ -468,7 +468,7 @@ export const FeedProvider = ({ children }) => {
                 const currentComment = findComment(updatedPostComments, commentId);
                 if (!currentComment) return prev;
 
-                const alreadyLiked = currentComment.likes?.includes(currentUser.id);
+                const alreadyLiked = currentComment.likes?.some((id) => String(id) === String(currentUser.id));
 
                 // Toggle liked state
                 return {
@@ -476,7 +476,7 @@ export const FeedProvider = ({ children }) => {
                     [postId]: updateCommentInList(updatedPostComments, commentId, (c) => {
                         const isLikedNow = alreadyLiked;
                         const newLikes = isLikedNow
-                            ? (c.likes || []).filter((id) => id !== currentUser.id)
+                            ? (c.likes || []).filter((id) => String(id) !== String(currentUser.id))
                             : [...new Set([...(c.likes || []), currentUser.id])]; // Use Set to prevent duplicates
 
                         return {
@@ -563,7 +563,38 @@ export const FeedProvider = ({ children }) => {
         async (postData) => {
             try {
                 const newPost = await apiCreatePost(postData);
-                const formattedPost = mapBackendPostToFrontend(newPost);
+
+                // The backend response for a new post may not include all fields
+                // that mapBackendPostToFrontend expects, so we build it manually
+                const images = Array.isArray(postData.media)
+                    ? postData.media
+                        .filter((url) => url !== "placeholder")
+                        .map((url) => ({ url: url, alt: "Post Image" }))
+                    : [];
+
+                // Use backend response id or generate a temp one
+                const postId = newPost.post_id || newPost.id || `temp-${Date.now()}`;
+
+                const formattedPost = {
+                    id: postId,
+                    type: images.length > 0 ? (images.length > 1 ? "carousel" : "single-image") : "text",
+                    content: newPost.post_content || newPost.content || postData.content || "",
+                    timestamp: newPost.post_created_at || newPost.created_at || new Date().toISOString(),
+                    likeCount: 0,
+                    commentCount: 0,
+                    userId: newPost.creator_id || currentUser?.id,
+                    likes: [],
+                    bookmarkedBy: [],
+                    tags: newPost.post_hashtags || postData.tags || [],
+                    images: images,
+                    user: {
+                        id: newPost.creator_id || currentUser?.id,
+                        username: newPost.creator_username || currentUser?.username || "user",
+                        displayName: newPost.creator_name || currentUser?.displayName || currentUser?.name || currentUser?.username || "User",
+                        avatar: newPost.creator_avatar || currentUser?.avatar || null,
+                    },
+                };
+
                 setPosts((prev) => [formattedPost, ...prev]);
                 return formattedPost;
             } catch (error) {
@@ -571,7 +602,7 @@ export const FeedProvider = ({ children }) => {
                 throw error;
             }
         },
-        [mapBackendPostToFrontend]
+        [currentUser]
     );
 
     const value = useMemo(() => ({

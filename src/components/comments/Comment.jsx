@@ -32,11 +32,11 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
   const menuRef = useRef(null);
 
   const commentUser = comment.user; // Use the user object directly from data
-  // Safe check for likes array in case it's missing
+  // Safe check for likes array in case it's missing - use string comparison for type safety
   const isLiked =
     currentUser &&
     Array.isArray(comment.likes) &&
-    comment.likes.includes(currentUser.id);
+    comment.likes.some((id) => String(id) === String(currentUser.id));
 
   const formatTimestamp = (timestamp) => {
     const now = new Date();
