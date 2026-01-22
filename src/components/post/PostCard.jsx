@@ -21,6 +21,7 @@ import { useFeed } from "../../context/FeedContext";
 import { editPost, deletePost } from "../../api/contents";
 import { toast } from "sonner";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { formatContent } from "../../utils/textUtils";
 
 const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const navigate = useNavigate();
@@ -212,44 +213,9 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   };
 
   const renderedContent = useMemo(() => {
-    if (!post.content) return null;
-
-    let displayContent = post.content;
-    if (post.tags && post.tags.length > 0) {
-      post.tags.forEach((tag) => {
-        const regex = new RegExp(`#${tag}\\b`, "gi");
-        displayContent = displayContent.replace(regex, "");
-      });
-    }
-
-    displayContent = displayContent.trim().replace(/\s\s+/g, " ");
-
-    const urlRegex = /((?:https?:\/\/|www\.)[^\s]+)/g;
-    const parts = displayContent.split(urlRegex);
-
     return (
-      <p className="text-reddit-text text-sm leading-relaxed whitespace-pre-wrap break-words">
-        {parts.map((part, index) => {
-          if (part.match(urlRegex)) {
-            let href = part;
-            if (part.startsWith('www.')) {
-              href = `https://${part}`;
-            }
-            return (
-              <a
-                key={index}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="text-reddit-orange hover:underline"
-              >
-                {part}
-              </a>
-            );
-          }
-          return part;
-        })}
+      <p className="text-reddit-text text-sm leading-relaxed">
+        {formatContent(post.content, post.tags)}
       </p>
     );
   }, [post.content, post.tags]);
@@ -508,7 +474,7 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         )}
 
         {/* Post Actions - Reddit Style */}
-        <div className="px-3 pb-2 border-t border-reddit-border pt-1">
+        <div className="px-3 pb-2 pt-1">
           <div className="flex items-center justify-between">
             {/* Left Actions */}
             <div className="flex items-center gap-1">

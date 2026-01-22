@@ -34,8 +34,8 @@ const RightSidebar = () => {
           const points = await getUserAuraPoints(currentUser.username);
           setStats({ streak, auraPoints: points });
 
-          // Check for milestone achievements
-          checkMilestones(points, streak);
+          // Check for milestone achievements - REMOVED (handled globally in CelebrationContext)
+          // checkMilestones(points, streak);
         } catch (error) {
           console.error("Failed to fetch sidebar stats", error);
         }
@@ -45,7 +45,7 @@ const RightSidebar = () => {
     if (isAuthenticated) {
       fetchStats();
     }
-  }, [isAuthenticated, currentUser, checkMilestones]);
+  }, [isAuthenticated, currentUser]);
 
   // Hide ad widget on ads-related pages
   const isOnAdsPage = location.pathname.startsWith('/ads/');

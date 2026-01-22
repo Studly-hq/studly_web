@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { usePersistentState } from '../../hooks/usePersistentState';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image, Smile, X, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -69,7 +70,7 @@ const FeedComposer = () => {
     const { currentUser, isAuthenticated } = useAuth();
     const { createPost } = useFeed();
     const { setShowAuthModal } = useUI();
-    const [content, setContent] = useState('');
+    const [content, setContent] = usePersistentState('studly_draft_post', '');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [selectedImages, setSelectedImages] = useState([]);

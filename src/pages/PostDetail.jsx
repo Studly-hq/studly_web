@@ -9,6 +9,7 @@ import { PostCardSkeleton, CommentsSkeleton } from "../components/common/Skeleto
 import { useAuth } from "../context/AuthContext";
 import { useFeed } from "../context/FeedContext";
 import { useUI } from "../context/UIContext";
+import { usePersistentState } from "../hooks/usePersistentState";
 
 const PostDetail = () => {
   const { postId } = useParams();
@@ -40,8 +41,9 @@ const PostDetail = () => {
   const loadedPostIdRef = useRef(null);
 
   // Comment State
-  const [commentText, setCommentText] = useState("");
+  const [commentText, setCommentText] = usePersistentState(`draft_comment_${postId || 'new'}`, "");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [visibleComments, setVisibleComments] = usePersistentState(`prev_visible_comments_${postId || 'new'}`, 5);
   const comments = getCommentsForPost(postId);
 
   useEffect(() => {
@@ -249,16 +251,27 @@ const PostDetail = () => {
           {/* Comment List */}
           <div className="space-y-6">
             {comments.length > 0 ? (
-              comments.map((comment) => (
-                <div key={comment.id}>
-                  <Comment
-                    comment={comment}
-                    postId={postId}
-                    onCommentUpdated={(commentId, content) => updateCommentInState(postId, commentId, content)}
-                    onCommentDeleted={(commentId) => deleteCommentFromState(postId, commentId)}
-                  />
-                </div>
-              ))
+              <>
+                {comments.slice(0, visibleComments).map((comment) => (
+                  <div key={comment.id}>
+                    <Comment
+                      comment={comment}
+                      postId={postId}
+                      onCommentUpdated={(commentId, content) => updateCommentInState(postId, commentId, content)}
+                      onCommentDeleted={(commentId) => deleteCommentFromState(postId, commentId)}
+                    />
+                  </div>
+                ))}
+
+                {visibleComments < comments.length && (
+                  <button
+                    onClick={() => setVisibleComments(prev => prev + 5)}
+                    className="w-full py-2 text-sm text-reddit-orange font-semibold hover:bg-reddit-orange/10 rounded-lg transition-colors mt-2"
+                  >
+                    Load more comments ({comments.length - visibleComments} remaining)
+                  </button>
+                )}
+              </>
             ) : (
               <div className="text-center text-reddit-textMuted py-16 flex flex-col items-center gap-4 bg-reddit-cardHover/5 rounded-2xl border border-dashed border-reddit-border">
                 <div className="w-16 h-16 rounded-full bg-reddit-cardHover flex items-center justify-center">

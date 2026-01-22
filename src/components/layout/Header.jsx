@@ -38,7 +38,7 @@ const Header = () => {
           transition={{ duration: 0.2 }}
           className="cursor-pointer flex-shrink-0"
         >
-          <span className="text-reddit-text text-lg md:text-xl font-inter font-extrabold tracking-tighter">
+          <span className="hidden md:block text-reddit-text text-lg md:text-xl font-inter font-extrabold tracking-tighter">
             Studly
           </span>
         </motion.div>

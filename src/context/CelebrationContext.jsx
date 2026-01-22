@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+// Import API and Auth
+import { getUserStreak, getUserAuraPoints } from '../api/profile';
+import { useAuth } from './AuthContext';
 
 const CelebrationContext = createContext();
 
@@ -14,9 +17,12 @@ export const useCelebration = () => {
     return context;
 };
 
+
+
 export const CelebrationProvider = ({ children }) => {
     const [showCelebration, setShowCelebration] = useState(false);
     const [celebrationData, setCelebrationData] = useState(null);
+    const { isAuthenticated, currentUser } = useAuth();
 
     // Get stored previous values from localStorage
     const getPreviousValues = useCallback(() => {
@@ -80,6 +86,25 @@ export const CelebrationProvider = ({ children }) => {
             }
         }
     }, [getPreviousValues, storeValues]);
+
+    // Monitor stats for changes
+    useEffect(() => {
+        const checkStats = async () => {
+            if (currentUser?.username) {
+                try {
+                    const streak = await getUserStreak(currentUser.username);
+                    const points = await getUserAuraPoints(currentUser.username);
+                    checkMilestones(points, streak);
+                } catch (error) {
+                    console.error("Failed to check stats for celebration", error);
+                }
+            }
+        };
+
+        if (isAuthenticated) {
+            checkStats();
+        }
+    }, [isAuthenticated, currentUser, checkMilestones]);
 
     const closeCelebration = useCallback(() => {
         setShowCelebration(false);

@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useFeed } from '../../context/FeedContext';
 import { useUI } from '../../context/UIContext';
 import Comment from './Comment';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 const CommentSection = () => {
   const { currentUser } = useAuth();
@@ -17,10 +18,11 @@ const CommentSection = () => {
   } = useFeed();
   const { showComments, setShowComments } = useUI();
 
-  const [commentText, setCommentText] = useState('');
+  const [commentText, setCommentText] = usePersistentState(`draft_comment_${showComments || 'new'}`, '');
   const [replyingTo, setReplyingTo] = useState(null);
   const [avatarError, setAvatarError] = useState(false);
   const [postAuthorAvatarError, setPostAuthorAvatarError] = useState(false);
+  const [visibleComments, setVisibleComments] = usePersistentState(`prev_visible_comments_${showComments || 'new'}`, 5);
   const inputRef = useRef(null);
   const commentsEndRef = useRef(null);
 
@@ -132,7 +134,7 @@ const CommentSection = () => {
           <div className="flex-1 overflow-y-auto p-4">
             {comments.length > 0 ? (
               <>
-                {comments.map((comment) => (
+                {comments.slice(0, visibleComments).map((comment) => (
                   <Comment
                     key={comment.id}
                     comment={comment}
@@ -142,6 +144,16 @@ const CommentSection = () => {
                     onCommentDeleted={(commentId) => deleteCommentFromState(showComments, commentId)}
                   />
                 ))}
+
+                {visibleComments < comments.length && (
+                  <button
+                    onClick={() => setVisibleComments(prev => prev + 5)}
+                    className="w-full py-2 text-sm text-reddit-orange font-semibold hover:bg-reddit-orange/10 rounded-lg transition-colors mt-2"
+                  >
+                    Load more comments ({comments.length - visibleComments} remaining)
+                  </button>
+                )}
+
                 <div ref={commentsEndRef} />
               </>
             ) : (

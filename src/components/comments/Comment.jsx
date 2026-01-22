@@ -17,6 +17,7 @@ import { useFeed } from "../../context/FeedContext";
 import { editComment, deleteComment } from "../../api/contents";
 import { toast } from "sonner";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { formatContent } from "../../utils/textUtils";
 
 const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, onCommentUpdated }) => {
   const navigate = useNavigate();
@@ -258,9 +259,9 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
                 </div>
               </div>
 
-              <p className="text-reddit-text text-sm leading-relaxed">
-                {comment.content}
-              </p>
+              <div className="text-reddit-text text-sm leading-relaxed">
+                {formatContent(comment.content)}
+              </div>
             </div>
 
             {/* Inline Reply Input */}
