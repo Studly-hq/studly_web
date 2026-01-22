@@ -124,12 +124,52 @@ export const AuthProvider = ({ children }) => {
     const signup = useCallback(async (name, email, password) => {
         try {
             const data = await apiSignup(email, password, name);
+
+            // Auto-login after successful signup
+            if (data.token) localStorage.setItem("studly_token", data.token);
+            if (data.refresh_token) localStorage.setItem("studly_refresh_token", data.refresh_token);
+
+            if (data.token && data.refresh_token) {
+                supabase.auth.setSession({
+                    access_token: data.token,
+                    refresh_token: data.refresh_token
+                }).catch(err => console.warn("Supabase session sync failed:", err));
+            }
+
+            if (data.token) {
+                Promise.resolve().then(() => connect(data.token));
+            }
+
+            // Fetch profile or use signup response data
+            try {
+                const userProfile = await getProfile();
+                const user = userProfile ? {
+                    ...userProfile,
+                    avatar: userProfile.avatar || null
+                } : {
+                    ...data.user,
+                    name: name,
+                    email: email,
+                    avatar: data.user?.avatar || null
+                };
+                setCurrentUser(user);
+            } catch (profileErr) {
+                // If profile fetch fails, use data from signup response
+                setCurrentUser({
+                    ...data.user,
+                    name: name,
+                    email: email,
+                    avatar: null
+                });
+            }
+
+            setIsAuthenticated(true);
             return data;
         } catch (error) {
             console.error("Signup failed:", error);
             throw error;
         }
-    }, []);
+    }, [connect]);
 
     const syncWithBackend = useCallback(async (accessToken, refreshToken) => {
         try {

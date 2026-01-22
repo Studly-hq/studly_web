@@ -82,8 +82,12 @@ export const FeedProvider = ({ children }) => {
         [currentUser]
     );
 
-    const fetchFeedPosts = useCallback(async () => {
-        setIsFeedLoading(true);
+    const fetchFeedPosts = useCallback(async (forceLoading = false) => {
+        // Only show loading skeleton if we don't have any posts yet (initial load)
+        // Otherwise, update silently in the background
+        if (forceLoading || posts.length === 0) {
+            setIsFeedLoading(true);
+        }
         try {
             const serverPosts = await apiGetPosts();
             const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend);
@@ -95,7 +99,7 @@ export const FeedProvider = ({ children }) => {
         } finally {
             setIsFeedLoading(false);
         }
-    }, [mapBackendPostToFrontend, logout]);
+    }, [mapBackendPostToFrontend, logout, posts.length]);
 
     const fetchBookmarks = useCallback(async () => {
         if (!isAuthenticated) return;

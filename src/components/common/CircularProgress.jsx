@@ -34,7 +34,7 @@ const CircularProgress = ({ progress = 0, size = 80, strokeWidth = 6 }) => {
                     strokeDasharray={circumference}
                     initial={{ strokeDashoffset: circumference }}
                     animate={{ strokeDashoffset: offset }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
                 />
                 <defs>
                     <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -45,14 +45,9 @@ const CircularProgress = ({ progress = 0, size = 80, strokeWidth = 6 }) => {
             </svg>
             {/* Center text */}
             <div className="absolute inset-0 flex items-center justify-center">
-                <motion.span
-                    key={Math.floor(progress)}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="text-white font-bold text-lg"
-                >
+                <span className="text-white font-bold text-lg">
                     {Math.floor(progress)}%
-                </motion.span>
+                </span>
             </div>
         </div>
     );

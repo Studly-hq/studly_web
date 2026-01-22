@@ -76,7 +76,10 @@ const LeftSidebar = () => {
           })}
 
           {/* Course Button (Studly Specific) */}
-          <Link to="/courses" className="block group mt-2">
+          <button
+            onClick={() => isAuthenticated ? navigate('/courses') : setShowAuthModal(true)}
+            className="block group mt-2 w-full text-left"
+          >
             <div className={`
                 inline-flex items-center gap-4 px-5 py-3 rounded-full text-xl
                 transition-colors duration-200 font-normal
@@ -86,7 +89,7 @@ const LeftSidebar = () => {
               <PlayCircle size={26} strokeWidth={isCourseActive ? 3 : 2} />
               <span>{courseButtonLabel}</span>
             </div>
-          </Link>
+          </button>
 
 
           {/* Post Button */}

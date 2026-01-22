@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useFeed } from "../../context/FeedContext";
 import { useAuth } from "../../context/AuthContext";
 import PostCard from "../post/PostCard";
 import { FeedSkeleton } from "../common/Skeleton";
-import { Layout } from "lucide-react";
+import { Layout, Loader2 } from "lucide-react";
+
+const POSTS_PER_BATCH = 5;
 
 const Feed = ({ activeTab }) => {
   const {
@@ -15,10 +17,53 @@ const Feed = ({ activeTab }) => {
   } = useFeed();
   const { currentUser } = useAuth();
   const feedRef = useRef(null);
+  const loadMoreRef = useRef(null);
 
-  const displayedPosts = activeTab === 'following'
+  // Pagination state
+  const [visibleCount, setVisibleCount] = useState(POSTS_PER_BATCH);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const filteredPosts = activeTab === 'following'
     ? posts.filter(post => currentUser?.following?.includes(post.userId))
     : posts;
+
+  const displayedPosts = filteredPosts.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredPosts.length;
+
+  // Load more posts
+  const loadMore = useCallback(() => {
+    if (isLoadingMore || !hasMore) return;
+
+    setIsLoadingMore(true);
+    // Small delay for smooth UX
+    setTimeout(() => {
+      setVisibleCount(prev => Math.min(prev + POSTS_PER_BATCH, filteredPosts.length));
+      setIsLoadingMore(false);
+    }, 300);
+  }, [isLoadingMore, hasMore, filteredPosts.length]);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+          loadMore();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMore, isLoadingMore, loadMore]);
+
+  // Reset visible count when tab changes or posts update
+  useEffect(() => {
+    setVisibleCount(POSTS_PER_BATCH);
+  }, [activeTab, posts.length]);
 
   // Handlers for optimistic updates
   const handlePostUpdated = (postId, newContent) => {
@@ -62,20 +107,31 @@ const Feed = ({ activeTab }) => {
     >
       <div className="space-y-3">
         {displayedPosts && displayedPosts.length > 0 ? (
-          displayedPosts.map((post, index) => (
-            <motion.div
-              key={post.id || `post-${index}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.02, duration: 0.3 }}
-            >
-              <PostCard
-                post={post}
-                onPostUpdated={handlePostUpdated}
-                onPostDeleted={handlePostDeleted}
-              />
-            </motion.div>
-          ))
+          <>
+            {displayedPosts.map((post, index) => (
+              <motion.div
+                key={post.id || `post-${index}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(index, 4) * 0.02, duration: 0.3 }}
+              >
+                <PostCard
+                  post={post}
+                  onPostUpdated={handlePostUpdated}
+                  onPostDeleted={handlePostDeleted}
+                />
+              </motion.div>
+            ))}
+
+            {/* Load More Trigger */}
+            <div ref={loadMoreRef} className="py-4">
+              {isLoadingMore && (
+                <div className="flex justify-center">
+                  <Loader2 className="w-6 h-6 text-reddit-orange animate-spin" />
+                </div>
+              )}
+            </div>
+          </>
         ) : (
           <motion.div
             initial={{ opacity: 0 }}
@@ -96,7 +152,7 @@ const Feed = ({ activeTab }) => {
         )}
       </div>
 
-      {posts && posts.length > 0 && (
+      {!hasMore && filteredPosts.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

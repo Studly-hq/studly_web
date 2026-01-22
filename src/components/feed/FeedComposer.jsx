@@ -11,10 +11,64 @@ import { uploadMultipleToCloudinary } from '../../utils/uploadToCloudinary';
 
 const MAX_IMAGES = 10;
 
+// Humorous loading messages (50 messages)
+const LOADING_MESSAGES = [
+    "Brewing your post...",
+    "Adding extra sauce...",
+    "Polishing the pixels...",
+    "Summoning the vibes...",
+    "Sprinkling some magic...",
+    "Almost there, chill...",
+    "Making it beautiful...",
+    "Cooking up greatness...",
+    "Loading awesomeness...",
+    "Hang tight, legend...",
+    "Doing the thing...",
+    "Making magic happen...",
+    "Just a sec...",
+    "Working on it...",
+    "Vibes are loading...",
+    "Patience, young one...",
+    "Good things coming...",
+    "Trust the process...",
+    "Almost ready now...",
+    "Perfecting the details...",
+    "Sending good energy...",
+    "Creating your masterpiece...",
+    "Fine-tuning things...",
+    "Worth the wait...",
+    "Nearly there now...",
+    "Spicing things up...",
+    "Adding the finishing touches...",
+    "Making it pop...",
+    "Optimizing for greatness...",
+    "Loading the good stuff...",
+    "Preparing for takeoff...",
+    "Getting things ready...",
+    "Hold on tight...",
+    "Processing your genius...",
+    "Assembling the magic...",
+    "Crafting with care...",
+    "Wrapping it up...",
+    "Crossing the t's...",
+    "Dotting the i's...",
+    "Making it shine...",
+    "Adding some sparkle...",
+    "Tuning the engines...",
+    "Uploading your thoughts...",
+    "Spreading the word...",
+    "Beaming it up...",
+    "Sending to the cloud...",
+    "Making waves...",
+    "Dropping heat...",
+    "Cooking something special...",
+    "You're gonna love this..."
+];
+
 const FeedComposer = () => {
     const { currentUser, isAuthenticated } = useAuth();
     const { createPost } = useFeed();
-    const { setShowAuthModal, startLoading, finishLoading } = useUI();
+    const { setShowAuthModal } = useUI();
     const [content, setContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -23,7 +77,9 @@ const FeedComposer = () => {
     const fileInputRef = useRef(null);
     const textareaRef = useRef(null);
     const [avatarError, setAvatarError] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
     const progressIntervalRef = useRef(null);
+    const messageIntervalRef = useRef(null);
 
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
@@ -83,18 +139,27 @@ const FeedComposer = () => {
     // Start progress animation
     const startProgress = () => {
         setUploadProgress(0);
+        setLoadingMessage(LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)]);
         progressIntervalRef.current = setInterval(() => {
             setUploadProgress(prev => {
-                if (prev >= 90) return prev;
-                return prev + Math.random() * 15;
+                if (prev >= 85) return prev; // Cap at 85% until complete
+                // Smoother, slower increments
+                return prev + (Math.random() * 5 + 2);
             });
-        }, 300);
+        }, 400);
+        // Rotate messages every 4 seconds
+        messageIntervalRef.current = setInterval(() => {
+            setLoadingMessage(LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)]);
+        }, 4000);
     };
 
     // Complete progress animation
     const completeProgress = () => {
         if (progressIntervalRef.current) {
             clearInterval(progressIntervalRef.current);
+        }
+        if (messageIntervalRef.current) {
+            clearInterval(messageIntervalRef.current);
         }
         setUploadProgress(100);
         setTimeout(() => setUploadProgress(0), 500);
@@ -108,7 +173,6 @@ const FeedComposer = () => {
         if (!content.trim() && selectedImages.length === 0) return;
 
         setIsSubmitting(true);
-        startLoading();
         startProgress();
 
         // Store content locally before clearing
@@ -124,9 +188,17 @@ const FeedComposer = () => {
                 uploadedImageUrls = await uploadMultipleToCloudinary(files);
             }
 
+            // Extract hashtags from content
+            const extractHashtags = (text) => {
+                const hashtagRegex = /#(\w+)/g;
+                const matches = text.match(hashtagRegex);
+                return matches ? matches.map((tag) => tag.slice(1)) : [];
+            };
+
             const postData = {
                 content: postContent,
-                media: uploadedImageUrls
+                media: uploadedImageUrls,
+                hashtags: extractHashtags(postContent)
             };
             await createPost(postData);
             setContent('');
@@ -139,7 +211,6 @@ const FeedComposer = () => {
             completeProgress();
         } finally {
             setIsSubmitting(false);
-            finishLoading();
         }
     };
 
@@ -170,7 +241,20 @@ const FeedComposer = () => {
                     >
                         <div className="flex flex-col items-center gap-3">
                             <CircularProgress progress={uploadProgress} size={70} strokeWidth={5} />
-                            <span className="text-reddit-textMuted text-sm font-medium">Posting...</span>
+                            <div className="h-6 overflow-hidden">
+                                <AnimatePresence mode="wait">
+                                    <motion.span
+                                        key={loadingMessage}
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        exit={{ y: -20, opacity: 0 }}
+                                        transition={{ duration: 0.3, ease: "easeOut" }}
+                                        className="block text-reddit-textMuted text-sm font-medium"
+                                    >
+                                        {loadingMessage}
+                                    </motion.span>
+                                </AnimatePresence>
+                            </div>
                         </div>
                     </motion.div>
                 )}

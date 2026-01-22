@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, TrendingUp, Hash, X, Flame, Sparkles, Clock } from 'lucide-react';
+import { Search, TrendingUp, Hash, X, Flame, Sparkles, Clock, Loader2 } from 'lucide-react';
 import { useFeed } from '../context/FeedContext';
 import PostCard from '../components/post/PostCard';
 import { FeedSkeleton } from '../components/common/Skeleton';
+
+const POSTS_PER_BATCH = 5;
 
 const Explore = () => {
   const { posts, isFeedLoading, updatePostInState, deletePostFromState } = useFeed();
@@ -13,6 +15,11 @@ const Explore = () => {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedTag, setSelectedTag] = useState(null);
   const [sortBy, setSortBy] = useState('trending'); // trending, recent, top
+
+  // Pagination state
+  const loadMoreRef = useRef(null);
+  const [visibleCount, setVisibleCount] = useState(POSTS_PER_BATCH);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Sync search query with URL parameter changes
   useEffect(() => {
@@ -62,6 +69,44 @@ const Explore = () => {
   } else if (sortBy === 'top') {
     filteredPosts = filteredPosts.sort((a, b) => (b.likeCount + b.commentCount) - (a.likeCount + a.commentCount));
   }
+
+  // Pagination
+  const displayedPosts = filteredPosts.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredPosts.length;
+
+  // Load more posts
+  const loadMore = useCallback(() => {
+    if (isLoadingMore || !hasMore) return;
+
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount(prev => Math.min(prev + POSTS_PER_BATCH, filteredPosts.length));
+      setIsLoadingMore(false);
+    }, 300);
+  }, [isLoadingMore, hasMore, filteredPosts.length]);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+          loadMore();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMore, isLoadingMore, loadMore]);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(POSTS_PER_BATCH);
+  }, [selectedTag, searchQuery, sortBy]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -182,20 +227,37 @@ const Explore = () => {
                   )}
                 </motion.div>
               ) : (
-                filteredPosts.map((post, index) => (
-                  <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.02, duration: 0.3 }}
-                  >
-                    <PostCard
-                      post={post}
-                      onPostUpdated={updatePostInState}
-                      onPostDeleted={deletePostFromState}
-                    />
-                  </motion.div>
-                ))
+                <>
+                  {displayedPosts.map((post, index) => (
+                    <motion.div
+                      key={post.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: Math.min(index, 4) * 0.02, duration: 0.3 }}
+                    >
+                      <PostCard
+                        post={post}
+                        onPostUpdated={updatePostInState}
+                        onPostDeleted={deletePostFromState}
+                      />
+                    </motion.div>
+                  ))}
+
+                  {/* Load More Trigger */}
+                  <div ref={loadMoreRef} className="py-4">
+                    {isLoadingMore && (
+                      <div className="flex justify-center">
+                        <Loader2 className="w-6 h-6 text-reddit-orange animate-spin" />
+                      </div>
+                    )}
+                  </div>
+
+                  {!hasMore && displayedPosts.length > 0 && (
+                    <div className="py-4 text-center">
+                      <p className="text-reddit-textMuted text-xs">You've seen all posts!</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -256,3 +318,4 @@ const Explore = () => {
 };
 
 export default Explore;
+

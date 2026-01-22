@@ -18,11 +18,13 @@ import {
 import { getCourses, getEnrolledCourses } from "../api/coursebank";
 import { mapApiCourseToTopic } from "../utils/courseMapper";
 import { useAuth } from "../context/AuthContext";
+import { useUI } from "../context/UIContext";
 import { CourseCardSkeleton } from "../components/common/Skeleton";
 
 const CourseBank = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { setShowAuthModal } = useUI();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -32,6 +34,14 @@ const CourseBank = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [usingFallback, setUsingFallback] = useState(false);
+
+  // Auth check - redirect to home and show auth modal if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, navigate, setShowAuthModal]);
 
   // Fetch courses from API
   const fetchCourses = useCallback(async () => {

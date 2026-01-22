@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LogOut,
   Bookmark,
-  Upload,
+  ExternalLink,
   Flame,
   Trophy,
   Search,
@@ -52,7 +52,7 @@ const RightSidebar = () => {
 
   const shortcuts = [
     { icon: Bookmark, label: 'Saved Posts', id: 'saved', path: '/saved' },
-    { icon: Upload, label: 'Upload Notes', id: 'upload', path: '/upload' }
+    { icon: ExternalLink, label: 'Access CUHUB', id: 'cuhub', href: 'https://cuhub.usestudly.com?ref=feed', external: true }
   ];
 
   const handleSearch = (e) => {
@@ -156,7 +156,13 @@ const RightSidebar = () => {
             {shortcuts.map((item) => (
               <div
                 key={item.id}
-                onClick={() => navigate(item.path)}
+                onClick={() => {
+                  if (item.external) {
+                    window.open(item.href, '_blank', 'noopener,noreferrer');
+                  } else {
+                    navigate(item.path);
+                  }
+                }}
                 className="px-4 py-3 hover:bg-[#1d1f23] transition-colors cursor-pointer flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
