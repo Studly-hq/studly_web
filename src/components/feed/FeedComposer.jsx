@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image, Smile, X, User } from 'lucide-react';

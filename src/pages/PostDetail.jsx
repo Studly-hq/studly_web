@@ -87,17 +87,7 @@ const PostDetail = () => {
     }
   }, [postId, posts, fetchPostById, fetchCommentsForPost]);
 
-  // Handle manual refreshes or tab switches
-  useEffect(() => {
-    if (postId && !commentsLoading) {
-      const refreshComments = async () => {
-        setCommentsLoading(true);
-        await fetchCommentsForPost(postId);
-        setCommentsLoading(false);
-      };
-      refreshComments();
-    }
-  }, []);
+
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();

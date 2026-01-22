@@ -415,7 +415,7 @@ export const FeedProvider = ({ children }) => {
                 setBookmarkedPosts(previousBookmarks);
             }
         },
-        [posts, currentUser, isAuthenticated, bookmarkedPosts]
+        [posts, currentUser, isAuthenticated, bookmarkedPosts, mapBackendPostToFrontend, setPendingAction, setScrollPosition, setShowAuthModal]
     );
 
     const handleLikeComment = useCallback(

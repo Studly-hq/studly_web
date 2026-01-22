@@ -4,7 +4,6 @@ import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
 import { CelebrationProvider } from "./context/CelebrationContext";
 import TopLoadingBar from "./components/common/TopLoadingBar";
-import LoadingSpinner from "./components/common/LoadingSpinner";
 import { WebSocketProvider } from "./context/WebSocketContext";
 import { UIProvider } from "./context/UIContext";
 import { AuthProvider } from "./context/AuthContext";

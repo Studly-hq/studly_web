@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
-import { useCelebration } from '../../context/CelebrationContext';
 import { getUserStreak, getUserAuraPoints } from '../../api/profile';
 import AdPromotionWidget from '../ads/AdPromotionWidget';
 
@@ -21,7 +20,6 @@ const RightSidebar = () => {
   const location = useLocation();
   const { isAuthenticated, currentUser, logout } = useAuth();
   const { setShowAuthModal } = useUI();
-  const { checkMilestones } = useCelebration();
   const [searchQuery, setSearchQuery] = useState('');
   const [adWidgetDismissed, setAdWidgetDismissed] = useState(false);
   const [stats, setStats] = useState({ streak: 0, auraPoints: 0 });

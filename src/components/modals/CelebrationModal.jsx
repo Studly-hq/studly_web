@@ -60,7 +60,6 @@ const CelebrationModal = () => {
     if (!showCelebration || !celebrationData) return null;
 
     const isAura = celebrationData.type === 'aura';
-    const isStreak = celebrationData.type === 'streak' || celebrationData.type === 'streak-weekly';
 
     const getTitle = () => {
         if (isAura) return `${celebrationData.value.toLocaleString()} Aura Points!`;
