@@ -6,8 +6,13 @@ import axios from "axios";
  * Instead of typing 'http://0.0.0.0:8080/...' every time we want to fetch data,
  * we use this 'client'. It automatically knows the base URL.
  */
+// Use Railway backend in production, proxy in development
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? 'https://studly-server-production.up.railway.app'
+  : '';
+
 const client = axios.create({
-  // baseURL is removed because we are using a proxy in package.json
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json", // We are sending data in JSON format
   },
