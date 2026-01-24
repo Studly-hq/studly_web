@@ -173,7 +173,6 @@ export const createComment = async (
     // Only include parent_comment_id if it's actually set (for replies)
     if (parentCommentId) {
       payload.parent_comment_id = String(parentCommentId);
-      payload.parent_id = String(parentCommentId); // Redundant fallback
     }
 
     const response = await client.post(`/studlygram/${postId}/comment`, payload);
