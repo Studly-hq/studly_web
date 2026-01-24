@@ -97,33 +97,39 @@ const PostDetail = () => {
       document.title = postTitle;
 
       // Meta Tags for Social Preview
-      const updateMetaTag = (property, content) => {
-        let tag = document.querySelector(`meta[property="${property}"]`) ||
-          document.querySelector(`meta[name="${property}"]`);
+      const updateMetaTag = (attribute, value, content) => {
+        let tag = document.querySelector(`meta[${attribute}="${value}"]`);
         if (!tag) {
           tag = document.createElement('meta');
-          if (property.startsWith('og:')) {
-            tag.setAttribute('property', property);
-          } else {
-            tag.setAttribute('name', property);
-          }
+          tag.setAttribute(attribute, value);
           document.head.appendChild(tag);
         }
         tag.setAttribute('content', content);
       };
 
-      updateMetaTag('og:title', postTitle);
-      updateMetaTag('og:description', post.content?.substring(0, 160) || 'Check out this post on Studly!');
+      const siteUrl = window.location.origin;
+      const currentUrl = window.location.href;
+      const postDescription = post.content?.substring(0, 160) || 'Check out this post on Studly!';
+      const postImage = post.images && post.images.length > 0
+        ? post.images[0].url
+        : `${siteUrl}/logo.png`;
 
-      if (post.images && post.images.length > 0) {
-        updateMetaTag('og:image', post.images[0].url);
-        updateMetaTag('twitter:card', 'summary_large_image');
-      } else {
-        updateMetaTag('og:image', 'file:///c:/Users/USER/Documents/studly_web/public/logo192.png');
-      }
+      // Open Graph
+      updateMetaTag('property', 'og:title', postTitle);
+      updateMetaTag('property', 'og:description', postDescription);
+      updateMetaTag('property', 'og:image', postImage);
+      updateMetaTag('property', 'og:url', currentUrl);
+      updateMetaTag('property', 'og:type', 'article');
+      updateMetaTag('property', 'og:site_name', 'Studly');
+
+      // Twitter
+      updateMetaTag('name', 'twitter:card', post.images?.length > 0 ? 'summary_large_image' : 'summary');
+      updateMetaTag('name', 'twitter:title', postTitle);
+      updateMetaTag('name', 'twitter:description', postDescription);
+      updateMetaTag('name', 'twitter:image', postImage);
 
       return () => {
-        document.title = 'Studly - Social Learning Platform';
+        document.title = 'Studly | Interactive E-Learning Platform';
       };
     }
   }, [post]);
