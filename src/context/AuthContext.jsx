@@ -139,9 +139,10 @@ export const AuthProvider = ({ children }) => {
             }
 
             // Fetch profile or use signup response data
+            let finalUser;
             try {
                 const userProfile = await getProfile();
-                const user = userProfile ? {
+                finalUser = userProfile ? {
                     ...userProfile,
                     avatar: userProfile.avatar || null
                 } : {
@@ -150,21 +151,21 @@ export const AuthProvider = ({ children }) => {
                     email: email,
                     avatar: data.user?.avatar || null
                 };
-                setCurrentUser(user);
             } catch (profileErr) {
                 // If profile fetch fails, use data from signup response
-                setCurrentUser({
+                finalUser = {
                     ...data.user,
                     name: name,
                     email: email,
                     avatar: null
-                });
+                };
             }
 
+            setCurrentUser(finalUser);
             setIsAuthenticated(true);
 
             // Dispatch event to notify layout or other components if needed
-            window.dispatchEvent(new CustomEvent("auth:status-change", { detail: { isAuthenticated: true, user: currentUser } }));
+            window.dispatchEvent(new CustomEvent("auth:status-change", { detail: { isAuthenticated: true, user: finalUser } }));
 
             return data;
         } catch (error) {

@@ -87,13 +87,21 @@ async function verify() {
         };
         const replyRes = await client.post(`/studlygram/${postId}/comment`, replyPayload);
         const replyId = replyRes.data.id || replyRes.data.comment_id;
+        console.log(`Reply created: ${replyId} (Parent: ${rootCommentId})`);
 
         // 5. Fetch Comments
         const fetchRes = await client.get(`/studlygram/${postId}/comments`);
         const comments = fetchRes.data;
+        console.log('Fetched comments count:', comments.length);
 
         // 6. Analyze
         const replyFound = JSON.stringify(comments).includes(replyId);
+        console.log(`Reply ID found in response: ${replyFound}`);
+        if (replyFound) console.log('SUCCESS: Reply persisted correctly.');
+        else {
+            console.error('FAILURE: Reply not found in fetched comments.');
+            console.log('Fetched comments dump:', JSON.stringify(comments, null, 2));
+        }
 
         // Clean up
         if (postId) {
@@ -102,7 +110,15 @@ async function verify() {
 
     } catch (e) {
         console.error('Error:', e.response ? JSON.stringify(e.response.data, null, 2) : e.message);
+        if (e.stack) console.error(e.stack);
     }
 }
 
-verify();
+verify().then(() => {
+    console.log('Verification script completed.');
+    // Keep alive briefly to ensure flush
+    setTimeout(() => process.exit(0), 1000);
+}).catch(err => {
+    console.error('Unhandled verification error:', err);
+    process.exit(1);
+});

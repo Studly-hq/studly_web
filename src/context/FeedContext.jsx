@@ -89,7 +89,7 @@ export const FeedProvider = ({ children }) => {
             setIsFeedLoading(true);
         }
         try {
-            const serverPosts = await apiGetPosts();
+            const serverPosts = await apiGetPosts(100);
             const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend);
             setPosts(mappedPosts);
         } catch (error) {

@@ -10,9 +10,11 @@ export const createPost = async (postData) => {
   }
 };
 
-export const getPosts = async () => {
+export const getPosts = async (limit = 100, page = 1) => {
   try {
-    const response = await client.get("/studlygram/posts");
+    const response = await client.get("/studlygram/posts", {
+      params: { limit, page }
+    });
     return response.data;
   } catch (error) {
     console.error("Get Posts Error:", error.response?.data || error.message);
