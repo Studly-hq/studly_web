@@ -49,7 +49,7 @@ export const WebSocketProvider = ({ children }) => {
         // Use localhost:8080 as per guide
         const wsUrl = 'wss://studly-server-production.up.railway.app/ws';
 
-        console.log('Connecting to WebSocket:', wsUrl);
+
         // Clean up existing socket if any before connecting a new one, just in case
         setSocket((prevSocket) => {
             if (prevSocket) {
@@ -61,7 +61,6 @@ export const WebSocketProvider = ({ children }) => {
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
-            console.log('WebSocket Connected, sending AUTH...');
             if (token) {
                 ws.send(JSON.stringify({ type: 'AUTH', token }));
             }
@@ -85,14 +84,12 @@ export const WebSocketProvider = ({ children }) => {
         };
 
         ws.onclose = (event) => {
-            console.log('WebSocket Disconnected', event.code, event.reason);
             setIsConnected(false);
             setSocket(null);
 
             // Attempt reconnection if not intentional and not clean
             if (!isIntentionalDisconnect.current && !event.wasClean && reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
                 const delay = Math.min(10000, BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttemptsRef.current));
-                console.log(`Reconnecting in ${delay}ms... (Attempt ${reconnectAttemptsRef.current + 1})`);
                 reconnectTimeoutRef.current = setTimeout(() => {
                     reconnectAttemptsRef.current += 1;
                     // Try to get fresh token if we can, otherwise use what we have (needs logic in callsite ideally)

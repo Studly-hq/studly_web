@@ -55,7 +55,6 @@ const CourseBank = () => {
       setApiCourses(mappedCourses);
       setUsingFallback(false);
     } catch (err) {
-      console.log("API not available, falling back to mock data:", err.message);
       setUsingFallback(true);
       // Don't set error - just use fallback silently
     } finally {

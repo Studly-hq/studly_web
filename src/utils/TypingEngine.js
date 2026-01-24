@@ -5,10 +5,10 @@ export class TypingEngine {
   constructor(options = {}) {
     this.baseSpeed = options.baseSpeed || 50; // milliseconds per character
     this.speedMultiplier = options.speedMultiplier || 1; // 0.5x, 1x, 1.5x, 2x
-    this.onCharacter = options.onCharacter || (() => {});
-    this.onComplete = options.onComplete || (() => {});
-    this.onPause = options.onPause || (() => {});
-    this.onResume = options.onResume || (() => {});
+    this.onCharacter = options.onCharacter || (() => { });
+    this.onComplete = options.onComplete || (() => { });
+    this.onPause = options.onPause || (() => { });
+    this.onResume = options.onResume || (() => { });
 
     this.text = '';
     this.currentIndex = 0;
@@ -30,7 +30,7 @@ export class TypingEngine {
   start() {
     if (this.isTyping || this.currentIndex >= this.text.length) return;
 
-    console.log('[TypingEngine.start] text length:', this.text.length, 'baseSpeed:', this.baseSpeed, 'multiplier:', this.speedMultiplier);
+
     this.isTyping = true;
     this.isPaused = false;
     this.lastTypedTime = performance.now();
@@ -120,7 +120,6 @@ export class TypingEngine {
   typeNextCharacter() {
     if (this.currentIndex >= this.text.length) {
       this.isTyping = false;
-      console.log('[TypingEngine] Typing complete');
       this.onComplete(this.text);
       return;
     }
@@ -130,15 +129,12 @@ export class TypingEngine {
     const isComplete = this.currentIndex >= this.text.length;
 
     // Log every 50 characters for debugging
-    if (this.currentIndex % 50 === 0) {
-      console.log('[TypingEngine] Progress:', this.currentIndex, '/', this.text.length);
-    }
+
 
     this.onCharacter(typedText, this.currentIndex, isComplete);
 
     if (isComplete) {
       this.isTyping = false;
-      console.log('[TypingEngine] Typing complete (in typeNextCharacter)');
       this.onComplete(this.text);
     }
   }

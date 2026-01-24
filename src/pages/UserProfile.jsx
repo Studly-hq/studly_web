@@ -64,8 +64,8 @@ const UserProfileContent = () => {
       // Create a unique key for the current profile to load
       const profileKey = username || currentUser?.username || 'guest';
 
-      // Skip if we've already loaded this profile
-      if (loadedProfileRef.current === profileKey) {
+      // Skip if we've already loaded this profile (but don't skip for own profile to allow immediate updates)
+      if (username && loadedProfileRef.current === profileKey) {
         return;
       }
 
@@ -128,7 +128,7 @@ const UserProfileContent = () => {
 
     fetchProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [username, currentUser?.username, isAuthLoading, isAuthenticated]);
+  }, [username, currentUser, isAuthLoading, isAuthenticated]);
 
   useEffect(() => {
     if (isAuthenticated) {

@@ -3,7 +3,6 @@ import client from "./client";
 export const createPost = async (postData) => {
   try {
     const response = await client.post("/studlygram/post", postData);
-    console.log("Create Post Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Create Post Error:", error.response?.data || error.message);
@@ -14,7 +13,6 @@ export const createPost = async (postData) => {
 export const getPosts = async () => {
   try {
     const response = await client.get("/studlygram/posts");
-    console.log("Get Posts Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Get Posts Error:", error.response?.data || error.message);
@@ -26,7 +24,6 @@ export const getUserPosts = async (username) => {
   try {
     // Note: The endpoint documentation says /studlygram/posts/{username}
     const response = await client.get(`/studlygram/posts/${username}`);
-    console.log("Get User Posts Response:", response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -40,7 +37,6 @@ export const getUserPosts = async (username) => {
 export const getPost = async (postId) => {
   try {
     const response = await client.get(`/studlygram/post/${postId}`);
-    console.log("Get Post Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Get Post Error:", error.response?.data || error.message);
@@ -55,7 +51,6 @@ export const editPost = async (postId, content, tags) => {
       payload.tags = tags;
     }
     const response = await client.put(`/studlygram/post/${postId}`, payload);
-    console.log("Edit Post Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Edit Post Error:", error.response?.data || error.message);
@@ -66,7 +61,6 @@ export const editPost = async (postId, content, tags) => {
 export const deletePost = async (postId) => {
   try {
     const response = await client.delete(`/studlygram/post/${postId}`);
-    console.log("Delete Post Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Delete Post Error:", error.response?.data || error.message);
@@ -85,7 +79,6 @@ export const editComment = async (commentId, content, userId, postId) => {
     // Trying comment_id in body as fallback.
 
     const response = await client.put(`/studlygram/comment/${commentId}`, payload);
-    console.log("Edit Comment Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Edit Comment Error:", error.response?.data || error.message);
@@ -96,7 +89,6 @@ export const editComment = async (commentId, content, userId, postId) => {
 export const deleteComment = async (commentId) => {
   try {
     const response = await client.delete(`/studlygram/comment/${commentId}`);
-    console.log("Delete Comment Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Delete Comment Error:", error.response?.data || error.message);
@@ -110,7 +102,6 @@ export const likePost = async (postId) => {
       post_id: postId,
       comment_id: null,
     });
-    console.log("Like Post Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Like Post Error:", error.response?.data || error.message);
@@ -126,7 +117,6 @@ export const unlikePost = async (postId) => {
         comment_id: null,
       },
     });
-    console.log("Unlike Post Response:", response, response.data);
     return response.data;
   } catch (error) {
     console.error("Unlike Post Error:", error.response?.data || error.message);
@@ -140,7 +130,6 @@ export const likeComment = async (commentId, postId) => {
     const response = await client.post("/studlygram/like", {
       comment_id: String(commentId),
     });
-    console.log("Like Comment Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Like Comment Error:", error.response?.data || error.message);
@@ -156,7 +145,6 @@ export const unlikeComment = async (commentId, postId) => {
         comment_id: String(commentId),
       },
     });
-    console.log("Unlike Comment Response:", response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -183,10 +171,10 @@ export const createComment = async (
     // Only include parent_comment_id if it's actually set (for replies)
     if (parentCommentId) {
       payload.parent_comment_id = String(parentCommentId);
+      payload.parent_id = String(parentCommentId); // Redundant fallback
     }
 
     const response = await client.post(`/studlygram/${postId}/comment`, payload);
-    console.log("Create Comment Response:", response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -200,7 +188,6 @@ export const createComment = async (
 export const getComments = async (postId) => {
   try {
     const response = await client.get(`/studlygram/${postId}/comments`);
-    console.log("Get Comments Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Get Comments Error:", error.response?.data || error.message);
@@ -211,7 +198,6 @@ export const getComments = async (postId) => {
 export const bookmarkPost = async (postId) => {
   try {
     const response = await client.post(`/studlygram/bookmark/${postId}`);
-    console.log("Bookmark Post Response:", response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -225,7 +211,6 @@ export const bookmarkPost = async (postId) => {
 export const unbookmarkPost = async (postId) => {
   try {
     const response = await client.delete(`/studlygram/bookmark/${postId}`);
-    console.log("Unbookmark Post Response:", response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -239,7 +224,6 @@ export const unbookmarkPost = async (postId) => {
 export const getBookmarks = async () => {
   try {
     const response = await client.get("/studlygram/bookmark");
-    console.log("Get Bookmarks Response:", response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -247,5 +231,37 @@ export const getBookmarks = async () => {
       error.response?.data || error.message
     );
     throw error;
+  }
+};
+
+export const getPostLikes = async (postId) => {
+  try {
+    const response = await client.get(`/studlygram/post/${postId}/likes`);
+    return response.data;
+  } catch (error) {
+    console.error("Get Post Likes Error:", error.response?.data || error.message);
+    // Return empty array on error so UI doesn't break if endpoint missing
+    return [];
+  }
+};
+
+export const getNotifications = async () => {
+  try {
+    const response = await client.get("/notifications");
+    return response.data;
+  } catch (error) {
+    console.warn("Get Notifications Error (Endpoint might be missing):", error.response?.status);
+    // Return empty array so UI shows "No notifications" state instead of crashing
+    return [];
+  }
+};
+
+export const markNotificationsRead = async (ids = []) => {
+  try {
+    const response = await client.post("/notifications/mark-read", { ids });
+    return response.data;
+  } catch (error) {
+    console.error("Mark Notifications Read Error:", error.response?.data || error.message);
+    return null;
   }
 };

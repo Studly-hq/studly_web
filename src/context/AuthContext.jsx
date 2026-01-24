@@ -56,7 +56,6 @@ export const AuthProvider = ({ children }) => {
                             return;
                         }
                     } catch (err) {
-                        console.log("Session validation failed:", err.message);
                         localStorage.removeItem("studly_token");
                         localStorage.removeItem("studly_refresh_token");
                     }
@@ -70,7 +69,6 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const handleForcedLogout = () => {
-            console.log("Token refresh failed - forcing logout");
             setIsAuthenticated(false);
             setCurrentUser(null);
             disconnect();
@@ -164,6 +162,10 @@ export const AuthProvider = ({ children }) => {
             }
 
             setIsAuthenticated(true);
+
+            // Dispatch event to notify layout or other components if needed
+            window.dispatchEvent(new CustomEvent("auth:status-change", { detail: { isAuthenticated: true, user: currentUser } }));
+
             return data;
         } catch (error) {
             console.error("Signup failed:", error);

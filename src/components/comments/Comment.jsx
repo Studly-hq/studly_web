@@ -64,7 +64,8 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
   };
 
   const [isReplying, setIsReplying] = useState(false);
-  const [replyContent, setReplyContent] = useState("");  // ... (existing code)
+  const [replyContent, setReplyContent] = useState("");
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
 
   const handleReplyClick = () => {
     if (!requireAuth({ type: "comment", postId })) return;
@@ -74,14 +75,22 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
 
   const handleSubmitReply = async (e) => {
     e.preventDefault();
-    if (!replyContent.trim()) return;
+    if (!replyContent.trim() || isSubmittingReply) return;
 
-    const success = await addComment(postId, replyContent, comment.id);
-    if (success) {
-      setReplyContent("");
-      setIsReplying(false);
-      setShowReplies(true); // Auto-open replies to show the new one
-      toast.success("Reply posted!");
+    setIsSubmittingReply(true);
+    try {
+      const success = await addComment(postId, replyContent, comment.id);
+      if (success) {
+        setReplyContent("");
+        setIsReplying(false);
+        setShowReplies(true); // Auto-open replies to show the new one
+        toast.success("Reply posted!");
+      }
+    } catch (err) {
+      console.error("Reply failed:", err);
+      toast.error("Failed to post reply");
+    } finally {
+      setIsSubmittingReply(false);
     }
   };
 
@@ -293,10 +302,14 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
                         />
                         <button
                           type="submit"
-                          disabled={!replyContent.trim()}
+                          disabled={!replyContent.trim() || isSubmittingReply}
                           className="p-1.5 rounded-full hover:bg-white/10 text-reddit-orange disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
-                          <Send size={14} />
+                          {isSubmittingReply ? (
+                            <LoadingSpinner size={14} color="#FF4500" />
+                          ) : (
+                            <Send size={14} />
+                          )}
                         </button>
                       </div>
                     </div>

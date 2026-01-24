@@ -135,12 +135,10 @@ export const FeedProvider = ({ children }) => {
     const addComment = useCallback(async (postId, content, parentCommentId = null) => {
         try {
             const newCommentData = await apiCreateComment(postId, content, currentUser.id, parentCommentId);
-            console.log("Create comment response:", newCommentData);
 
-            // Map backend response to frontend format
-            // Backend returns: comment_id, comment_content, comment_created_at, commenter_*, etc.
+            // Map backend response using robust logic (similar to mapBackendCommentToFrontend)
             const formattedComment = {
-                id: newCommentData.comment_id || newCommentData.id || newCommentData.uuid || Math.random().toString(36).substr(2, 9),
+                id: String(newCommentData.comment_id || newCommentData.id || newCommentData.uuid || Math.random().toString(36).substr(2, 9)),
                 content: newCommentData.comment_content || newCommentData.content || content,
                 timestamp: newCommentData.comment_created_at || newCommentData.created_at || new Date().toISOString(),
                 likes: [],
@@ -156,10 +154,7 @@ export const FeedProvider = ({ children }) => {
                 replies: [],
             };
 
-            console.log("DEBUG: Formatted comment after creation:", formattedComment);
-            console.log("DEBUG: Raw newCommentData from API:", newCommentData);
 
-            console.log("Formatted comment:", formattedComment);
 
             if (parentCommentId) {
                 // Add as a reply to the parent comment - need to search recursively
@@ -240,66 +235,100 @@ export const FeedProvider = ({ children }) => {
         [comments]
     );
 
+    // Recursive mapping helper
+    const mapBackendCommentToFrontend = useCallback((c) => {
+        // Basic mapping for the comment itself
+        const mapped = {
+            id: String(c.comment_id || c.id || c.uuid),
+            content: c.comment_content || c.content || "",
+            timestamp: c.comment_created_at || c.created_at || new Date().toISOString(),
+            likes: (c.comment_is_liked_by_requester || c.is_liked) && currentUser ? [currentUser.id] : [],
+            likeCount: c.comment_like_count || c.like_count || 0,
+            replyCount: c.comment_reply_count || c.reply_count || 0,
+            userId: c.commenter_user_id || c.author_id || c.user_id,
+            parentCommentId: c.parent_comment_id || c.parent_id || c.parent || null,
+            user: {
+                id: c.commenter_user_id || c.author_id || c.user_id,
+                username: c.commenter_username || c.author_username || c.username || "user",
+                name: c.commenter_name || c.author_name || c.name || "",
+                avatar: c.commenter_avatar || c.author_avatar || c.avatar_url || c.avatar || null,
+            },
+            // Initialize replies array
+            replies: []
+        };
+
+        // Recursively map replies if they exist in the backend response
+        if (c.replies && Array.isArray(c.replies) && c.replies.length > 0) {
+            mapped.replies = c.replies.map(reply => mapBackendCommentToFrontend(reply));
+        }
+
+        return mapped;
+    }, [currentUser]);
+
     const fetchCommentsForPost = useCallback(async (postId) => {
         try {
             const commentsData = await apiGetComments(postId);
 
-            // First, map all comments to our frontend format with robust fallbacks
-            const allComments = commentsData.map((c, index) => {
-                // Diagnostic log for the first few comments to check field names
-                if (index < 2) {
-                    console.log("DEBUG: Raw comment data from API:", c);
-                }
+            // 1. Map all comments recursively first
+            const allComments = commentsData.map(mapBackendCommentToFrontend);
 
-                return {
-                    id: String(c.comment_id || c.id || c.uuid),
-                    content: c.comment_content || c.content || "",
-                    timestamp: c.comment_created_at || c.created_at || new Date().toISOString(),
-                    likes: (c.comment_is_liked_by_requester || c.is_liked) && currentUser ? [currentUser.id] : [],
-                    likeCount: c.comment_like_count || c.like_count || 0,
-                    replyCount: c.comment_reply_count || c.reply_count || 0,
-                    userId: c.commenter_user_id || c.author_id || c.user_id,
-                    parentCommentId: c.parent_comment_id || c.parent_id || null,
-                    user: {
-                        id: c.commenter_user_id || c.author_id || c.user_id,
-                        username: c.commenter_username || c.author_username || c.username || "user",
-                        name: c.commenter_name || c.author_name || c.name || "",
-                        avatar: c.commenter_avatar || c.author_avatar || c.avatar_url || c.avatar || null,
-                    },
-                    replies: c.replies || [], // Preserve existing replies if any
-                };
-            });
+            // 2. Build Hierarchy
+            // Even if backend sends nested data, we might receive some flat list items mixed in, 
+            // or we might want to ensure everything is strictly structured.
 
-            // Build the hierarchy: separate top-level comments from replies
             const commentMap = new Map();
             const topLevelComments = [];
 
-            // First pass: create a map of all comments by ID
-            allComments.forEach((comment) => {
-                commentMap.set(String(comment.id), comment);
-            });
+            // Helper to collect all comments into a flat map for re-nesting (safety net)
+            // This handles cases where backend might return a mixed structure
+            const traverseAndMap = (list) => {
+                list.forEach(item => {
+                    commentMap.set(String(item.id), item);
+                    if (item.replies && item.replies.length > 0) {
+                        traverseAndMap(item.replies);
+                    }
+                });
+            };
+            traverseAndMap(allComments);
 
-            // Second pass: nest replies under their parent comments
-            allComments.forEach((comment) => {
-                if (comment.parentCommentId && String(comment.parentCommentId) !== "0") {
-                    // This is a reply - add it to its parent's replies array
-                    const parentId = String(comment.parentCommentId);
-                    const parent = commentMap.get(parentId);
+            // Now reconstruct the tree using the map to ensure parent-child relationships are respected
+            // Use the original list to determine top-level vs nested if possible, 
+            // but the robust way is to check parentCommentId.
+
+            commentMap.forEach((comment) => {
+                const parentId = comment.parentCommentId;
+
+                if (parentId && String(parentId) !== "0" && String(parentId) !== "null") {
+                    const parent = commentMap.get(String(parentId));
                     if (parent) {
-                        console.log(`DEBUG: Nesting comment ${comment.id} under parent ${parentId}`);
-                        parent.replies.push(comment);
+                        // Check if already added to avoid duplication if backend sent it nested
+                        const alreadyExists = parent.replies.some(r => String(r.id) === String(comment.id));
+                        if (!alreadyExists) {
+                            parent.replies.push(comment);
+                        }
                     } else {
-                        console.warn(`DEBUG: Parent ${parentId} not found for comment ${comment.id}. Keys in map:`, Array.from(commentMap.keys()));
-                        // Parent not found, treat as top-level for visibility
-                        topLevelComments.push(comment);
+                        // Orphaned reply or parent not in this batch - treat as top level or specific error handling
+                        // For now, show as top level so it's not lost
+                        // Check if it's already in topLevel to avoid dups
+                        if (!topLevelComments.some(c => String(c.id) === String(comment.id))) {
+                            topLevelComments.push(comment);
+                        }
                     }
                 } else {
-                    // This is a top-level comment
-                    topLevelComments.push(comment);
+                    // Top level comment
+                    // Verify it's not a duplicate
+                    if (!topLevelComments.some(c => String(c.id) === String(comment.id))) {
+                        topLevelComments.push(comment);
+                    }
                 }
             });
 
-            // Recursive sorting function
+            // If the reconstruction above yield nothing (e.g. edge case), fallback to the mapped list
+            // But usually the map logic is safer.
+            // Edge case: Backend returns nested structure where child has parentId but parent isn't in top level list?
+            // The traverseAndMap handles that by indexing everything.
+
+            // Recursive sorting
             const sortCommentsRecursive = (commentsList, newestFirst = true) => {
                 commentsList.sort((a, b) => {
                     const dateA = new Date(a.timestamp);
@@ -307,23 +336,20 @@ export const FeedProvider = ({ children }) => {
                     return newestFirst ? dateB - dateA : dateA - dateB;
                 });
 
-                commentsList.forEach(comment => {
-                    if (comment.replies && comment.replies.length > 0) {
-                        sortCommentsRecursive(comment.replies, false); // Replies use oldest first
+                commentsList.forEach(c => {
+                    if (c.replies && c.replies.length > 0) {
+                        sortCommentsRecursive(c.replies, false); // Replies oldest first
                     }
                 });
             };
 
-            // Initial sort for top-level comments (newest first)
             sortCommentsRecursive(topLevelComments, true);
-
-            console.log("DEBUG: Final built comment hierarchy:", topLevelComments);
 
             setComments((prev) => ({ ...prev, [postId]: topLevelComments }));
         } catch (error) {
             console.error("Failed to fetch comments", error);
         }
-    }, [currentUser]);
+    }, [mapBackendCommentToFrontend]);
 
     const handleLikePost = useCallback(
         async (postId, action = null, skipAuth = false) => {

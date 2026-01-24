@@ -63,7 +63,6 @@ export const sync = async (accessToken, refreshToken) => {
 export const logout = async () => {
   try {
     const response = await client.post("/auth/logout");
-    console.log("Logout Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Logout Error:", error.response?.data || error.message);

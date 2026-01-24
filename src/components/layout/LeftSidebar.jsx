@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, User, PlayCircle, MoreHorizontal, LogIn } from 'lucide-react';
+import { Home, Compass, User, PlayCircle, MoreHorizontal, LogIn, Bell } from 'lucide-react';
 import { useCoursePlayer } from '../../context/CoursePlayerContext';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
@@ -27,6 +27,12 @@ const LeftSidebar = () => {
       label: 'Explore',
       path: '/explore',
       id: 'explore'
+    },
+    {
+      icon: Bell,
+      label: 'Notifications',
+      path: '/notifications',
+      id: 'notifications'
     },
     {
       icon: User,

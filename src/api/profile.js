@@ -28,7 +28,6 @@ const mapBackendUserToFrontend = (backendUser) => {
 export const getProfile = async () => {
   try {
     const response = await client.get("/profile/profile");
-    console.log("Get Profile Response:", response.data);
     return mapBackendUserToFrontend(response.data);
   } catch (error) {
     console.error("Get Profile Error:", error.response?.data || error.message);
@@ -44,7 +43,6 @@ export const getProfile = async () => {
 export const getProfileByUsername = async (username) => {
   try {
     const response = await client.get(`/profile/profile/${username}`);
-    console.log("Get Profile By Username Response:", response.data);
     return mapBackendUserToFrontend(response.data);
   } catch (error) {
     console.error(
@@ -74,7 +72,6 @@ export const updateProfile = async (currentUsername, profileData) => {
 export const getUserStreak = async (username) => {
   try {
     const response = await client.get(`/studlygram/streak/${username}`);
-    console.log("Get User Streak Response:", response.data);
     return response.data?.current_streak || 0;
   } catch (error) {
     console.error(
@@ -89,7 +86,6 @@ export const getUserStreak = async (username) => {
 export const getUserAuraPoints = async (username) => {
   try {
     const response = await client.get(`/studlygram/aura-points/${username}`);
-    console.log("Get User Aura Points Response:", response.data);
     // Based on the screenshot provided, the response body is just a number "5".
     // So response.data should be directly the number or convertible to it.
     return response.data;

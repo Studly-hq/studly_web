@@ -18,7 +18,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useFeed } from "../../context/FeedContext";
-import { editPost, deletePost } from "../../api/contents";
+import { editPost, deletePost, getPostLikes } from "../../api/contents";
+import UserListModal from "../common/UserListModal";
 import { toast } from "sonner";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { formatContent } from "../../utils/textUtils";
@@ -37,6 +38,12 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const [editContent, setEditContent] = useState(post.content);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Likes Modal State
+  const [showLikesModal, setShowLikesModal] = useState(false);
+  const [likesList, setLikesList] = useState([]);
+  const [likesLoading, setLikesLoading] = useState(false);
+
   const menuRef = useRef(null);
 
   // Optimistic Like State
@@ -210,6 +217,23 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
     // Call context with explicit action
     await handleLikePost(post.id, isLiked ? 'unlike' : 'like');
+  };
+
+  const handleLikeRightClick = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setShowLikesModal(true);
+    setLikesLoading(true);
+    try {
+      const users = await getPostLikes(post.id);
+      setLikesList(users);
+    } catch (err) {
+      console.error("Failed to fetch likes", err);
+      setLikesList([]);
+    } finally {
+      setLikesLoading(false);
+    }
   };
 
   const renderedContent = useMemo(() => {
@@ -487,6 +511,7 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                   e.stopPropagation();
                   handleLike(e);
                 }}
+                onContextMenu={handleLikeRightClick}
                 className={`flex items-center gap-1 p-2 rounded-full ${isLiked
                   ? "text-reddit-orange"
                   : "text-reddit-textMuted hover:text-reddit-text"
@@ -683,6 +708,14 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <UserListModal
+        isOpen={showLikesModal}
+        onClose={() => setShowLikesModal(false)}
+        title="Liked by"
+        users={likesList}
+        loading={likesLoading}
+      />
     </>
   );
 };
