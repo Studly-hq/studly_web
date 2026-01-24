@@ -55,35 +55,43 @@ function injectMeta(html, metadata) {
 // Handle specific post routes for SSR meta injection
 app.get('/post/:postId', async (req, res) => {
     const { postId } = req.params;
-    const indexPath = path.join(__dirname, 'build', 'index.html');
+    const buildPath = path.join(__dirname, 'build');
+    const indexPath = path.join(buildPath, 'index.html');
+
+    // Safety check: if build folder doesn't exist, provide basic feedback
+    if (!fs.existsSync(indexPath)) {
+        return res.status(500).send('Application build not found. Please run "npm run build" first.');
+    }
 
     try {
         // 1. Read index.html
         const html = fs.readFileSync(indexPath, 'utf8');
 
         // 2. Fetch post data from backend
-        // Note: We're calling the production API directly. 
-        // If the endpoint requires auth, this might need a guest-access fallback on the backend.
-        const response = await axios.get(`${API_BASE_URL}/studlygram/post/${postId}`);
+        console.log(`[SSR] Fetching data for post ${postId}...`);
+        const response = await axios.get(`${API_BASE_URL}/studlygram/post/${postId}`, {
+            timeout: 5000 // 5s timeout
+        });
         const post = response.data;
 
-        if (!post) throw new Error('Post not found');
+        if (!post) throw new Error('Post not found in backend response');
 
         // 3. Prepare metadata
         const metadata = {
             title: `${post.post_content?.substring(0, 60)}${post.post_content?.length > 60 ? '...' : ''} | Studly`,
             description: post.post_content?.substring(0, 160) || 'Check out this post on Studly!',
-            image: post.post_media && post.post_media.length > 0 ? post.post_media[0] : `${req.protocol}://${req.get('host')}/logo.png`,
-            url: `${req.protocol}://${req.get('host')}${req.originalUrl}`
+            image: post.post_media && post.post_media.length > 0 ? post.post_media[0] : `https://${req.get('host')}/logo.png`,
+            url: `https://${req.get('host')}${req.originalUrl}`
         };
 
         // 4. Injected hydrated HTML
+        console.log(`[SSR] Successfully hydrated HTML for post ${postId}`);
         const hydratedHtml = injectMeta(html, metadata);
         res.send(hydratedHtml);
 
     } catch (error) {
-        console.error('SSR Error:', error.message);
-        // On error, just serve the normal index.html as fallback
+        console.error(`[SSR] Error for post ${postId}:`, error.message);
+        // On error or timeout, just serve the normal index.html as fallback
         res.sendFile(indexPath);
     }
 });
