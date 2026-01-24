@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useFeed } from '../../context/FeedContext';
 import { useUI } from '../../context/UIContext';
+import logo from '../../assets/logo.png';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -36,8 +37,9 @@ const Header = () => {
           onClick={() => navigate('/')}
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
-          className="cursor-pointer flex-shrink-0"
+          className="cursor-pointer flex-shrink-0 flex items-center gap-2"
         >
+          <img src={logo} alt="Studly" className="w-8 h-8 md:hidden" />
           <span className="hidden md:block text-reddit-text text-lg md:text-xl font-inter font-extrabold tracking-tighter">
             Studly
           </span>

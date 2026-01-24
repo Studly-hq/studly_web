@@ -15,6 +15,7 @@ const CommentSection = () => {
     posts,
     updateCommentInState,
     deleteCommentFromState,
+    fetchCommentsForPost,
   } = useFeed();
   const { showComments, setShowComments } = useUI();
 
@@ -28,6 +29,13 @@ const CommentSection = () => {
 
   const post = posts.find((p) => p.id === showComments);
   const comments = showComments ? getCommentsForPost(showComments) : [];
+
+  // Re-fetch comments when section opens or auth state changes to ensure correct like status
+  useEffect(() => {
+    if (showComments) {
+      fetchCommentsForPost(showComments);
+    }
+  }, [showComments, currentUser?.id, fetchCommentsForPost]);
 
   useEffect(() => {
     if (showComments && inputRef.current) {
