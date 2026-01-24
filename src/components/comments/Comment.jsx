@@ -297,7 +297,7 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
                           value={replyContent}
                           onChange={(e) => setReplyContent(e.target.value)}
                           placeholder={`Reply to ${commentUser?.username}...`}
-                          className="flex-1 bg-transparent border-none text-sm text-white placeholder-white/20 px-3 py-2 outline-none"
+                          className="flex-1 bg-transparent border-none text-sm text-white placeholder-white/20 px-3 py-2 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 ring-0"
                           autoFocus
                         />
                         <button
