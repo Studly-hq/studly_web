@@ -39,10 +39,7 @@ const Header = () => {
           transition={{ duration: 0.2 }}
           className="cursor-pointer flex-shrink-0 flex items-center gap-2"
         >
-          <img src={logo} alt="Studly" className="w-8 h-8 md:hidden" />
-          <span className="hidden md:block text-reddit-text text-lg md:text-xl font-inter font-extrabold tracking-tighter">
-            Studly
-          </span>
+          <img src={logo} alt="Studly" className="w-8 h-8" />
         </motion.div>
 
         {/* Search Bar - Reddit Style */}
