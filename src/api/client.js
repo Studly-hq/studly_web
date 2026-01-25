@@ -77,8 +77,11 @@ client.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Call refresh token endpoint
-        const response = await client.post("/auth/refresh-token");
+        // Call refresh token endpoint with the refresh token in the body
+        const refreshToken = localStorage.getItem("studly_refresh_token");
+        const response = await client.post("/auth/refresh-token", {
+          refresh_token: refreshToken
+        });
         const { token, refresh_token } = response.data;
 
         if (token) {

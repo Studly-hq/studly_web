@@ -37,9 +37,11 @@ export const login = async (email, password) => {
   }
 };
 
-export const refreshToken = async () => {
+export const refreshToken = async (token) => {
   try {
-    const response = await client.post("/auth/refresh-token");
+    const response = await client.post("/auth/refresh-token", {
+      refresh_token: token
+    });
     return response.data;
   } catch (error) {
     console.error("Refresh Token Error:", error.response?.data || error.message);
