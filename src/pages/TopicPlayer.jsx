@@ -13,6 +13,8 @@ import { Toaster } from 'react-hot-toast';
 import { TopicPlayerSkeleton } from '../components/common/Skeleton';
 import CompletionScreen from '../components/courses/player/CompletionScreen';
 
+import { courseBankTopics } from '../data/courseBankData';
+
 const TopicPlayer = () => {
   const { topicId } = useParams();
   const navigate = useNavigate();
@@ -33,12 +35,32 @@ const TopicPlayer = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load topic from API
+  // Load topic from API or local fallback
   useEffect(() => {
+    const isUuid = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
     const fetchTopic = async () => {
       setLoading(true);
       setError(null);
+
       try {
+        // If it's not a UUID, check local demo topics first
+        if (!isUuid(topicId)) {
+          console.log("Loading local demo topic:", topicId);
+          const demoTopic = courseBankTopics.find(t => t.id === topicId);
+          if (demoTopic) {
+            setTopic(demoTopic);
+            loadTopic(demoTopic);
+            setLoading(false);
+            return;
+          }
+          // If not found in local topics and not a UUID, it's an invalid ID
+          setError('Topic not found');
+          setLoading(false);
+          return;
+        }
+
+        // Proceed with API call for UUIDs
         const data = await getCourse(topicId);
         if (!data) {
           navigate('/courses');
@@ -51,7 +73,6 @@ const TopicPlayer = () => {
       } catch (err) {
         console.error('Failed to fetch course details:', err);
         setError('Failed to load course details. Please try again later.');
-        // Fallback to mock data if preferred, but for now we follow live source
       } finally {
         setLoading(false);
       }

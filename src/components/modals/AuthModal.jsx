@@ -269,7 +269,8 @@ const AuthModal = () => {
                     toast.error("Google login failed");
                   }
                 }}
-                className="flex items-center justify-center gap-2 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text py-2.5 rounded-lg border border-reddit-border transition-colors text-sm font-medium w-full"
+                className="flex items-center justify-center gap-2 bg-reddit-card text-reddit-textMuted py-2.5 rounded-lg border border-reddit-border cursor-not-allowed opacity-50 text-sm font-medium w-full"
+                disabled={true}
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
