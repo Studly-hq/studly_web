@@ -7,7 +7,7 @@
 // You can also remove this file if you'd prefer not to use a
 // service worker, and the Workbox build step will be skipped.
 
-const CACHE_NAME = 'studly-cache-v1';
+const CACHE_NAME = 'studly-cache-v2';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -17,6 +17,7 @@ const urlsToCache = [
 
 self.addEventListener('install', event => {
     // Perform install steps
+    self.skipWaiting(); // Force update immediately
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
@@ -43,14 +44,17 @@ self.addEventListener('fetch', event => {
 self.addEventListener('activate', event => {
     const cacheWhitelist = [CACHE_NAME];
     event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
+        Promise.all([
+            self.clients.claim(), // Take control of all clients immediately
+            caches.keys().then(cacheNames => {
+                return Promise.all(
+                    cacheNames.map(cacheName => {
+                        if (cacheWhitelist.indexOf(cacheName) === -1) {
+                            return caches.delete(cacheName);
+                        }
+                    })
+                );
+            })
+        ])
     );
 });
