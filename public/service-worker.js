@@ -1,60 +1,20 @@
-/* eslint-disable no-restricted-globals */
+// Force immediate unregistration and cache clearing
+self.addEventListener('install', (e) => {
+    self.skipWaiting();
+});
 
-// This service worker can be customized!
-// See https://developers.google.com/web/tools/workbox/modules
-// for the list of available Workbox modules, or add any other
-// code you'd like.
-// You can also remove this file if you'd prefer not to use a
-// service worker, and the Workbox build step will be skipped.
-
-const CACHE_NAME = 'studly-cache-v2';
-const urlsToCache = [
-    '/',
-    '/index.html',
-    '/logo.png',
-    '/manifest.json'
-];
-
-self.addEventListener('install', event => {
-    // Perform install steps
-    self.skipWaiting(); // Force update immediately
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Opened cache');
-                return cache.addAll(urlsToCache);
-            })
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys().then((names) => {
+            // Delete all caches
+            return Promise.all(names.map((name) => caches.delete(name)));
+        }).then(() => {
+            return self.clients.claim();
+        })
     );
 });
 
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                // Cache hit - return response
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
-            }
-            )
-    );
-});
-
-self.addEventListener('activate', event => {
-    const cacheWhitelist = [CACHE_NAME];
-    event.waitUntil(
-        Promise.all([
-            self.clients.claim(), // Take control of all clients immediately
-            caches.keys().then(cacheNames => {
-                return Promise.all(
-                    cacheNames.map(cacheName => {
-                        if (cacheWhitelist.indexOf(cacheName) === -1) {
-                            return caches.delete(cacheName);
-                        }
-                    })
-                );
-            })
-        ])
-    );
+// Pass all requests through to network (no caching)
+self.addEventListener('fetch', (e) => {
+    // Do nothing, let browser handle it
 });

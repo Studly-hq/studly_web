@@ -28,8 +28,9 @@ export const AuthProvider = ({ children }) => {
     const logout = useCallback(() => {
         setIsAuthenticated(false);
         setCurrentUser(null);
-        localStorage.removeItem("studly_token");
-        localStorage.removeItem("studly_refresh_token");
+        localStorage.removeItem("token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("email");
         disconnect();
 
         apiLogout().catch(error => {
@@ -43,7 +44,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const token = localStorage.getItem("studly_token");
+                const token = localStorage.getItem("token");
                 if (token) {
                     try {
                         const userProfile = await getProfile();
@@ -56,8 +57,8 @@ export const AuthProvider = ({ children }) => {
                             return;
                         }
                     } catch (err) {
-                        localStorage.removeItem("studly_token");
-                        localStorage.removeItem("studly_refresh_token");
+                        localStorage.removeItem("token");
+                        localStorage.removeItem("refresh_token");
                     }
                 }
             } finally {
@@ -85,8 +86,9 @@ export const AuthProvider = ({ children }) => {
         async (email, password) => {
             try {
                 const data = await apiLogin(email, password);
-                if (data.token) localStorage.setItem("studly_token", data.token);
-                if (data.refresh_token) localStorage.setItem("studly_refresh_token", data.refresh_token);
+                if (data.token) localStorage.setItem("token", data.token);
+                if (data.refresh_token) localStorage.setItem("refresh_token", data.refresh_token);
+                if (email) localStorage.setItem("email", email);
 
                 if (data.token && data.refresh_token) {
                     supabase.auth.setSession({
@@ -177,8 +179,8 @@ export const AuthProvider = ({ children }) => {
     const syncWithBackend = useCallback(async (accessToken, refreshToken) => {
         try {
             const data = await apiSync(accessToken, refreshToken);
-            if (data.token) localStorage.setItem("studly_token", data.token);
-            if (data.refresh_token) localStorage.setItem("studly_refresh_token", data.refresh_token);
+            if (data.token) localStorage.setItem("token", data.token);
+            if (data.refresh_token) localStorage.setItem("refresh_token", data.refresh_token);
 
             if (data.token && data.refresh_token) {
                 await supabase.auth.setSession({
@@ -193,9 +195,13 @@ export const AuthProvider = ({ children }) => {
                 ...userProfile,
                 avatar: userProfile.avatar || null
             });
+
+            if (userProfile.email) {
+                localStorage.setItem("email", userProfile.email);
+            }
             setIsAuthenticated(true);
 
-            const token = localStorage.getItem("studly_token");
+            const token = localStorage.getItem("token");
             if (token) connect(token);
             return true;
         } catch (error) {
@@ -207,7 +213,7 @@ export const AuthProvider = ({ children }) => {
                         avatar: userProfile.avatar || null
                     });
                     setIsAuthenticated(true);
-                    const token = localStorage.getItem("studly_token");
+                    const token = localStorage.getItem("token");
                     if (token) connect(token);
                     return true;
                 } catch (profileError) {

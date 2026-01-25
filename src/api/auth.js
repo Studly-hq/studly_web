@@ -37,9 +37,10 @@ export const login = async (email, password) => {
   }
 };
 
-export const refreshToken = async (token) => {
+export const refreshToken = async (email, token) => {
   try {
     const response = await client.post("/auth/refresh-token", {
+      email,
       refresh_token: token
     });
     return response.data;
