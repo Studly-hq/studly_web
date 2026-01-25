@@ -97,7 +97,7 @@ app.get('/post/:postId', async (req, res) => {
 });
 
 // Always return the main index.html for any other routes (Standard SPA behavior)
-app.get('*', (req, res) => {
+app.get(/(.*)/, (req, res) => {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
