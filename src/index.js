@@ -8,15 +8,9 @@ root.render(
   <App />
 );
 
-// Register Service Worker
+// Unregister Service Worker to resolve caching/fetch issues
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-      })
-      .catch(error => {
-        console.log('ServiceWorker registration failed: ', error);
-      });
+  navigator.serviceWorker.ready.then(registration => {
+    registration.unregister();
   });
 }
