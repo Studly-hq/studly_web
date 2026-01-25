@@ -27,7 +27,8 @@ const Explore = () => {
     if (urlQuery !== searchQuery) {
       setSearchQuery(urlQuery);
     }
-  }, [searchParams, searchQuery]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // Extract all unique tags from posts
   const allTags = [...new Set(posts.flatMap(post => post.tags || []))];

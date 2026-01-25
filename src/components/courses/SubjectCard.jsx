@@ -25,9 +25,22 @@ const SubjectCard = ({
   // Calculate total topics
   const totalTopics = topic.sections.length;
 
-  const handleClick = () => {
-    // Only navigate if enrolled or it's a mock course (no isApiCourse flag)
-    if (isEnrolled || !topic.isApiCourse) {
+  const handleClick = async (e) => {
+    // If it's an API course and not enrolled, enroll first
+    if (topic.isApiCourse && !isEnrolled) {
+      e.preventDefault();
+      try {
+        await import('../../api/coursebank').then(mod => mod.enrollInCourse(topic.id));
+        if (onEnrollmentChange) {
+          onEnrollmentChange(topic.id, true);
+        }
+        navigate(`/courses/${topic.id}`);
+      } catch (error) {
+        console.error("Failed to enroll:", error);
+        // Navigate anyway? Or show error? For now navigate so they can try inside if fallback exists
+        navigate(`/courses/${topic.id}`);
+      }
+    } else {
       navigate(`/courses/${topic.id}`);
     }
   };

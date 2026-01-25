@@ -2,8 +2,6 @@ import client from "./client";
 
 /**
  * CourseBank API functions
- * Note: GET endpoints are not yet implemented on backend.
- * These functions are ready for when they are available.
  */
 
 /**
