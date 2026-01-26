@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Feed from '../components/feed/Feed';
 import { useFeed } from '../context/FeedContext';
 import { useAuth } from '../context/AuthContext';
-import { useUI } from '../context/UIContext';
+
 import { useNavigate } from 'react-router-dom';
 import FeedComposer from '../components/feed/FeedComposer';
 import logo from '../assets/logo.png';
