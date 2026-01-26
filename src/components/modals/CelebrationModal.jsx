@@ -1,60 +1,59 @@
 import React, { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Trophy, Flame, Sparkles } from "lucide-react";
+import { Trophy, Flame, Sparkles, Star } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useCelebration } from "../../context/CelebrationContext";
 
 const CelebrationModal = () => {
     const { showCelebration, celebrationData, closeCelebration } = useCelebration();
-    const hasConfettiFired = useRef(false);
+    const lastCelebrationId = useRef(null);
 
-    // Fire confetti when modal opens
+    // Fire confetti when a NEW celebration starts
     useEffect(() => {
-        if (showCelebration && !hasConfettiFired.current) {
-            hasConfettiFired.current = true;
-            fireConfetti();
+        if (showCelebration && celebrationData) {
+            const currentId = `${celebrationData.type}-${celebrationData.value}`;
+            if (lastCelebrationId.current !== currentId) {
+                lastCelebrationId.current = currentId;
+                fireConfetti();
+            }
         }
-        if (!showCelebration) {
-            hasConfettiFired.current = false;
-        }
-    }, [showCelebration]);
+    }, [showCelebration, celebrationData]);
 
     const fireConfetti = () => {
-        const duration = 3000;
-        const end = Date.now() + duration;
+        const colors = ['#FF4500', '#FFD700', '#FF6B35', '#FFA500', '#FFFFFF'];
 
-        const colors = ['#FF4500', '#FFD700', '#FF6B35', '#FFA500'];
-
-        (function frame() {
+        // Slight delay to ensure modal is visible
+        setTimeout(() => {
+            // Side cannons
             confetti({
-                particleCount: 4,
+                particleCount: 80,
                 angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: colors
+                spread: 70,
+                origin: { x: 0, y: 0.6 },
+                colors: colors,
+                zIndex: 10000
             });
             confetti({
-                particleCount: 4,
+                particleCount: 80,
                 angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: colors
+                spread: 70,
+                origin: { x: 1, y: 0.6 },
+                colors: colors,
+                zIndex: 10000
             });
+        }, 100);
 
-            if (Date.now() < end) {
-                requestAnimationFrame(frame);
-            }
-        }());
-
-        // Burst in center
+        // Center burst
         setTimeout(() => {
             confetti({
-                particleCount: 100,
+                particleCount: 150,
                 spread: 100,
-                origin: { y: 0.6 },
-                colors: colors
+                origin: { x: 0.5, y: 0.5 },
+                colors: colors,
+                scalar: 1.2,
+                zIndex: 10000
             });
-        }, 250);
+        }, 500);
     };
 
     if (!showCelebration || !celebrationData) return null;
@@ -62,129 +61,136 @@ const CelebrationModal = () => {
     const isAura = celebrationData.type === 'aura';
 
     const getTitle = () => {
-        if (isAura) return `${celebrationData.value.toLocaleString()} Aura Points!`;
-        if (celebrationData.value === 1) return "First Streak!";
-        if (celebrationData.value === 7) return "1 Week Streak!";
-        if (celebrationData.value === 30) return "1 Month Streak!";
+        if (isAura) return `${celebrationData.value.toLocaleString()} Aura!`;
+        if (celebrationData.value === 1) return "First Milestone!";
         return `${celebrationData.value} Day Streak!`;
     };
 
     const Icon = isAura ? Trophy : Flame;
-    const iconColor = isAura ? "text-yellow-400" : "text-orange-500";
-    const gradientFrom = isAura ? "from-yellow-500/20" : "from-orange-500/20";
-    const gradientTo = isAura ? "to-amber-600/20" : "to-red-500/20";
+    const themeColor = isAura ? "#EAB308" : "#FF4500"; // Yellow vs Orange
+    const bgGradient = isAura
+        ? "from-yellow-400/20 via-reddit-card to-yellow-900/10"
+        : "from-orange-500/20 via-reddit-card to-red-900/10";
 
     return (
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
             <motion.div
+                key="backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
                 onClick={closeCelebration}
             >
                 <motion.div
-                    initial={{ scale: 0.5, opacity: 0, y: 50 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.5, opacity: 0, y: 50 }}
-                    transition={{
-                        type: "spring",
-                        damping: 15,
-                        stiffness: 300
-                    }}
+                    key={`${celebrationData.type}-${celebrationData.value}`}
+                    initial={{ scale: 0.8, opacity: 0, y: 40, rotate: -2 }}
+                    animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}
+                    exit={{ scale: 1.1, opacity: 0, y: -40, rotate: 2 }}
+                    transition={{ type: "spring", damping: 20, stiffness: 300 }}
                     onClick={(e) => e.stopPropagation()}
-                    className={`relative bg-gradient-to-br ${gradientFrom} ${gradientTo} bg-reddit-card border border-reddit-border rounded-2xl w-full max-w-sm overflow-hidden`}
+                    className={`relative bg-gradient-to-br ${bgGradient} bg-reddit-card border border-white/10 rounded-[2.5rem] w-full max-w-[400px] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]`}
                 >
-                    {/* Close button */}
-                    <button
-                        onClick={closeCelebration}
-                        className="absolute top-4 right-4 text-reddit-textMuted hover:text-reddit-text p-1 rounded-full hover:bg-white/10 transition-colors z-10"
-                    >
-                        <X size={20} />
-                    </button>
+                    {/* Glowing background effect */}
+                    <div
+                        className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 blur-[100px] opacity-20 pointer-events-none"
+                        style={{ backgroundColor: themeColor }}
+                    />
 
                     {/* Content */}
-                    <div className="p-8 text-center">
-                        {/* Animated Icon */}
+                    <div className="p-10 text-center relative z-10">
+                        {/* Milestone Badge */}
                         <motion.div
-                            initial={{ scale: 0, rotate: -180 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{
-                                type: "spring",
-                                delay: 0.2,
-                                damping: 10,
-                                stiffness: 200
-                            }}
-                            className="relative mx-auto mb-6"
+                            initial={{ y: -20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.1 }}
+                            className="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase font-black tracking-[0.2em] text-reddit-textMuted mb-8"
                         >
-                            <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${gradientFrom} ${gradientTo} flex items-center justify-center mx-auto relative`}>
-                                <Icon size={48} className={iconColor} />
-
-                                {/* Sparkle decorations */}
-                                <motion.div
-                                    animate={{
-                                        scale: [1, 1.2, 1],
-                                        opacity: [0.5, 1, 0.5]
-                                    }}
-                                    transition={{
-                                        duration: 2,
-                                        repeat: Infinity,
-                                        ease: "easeInOut"
-                                    }}
-                                    className="absolute -top-2 -right-2"
-                                >
-                                    <Sparkles size={24} className="text-yellow-400" />
-                                </motion.div>
-                                <motion.div
-                                    animate={{
-                                        scale: [1, 1.3, 1],
-                                        opacity: [0.5, 1, 0.5]
-                                    }}
-                                    transition={{
-                                        duration: 2,
-                                        repeat: Infinity,
-                                        ease: "easeInOut",
-                                        delay: 0.5
-                                    }}
-                                    className="absolute -bottom-1 -left-2"
-                                >
-                                    <Sparkles size={16} className="text-orange-400" />
-                                </motion.div>
-                            </div>
+                            Achievement Unlocked
                         </motion.div>
 
-                        {/* Title */}
-                        <motion.h2
+                        {/* main Icon */}
+                        <div className="relative mx-auto mb-10">
+                            <motion.div
+                                animate={{
+                                    scale: [1, 1.1, 1],
+                                    rotate: [0, 5, -5, 0]
+                                }}
+                                transition={{ duration: 4, repeat: Infinity }}
+                                className={`w-36 h-36 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center mx-auto relative overflow-hidden backdrop-blur-xl`}
+                            >
+                                <Icon size={72} strokeWidth={1.5} style={{ color: themeColor }} />
+
+                                {/* Inner glow */}
+                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none" />
+                            </motion.div>
+
+                            {/* Decorative Sparkles */}
+                            {[...Array(6)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    className="absolute"
+                                    initial={{ opacity: 0 }}
+                                    animate={{
+                                        opacity: [0, 1, 0],
+                                        scale: [0, 1.2, 0],
+                                        x: Math.cos(i * 60 * Math.PI / 180) * 80,
+                                        y: Math.sin(i * 60 * Math.PI / 180) * 80
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        delay: i * 0.3,
+                                        ease: "circOut"
+                                    }}
+                                >
+                                    <Star size={12 + i % 3 * 4} fill={themeColor} className="text-transparent" />
+                                </motion.div>
+                            ))}
+                        </div>
+
+                        {/* Text */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="space-y-4 mb-10"
+                        >
+                            <h2 className="text-4xl font-black text-white leading-tight font-righteous">
+                                {getTitle()}
+                            </h2>
+                            <p className="text-lg text-reddit-textMuted font-medium px-4">
+                                {celebrationData.message}
+                            </p>
+                        </motion.div>
+
+                        {/* Actions */}
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="text-3xl font-bold text-white mb-2"
                         >
-                            🎉 {getTitle()}
-                        </motion.h2>
+                            <button
+                                onClick={closeCelebration}
+                                className="group relative w-full overflow-hidden rounded-2xl p-[1px] transition-all"
+                            >
+                                <div
+                                    className="absolute inset-0 animate-[spin_3s_linear_infinite] opacity-50"
+                                    style={{ background: `conic-gradient(from 0deg, transparent, ${themeColor}, transparent)` }}
+                                />
+                                <div className="relative bg-reddit-card hover:bg-[#272729] rounded-2xl py-4 flex items-center justify-center gap-2 transition-colors">
+                                    <span className="text-white font-black text-lg">Claim Achievement</span>
+                                    <Sparkles size={20} style={{ color: themeColor }} />
+                                </div>
+                            </button>
 
-                        {/* Message */}
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                            className="text-xl text-reddit-textMuted mb-8"
-                        >
-                            {celebrationData.message}
-                        </motion.p>
-
-                        {/* Continue button */}
-                        <motion.button
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={closeCelebration}
-                            className="w-full bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-3 px-6 rounded-full transition-colors"
-                        >
-                            Continue
-                        </motion.button>
+                            <button
+                                onClick={closeCelebration}
+                                className="mt-4 text-reddit-textMuted text-xs font-bold hover:text-white transition-colors"
+                            >
+                                Not now, let's study
+                            </button>
+                        </motion.div>
                     </div>
                 </motion.div>
             </motion.div>

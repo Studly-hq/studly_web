@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, User, PlayCircle, MoreHorizontal, LogIn, Bell } from 'lucide-react';
+import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell } from 'lucide-react';
 import { useCoursePlayer } from '../../context/CoursePlayerContext';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
@@ -19,7 +19,7 @@ const LeftSidebar = () => {
     {
       icon: Home,
       label: 'Home',
-      path: '/',
+      path: isAuthenticated ? '/feed' : '/posts',
       id: 'home'
     },
     {
@@ -27,6 +27,12 @@ const LeftSidebar = () => {
       label: 'Explore',
       path: '/explore',
       id: 'explore'
+    },
+    {
+      icon: Trophy,
+      label: 'Leaderboard',
+      path: '/leaderboard',
+      id: 'leaderboard'
     },
     {
       icon: Bell,
@@ -54,7 +60,7 @@ const LeftSidebar = () => {
       <div className="flex flex-col h-full">
         {/* Logo Area */}
         <div className="p-3 my-1">
-          <Link to="/" className="inline-flex items-center justify-center p-2 rounded-full hover:bg-reddit-cardHover/50 transition-colors w-12 h-12">
+          <Link to={isAuthenticated ? "/feed" : "/posts"} className="inline-flex items-center justify-center p-2 rounded-full hover:bg-reddit-cardHover/50 transition-colors w-12 h-12">
             <img src={logo} alt="Studly Logo" className="w-10 h-10 object-contain" />
           </Link>
         </div>

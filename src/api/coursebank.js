@@ -134,3 +134,19 @@ export const createCourse = async (courseData) => {
     throw error;
   }
 };
+/**
+ * Get leaderboard data
+ * @param {string} period - 'daily', 'weekly', or 'overall'
+ * @returns {Promise<Array>} List of leaderboard entries
+ */
+export const getLeaderboard = async (period = "overall") => {
+  try {
+    const response = await client.get("/coursebank/leaderboard", {
+      params: { period },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Get Leaderboard Error:", error.response?.data || error.message);
+    throw error;
+  }
+};

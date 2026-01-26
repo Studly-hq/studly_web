@@ -26,6 +26,8 @@ import "./App.css";
 
 // Pages (Lazy loaded for better performance)
 const Home = lazy(() => import("./pages/Home"));
+const FeedPage = lazy(() => import("./pages/FeedPage"));
+const PostsPage = lazy(() => import("./pages/PostsPage"));
 const Explore = lazy(() => import("./pages/Explore"));
 const SavedPosts = lazy(() => import("./pages/SavedPosts"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
@@ -38,6 +40,8 @@ const TopicPlayer = lazy(() => import("./pages/TopicPlayer"));
 const PostDetail = lazy(() => import("./pages/PostDetail"));
 const CourseAdmin = lazy(() => import("./pages/CourseAdmin"));
 const Notifications = lazy(() => import("./pages/Notifications"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+
 
 // Legal Pages (Lazy loaded)
 const TermsOfService = lazy(() => import("./pages/legal/TermsOfService"));
@@ -78,7 +82,7 @@ function AppContent() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         // Only sync if we don't already have the token in localStorage to avoid redundant calls
-        const currentToken = localStorage.getItem("studly_token");
+        const currentToken = localStorage.getItem("token");
         if (currentToken !== session.access_token) {
           await syncWithBackend(session.access_token, session.refresh_token);
         }
@@ -126,6 +130,8 @@ function AppContent() {
                   }>
                     <Routes>
                       <Route path="/" element={<Home />} />
+                      <Route path="/feed" element={<FeedPage />} />
+                      <Route path="/posts" element={<PostsPage />} />
                       <Route path="/explore" element={<Explore />} />
                       <Route path="/saved" element={<SavedPosts />} />
                       <Route path="/upload" element={<UploadNotes />} />
@@ -135,6 +141,7 @@ function AppContent() {
                       <Route path="/profile/:username" element={<UserProfile />} />
                       <Route path="/post/:postId" element={<PostDetail />} />
                       <Route path="/notifications" element={<Notifications />} />
+                      <Route path="/leaderboard" element={<Leaderboard />} />
                       <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
 
 

@@ -39,6 +39,9 @@ export const AuthProvider = ({ children }) => {
         supabase.auth.signOut().catch(error => {
             console.warn("Supabase signout failed:", error);
         });
+
+        // Redirect to /posts on logout
+        window.location.href = "/posts";
     }, [disconnect]);
 
     useEffect(() => {
@@ -74,6 +77,7 @@ export const AuthProvider = ({ children }) => {
             setCurrentUser(null);
             disconnect();
             supabase.auth.signOut();
+            window.location.href = "/posts";
         };
 
         window.addEventListener("auth:logout", handleForcedLogout);
@@ -126,8 +130,8 @@ export const AuthProvider = ({ children }) => {
             const data = await apiSignup(email, password, name);
 
             // Auto-login after successful signup
-            if (data.token) localStorage.setItem("studly_token", data.token);
-            if (data.refresh_token) localStorage.setItem("studly_refresh_token", data.refresh_token);
+            if (data.token) localStorage.setItem("token", data.token);
+            if (data.refresh_token) localStorage.setItem("refresh_token", data.refresh_token);
 
             if (data.token && data.refresh_token) {
                 supabase.auth.setSession({

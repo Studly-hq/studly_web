@@ -188,7 +188,7 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
           <motion.img
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
-            onClick={() => navigate(`/profile/${comment.userId}`)}
+            onClick={() => navigate(`/profile/${commentUser?.username}`)}
             src={commentUser?.avatar}
             alt={commentUser?.username}
             className="w-8 h-8 rounded-full border border-reddit-border cursor-pointer flex-shrink-0"
@@ -200,7 +200,7 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   <span
-                    onClick={() => navigate(`/profile/${comment.userId}`)}
+                    onClick={() => navigate(`/profile/${commentUser?.username}`)}
                     className="text-reddit-text font-bold text-sm hover:text-reddit-orange cursor-pointer transition-colors"
                   >
                     {commentUser?.username}

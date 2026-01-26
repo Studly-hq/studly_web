@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, GraduationCap, User } from 'lucide-react';
+import { Home, Trophy, GraduationCap, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 
@@ -11,8 +11,8 @@ const MobileBottomNav = () => {
   const { setShowAuthModal } = useUI();
 
   const navItems = [
-    { icon: Home, label: 'Home', path: '/', id: 'home' },
-    { icon: Compass, label: 'Explore', path: '/explore', id: 'explore' },
+    { icon: Home, label: 'Home', path: isAuthenticated ? '/feed' : '/posts', id: 'home' },
+    { icon: Trophy, label: 'Ranking', path: '/leaderboard', id: 'leaderboard' },
     { icon: GraduationCap, label: 'Study', path: '/courses', id: 'courses' },
     { icon: User, label: 'Profile', path: '/profile', id: 'profile', requiresAuth: true }
   ];

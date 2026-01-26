@@ -13,6 +13,7 @@ import {
     bookmarkPost as apiBookmarkPost,
     unbookmarkPost as apiUnbookmarkPost,
     getBookmarks as apiGetBookmarks,
+    getFeed as apiGetFeed,
 } from "../api/contents";
 import { useAuth } from "./AuthContext";
 import { useUI } from "./UIContext";
@@ -36,6 +37,12 @@ export const FeedProvider = ({ children }) => {
     const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
     const [isBookmarksLoading, setIsBookmarksLoading] = useState(false);
     const [comments, setComments] = useState({});
+
+    // New Feed Discovery & Background State
+    const [isDiscoveryMode, setIsDiscoveryMode] = useState(false);
+    const [hasMorePersonalized, setHasMorePersonalized] = useState(true);
+    const [backgroundPosts, setBackgroundPosts] = useState([]);
+    const [hasNewBackgroundPosts, setHasNewBackgroundPosts] = useState(false);
 
     // Map backend post to frontend format
     const mapBackendPostToFrontend = useCallback(
@@ -82,16 +89,55 @@ export const FeedProvider = ({ children }) => {
         [currentUser]
     );
 
-    const fetchFeedPosts = useCallback(async (forceLoading = false) => {
-        // Only show loading skeleton if we don't have any posts yet (initial load)
-        // Otherwise, update silently in the background
-        if (forceLoading || posts.length === 0) {
+    const fetchFeedPosts = useCallback(async (options = {}) => {
+        const {
+            forceLoading = false,
+            isPersonalized = false,
+            append = false,
+            isQuiet = false
+        } = options;
+
+        if (forceLoading && !isQuiet) {
             setIsFeedLoading(true);
         }
+
         try {
-            const serverPosts = await apiGetPosts(100);
+            const serverPosts = isPersonalized
+                ? await apiGetFeed(100)
+                : await apiGetPosts(100);
+
             const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend);
-            setPosts(mappedPosts);
+
+            if (isQuiet) {
+                // Background refresh - check if there's actually NEW content
+                const existingIds = new Set(posts.map(p => String(p.id)));
+                const newPosts = mappedPosts.filter(p => !existingIds.has(String(p.id)));
+
+                if (newPosts.length > 0) {
+                    setBackgroundPosts(newPosts);
+                    setHasNewBackgroundPosts(true);
+                }
+            } else if (append) {
+                // Discovery mode or pagination append
+                setPosts(prev => {
+                    const existingIds = new Set(prev.map(p => String(p.id)));
+                    const uniqueNew = mappedPosts.filter(p => !existingIds.has(String(p.id)));
+                    return [...prev, ...uniqueNew];
+                });
+            } else {
+                // Standard refresh
+                setPosts(mappedPosts);
+                setBackgroundPosts([]);
+                setHasNewBackgroundPosts(false);
+            }
+
+            // Update discovery state if personalized
+            if (isPersonalized) {
+                setHasMorePersonalized((serverPosts || []).length > 0);
+                if ((serverPosts || []).length === 0) {
+                    setIsDiscoveryMode(true);
+                }
+            }
         } catch (error) {
             if (error.response?.status === 401 && error.response?.data?.error === "User record not found") {
                 logout();
@@ -99,7 +145,19 @@ export const FeedProvider = ({ children }) => {
         } finally {
             setIsFeedLoading(false);
         }
-    }, [mapBackendPostToFrontend, logout, posts.length]);
+    }, [mapBackendPostToFrontend, logout, posts]);
+
+    const applyBackgroundPosts = useCallback(() => {
+        if (backgroundPosts.length > 0) {
+            setPosts(prev => {
+                const existingIds = new Set(prev.map(p => String(p.id)));
+                const uniqueNew = backgroundPosts.filter(p => !existingIds.has(String(p.id)));
+                return [...uniqueNew, ...prev];
+            });
+            setBackgroundPosts([]);
+            setHasNewBackgroundPosts(false);
+        }
+    }, [backgroundPosts]);
 
     const fetchBookmarks = useCallback(async () => {
         if (!isAuthenticated) return;
@@ -116,11 +174,10 @@ export const FeedProvider = ({ children }) => {
     }, [mapBackendPostToFrontend, isAuthenticated]);
 
     useEffect(() => {
-        fetchFeedPosts();
         if (isAuthenticated) {
             fetchBookmarks();
         }
-    }, [isAuthenticated, fetchFeedPosts, fetchBookmarks]);
+    }, [isAuthenticated, fetchBookmarks]);
 
     const updatePostInState = useCallback((postId, newContent) => {
         setPosts(prev => prev.map(p => String(p.id) === String(postId) ? { ...p, content: newContent } : p));
@@ -656,7 +713,12 @@ export const FeedProvider = ({ children }) => {
         getCommentsForPost,
         handleLikeComment,
         requireAuth,
-        createPost
+        createPost,
+        isDiscoveryMode,
+        setIsDiscoveryMode,
+        hasMorePersonalized,
+        hasNewBackgroundPosts,
+        applyBackgroundPosts
     }), [
         posts,
         isFeedLoading,
@@ -678,7 +740,11 @@ export const FeedProvider = ({ children }) => {
         getCommentsForPost,
         handleLikeComment,
         requireAuth,
-        createPost
+        createPost,
+        isDiscoveryMode,
+        hasMorePersonalized,
+        hasNewBackgroundPosts,
+        applyBackgroundPosts
     ]);
 
     return (

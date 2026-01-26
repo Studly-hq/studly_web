@@ -1,21 +1,25 @@
-import React from 'react';
-import Feed from '../components/feed/Feed';
-import FeedComposer from '../components/feed/FeedComposer';
-import logo from '../assets/logo.png';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const Home = () => {
-  return (
-    <div>
-      {/* Mobile Header */}
-      <div className="xl:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center gap-1.5">
-        <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
-        <span className="text-reddit-text text-xl font-righteous tracking-wide">
-          Studly
-        </span>
-      </div>
+  const { isAuthenticated, isAuthLoading } = useAuth();
+  const navigate = useNavigate();
 
-      <FeedComposer />
-      <Feed />
+  useEffect(() => {
+    if (!isAuthLoading) {
+      if (isAuthenticated) {
+        navigate('/feed', { replace: true });
+      } else {
+        navigate('/posts', { replace: true });
+      }
+    }
+  }, [isAuthenticated, isAuthLoading, navigate]);
+
+  return (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <LoadingSpinner />
     </div>
   );
 };

@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-// Import API and Auth
 import { getUserStreak, getUserAuraPoints } from '../api/profile';
 import { useAuth } from './AuthContext';
+import { useWebSocketContext } from './WebSocketContext';
 
 const CelebrationContext = createContext();
 
 // Milestone thresholds
 const AURA_MILESTONES = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000];
-const STREAK_MILESTONES = [1, 7, 30]; // First day, 1 week, 1 month
+const STREAK_MILESTONES = [1, 7, 30, 50, 100, 365];
 
 export const useCelebration = () => {
     const context = useContext(CelebrationContext);
@@ -17,106 +17,134 @@ export const useCelebration = () => {
     return context;
 };
 
-
-
 export const CelebrationProvider = ({ children }) => {
-    const [showCelebration, setShowCelebration] = useState(false);
-    const [celebrationData, setCelebrationData] = useState(null);
+    const [queue, setQueue] = useState([]);
+    const [activeCelebration, setActiveCelebration] = useState(null);
     const { isAuthenticated, currentUser } = useAuth();
+    const { subscribe } = useWebSocketContext();
 
-    // Get stored previous values from localStorage
-    const getPreviousValues = useCallback(() => {
-        const prevAura = parseInt(localStorage.getItem('prevAuraPoints') || '0', 10);
-        const prevStreak = parseInt(localStorage.getItem('prevStreak') || '0', 10);
-        return { prevAura, prevStreak };
+    // Seen milestones to prevent duplicate celebrations
+    const [seenMilestones, setSeenMilestones] = useState(() => {
+        const saved = localStorage.getItem('studly_seen_milestones');
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    // Save seen milestones whenever they change
+    useEffect(() => {
+        localStorage.setItem('studly_seen_milestones', JSON.stringify(seenMilestones));
+    }, [seenMilestones]);
+
+    const pushToQueue = useCallback((newItem) => {
+        const milestoneKey = `${newItem.type}:${newItem.value}`;
+
+        setSeenMilestones(prev => {
+            if (prev.includes(milestoneKey)) return prev;
+
+            // If not seen, add to queue
+            setQueue(q => [...q, newItem]);
+            return [...prev, milestoneKey];
+        });
     }, []);
 
-    // Store new values to localStorage
-    const storeValues = useCallback((aura, streak) => {
-        localStorage.setItem('prevAuraPoints', String(aura));
-        localStorage.setItem('prevStreak', String(streak));
+    const popQueue = useCallback(() => {
+        setQueue(prev => {
+            if (prev.length === 0) {
+                setActiveCelebration(null);
+                return [];
+            }
+            const [next, ...rest] = prev;
+            setActiveCelebration(next);
+            return rest;
+        });
     }, []);
 
-    // Check if any milestone was crossed
+    // Sync active celebration with queue
+    useEffect(() => {
+        if (!activeCelebration && queue.length > 0) {
+            popQueue();
+        }
+    }, [queue, activeCelebration, popQueue]);
+
     const checkMilestones = useCallback((newAura, newStreak) => {
-        const { prevAura, prevStreak } = getPreviousValues();
+        const newItems = [];
 
-        // Always update stored values
-        storeValues(newAura, newStreak);
-
-        // Check aura milestones (only if increased)
-        if (newAura > prevAura) {
-            for (const milestone of AURA_MILESTONES) {
-                if (prevAura < milestone && newAura >= milestone) {
-                    setCelebrationData({
-                        type: 'aura',
-                        value: milestone,
-                        message: getAuraMessage(milestone),
-                    });
-                    setShowCelebration(true);
-                    return;
-                }
+        // Check aura milestones
+        for (const milestone of AURA_MILESTONES) {
+            if (newAura >= milestone) {
+                newItems.push({
+                    type: 'aura',
+                    value: milestone,
+                    message: getAuraMessage(milestone),
+                });
             }
         }
 
-        // Check streak milestones (only if increased)
-        if (newStreak > prevStreak) {
-            // Fixed milestones: 1, 7, 30
+        // Check streak milestones
+        if (newStreak) {
             for (const milestone of STREAK_MILESTONES) {
-                if (prevStreak < milestone && newStreak >= milestone) {
-                    setCelebrationData({
+                if (newStreak >= milestone) {
+                    newItems.push({
                         type: 'streak',
                         value: milestone,
                         message: getStreakMessage(milestone),
                     });
-                    setShowCelebration(true);
-                    return;
                 }
             }
 
-            // Weekly streak celebration (every 7 days after 30)
+            // Weekly streak logic for high streaks
             if (newStreak > 30 && newStreak % 7 === 0) {
-                setCelebrationData({
+                newItems.push({
                     type: 'streak-weekly',
                     value: newStreak,
-                    message: `${Math.floor(newStreak / 7)} week streak! 🔥`,
+                    message: `${Math.floor(newStreak / 7)} weeks strong! 🔥`,
                 });
-                setShowCelebration(true);
-                return;
             }
         }
-    }, [getPreviousValues, storeValues]);
 
-    // Monitor stats for changes
+        // Push all to queue (pushToQueue handles de-duplication)
+        newItems.forEach(item => pushToQueue(item));
+    }, [pushToQueue]);
+
+    // 1. Initial catch-up check on mount/auth
     useEffect(() => {
-        const checkStats = async () => {
-            if (currentUser?.username) {
+        const fetchAndCheck = async () => {
+            if (isAuthenticated && currentUser?.username) {
                 try {
-                    const streak = await getUserStreak(currentUser.username);
-                    const points = await getUserAuraPoints(currentUser.username);
+                    const [streak, points] = await Promise.all([
+                        getUserStreak(currentUser.username),
+                        getUserAuraPoints(currentUser.username)
+                    ]);
                     checkMilestones(points, streak);
-                } catch (error) {
-                    console.error("Failed to check stats for celebration", error);
+                } catch (err) {
+                    console.error("Celebration catch-up failed:", err);
                 }
             }
         };
-
-        if (isAuthenticated) {
-            checkStats();
-        }
+        fetchAndCheck();
     }, [isAuthenticated, currentUser, checkMilestones]);
 
-    const closeCelebration = useCallback(() => {
-        setShowCelebration(false);
-        setCelebrationData(null);
-    }, []);
+    // 2. Real-time updates via WebSocket
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        const unsubscribe = subscribe('aura_point_update', (data) => {
+            // data contains { user_id, points }
+            if (data.points) {
+                // We don't have the streak in the WS event yet, 
+                // so we check milestones with current known streak or null
+                checkMilestones(data.points, null);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [isAuthenticated, subscribe, checkMilestones]);
 
     const value = React.useMemo(() => ({
-        showCelebration,
-        celebrationData,
-        checkMilestones,
-        closeCelebration,
-    }), [showCelebration, celebrationData, checkMilestones, closeCelebration]);
+        showCelebration: !!activeCelebration,
+        celebrationData: activeCelebration,
+        closeCelebration: () => setActiveCelebration(null), // This triggers the useEffect to show next in queue
+        checkMilestones, // Allow manual triggers (e.g. after a quiz)
+    }), [activeCelebration, checkMilestones]);
 
     return (
         <CelebrationContext.Provider value={value}>
@@ -146,6 +174,9 @@ function getStreakMessage(milestone) {
         1: "First step! Keep going! 🚀",
         7: "One week strong! 💪",
         30: "One month champion! 🏆",
+        50: "Half century! Incredible! 🎖️",
+        100: "The Centurion! Absolute beast! 🔥",
+        365: "A WHOLE YEAR! Legend Status! 👑",
     };
     return messages[milestone] || `${milestone} day streak! 🔥`;
 }

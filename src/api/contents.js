@@ -22,6 +22,18 @@ export const getPosts = async (limit = 100, page = 1) => {
   }
 }
 
+export const getFeed = async (limit = 100, page = 1) => {
+  try {
+    const response = await client.get("/studlygram/feed", {
+      params: { limit, page }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Get Feed Error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
 export const getUserPosts = async (username) => {
   try {
     // Note: The endpoint documentation says /studlygram/posts/{username}
