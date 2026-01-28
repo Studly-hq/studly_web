@@ -19,7 +19,7 @@ const PostsPage = () => {
     // Automatically redirect to /feed if user logs in while on this page
     useEffect(() => {
         if (!isAuthLoading && isAuthenticated) {
-            navigate('/feed', { replace: true });
+            navigate('/posts', { replace: true });
         }
     }, [isAuthenticated, isAuthLoading, navigate]);
 

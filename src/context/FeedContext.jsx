@@ -44,6 +44,12 @@ export const FeedProvider = ({ children }) => {
     const [backgroundPosts, setBackgroundPosts] = useState([]);
     const [hasNewBackgroundPosts, setHasNewBackgroundPosts] = useState(false);
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMorePosts, setHasMorePosts] = useState(true);
+    const [isLoadingMorePosts, setIsLoadingMorePosts] = useState(false);
+    const POSTS_PER_PAGE = 10;
+
     // Map backend post to frontend format
     const mapBackendPostToFrontend = useCallback(
         (post) => {
@@ -89,24 +95,73 @@ export const FeedProvider = ({ children }) => {
         [currentUser]
     );
 
+    const normalizePostsResponse = useCallback((resp) => {
+        // Supports multiple backend shapes:
+        // - Array<Post>
+        // - { posts: Array<Post>, pagination?: {...} }
+        // - { data: Array<Post>, pagination?: {...} }
+        // - { data: { posts: Array<Post>, pagination?: {...} } }
+        if (!resp) {
+            return { posts: [], pagination: null };
+        }
+
+        // Plain array
+        if (Array.isArray(resp)) {
+            return { posts: resp, pagination: null };
+        }
+
+        // Top-level posts
+        if (Array.isArray(resp.posts)) {
+            return { posts: resp.posts, pagination: resp.pagination || resp.meta || null };
+        }
+
+        // Top-level data is array
+        if (Array.isArray(resp.data)) {
+            return { posts: resp.data, pagination: resp.pagination || resp.meta || null };
+        }
+
+        // Nested data.posts
+        if (resp.data && Array.isArray(resp.data.posts)) {
+            return {
+                posts: resp.data.posts,
+                pagination: resp.data.pagination || resp.data.meta || resp.pagination || resp.meta || null,
+            };
+        }
+
+        return { posts: [], pagination: resp.pagination || resp.meta || null };
+    }, []);
+
     const fetchFeedPosts = useCallback(async (options = {}) => {
         const {
             forceLoading = false,
             isPersonalized = false,
             append = false,
-            isQuiet = false
+            isQuiet = false,
+            page = 1
         } = options;
 
         if (forceLoading && !isQuiet) {
             setIsFeedLoading(true);
+            setCurrentPage(1);
+        }
+
+        if (append) {
+            setIsLoadingMorePosts(true);
         }
 
         try {
-            const serverPosts = isPersonalized
-                ? await apiGetFeed(100)
-                : await apiGetPosts(100);
+            const serverResponse = isPersonalized
+                ? await apiGetFeed(POSTS_PER_PAGE, page)
+                : await apiGetPosts(POSTS_PER_PAGE, page);
 
+            const { posts: serverPosts, pagination } = normalizePostsResponse(serverResponse);
             const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend);
+
+            // Check if we got fewer posts than requested - means we've reached the end
+            const hasMore = typeof pagination?.has_more === "boolean"
+                ? pagination.has_more
+                : (serverPosts || []).length >= POSTS_PER_PAGE;
+            setHasMorePosts(hasMore);
 
             if (isQuiet) {
                 // Background refresh - check if there's actually NEW content
@@ -118,17 +173,19 @@ export const FeedProvider = ({ children }) => {
                     setHasNewBackgroundPosts(true);
                 }
             } else if (append) {
-                // Discovery mode or pagination append
+                // Pagination append - add more posts to the feed
                 setPosts(prev => {
                     const existingIds = new Set(prev.map(p => String(p.id)));
                     const uniqueNew = mappedPosts.filter(p => !existingIds.has(String(p.id)));
                     return [...prev, ...uniqueNew];
                 });
+                setCurrentPage(typeof pagination?.page === "number" ? pagination.page : page);
             } else {
                 // Standard refresh
                 setPosts(mappedPosts);
                 setBackgroundPosts([]);
                 setHasNewBackgroundPosts(false);
+                setCurrentPage(typeof pagination?.page === "number" ? pagination.page : page);
             }
 
             // Update discovery state if personalized
@@ -144,8 +201,9 @@ export const FeedProvider = ({ children }) => {
             }
         } finally {
             setIsFeedLoading(false);
+            setIsLoadingMorePosts(false);
         }
-    }, [mapBackendPostToFrontend, logout, posts]);
+    }, [mapBackendPostToFrontend, logout, posts, POSTS_PER_PAGE, normalizePostsResponse]);
 
     const applyBackgroundPosts = useCallback(() => {
         if (backgroundPosts.length > 0) {
@@ -718,7 +776,10 @@ export const FeedProvider = ({ children }) => {
         setIsDiscoveryMode,
         hasMorePersonalized,
         hasNewBackgroundPosts,
-        applyBackgroundPosts
+        applyBackgroundPosts,
+        hasMorePosts,
+        currentPage,
+        isLoadingMorePosts
     }), [
         posts,
         isFeedLoading,
@@ -744,7 +805,10 @@ export const FeedProvider = ({ children }) => {
         isDiscoveryMode,
         hasMorePersonalized,
         hasNewBackgroundPosts,
-        applyBackgroundPosts
+        applyBackgroundPosts,
+        hasMorePosts,
+        currentPage,
+        isLoadingMorePosts
     ]);
 
     return (
