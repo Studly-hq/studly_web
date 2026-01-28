@@ -19,7 +19,7 @@ const LeftSidebar = () => {
     {
       icon: Home,
       label: 'Home',
-      path: isAuthenticated ? '/feed' : '/posts',
+      path: isAuthenticated ? '/posts' : '/posts',
       id: 'home'
     },
     {
@@ -60,7 +60,7 @@ const LeftSidebar = () => {
       <div className="flex flex-col h-full">
         {/* Logo Area */}
         <div className="p-3 my-1">
-          <Link to={isAuthenticated ? "/feed" : "/posts"} className="inline-flex items-center justify-center p-2 rounded-full hover:bg-reddit-cardHover/50 transition-colors w-12 h-12">
+          <Link to={isAuthenticated ? "/posts" : "/posts"} className="inline-flex items-center justify-center p-2 rounded-full hover:bg-reddit-cardHover/50 transition-colors w-12 h-12">
             <img src={logo} alt="Studly Logo" className="w-10 h-10 object-contain" />
           </Link>
         </div>

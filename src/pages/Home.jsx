@@ -10,7 +10,7 @@ const Home = () => {
   useEffect(() => {
     if (!isAuthLoading) {
       if (isAuthenticated) {
-        navigate('/feed', { replace: true });
+        navigate('/posts', { replace: true });
       } else {
         navigate('/posts', { replace: true });
       }

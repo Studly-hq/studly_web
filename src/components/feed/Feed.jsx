@@ -1,12 +1,10 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFeed } from "../../context/FeedContext";
 import { useAuth } from "../../context/AuthContext";
 import PostCard from "../post/PostCard";
 import { FeedSkeleton } from "../common/Skeleton";
 import { Layout, Loader2, RefreshCw } from "lucide-react";
-
-const POSTS_PER_BATCH = 5;
 
 const Feed = ({ activeTab }) => {
   const {
@@ -16,56 +14,40 @@ const Feed = ({ activeTab }) => {
     deletePostFromState,
     fetchFeedPosts,
     isDiscoveryMode,
-    hasMorePersonalized,
     hasNewBackgroundPosts,
-    applyBackgroundPosts
+    applyBackgroundPosts,
+    hasMorePosts,
+    currentPage,
+    isLoadingMorePosts
   } = useFeed();
   const { currentUser } = useAuth();
   const feedRef = useRef(null);
   const loadMoreRef = useRef(null);
 
-  // Pagination state for local display
-  const [visibleCount, setVisibleCount] = useState(POSTS_PER_BATCH);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-
   const filteredPosts = activeTab === 'following'
     ? posts.filter(post => currentUser?.following?.includes(post.userId))
     : posts;
 
-  const displayedPosts = filteredPosts.slice(0, visibleCount);
-  const hasMoreLocal = visibleCount < filteredPosts.length;
-
   // Background refresh polling
   useEffect(() => {
-    if (activeTab !== 'following') {
-      const interval = setInterval(() => {
-        fetchFeedPosts({ isQuiet: true, isPersonalized: activeTab !== 'following' });
-      }, 60000); // Poll every minute
-      return () => clearInterval(interval);
-    }
+    const interval = setInterval(() => {
+      fetchFeedPosts({ isQuiet: true, isPersonalized: activeTab === 'following' });
+    }, 60000); // Poll every minute
+    return () => clearInterval(interval);
   }, [fetchFeedPosts, activeTab]);
 
-  // Load more posts
+  // Load more posts from server
   const loadMore = useCallback(async () => {
-    if (isLoadingMore) return;
+    if (isLoadingMorePosts || !hasMorePosts) return;
 
-    // 1. If we have more posts already in state but not displayed, show them
-    if (hasMoreLocal) {
-      setIsLoadingMore(true);
-      setTimeout(() => {
-        setVisibleCount(prev => Math.min(prev + POSTS_PER_BATCH, filteredPosts.length));
-        setIsLoadingMore(false);
-      }, 300);
-      return;
-    }
-
-    // 2. If we are in personalized mode and run out of posts, enter discovery mode
-    if (activeTab !== 'following' && !isDiscoveryMode && !hasMorePersonalized) {
-      setIsLoadingMore(true);
-      await fetchFeedPosts({ append: true, isPersonalized: false }); // Fetch public posts
-      setIsLoadingMore(false);
-    }
-  }, [isLoadingMore, hasMoreLocal, filteredPosts.length, activeTab, isDiscoveryMode, hasMorePersonalized, fetchFeedPosts]);
+    // Fetch the next page of posts from the server
+    const nextPage = currentPage + 1;
+    await fetchFeedPosts({ 
+      append: true, 
+      isPersonalized: activeTab === 'following',
+      page: nextPage
+    });
+  }, [isLoadingMorePosts, hasMorePosts, currentPage, fetchFeedPosts, activeTab]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
@@ -74,7 +56,7 @@ const Feed = ({ activeTab }) => {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isLoadingMore) {
+        if (entries[0].isIntersecting && !isLoadingMorePosts && hasMorePosts) {
           loadMore();
         }
       },
@@ -83,14 +65,7 @@ const Feed = ({ activeTab }) => {
 
     observer.observe(target);
     return () => observer.disconnect();
-  }, [isLoadingMore, loadMore]);
-
-  // Reset visible count when tab changes or posts update meaningfully
-  useEffect(() => {
-    if (!isLoadingMore) {
-      setVisibleCount(POSTS_PER_BATCH);
-    }
-  }, [activeTab, isLoadingMore]);
+  }, [isLoadingMorePosts, hasMorePosts, loadMore]);
 
   // Handlers for optimistic updates
   const handlePostUpdated = (postId, newContent) => {
@@ -135,9 +110,9 @@ const Feed = ({ activeTab }) => {
       </AnimatePresence>
 
       <div className="space-y-3">
-        {displayedPosts && displayedPosts.length > 0 ? (
+        {filteredPosts && filteredPosts.length > 0 ? (
           <>
-            {displayedPosts.map((post, index) => (
+            {filteredPosts.map((post, index) => (
               <motion.div
                 key={post.id || `post-${index}`}
                 initial={{ opacity: 0, y: 10 }}
@@ -153,7 +128,7 @@ const Feed = ({ activeTab }) => {
             ))}
 
             {/* Discovery Separator */}
-            {isDiscoveryMode && visibleCount >= posts.length && (
+            {isDiscoveryMode && (
               <div className="py-8 text-center border-t border-reddit-border mt-8">
                 <p className="text-reddit-text font-bold mb-1">You've caught up on your feed!</p>
                 <p className="text-reddit-textMuted text-sm">Discover more from the Studly community below.</p>
@@ -162,9 +137,14 @@ const Feed = ({ activeTab }) => {
 
             {/* Load More Trigger */}
             <div ref={loadMoreRef} className="py-4">
-              {isLoadingMore && (
+              {isLoadingMorePosts && (
                 <div className="flex justify-center">
                   <Loader2 className="w-6 h-6 text-reddit-orange animate-spin" />
+                </div>
+              )}
+              {!hasMorePosts && filteredPosts.length > 0 && (
+                <div className="text-center">
+                  <p className="text-reddit-textMuted text-sm">You've reached the end of the feed</p>
                 </div>
               )}
             </div>
@@ -188,17 +168,6 @@ const Feed = ({ activeTab }) => {
           </motion.div>
         )}
       </div>
-
-      {!hasMoreLocal && displayedPosts.length > 0 && isDiscoveryMode && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="py-8 text-center"
-        >
-          <p className="text-reddit-textMuted text-xs">You're all caught up with discovery too!</p>
-        </motion.div>
-      )}
     </div>
   );
 };
