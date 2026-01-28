@@ -13,19 +13,25 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
 
 const client = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
+  timeout: 120000,
   headers: {
-    "Content-Type": "application/json", // We are sending data in JSON format
-  },
-  withCredentials: true, // Ensure cookies are sent with requests
+    "Accept": "application/json"
+  }
 });
 
-// Add a request interceptor to include the auth token
+// Add a request interceptor to include the auth token and standardize headers
 client.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // ROBUST FIX: Backend strictly requires Content-Type: application/json for ALL requests
+    // Even GET requests must have this header and a parseable body
+    config.headers["Content-Type"] = "application/json";
+
     return config;
   },
   (error) => {

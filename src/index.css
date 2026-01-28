@@ -23,6 +23,7 @@
 }
 
 @layer utilities {
+
   /* Custom scrollbar for Reddit theme */
   ::-webkit-scrollbar {
     width: 8px;
@@ -65,6 +66,19 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
+  }
 }
 
 /* Custom animations */
@@ -73,6 +87,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -84,6 +99,7 @@
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -95,6 +111,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -103,9 +120,12 @@
 
 /* Skeleton loading animation */
 @keyframes skeleton-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -117,9 +137,12 @@
 
 /* Typing cursor animation */
 @keyframes blink {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
@@ -166,10 +189,10 @@
 
 /* Autofill background fix */
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active{
-    -webkit-box-shadow: 0 0 0 30px #272729 inset !important;
-    -webkit-text-fill-color: #D7DADC !important;
-    transition: background-color 0s 600000s, color 600000s 0s !important;
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #272729 inset !important;
+  -webkit-text-fill-color: #D7DADC !important;
+  transition: background-color 0s 600000s, color 600000s 0s !important;
 }

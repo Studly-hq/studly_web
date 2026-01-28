@@ -25,227 +25,197 @@ export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-    const logout = useCallback(() => {
+    const logout = useCallback(async () => {
+        console.log('[AuthContext] Logout initiated');
+
+        // 1. Pre-emptive state clear
         setIsAuthenticated(false);
         setCurrentUser(null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("email");
         disconnect();
 
-        apiLogout().catch(error => {
-            console.error("Logout failed on server:", error);
-        });
-        supabase.auth.signOut().catch(error => {
-            console.warn("Supabase signout failed:", error);
-        });
-
-        // Redirect to /posts on logout
-        window.location.href = "/posts";
-    }, [disconnect]);
-
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const token = localStorage.getItem("token");
-                if (token) {
-                    try {
-                        const userProfile = await getProfile();
-                        if (userProfile) {
-                            setIsAuthenticated(true);
-                            setCurrentUser({
-                                ...userProfile,
-                                avatar: userProfile.avatar || null
-                            });
-                            return;
-                        }
-                    } catch (err) {
-                        localStorage.removeItem("token");
-                        localStorage.removeItem("refresh_token");
-                    }
-                }
-            } finally {
-                setIsAuthLoading(false);
-            }
-        };
-        checkAuth();
-    }, []);
-
-    useEffect(() => {
-        const handleForcedLogout = () => {
-            setIsAuthenticated(false);
-            setCurrentUser(null);
-            disconnect();
-            supabase.auth.signOut();
-            window.location.href = "/posts";
-        };
-
-        window.addEventListener("auth:logout", handleForcedLogout);
-        return () => {
-            window.removeEventListener("auth:logout", handleForcedLogout);
-        };
-    }, [disconnect]);
-
-    const login = useCallback(
-        async (email, password) => {
-            try {
-                const data = await apiLogin(email, password);
-                if (data.token) localStorage.setItem("token", data.token);
-                if (data.refresh_token) localStorage.setItem("refresh_token", data.refresh_token);
-                if (email) localStorage.setItem("email", email);
-
-                if (data.token && data.refresh_token) {
-                    supabase.auth.setSession({
-                        access_token: data.token,
-                        refresh_token: data.refresh_token
-                    }).catch(err => console.warn("Supabase session sync failed:", err));
-                }
-
-                if (data.token) {
-                    Promise.resolve().then(() => connect(data.token));
-                }
-
-                const userProfile = await getProfile();
-                const user = userProfile ? {
-                    ...userProfile,
-                    avatar: userProfile.avatar || null
-                } : {
-                    ...data.user,
-                    email: email,
-                    avatar: data.user?.avatar || null
-                };
-
-                setCurrentUser(user);
-                setIsAuthenticated(true);
-                return data;
-            } catch (error) {
-                console.error("Login failed context:", error);
-                throw error;
-            }
-        }, [connect]
-    );
-
-    const signup = useCallback(async (name, email, password) => {
         try {
-            const data = await apiSignup(email, password, name);
-
-            // Auto-login after successful signup
-            if (data.token) localStorage.setItem("token", data.token);
-            if (data.refresh_token) localStorage.setItem("refresh_token", data.refresh_token);
-
-            if (data.token && data.refresh_token) {
-                supabase.auth.setSession({
-                    access_token: data.token,
-                    refresh_token: data.refresh_token
-                }).catch(err => console.warn("Supabase session sync failed:", err));
-            }
-
-            if (data.token) {
-                Promise.resolve().then(() => connect(data.token));
-            }
-
-            // Fetch profile or use signup response data
-            let finalUser;
-            try {
-                const userProfile = await getProfile();
-                finalUser = userProfile ? {
-                    ...userProfile,
-                    avatar: userProfile.avatar || null
-                } : {
-                    ...data.user,
-                    name: name,
-                    email: email,
-                    avatar: data.user?.avatar || null
-                };
-            } catch (profileErr) {
-                // If profile fetch fails, use data from signup response
-                finalUser = {
-                    ...data.user,
-                    name: name,
-                    email: email,
-                    avatar: null
-                };
-            }
-
-            setCurrentUser(finalUser);
-            setIsAuthenticated(true);
-
-            // Dispatch event to notify layout or other components if needed
-            window.dispatchEvent(new CustomEvent("auth:status-change", { detail: { isAuthenticated: true, user: finalUser } }));
-
-            return data;
+            // 2. Clear server-side session and Supabase
+            await Promise.allSettled([
+                apiLogout(),
+                supabase.auth.signOut()
+            ]);
+            console.log('[AuthContext] Logout calls completed');
         } catch (error) {
-            console.error("Signup failed:", error);
-            throw error;
-        }
-    }, [connect]);
+            console.error('[AuthContext] Logout error:', error);
+        } finally {
+            // 3. Absolute cleanup of tokens
+            localStorage.removeItem("token");
+            localStorage.removeItem("refresh_token");
+            localStorage.removeItem("email");
 
+            // Clear any keys starting with sb- (Supabase)
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('sb-')) localStorage.removeItem(key);
+            });
+
+            console.log('[AuthContext] Local state purged, reloading...');
+            window.location.href = "/feed";
+        }
+    }, [disconnect]);
+
+    // Internal function to sync with backend after supabase login
     const syncWithBackend = useCallback(async (accessToken, refreshToken) => {
+        console.log('[AuthContext] Syncing with backend...');
         try {
             const data = await apiSync(accessToken, refreshToken);
             if (data.token) localStorage.setItem("token", data.token);
             if (data.refresh_token) localStorage.setItem("refresh_token", data.refresh_token);
 
-            if (data.token && data.refresh_token) {
-                await supabase.auth.setSession({
-                    access_token: data.token,
-                    refresh_token: data.refresh_token
-                });
-            }
-
             const userProfile = await getProfile();
-
-            setCurrentUser({
+            const user = {
                 ...userProfile,
                 avatar: userProfile.avatar || null
-            });
+            };
+
+            setCurrentUser(user);
+            setIsAuthenticated(true);
 
             if (userProfile.email) {
                 localStorage.setItem("email", userProfile.email);
             }
-            setIsAuthenticated(true);
 
-            const token = localStorage.getItem("token");
-            if (token) connect(token);
+            connect(data.token);
             return true;
         } catch (error) {
-            if (error.response?.status === 409) {
-                try {
-                    const userProfile = await getProfile();
-                    setCurrentUser({
-                        ...userProfile,
-                        avatar: userProfile.avatar || null
-                    });
-                    setIsAuthenticated(true);
-                    const token = localStorage.getItem("token");
-                    if (token) connect(token);
-                    return true;
-                } catch (profileError) {
-                    console.error("Failed to fetch profile after sync conflict:", profileError);
-                    return false;
-                }
-            }
-            console.error("Sync failed:", error);
+            console.error("[AuthContext] Sync failed:", error);
             return false;
         }
     }, [connect]);
 
-    const updateUser = useCallback(
-        async (updatedData) => {
-            try {
-                if (!currentUser) return;
-                const currentUsername = currentUser.username;
-                const response = await updateProfile(currentUsername, updatedData);
-                const updatedUser = { ...currentUser, ...response };
-                setCurrentUser(updatedUser);
-                return response;
-            } catch (error) {
-                console.error("Update user failed:", error);
-                throw error;
+    // Handle URL hash for Supabase auth redirects (e.g., email verification)
+    useEffect(() => {
+        const handleHash = async () => {
+            const hash = window.location.hash;
+            if (hash && (hash.includes("access_token") || hash.includes("token_type=signup"))) {
+                console.log('[AuthContext] Auth hash detected');
+                const params = new URLSearchParams(hash.substring(1));
+                const accessToken = params.get("access_token");
+                const refreshToken = params.get("refresh_token");
+
+                if (accessToken) {
+                    const success = await syncWithBackend(accessToken, refreshToken);
+                    if (success) {
+                        window.history.replaceState(null, null, window.location.pathname);
+                    }
+                }
             }
-        },
-        [currentUser]
-    );
+        };
+        handleHash();
+    }, [syncWithBackend]);
+
+    // Centralized Authentication Listener & Initializer
+    useEffect(() => {
+        let isMounted = true;
+
+        const initializeAuth = async () => {
+            console.log('[AuthContext] Initializing auth...');
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const localToken = localStorage.getItem("token");
+
+                if (session && localToken) {
+                    console.log('[AuthContext] Valid session and token found');
+                    const userProfile = await getProfile();
+                    if (isMounted) {
+                        setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
+                        setIsAuthenticated(true);
+                        connect(localToken);
+                    }
+                } else if (!session && localToken) {
+                    console.warn('[AuthContext] Token exists but no session. Cleaning up.');
+                    localStorage.removeItem("token");
+                }
+            } catch (err) {
+                console.error('[AuthContext] Auth init fail:', err);
+            } finally {
+                if (isMounted) setIsAuthLoading(false);
+            }
+        };
+
+        initializeAuth();
+
+        // Listen for all Supabase Auth events
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('[AuthContext] Auth change event:', event);
+
+            if (event === 'SIGNED_IN' && session) {
+                const localToken = localStorage.getItem("token");
+                if (!localToken || localToken !== session.access_token) {
+                    await syncWithBackend(session.access_token, session.refresh_token);
+                }
+            } else if (event === 'SIGNED_OUT') {
+                setIsAuthenticated(false);
+                setCurrentUser(null);
+                // Note: Actual cleanup is handled by the logout function or manually if needed
+            }
+        });
+
+        // Forced logout event from API interceptors
+        const handleForcedLogout = () => {
+            console.warn('[AuthContext] Forced logout triggered');
+            logout();
+        };
+
+        window.addEventListener("auth:logout", handleForcedLogout);
+
+        return () => {
+            isMounted = false;
+            subscription.unsubscribe();
+            window.removeEventListener("auth:logout", handleForcedLogout);
+        };
+    }, [connect, logout, syncWithBackend]);
+
+    const login = useCallback(async (email, password) => {
+        try {
+            const data = await apiLogin(email, password);
+            if (data.token) localStorage.setItem("token", data.token);
+            if (data.refresh_token) localStorage.setItem("refresh_token", data.refresh_token);
+            if (email) localStorage.setItem("email", email);
+
+            await supabase.auth.setSession({
+                access_token: data.token,
+                refresh_token: data.refresh_token
+            });
+
+            const userProfile = await getProfile();
+            setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
+            setIsAuthenticated(true);
+            connect(data.token);
+            return data;
+        } catch (error) {
+            console.error("[AuthContext] Login failed:", error);
+            throw error;
+        }
+    }, [connect]);
+
+    const signup = useCallback(async (name, email, password) => {
+        const data = await apiSignup(email, password, name);
+        if (data.token) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("refresh_token", data.refresh_token);
+            await supabase.auth.setSession({
+                access_token: data.token,
+                refresh_token: data.refresh_token
+            });
+            const userProfile = await getProfile();
+            setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
+            setIsAuthenticated(true);
+            connect(data.token);
+        }
+        return data;
+    }, [connect]);
+
+    const updateUser = useCallback(async (updatedData) => {
+        if (!currentUser) return;
+        const response = await updateProfile(currentUser.username, updatedData);
+        setCurrentUser(prev => ({ ...prev, ...response }));
+        return response;
+    }, [currentUser]);
 
     const value = useMemo(() => ({
         isAuthenticated,
@@ -256,16 +226,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         syncWithBackend,
         updateUser,
-    }), [
-        isAuthenticated,
-        isAuthLoading,
-        currentUser,
-        login,
-        signup,
-        logout,
-        syncWithBackend,
-        updateUser,
-    ]);
+    }), [isAuthenticated, isAuthLoading, currentUser, login, signup, logout, syncWithBackend, updateUser]);
 
     return (
         <AuthContext.Provider value={value}>

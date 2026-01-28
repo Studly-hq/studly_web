@@ -65,7 +65,7 @@ const RightSidebar = () => {
     <motion.aside
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="hidden lg:flex flex-col w-[350px] h-screen sticky top-0 px-4 pt-2 gap-4 overflow-y-auto pb-20 scrollbar-hide"
+      className="hidden xl:flex flex-col w-[350px] h-screen sticky top-0 px-4 pt-2 gap-4 overflow-y-auto pb-20 scrollbar-hide"
     >
 
       {/* Search Bar - Sticky */}
@@ -102,7 +102,7 @@ const RightSidebar = () => {
 
       {/* Auth Callout (if not logged in) */}
       {!isAuthenticated && (
-        <div className="bg-[#16181c] rounded-2xl p-4 border border-transparent">
+        <div className="bg-[#16181c] rounded-2xl p-4 border border-[#2f3336]">
           <h2 className="font-bold text-xl mb-2">New to Studly?</h2>
           <p className="text-gray-500 text-sm mb-4">Sign up now to get your own personalized timeline!</p>
           <button
@@ -121,24 +121,24 @@ const RightSidebar = () => {
 
       {/* Stats Widget (if logged in) */}
       {isAuthenticated && (
-        <div className="bg-[#16181c] rounded-2xl overflow-hidden border border-transparent">
-          <h2 className="font-bold text-xl px-4 py-3">Your Progress</h2>
+        <div className="bg-[#16181c] rounded-2xl overflow-hidden border border-[#2f3336]">
+          <h2 className="font-bold text-xl px-4 py-3 border-b border-[#2f3336]">Your Progress</h2>
 
-          <div className="px-4 py-2 hover:bg-[#1d1f23] transition-colors cursor-pointer" onClick={() => navigate('/profile')}>
+          <div className="px-4 py-3 hover:bg-[#1d1f23] transition-colors cursor-pointer" onClick={() => navigate('/profile')}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-gray-400">
+              <div className="flex items-center gap-3 text-gray-400">
                 <Flame size={18} className="text-reddit-orange" />
-                <span className="text-sm font-medium">Daily Streak</span>
+                <span className="text-[15px]">Daily Streak</span>
               </div>
               <span className="text-white font-bold text-lg">{stats.streak || currentUser?.streak || 0}</span>
             </div>
           </div>
 
-          <div className="px-4 py-2 hover:bg-[#1d1f23] transition-colors cursor-pointer" onClick={() => navigate('/profile')}>
+          <div className="px-4 py-3 hover:bg-[#1d1f23] transition-colors cursor-pointer" onClick={() => navigate('/profile')}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-gray-400">
+              <div className="flex items-center gap-3 text-gray-400">
                 <Trophy size={18} className="text-blue-500" />
-                <span className="text-sm font-medium">Aura Points</span>
+                <span className="text-[15px]">Aura Points</span>
               </div>
               <span className="text-white font-bold text-lg">{stats.auraPoints || currentUser?.auraPoints || 0}</span>
             </div>
@@ -148,8 +148,8 @@ const RightSidebar = () => {
 
       {/* Quick Actions / Shortcuts - Only show when authenticated */}
       {isAuthenticated && (
-        <div className="bg-[#16181c] rounded-2xl overflow-hidden border border-transparent">
-          <h2 className="font-bold text-xl px-4 py-3">Quick Actions</h2>
+        <div className="bg-[#16181c] rounded-2xl overflow-hidden border border-[#2f3336]">
+          <h2 className="font-bold text-xl px-4 py-3 border-b border-[#2f3336]">Quick Actions</h2>
           <div className="flex flex-col">
             {shortcuts.map((item) => (
               <div
@@ -165,17 +165,17 @@ const RightSidebar = () => {
               >
                 <div className="flex items-center gap-3">
                   <item.icon size={18} className="text-gray-400" />
-                  <span className="font-bold text-[15px]">{item.label}</span>
+                  <span className="text-[15px]">{item.label}</span>
                 </div>
               </div>
             ))}
             {/* Logout */}
             <div
               onClick={logout}
-              className="px-4 py-3 hover:bg-[#1d1f23] transition-colors cursor-pointer flex items-center gap-3 text-red-500"
+              className="px-4 py-3 hover:bg-red-500/10 transition-colors cursor-pointer flex items-center gap-3 text-red-500 border-t border-[#2f3336]"
             >
               <LogOut size={18} />
-              <span className="font-bold text-[15px]">Logout</span>
+              <span className="text-[15px]">Logout</span>
             </div>
           </div>
         </div>

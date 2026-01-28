@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
     createPost as apiCreatePost,
     getPosts as apiGetPosts,
@@ -20,6 +20,13 @@ import { useUI } from "./UIContext";
 
 const FeedContext = createContext();
 
+export const FEED_TYPES = {
+    PERSONALIZED: 'personalized',
+    DISCOVERY: 'discovery',
+    BOOKMARKS: 'bookmarks',
+    USER: 'user'
+};
+
 export const useFeed = () => {
     const context = useContext(FeedContext);
     if (!context) {
@@ -33,33 +40,36 @@ export const FeedProvider = ({ children }) => {
     const { setScrollPosition, setPendingAction, setShowAuthModal } = useUI();
 
     const [posts, setPosts] = useState([]);
-    const [isFeedLoading, setIsFeedLoading] = useState(true);
     const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
     const [isBookmarksLoading, setIsBookmarksLoading] = useState(false);
     const [comments, setComments] = useState({});
 
-    // New Feed Discovery & Background State
-    const [isDiscoveryMode, setIsDiscoveryMode] = useState(false);
-    const [hasMorePersonalized, setHasMorePersonalized] = useState(true);
+    // Robust Feed State Machine
+    const [loadingState, setLoadingState] = useState('idle'); // 'idle' | 'loading' | 'ready' | 'loadingMore' | 'error'
+    const [feedMode, setFeedMode] = useState('discovery'); // 'personalized' | 'discovery'
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [personalizedExhausted, setPersonalizedExhausted] = useState(false);
     const [backgroundPosts, setBackgroundPosts] = useState([]);
     const [hasNewBackgroundPosts, setHasNewBackgroundPosts] = useState(false);
+
+    // Track initialization to avoid redundant calls
+    const inFlightInitRef = useRef(false);
 
     // Map backend post to frontend format
     const mapBackendPostToFrontend = useCallback(
         (post) => {
+            if (!post) return null;
             const images = Array.isArray(post.post_media)
                 ? post.post_media
-                    .filter((url) => url !== "placeholder")
+                    .filter((url) => url && url !== "placeholder")
                     .map((url) => ({ url: url, alt: "Post Image" }))
                 : [];
 
             const postUser = {
                 id: post.creator_id,
                 username: post.creator_username || `user${post.creator_id}`,
-                displayName:
-                    post.creator_name ||
-                    post.creator_username ||
-                    `User ${post.creator_id}`,
+                displayName: post.creator_name || post.creator_username || `User ${post.creator_id}`,
                 avatar: post.creator_avatar || null,
             };
 
@@ -89,27 +99,122 @@ export const FeedProvider = ({ children }) => {
         [currentUser]
     );
 
-    const fetchFeedPosts = useCallback(async (options = {}) => {
-        const {
-            forceLoading = false,
-            isPersonalized = false,
-            append = false,
-            isQuiet = false
-        } = options;
+    /**
+     * Core Fetching Logic
+     */
+    const initializeFeed = useCallback(async () => {
+        if (inFlightInitRef.current) return;
 
-        if (forceLoading && !isQuiet) {
-            setIsFeedLoading(true);
-        }
+        console.log('[FeedContext] Initializing feed for mode:', isAuthenticated ? 'personalized' : 'discovery');
+
+        inFlightInitRef.current = true;
+        setLoadingState('loading');
+
+        // Reset state for new load
+        setPosts([]);
+        setPage(1);
+        setHasMore(true);
+        setPersonalizedExhausted(false);
+        setBackgroundPosts([]);
+        setHasNewBackgroundPosts(false);
 
         try {
-            const serverPosts = isPersonalized
-                ? await apiGetFeed(100)
-                : await apiGetPosts(100);
+            const mode = isAuthenticated ? 'personalized' : 'discovery';
+            setFeedMode(mode);
 
-            const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend);
+            let serverPosts = [];
+            if (mode === 'personalized') {
+                serverPosts = await apiGetFeed(20, 1);
+                // If personalized feed is empty or has very few posts, supplement with discovery
+                if (!serverPosts || serverPosts.length < 10) {
+                    console.log('[FeedContext] Personalized feed has few posts, supplementing with discovery');
+                    const personalizedPosts = serverPosts || [];
+                    const personalizedIds = new Set(personalizedPosts.map(p => String(p.post_id)));
 
-            if (isQuiet) {
-                // Background refresh - check if there's actually NEW content
+                    // Mark as exhausted if we got only a few personalized posts
+                    if (personalizedPosts.length < 5) {
+                        setPersonalizedExhausted(true);
+                        setFeedMode('discovery');
+                    }
+
+                    // Fetch discovery posts to fill the gap
+                    const discoveryPosts = await apiGetPosts(20, 1);
+                    const uniqueDiscoveryPosts = (discoveryPosts || []).filter(p => !personalizedIds.has(String(p.post_id)));
+
+                    // Combine: personalized first, then discovery
+                    serverPosts = [...personalizedPosts, ...uniqueDiscoveryPosts];
+                }
+            } else {
+                serverPosts = await apiGetPosts(20, 1);
+            }
+
+            const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend).filter(Boolean);
+            setPosts(mappedPosts);
+            setHasMore(mappedPosts.length >= 20);
+            setLoadingState('ready');
+        } catch (error) {
+            console.error('[FeedContext] Initialization error:', error);
+            setLoadingState('error');
+            // Check for specific backend errors that should trigger logout
+            if (error.response?.status === 401 && error.response?.data?.error === "User record not found") {
+                logout();
+            }
+        } finally {
+            inFlightInitRef.current = false;
+        }
+    }, [isAuthenticated, mapBackendPostToFrontend, logout]);
+
+    const loadMorePosts = useCallback(async () => {
+        if (loadingState === 'loadingMore' || !hasMore) return;
+
+        setLoadingState('loadingMore');
+        const nextPage = page + 1;
+
+        try {
+            let serverPosts = [];
+            if (feedMode === 'personalized' && !personalizedExhausted) {
+                serverPosts = await apiGetFeed(20, nextPage);
+                if (!serverPosts || serverPosts.length === 0) {
+                    setPersonalizedExhausted(true);
+                    setFeedMode('discovery');
+                    serverPosts = await apiGetPosts(20, 1);
+                    setPage(1);
+                } else {
+                    setPage(nextPage);
+                }
+            } else {
+                serverPosts = await apiGetPosts(20, nextPage);
+                setPage(nextPage);
+            }
+
+            const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend).filter(Boolean);
+            setPosts(prev => {
+                const existingIds = new Set(prev.map(p => String(p.id)));
+                const uniqueNew = mappedPosts.filter(p => !existingIds.has(String(p.id)));
+                return [...prev, ...uniqueNew];
+            });
+
+            setHasMore(mappedPosts.length >= 20);
+            setLoadingState('ready');
+        } catch (error) {
+            console.error('[FeedContext] Load more error:', error);
+            setLoadingState('ready'); // Revert to ready so they can try again or just stop
+        }
+    }, [loadingState, hasMore, page, feedMode, personalizedExhausted, mapBackendPostToFrontend]);
+
+    /**
+     * Polling and Compatibility
+     */
+    const fetchFeedPosts = useCallback(async (options = {}) => {
+        const { forceLoading = false, isQuiet = false } = options;
+
+        if (isQuiet) {
+            try {
+                const serverPosts = feedMode === 'personalized' && !personalizedExhausted
+                    ? await apiGetFeed(20, 1)
+                    : await apiGetPosts(20, 1);
+
+                const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend).filter(Boolean);
                 const existingIds = new Set(posts.map(p => String(p.id)));
                 const newPosts = mappedPosts.filter(p => !existingIds.has(String(p.id)));
 
@@ -117,35 +222,16 @@ export const FeedProvider = ({ children }) => {
                     setBackgroundPosts(newPosts);
                     setHasNewBackgroundPosts(true);
                 }
-            } else if (append) {
-                // Discovery mode or pagination append
-                setPosts(prev => {
-                    const existingIds = new Set(prev.map(p => String(p.id)));
-                    const uniqueNew = mappedPosts.filter(p => !existingIds.has(String(p.id)));
-                    return [...prev, ...uniqueNew];
-                });
-            } else {
-                // Standard refresh
-                setPosts(mappedPosts);
-                setBackgroundPosts([]);
-                setHasNewBackgroundPosts(false);
+            } catch (error) {
+                console.warn('[FeedContext] Polling failed:', error);
             }
-
-            // Update discovery state if personalized
-            if (isPersonalized) {
-                setHasMorePersonalized((serverPosts || []).length > 0);
-                if ((serverPosts || []).length === 0) {
-                    setIsDiscoveryMode(true);
-                }
-            }
-        } catch (error) {
-            if (error.response?.status === 401 && error.response?.data?.error === "User record not found") {
-                logout();
-            }
-        } finally {
-            setIsFeedLoading(false);
+            return;
         }
-    }, [mapBackendPostToFrontend, logout, posts]);
+
+        if (forceLoading || loadingState === 'idle' || loadingState === 'error') {
+            await initializeFeed();
+        }
+    }, [feedMode, personalizedExhausted, posts, mapBackendPostToFrontend, initializeFeed, loadingState]);
 
     const applyBackgroundPosts = useCallback(() => {
         if (backgroundPosts.length > 0) {
@@ -159,23 +245,63 @@ export const FeedProvider = ({ children }) => {
         }
     }, [backgroundPosts]);
 
+    const switchToDiscovery = useCallback(async () => {
+        if (loadingState === 'loadingMore' || loadingState === 'loading') return;
+
+        console.log('[FeedContext] Manual switch to discovery');
+        setLoadingState('loadingMore');
+        setPersonalizedExhausted(true);
+        setFeedMode('discovery');
+
+        try {
+            const discoveryPosts = await apiGetPosts(20, 1);
+            const mapped = (discoveryPosts || []).map(mapBackendPostToFrontend).filter(Boolean);
+
+            setPosts(prev => {
+                const existingIds = new Set(prev.map(p => String(p.id)));
+                const uniqueNew = mapped.filter(p => !existingIds.has(String(p.id)));
+                return [...prev, ...uniqueNew];
+            });
+
+            setPage(1);
+            setHasMore(mapped.length >= 20);
+            setLoadingState('ready');
+        } catch (error) {
+            console.error("[FeedContext] Switch to discovery failed:", error);
+            setLoadingState('ready');
+        }
+    }, [loadingState, mapBackendPostToFrontend]);
+
+    const isFeedLoadingView = useMemo(() => loadingState === 'loading' || loadingState === 'idle', [loadingState]);
+
     const fetchBookmarks = useCallback(async () => {
-        if (!isAuthenticated) return;
+        if (!isAuthenticated || isBookmarksLoading) return;
         setIsBookmarksLoading(true);
         try {
             const serverBookmarks = await apiGetBookmarks();
-            const mappedBookmarks = serverBookmarks.map(mapBackendPostToFrontend);
-            setBookmarkedPosts(mappedBookmarks);
+            setBookmarkedPosts((serverBookmarks || []).map(mapBackendPostToFrontend).filter(Boolean));
         } catch (error) {
-            console.error("Failed to fetch bookmarks:", error);
+            console.error("[FeedContext] Bookmarks error:", error);
         } finally {
             setIsBookmarksLoading(false);
         }
-    }, [mapBackendPostToFrontend, isAuthenticated]);
+    }, [isAuthenticated, mapBackendPostToFrontend, isBookmarksLoading]);
+
+    // Handle Initialization and Auth Transitions
+    useEffect(() => {
+        // Clear state immediately on auth change to avoid stale content flash
+        setLoadingState('idle');
+        setPosts([]);
+
+        // Let the FeedPage or direct hook consumers call initializeFeed
+        // but we trigger it here if it's already idle
+    }, [isAuthenticated]);
 
     useEffect(() => {
         if (isAuthenticated) {
             fetchBookmarks();
+        } else {
+            setBookmarkedPosts([]);
         }
     }, [isAuthenticated, fetchBookmarks]);
 
@@ -692,9 +818,18 @@ export const FeedProvider = ({ children }) => {
         [currentUser]
     );
 
+    // Backward compatible loading flag
+    const isFeedLoading = isFeedLoadingView;
+
     const value = useMemo(() => ({
         posts,
         isFeedLoading,
+        loadingState,
+        feedMode,
+        hasMore,
+        personalizedExhausted,
+        initializeFeed,
+        loadMorePosts,
         fetchFeedPosts,
         updatePostInState,
         deletePostFromState,
@@ -714,14 +849,19 @@ export const FeedProvider = ({ children }) => {
         handleLikeComment,
         requireAuth,
         createPost,
-        isDiscoveryMode,
-        setIsDiscoveryMode,
-        hasMorePersonalized,
         hasNewBackgroundPosts,
-        applyBackgroundPosts
+        applyBackgroundPosts,
+        switchToDiscovery,
+        FEED_TYPES
     }), [
         posts,
         isFeedLoading,
+        loadingState,
+        feedMode,
+        hasMore,
+        personalizedExhausted,
+        initializeFeed,
+        loadMorePosts,
         fetchFeedPosts,
         updatePostInState,
         deletePostFromState,
@@ -741,10 +881,9 @@ export const FeedProvider = ({ children }) => {
         handleLikeComment,
         requireAuth,
         createPost,
-        isDiscoveryMode,
-        hasMorePersonalized,
         hasNewBackgroundPosts,
-        applyBackgroundPosts
+        applyBackgroundPosts,
+        switchToDiscovery
     ]);
 
     return (

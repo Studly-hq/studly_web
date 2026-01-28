@@ -247,9 +247,16 @@ export const getBookmarks = async () => {
   }
 };
 
-export const getPostLikes = async (postId) => {
+export const getPostLikes = async (postId, commentId = null, limit = null, offset = null) => {
   try {
-    const response = await client.get(`/studlygram/post/${postId}/likes`);
+    const response = await client.get("/studlygram/likes", {
+      params: {
+        post_id: postId ? String(postId) : null,
+        comment_id: commentId ? String(commentId) : null,
+        limit,
+        offset,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Get Post Likes Error:", error.response?.data || error.message);

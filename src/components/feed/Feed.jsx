@@ -15,18 +15,21 @@ const Feed = ({ activeTab }) => {
     updatePostInState,
     deletePostFromState,
     fetchFeedPosts,
-    isDiscoveryMode,
-    hasMorePersonalized,
+    loadingState,
+    feedMode,
+    hasMore,
+    personalizedExhausted,
     hasNewBackgroundPosts,
-    applyBackgroundPosts
+    applyBackgroundPosts,
+    loadMorePosts,
+    FEED_TYPES
   } = useFeed();
   const { currentUser } = useAuth();
-  const feedRef = useRef(null);
   const loadMoreRef = useRef(null);
 
   // Pagination state for local display
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_BATCH);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isLocalLoading, setIsLocalLoading] = useState(false);
 
   const filteredPosts = activeTab === 'following'
     ? posts.filter(post => currentUser?.following?.includes(post.userId))
@@ -39,33 +42,28 @@ const Feed = ({ activeTab }) => {
   useEffect(() => {
     if (activeTab !== 'following') {
       const interval = setInterval(() => {
-        fetchFeedPosts({ isQuiet: true, isPersonalized: activeTab !== 'following' });
+        fetchFeedPosts({ isQuiet: true, feedType: feedMode === 'personalized' ? FEED_TYPES.PERSONALIZED : FEED_TYPES.DISCOVERY });
       }, 60000); // Poll every minute
       return () => clearInterval(interval);
     }
-  }, [fetchFeedPosts, activeTab]);
+  }, [fetchFeedPosts, activeTab, feedMode, FEED_TYPES]);
 
   // Load more posts
-  const loadMore = useCallback(async () => {
-    if (isLoadingMore) return;
+  const handleLoadMore = useCallback(async () => {
+    if (loadingState === 'loadingMore' || isLocalLoading) return;
 
-    // 1. If we have more posts already in state but not displayed, show them
-    if (hasMoreLocal) {
-      setIsLoadingMore(true);
+    if (visibleCount < filteredPosts.length) {
+      // Show more local posts first
+      setIsLocalLoading(true);
       setTimeout(() => {
-        setVisibleCount(prev => Math.min(prev + POSTS_PER_BATCH, filteredPosts.length));
-        setIsLoadingMore(false);
+        setVisibleCount(prev => prev + POSTS_PER_BATCH);
+        setIsLocalLoading(false);
       }, 300);
-      return;
+    } else if (hasMore || (feedMode === 'personalized' && !personalizedExhausted)) {
+      // Fetch more from server
+      await loadMorePosts();
     }
-
-    // 2. If we are in personalized mode and run out of posts, enter discovery mode
-    if (activeTab !== 'following' && !isDiscoveryMode && !hasMorePersonalized) {
-      setIsLoadingMore(true);
-      await fetchFeedPosts({ append: true, isPersonalized: false }); // Fetch public posts
-      setIsLoadingMore(false);
-    }
-  }, [isLoadingMore, hasMoreLocal, filteredPosts.length, activeTab, isDiscoveryMode, hasMorePersonalized, fetchFeedPosts]);
+  }, [loadingState, isLocalLoading, visibleCount, filteredPosts.length, hasMore, feedMode, personalizedExhausted, loadMorePosts]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
@@ -74,23 +72,21 @@ const Feed = ({ activeTab }) => {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isLoadingMore) {
-          loadMore();
+        if (entries[0].isIntersecting) {
+          handleLoadMore();
         }
       },
-      { rootMargin: '200px' }
+      { rootMargin: '400px' }
     );
 
     observer.observe(target);
     return () => observer.disconnect();
-  }, [isLoadingMore, loadMore]);
+  }, [handleLoadMore]);
 
-  // Reset visible count when tab changes or posts update meaningfully
+  // Reset visible count when tab changes
   useEffect(() => {
-    if (!isLoadingMore) {
-      setVisibleCount(POSTS_PER_BATCH);
-    }
-  }, [activeTab, isLoadingMore]);
+    setVisibleCount(POSTS_PER_BATCH);
+  }, [activeTab]);
 
   // Handlers for optimistic updates
   const handlePostUpdated = (postId, newContent) => {
@@ -109,10 +105,29 @@ const Feed = ({ activeTab }) => {
     );
   }
 
+  if (loadingState === 'error' && posts.length === 0) {
+    return (
+      <div className="flex-1 max-w-[640px] mx-auto px-4 pt-4 pb-5 flex flex-col items-center justify-center text-center">
+        <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-4">
+          <Layout size={32} className="text-red-500" />
+        </div>
+        <h3 className="text-reddit-text text-lg font-semibold mb-2">Failed to load feed</h3>
+        <p className="text-reddit-textMuted text-sm mb-4">
+          We couldn't reach the server. Please check your internet connection or try again later.
+        </p>
+        <button
+          onClick={() => fetchFeedPosts({ forceLoading: true })}
+          className="px-4 py-2 bg-reddit-orange text-white rounded-full font-bold hover:bg-reddit-orange/90 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
-      ref={feedRef}
-      className="flex-1 max-w-[640px] mx-auto px-4 pt-4 pb-5 overflow-y-auto"
+      className="flex-1 max-w-[640px] mx-auto px-4 pt-4 pb-5"
     >
       {/* New Posts Indicator */}
       <AnimatePresence>
@@ -137,34 +152,42 @@ const Feed = ({ activeTab }) => {
       <div className="space-y-3">
         {displayedPosts && displayedPosts.length > 0 ? (
           <>
-            {displayedPosts.map((post, index) => (
-              <motion.div
-                key={post.id || `post-${index}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(index, 4) * 0.02, duration: 0.3 }}
-              >
-                <PostCard
-                  post={post}
-                  onPostUpdated={handlePostUpdated}
-                  onPostDeleted={handlePostDeleted}
-                />
-              </motion.div>
-            ))}
+            {displayedPosts.map((post, index) => {
+              return (
+                <React.Fragment key={post.id || `post-${index}`}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(index, 4) * 0.02, duration: 0.3 }}
+                  >
+                    <PostCard
+                      post={post}
+                      onPostUpdated={handlePostUpdated}
+                      onPostDeleted={handlePostDeleted}
+                    />
+                  </motion.div>
+                </React.Fragment>
+              );
+            })}
 
             {/* Discovery Separator */}
-            {isDiscoveryMode && visibleCount >= posts.length && (
-              <div className="py-8 text-center border-t border-reddit-border mt-8">
-                <p className="text-reddit-text font-bold mb-1">You've caught up on your feed!</p>
-                <p className="text-reddit-textMuted text-sm">Discover more from the Studly community below.</p>
+            {personalizedExhausted && feedMode === 'discovery' && (
+              <div className="py-6 text-center border-t border-reddit-border mt-4 mb-4">
+                <div className="flex items-center justify-center gap-2 text-reddit-orange font-semibold text-sm">
+                  <Layout size={16} />
+                  <span>Showing Discovery Feed</span>
+                </div>
               </div>
             )}
 
             {/* Load More Trigger */}
-            <div ref={loadMoreRef} className="py-4">
-              {isLoadingMore && (
+            <div ref={loadMoreRef} className="py-10">
+              {(loadingState === 'loadingMore' || isLocalLoading) && (
                 <div className="flex justify-center">
-                  <Loader2 className="w-6 h-6 text-reddit-orange animate-spin" />
+                  <div className="flex items-center gap-2 text-reddit-textMuted">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span className="text-sm font-medium">Fetching more posts...</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -189,14 +212,16 @@ const Feed = ({ activeTab }) => {
         )}
       </div>
 
-      {!hasMoreLocal && displayedPosts.length > 0 && isDiscoveryMode && (
+      {!hasMore && !hasMoreLocal && displayedPosts.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="py-8 text-center"
+          className="py-12 text-center"
         >
-          <p className="text-reddit-textMuted text-xs">You're all caught up with discovery too!</p>
+          <p className="text-reddit-textMuted text-xs font-medium uppercase tracking-widest">
+            End of the line. You've seen it all!
+          </p>
         </motion.div>
       )}
     </div>

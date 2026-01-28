@@ -12,7 +12,7 @@ const AdPromotionWidget = ({ onDismiss, hasActiveCampaigns = false }) => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[#16181c] rounded-2xl overflow-hidden border border-transparent relative"
+        className="bg-[#16181c] rounded-2xl overflow-hidden border border-[#2f3336] relative"
       >
         <button
           onClick={onDismiss}
@@ -52,7 +52,7 @@ const AdPromotionWidget = ({ onDismiss, hasActiveCampaigns = false }) => {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#16181c] rounded-2xl overflow-hidden border border-transparent relative"
+      className="bg-[#16181c] rounded-2xl overflow-hidden border border-[#2f3336] relative"
     >
       <button
         onClick={onDismiss}
