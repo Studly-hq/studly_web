@@ -10,16 +10,10 @@ export const createPost = async (postData) => {
   }
 };
 
-export const getPosts = async (limit = 10, page = 1) => {
+export const getPosts = async (limit = 100, page = 1) => {
   try {
-    // Backend expects a JSON payload (POST), not query params.
-    // Allow null/undefined to mean "backend default".
-    const payload = {
-      limit: limit ?? null,
-      page: page ?? null,
-    };
-    const response = await client.post("/studlygram/posts", payload, {
-      headers: { "Content-Type": "application/json" },
+    const response = await client.get("/studlygram/posts", {
+      params: { limit, page }
     });
     return response.data;
   } catch (error) {
@@ -28,15 +22,10 @@ export const getPosts = async (limit = 10, page = 1) => {
   }
 }
 
-export const getFeed = async (limit = 10, page = 1) => {
+export const getFeed = async (limit = 100, page = 1) => {
   try {
-    // For now, feed and posts share the same endpoint.
-    const payload = {
-      limit: limit ?? null,
-      page: page ?? null,
-    };
-    const response = await client.post("/studlygram/posts", payload, {
-      headers: { "Content-Type": "application/json" },
+    const response = await client.get("/studlygram/feed", {
+      params: { limit, page }
     });
     return response.data;
   } catch (error) {

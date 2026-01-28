@@ -11,7 +11,7 @@ const MobileBottomNav = () => {
   const { setShowAuthModal } = useUI();
 
   const navItems = [
-    { icon: Home, label: 'Home', path: isAuthenticated ? '/posts' : '/posts', id: 'home' },
+    { icon: Home, label: 'Home', path: isAuthenticated ? '/feed' : '/posts', id: 'home' },
     { icon: Trophy, label: 'Ranking', path: '/leaderboard', id: 'leaderboard' },
     { icon: GraduationCap, label: 'Study', path: '/courses', id: 'courses' },
     { icon: User, label: 'Profile', path: '/profile', id: 'profile', requiresAuth: true }
