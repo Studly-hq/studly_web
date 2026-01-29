@@ -26,9 +26,7 @@ export const AuthProvider = ({ children }) => {
     const [isAuthLoading, setIsAuthLoading] = useState(true);
 
     const logout = useCallback(async () => {
-        console.log('[AuthContext] Logout initiated');
-
-        // 1. Pre-emptive state clear
+        // Pre-emptive state clear
         setIsAuthenticated(false);
         setCurrentUser(null);
         disconnect();
@@ -39,7 +37,6 @@ export const AuthProvider = ({ children }) => {
                 apiLogout(),
                 supabase.auth.signOut()
             ]);
-            console.log('[AuthContext] Logout calls completed');
         } catch (error) {
             console.error('[AuthContext] Logout error:', error);
         } finally {
@@ -53,14 +50,12 @@ export const AuthProvider = ({ children }) => {
                 if (key.startsWith('sb-')) localStorage.removeItem(key);
             });
 
-            console.log('[AuthContext] Local state purged, reloading...');
             window.location.href = "/feed";
         }
     }, [disconnect]);
 
     // Internal function to sync with backend after supabase login
     const syncWithBackend = useCallback(async (accessToken, refreshToken) => {
-        console.log('[AuthContext] Syncing with backend...');
         try {
             const data = await apiSync(accessToken, refreshToken);
             if (data.token) localStorage.setItem("token", data.token);
@@ -92,7 +87,6 @@ export const AuthProvider = ({ children }) => {
         const handleHash = async () => {
             const hash = window.location.hash;
             if (hash && (hash.includes("access_token") || hash.includes("token_type=signup"))) {
-                console.log('[AuthContext] Auth hash detected');
                 const params = new URLSearchParams(hash.substring(1));
                 const accessToken = params.get("access_token");
                 const refreshToken = params.get("refresh_token");
@@ -113,13 +107,11 @@ export const AuthProvider = ({ children }) => {
         let isMounted = true;
 
         const initializeAuth = async () => {
-            console.log('[AuthContext] Initializing auth...');
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 const localToken = localStorage.getItem("token");
 
                 if (session && localToken) {
-                    console.log('[AuthContext] Valid session and token found');
                     const userProfile = await getProfile();
                     if (isMounted) {
                         setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
@@ -141,8 +133,6 @@ export const AuthProvider = ({ children }) => {
 
         // Listen for all Supabase Auth events
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log('[AuthContext] Auth change event:', event);
-
             if (event === 'SIGNED_IN' && session) {
                 const localToken = localStorage.getItem("token");
                 if (!localToken || localToken !== session.access_token) {

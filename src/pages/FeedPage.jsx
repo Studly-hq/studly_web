@@ -36,13 +36,11 @@ const FeedPage = () => {
     useEffect(() => {
         // Wait for auth state to resolve before initializing
         if (isAuthLoading) {
-            console.log('[FeedPage] Auth is loading, skipping init');
             return;
         }
 
         // Only initialize if we haven't started yet
         if (loadingState === 'idle') {
-            console.log('[FeedPage] Calling initializeFeed()');
             initializeFeed();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -50,7 +48,6 @@ const FeedPage = () => {
 
     // Loading gate: Show skeleton until auth AND feed are ready
     if (isAuthLoading || loadingState === 'idle' || loadingState === 'loading') {
-        console.log('[FeedPage] Rendering skeleton. Auth:', isAuthLoading, 'State:', loadingState);
         return (
             <div>
                 {/* Mobile Header */}

@@ -105,8 +105,6 @@ export const FeedProvider = ({ children }) => {
     const initializeFeed = useCallback(async () => {
         if (inFlightInitRef.current) return;
 
-        console.log('[FeedContext] Initializing feed for mode:', isAuthenticated ? 'personalized' : 'discovery');
-
         inFlightInitRef.current = true;
         setLoadingState('loading');
 
@@ -127,7 +125,6 @@ export const FeedProvider = ({ children }) => {
                 serverPosts = await apiGetFeed(50, 1);
                 // If personalized feed is empty or has very few posts, supplement with discovery
                 if (!serverPosts || serverPosts.length < 10) {
-                    console.log('[FeedContext] Personalized feed has few posts, supplementing with discovery');
                     const personalizedPosts = serverPosts || [];
                     const personalizedIds = new Set(personalizedPosts.map(p => String(p.post_id)));
 
@@ -248,7 +245,6 @@ export const FeedProvider = ({ children }) => {
     const switchToDiscovery = useCallback(async () => {
         if (loadingState === 'loadingMore' || loadingState === 'loading') return;
 
-        console.log('[FeedContext] Manual switch to discovery');
         setLoadingState('loadingMore');
         setPersonalizedExhausted(true);
         setFeedMode('discovery');
@@ -776,9 +772,6 @@ export const FeedProvider = ({ children }) => {
         async (postData) => {
             try {
                 const newPost = await apiCreatePost(postData);
-
-                // Debug: Log backend response to see the actual field names
-                console.log('[FeedContext] Create post response:', newPost);
 
                 // The backend response for a new post may not include all fields
                 // that mapBackendPostToFrontend expects, so we build it manually

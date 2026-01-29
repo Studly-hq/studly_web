@@ -46,7 +46,6 @@ const TopicPlayer = () => {
       try {
         // If it's not a UUID, check local demo topics first
         if (!isUuid(topicId)) {
-          console.log("Loading local demo topic:", topicId);
           const demoTopic = courseBankTopics.find(t => t.id === topicId);
           if (demoTopic) {
             setTopic(demoTopic);

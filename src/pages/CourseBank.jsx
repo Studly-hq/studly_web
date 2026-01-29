@@ -71,7 +71,7 @@ const CourseBank = () => {
       const ids = new Set(enrolled.map((c) => c.course_id || c.id));
       setEnrolledCourseIds(ids);
     } catch (err) {
-      console.log("Could not fetch enrolled courses:", err.message);
+      // Silently fail - enrolled courses are not critical
     }
   }, [isAuthenticated]);
 
