@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Compass } from 'lucide-react';
+import { Compass, Bell } from 'lucide-react';
 import Feed from '../components/feed/Feed';
 import FeedComposer from '../components/feed/FeedComposer';
 import { useFeed } from '../context/FeedContext';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 import logo from '../assets/logo.png';
 
 // Skeleton loader for feed
@@ -32,6 +33,7 @@ const FeedPage = () => {
     const navigate = useNavigate();
     const { initializeFeed, loadingState } = useFeed();
     const { isAuthLoading } = useAuth();
+    const { unreadCount } = useNotifications();
 
     useEffect(() => {
         // Wait for auth state to resolve before initializing
@@ -55,12 +57,18 @@ const FeedPage = () => {
                     <div className="flex items-center gap-1.5">
                         <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
                     </div>
-                    <button
-                        onClick={() => navigate('/explore')}
-                        className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange"
-                    >
-                        <Compass size={22} />
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                        <button
+                            className="p-2 rounded-full text-reddit-textMuted"
+                        >
+                            <Bell size={22} />
+                        </button>
+                        <button
+                            className="p-2 rounded-full text-reddit-textMuted"
+                        >
+                            <Compass size={22} />
+                        </button>
+                    </div>
                 </div>
                 <FeedSkeleton />
             </div>
@@ -74,12 +82,23 @@ const FeedPage = () => {
                 <div className="flex items-center gap-1.5">
                     <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
                 </div>
-                <button
-                    onClick={() => navigate('/explore')}
-                    className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange"
-                >
-                    <Compass size={22} />
-                </button>
+                <div className="flex items-center gap-1.5">
+                    <button
+                        onClick={() => navigate('/notifications')}
+                        className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange relative"
+                    >
+                        <Bell size={22} />
+                        <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-reddit-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-reddit-bg">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/explore')}
+                        className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange"
+                    >
+                        <Compass size={22} />
+                    </button>
+                </div>
             </div>
 
             <FeedComposer />

@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useFeed } from '../../context/FeedContext';
 import { useUI } from '../../context/UIContext';
+import { useNotifications } from '../../context/NotificationContext';
 import logo from '../../assets/logo.png';
 
 const Header = () => {
@@ -21,6 +22,7 @@ const Header = () => {
 
   const { handleCreatePost } = useFeed();
   const { setShowAuthModal } = useUI();
+  const { unreadCount } = useNotifications();
 
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -110,13 +112,16 @@ const Header = () => {
           {/* Notifications (Authenticated only) */}
           {isAuthenticated && (
             <motion.button
+              onClick={() => navigate('/notifications')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}
               className="relative w-9 h-9 flex items-center justify-center bg-reddit-cardHover rounded text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-border border border-reddit-border transition-colors"
             >
               <Bell size={16} />
-              <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-reddit-orange rounded-full"></span>
+              <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-reddit-orange text-white text-[8px] font-bold flex items-center justify-center rounded-full border border-reddit-card">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
             </motion.button>
           )}
 

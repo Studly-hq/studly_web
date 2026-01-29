@@ -1,50 +1,42 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Bell, Heart, MessageSquare, Bookmark, UserPlus, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useWebSocketContext } from "../context/WebSocketContext";
-import { getNotifications, markNotificationsRead } from "../api/contents";
+import { useNotifications } from "../context/NotificationContext"; // New import
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { toast } from "sonner";
 
 const Notifications = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
-    const { subscribe } = useWebSocketContext();
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { notifications, loading, markAllRead } = useNotifications(); // Refactored to use NotificationContext
 
     useEffect(() => {
-        if (!isAuthenticated) return;
+        if (isAuthenticated && notifications.some(n => !n.is_read)) {
+            // Automatically mark all as read when viewing the notifications page
+            markAllRead();
+        }
+    }, [isAuthenticated, notifications, markAllRead]);
 
-        const fetchNotifications = async () => {
-            setLoading(true);
-            try {
-                const data = await getNotifications();
-                setNotifications(data);
-            } catch (err) {
-                console.error("Failed to load notifications", err);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const formatTimestamp = (timestamp) => {
+        const now = new Date();
+        const postDate = new Date(timestamp);
+        const diffMs = now - postDate;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
 
-        fetchNotifications();
-
-        // Real-time notification subscription
-        const unsubscribe = subscribe("NOTIFICATION", (newNotif) => {
-            setNotifications(prev => [newNotif, ...prev]);
-            toast.info(`New notification: ${newNotif.content}`);
-        });
-
-        return () => unsubscribe();
-    }, [isAuthenticated, subscribe]);
+        if (diffMins < 1) return "just now";
+        if (diffMins < 60) return `${diffMins} ${diffMins === 1 ? 'min' : 'mins'} ago`;
+        if (diffHours < 24) return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+        if (diffDays < 7) return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
+        return postDate.toLocaleDateString();
+    };
 
     const handleMarkAllRead = async () => {
         try {
-            await markNotificationsRead([]); // Empty array means all
-            setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+            await markAllRead();
             toast.success("All notifications marked as read");
         } catch (err) {
             toast.error("Failed to mark notifications");
@@ -112,6 +104,11 @@ const Notifications = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 key={notif.id}
                                 className={`p-4 flex gap-4 hover:bg-reddit-cardHover transition-colors cursor-pointer ${!notif.is_read ? 'bg-reddit-orange/5' : ''}`}
+                                onClick={() => {
+                                    if (notif.post_id) {
+                                        navigate(`/post/${notif.post_id}`);
+                                    }
+                                }}
                             >
                                 <div className="relative">
                                     <img
@@ -126,7 +123,7 @@ const Notifications = () => {
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
                                         <span className="font-bold hover:underline">@{notif.actor?.username || notif.user?.username || "user"}</span>
-                                        <span className="text-xs text-reddit-textMuted uppercase tracking-wider">• {new Date(notif.created_at || Date.now()).toLocaleDateString()}</span>
+                                        <span className="text-xs text-reddit-textMuted">• {formatTimestamp(notif.created_at || Date.now())}</span>
                                     </div>
                                     <p className="text-reddit-text/90 text-[15px]">{notif.content}</p>
                                 </div>

@@ -8,6 +8,7 @@ import { WebSocketProvider } from "./context/WebSocketContext";
 import { UIProvider } from "./context/UIContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { FeedProvider } from "./context/FeedContext";
+import { NotificationProvider } from "./context/NotificationContext";
 import ComingSoon from "./components/common/ComingSoon";
 import LoadingGate from "./components/common/LoadingGate";
 
@@ -150,15 +151,17 @@ function App() {
       <UIProvider>
         <AuthProvider>
           <FeedProvider>
-            <StudyGramProvider>
-              <CoursePlayerProvider>
-                <CelebrationProvider>
-                  <TopLoadingBar />
-                  <AppContent />
-                  <Analytics />
-                </CelebrationProvider>
-              </CoursePlayerProvider>
-            </StudyGramProvider>
+            <NotificationProvider>
+              <StudyGramProvider>
+                <CoursePlayerProvider>
+                  <CelebrationProvider>
+                    <TopLoadingBar />
+                    <AppContent />
+                    <Analytics />
+                  </CelebrationProvider>
+                </CoursePlayerProvider>
+              </StudyGramProvider>
+            </NotificationProvider>
           </FeedProvider>
         </AuthProvider>
       </UIProvider>

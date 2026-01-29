@@ -4,6 +4,7 @@ import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell } 
 import { useCoursePlayer } from '../../context/CoursePlayerContext';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
+import { useNotifications } from '../../context/NotificationContext';
 import logo from '../../assets/logo.png';
 
 
@@ -14,6 +15,7 @@ const LeftSidebar = () => {
   const { hasAnyProgress } = useCoursePlayer();
   const { isAuthenticated, currentUser } = useAuth();
   const { setShowAuthModal, setShowCreatePostModal } = useUI();
+  const { unreadCount } = useNotifications();
 
   const navItems = [
     {
@@ -80,7 +82,14 @@ const LeftSidebar = () => {
                   ${isActive ? 'font-bold' : 'font-normal'}
                   text-white group-hover:bg-reddit-cardHover/50
                 `}>
-                  <item.icon size={26} strokeWidth={isActive ? 3 : 2} />
+                  <div className="relative">
+                    <item.icon size={26} strokeWidth={isActive ? 3 : 2} />
+                    {item.id === 'notifications' && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-reddit-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-[#0D1117] transform translate-x-1 -translate-y-1">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </div>
                   <span>{item.label}</span>
                 </div>
               </Component>
