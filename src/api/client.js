@@ -14,7 +14,7 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
 const client = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
-  timeout: 120000,
+  timeout: 300000,
   headers: {
     "Accept": "application/json"
   }
@@ -31,6 +31,12 @@ client.interceptors.request.use(
     // ROBUST FIX: Backend strictly requires Content-Type: application/json for ALL requests
     // Even GET requests must have this header and a parseable body
     config.headers["Content-Type"] = "application/json";
+
+    // Ensure there's a body for methods that might be checked by the backend
+    // Some backend frameworks/proxies fail with 415 if Content-Type is set but body is empty/missing
+    if (["get", "delete", "post", "put", "patch"].includes(config.method?.toLowerCase()) && !config.data) {
+      config.data = {};
+    }
 
     return config;
   },

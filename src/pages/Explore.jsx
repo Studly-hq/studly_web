@@ -145,24 +145,32 @@ const Explore = () => {
             )}
           </div>
 
-          {/* Quick Filters */}
-          <div className="flex items-center gap-2">
+          {/* Quick Filters - Segmented Control */}
+          <div className="flex p-1 bg-reddit-card border border-reddit-border rounded-lg">
             {quickFilters.map(filter => {
               const Icon = filter.icon;
               const isActive = sortBy === filter.id;
               return (
-                <motion.button
+                <button
                   key={filter.id}
                   onClick={() => setSortBy(filter.id)}
-                  whileTap={{ scale: 0.97 }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-all ${isActive
-                    ? 'bg-reddit-orange text-white'
-                    : 'bg-reddit-card text-reddit-textMuted hover:text-reddit-orange hover:border-reddit-orange border border-reddit-border'
+                  className={`relative flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium transition-all duration-300 rounded-md ${isActive
+                      ? 'text-white'
+                      : 'text-reddit-textMuted hover:text-reddit-text'
                     }`}
                 >
-                  <Icon size={14} />
-                  <span>{filter.label}</span>
-                </motion.button>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeFilter"
+                      className="absolute inset-0 bg-reddit-orange rounded-md"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    <Icon size={14} />
+                    {filter.label}
+                  </span>
+                </button>
               );
             })}
           </div>
@@ -287,7 +295,7 @@ const Explore = () => {
                       onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
                       whileHover={{ backgroundColor: selectedTag === tag ? undefined : 'rgba(255,255,255,0.03)' }}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-all ${selectedTag === tag
-                        ? 'bg-reddit-orange text-white shadow-lg shadow-reddit-orange/10'
+                        ? 'bg-reddit-orange/10 border border-reddit-orange/30 text-white'
                         : 'text-reddit-text'
                         }`}
                     >

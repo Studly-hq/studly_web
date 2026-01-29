@@ -97,3 +97,18 @@ export const getUserAuraPoints = async (username) => {
     return 0;
   }
 };
+
+export const acknowledgeCelebration = async (milestoneType, milestoneValue) => {
+  try {
+    await client.post('/studlygram/celebrations/acknowledge', {
+      milestone_type: milestoneType,
+      milestone_value: milestoneValue
+    });
+  } catch (error) {
+    console.error(
+      "Acknowledge Celebration Error:",
+      error.response?.data || error.message
+    );
+    // Don't throw - celebration acknowledgment is fire-and-forget
+  }
+};

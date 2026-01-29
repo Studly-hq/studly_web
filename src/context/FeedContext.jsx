@@ -124,7 +124,7 @@ export const FeedProvider = ({ children }) => {
 
             let serverPosts = [];
             if (mode === 'personalized') {
-                serverPosts = await apiGetFeed(20, 1);
+                serverPosts = await apiGetFeed(50, 1);
                 // If personalized feed is empty or has very few posts, supplement with discovery
                 if (!serverPosts || serverPosts.length < 10) {
                     console.log('[FeedContext] Personalized feed has few posts, supplementing with discovery');
@@ -138,19 +138,19 @@ export const FeedProvider = ({ children }) => {
                     }
 
                     // Fetch discovery posts to fill the gap
-                    const discoveryPosts = await apiGetPosts(20, 1);
+                    const discoveryPosts = await apiGetPosts(50, 1);
                     const uniqueDiscoveryPosts = (discoveryPosts || []).filter(p => !personalizedIds.has(String(p.post_id)));
 
                     // Combine: personalized first, then discovery
                     serverPosts = [...personalizedPosts, ...uniqueDiscoveryPosts];
                 }
             } else {
-                serverPosts = await apiGetPosts(20, 1);
+                serverPosts = await apiGetPosts(50, 1);
             }
 
             const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend).filter(Boolean);
             setPosts(mappedPosts);
-            setHasMore(mappedPosts.length >= 20);
+            setHasMore(mappedPosts.length >= 50);
             setLoadingState('ready');
         } catch (error) {
             console.error('[FeedContext] Initialization error:', error);
@@ -173,17 +173,17 @@ export const FeedProvider = ({ children }) => {
         try {
             let serverPosts = [];
             if (feedMode === 'personalized' && !personalizedExhausted) {
-                serverPosts = await apiGetFeed(20, nextPage);
+                serverPosts = await apiGetFeed(50, nextPage);
                 if (!serverPosts || serverPosts.length === 0) {
                     setPersonalizedExhausted(true);
                     setFeedMode('discovery');
-                    serverPosts = await apiGetPosts(20, 1);
+                    serverPosts = await apiGetPosts(50, 1);
                     setPage(1);
                 } else {
                     setPage(nextPage);
                 }
             } else {
-                serverPosts = await apiGetPosts(20, nextPage);
+                serverPosts = await apiGetPosts(50, nextPage);
                 setPage(nextPage);
             }
 
@@ -194,7 +194,7 @@ export const FeedProvider = ({ children }) => {
                 return [...prev, ...uniqueNew];
             });
 
-            setHasMore(mappedPosts.length >= 20);
+            setHasMore(mappedPosts.length >= 50);
             setLoadingState('ready');
         } catch (error) {
             console.error('[FeedContext] Load more error:', error);
@@ -211,8 +211,8 @@ export const FeedProvider = ({ children }) => {
         if (isQuiet) {
             try {
                 const serverPosts = feedMode === 'personalized' && !personalizedExhausted
-                    ? await apiGetFeed(20, 1)
-                    : await apiGetPosts(20, 1);
+                    ? await apiGetFeed(50, 1)
+                    : await apiGetPosts(50, 1);
 
                 const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend).filter(Boolean);
                 const existingIds = new Set(posts.map(p => String(p.id)));
@@ -254,7 +254,7 @@ export const FeedProvider = ({ children }) => {
         setFeedMode('discovery');
 
         try {
-            const discoveryPosts = await apiGetPosts(20, 1);
+            const discoveryPosts = await apiGetPosts(50, 1);
             const mapped = (discoveryPosts || []).map(mapBackendPostToFrontend).filter(Boolean);
 
             setPosts(prev => {
@@ -264,7 +264,7 @@ export const FeedProvider = ({ children }) => {
             });
 
             setPage(1);
-            setHasMore(mapped.length >= 20);
+            setHasMore(mapped.length >= 50);
             setLoadingState('ready');
         } catch (error) {
             console.error("[FeedContext] Switch to discovery failed:", error);
@@ -777,6 +777,9 @@ export const FeedProvider = ({ children }) => {
             try {
                 const newPost = await apiCreatePost(postData);
 
+                // Debug: Log backend response to see the actual field names
+                console.log('[FeedContext] Create post response:', newPost);
+
                 // The backend response for a new post may not include all fields
                 // that mapBackendPostToFrontend expects, so we build it manually
                 const images = Array.isArray(postData.media)
@@ -785,8 +788,14 @@ export const FeedProvider = ({ children }) => {
                         .map((url) => ({ url: url, alt: "Post Image" }))
                     : [];
 
-                // Use backend response id or generate a temp one
-                const postId = newPost.post_id || newPost.id || `temp-${Date.now()}`;
+                // Use backend response id - check multiple possible field names
+                // Do NOT fall back to temp ID as it breaks comments/likes
+                const postId = newPost.post_id || newPost.id || newPost.uuid || newPost.postId;
+
+                if (!postId) {
+                    console.error('[FeedContext] Backend did not return a post ID!', newPost);
+                    throw new Error('Post was created but no ID was returned');
+                }
 
                 const formattedPost = {
                     id: postId,

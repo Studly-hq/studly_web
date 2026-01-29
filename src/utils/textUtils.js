@@ -3,46 +3,32 @@ import React from 'react';
 /**
  * Formats text content by:
  * 1. Detecting URLs and converting them to clickable links
- * 2. Removing hashtags from display (optional, based on logic in PostCard)
+ * 2. Highlighting hashtags with accent color
  * 3. Preserving whitespace/newlines
  * 
  * @param {string} content - The raw text content
- * @param {Array} tags - Optional array of tags to remove from display (hashtags)
- * @returns {React.ReactNode} - Formatted content with links
+ * @param {Array} tags - Optional array of tags (used for reference, hashtags are highlighted inline)
+ * @returns {React.ReactNode} - Formatted content with links and highlighted hashtags
  */
 export const formatContent = (content, tags = []) => {
     if (!content) return null;
 
-    let displayContent = content;
+    let displayContent = content.trim();
 
-    // Remove hashtags if provided (PostCard logic)
-    if (tags && tags.length > 0) {
-        tags.forEach((tag) => {
-            const regex = new RegExp(`#${tag}\\b`, "gi");
-            displayContent = displayContent.replace(regex, "");
-        });
-    }
+    // Combined regex to detect URLs and hashtags
+    // URLs: (protocol://domain... OR www.domain...)
+    // Hashtags: #word
+    const urlRegex = /((?:https?:\/\/|www\.)[^\s]+)/;
+    const hashtagRegex = /(#\w+)/;
+    const combinedRegex = new RegExp(`${urlRegex.source}|${hashtagRegex.source}`, 'g');
 
-    // Normalize multiple spaces but preserve newlines? 
-    // PostCard had: displayContent = displayContent.trim().replace(/\s\s+/g, " ");
-    // But this removes newlines if \s includes \n. \s match space, tab, new line, etc.
-    // If we want to preserve newlines, we should use a different regex or skip this.
-    // The user asked for "formatted well automatically", so preserving paragraphs (newlines) is crucial.
-    // I will REMOVE the aggressive whitespace collapse if it destroys newlines. 
-    // Instead, I'll just trim start/end.
-    displayContent = displayContent.trim();
-
-    // Regex to detect URLs (http, https, www)
-    // Captures: (protocol://domain... OR www.domain...)
-    // We use a simplified robust regex
-    const urlRegex = /((?:https?:\/\/|www\.)[^\s]+)/g;
-
-    const parts = displayContent.split(urlRegex);
+    const parts = displayContent.split(combinedRegex).filter(part => part !== undefined && part !== '');
 
     return (
         <span className="whitespace-pre-wrap break-words leading-relaxed">
             {parts.map((part, index) => {
-                if (part.match(urlRegex)) {
+                // Check if it's a URL
+                if (part.match(/^(?:https?:\/\/|www\.)/)) {
                     let href = part;
                     if (part.startsWith('www.')) {
                         href = `https://${part}`;
@@ -58,6 +44,17 @@ export const formatContent = (content, tags = []) => {
                         >
                             {part}
                         </a>
+                    );
+                }
+                // Check if it's a hashtag
+                if (part.match(/^#\w+$/)) {
+                    return (
+                        <span
+                            key={index}
+                            className="text-reddit-orange font-medium"
+                        >
+                            {part}
+                        </span>
                     );
                 }
                 return part;

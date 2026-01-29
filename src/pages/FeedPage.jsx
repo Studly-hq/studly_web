@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Compass } from 'lucide-react';
 import Feed from '../components/feed/Feed';
 import FeedComposer from '../components/feed/FeedComposer';
 import { useFeed } from '../context/FeedContext';
@@ -27,6 +29,7 @@ const FeedSkeleton = () => (
 );
 
 const FeedPage = () => {
+    const navigate = useNavigate();
     const { initializeFeed, loadingState } = useFeed();
     const { isAuthLoading } = useAuth();
 
@@ -51,11 +54,16 @@ const FeedPage = () => {
         return (
             <div>
                 {/* Mobile Header */}
-                <div className="xl:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center gap-1.5">
-                    <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
-                    <span className="text-reddit-text text-xl font-righteous tracking-wide">
-                        Studly
-                    </span>
+                <div className="xl:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                        <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
+                    </div>
+                    <button
+                        onClick={() => navigate('/explore')}
+                        className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange"
+                    >
+                        <Compass size={22} />
+                    </button>
                 </div>
                 <FeedSkeleton />
             </div>
@@ -65,11 +73,16 @@ const FeedPage = () => {
     return (
         <div>
             {/* Mobile Header */}
-            <div className="xl:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center gap-1.5">
-                <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
-                <span className="text-reddit-text text-xl font-righteous tracking-wide">
-                    Studly
-                </span>
+            <div className="xl:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                    <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
+                </div>
+                <button
+                    onClick={() => navigate('/explore')}
+                    className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange"
+                >
+                    <Compass size={22} />
+                </button>
             </div>
 
             <FeedComposer />

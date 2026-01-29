@@ -80,7 +80,7 @@ const Leaderboard = () => {
                 </button>
                 <h1 className="text-xl font-bold text-reddit-text font-righteous tracking-wide flex items-center gap-2">
                     <Trophy className="text-yellow-500" size={24} />
-                    Student Leaderboard
+                    Leaderboard
                 </h1>
             </div>
 
@@ -108,9 +108,16 @@ const Leaderboard = () => {
                     ))}
                 </div>
 
+                {/* Loading indicator when switching periods */}
+                {loading && leaderboardData.length > 0 && (
+                    <div className="flex justify-center py-6">
+                        <div className="w-8 h-8 border-3 border-reddit-orange border-t-transparent rounded-full animate-spin" />
+                    </div>
+                )}
+
                 {/* Podium for Top 3 */}
                 {!error && topThree.length > 0 && (
-                    <div className="flex items-end justify-center gap-2 mb-12 mt-4 px-2">
+                    <div className={`flex items-end justify-center gap-2 mb-12 mt-4 px-2 transition-opacity duration-300 ${loading ? 'opacity-50' : ''}`}>
                         {/* Rank 2 */}
                         {topThree[1] && (
                             <PodiumPlace

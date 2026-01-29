@@ -563,22 +563,7 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             </motion.button>
           </div>
 
-          {/* Tags */}
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {post.tags.map((tag) => (
-                <motion.span
-                  key={tag}
-                  whileHover={{ backgroundColor: "#272729" }}
-                  transition={{ duration: 0.15 }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-xs text-reddit-orange bg-reddit-orange/10 px-2 py-0.5 rounded cursor-pointer"
-                >
-                  #{tag}
-                </motion.span>
-              ))}
-            </div>
-          )}
+
         </div>
       </motion.div>
 

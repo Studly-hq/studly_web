@@ -59,18 +59,22 @@ const CelebrationModal = () => {
     if (!showCelebration || !celebrationData) return null;
 
     const isAura = celebrationData.type === 'aura';
+    const isStreakLost = celebrationData.type === 'streak-lost';
 
     const getTitle = () => {
+        if (isStreakLost) return "Streak Lost 💔";
         if (isAura) return `${celebrationData.value.toLocaleString()} Aura!`;
         if (celebrationData.value === 1) return "First Milestone!";
         return `${celebrationData.value} Day Streak!`;
     };
 
-    const Icon = isAura ? Trophy : Flame;
-    const themeColor = isAura ? "#EAB308" : "#FF4500"; // Yellow vs Orange
-    const bgGradient = isAura
-        ? "from-yellow-400/20 via-reddit-card to-yellow-900/10"
-        : "from-orange-500/20 via-reddit-card to-red-900/10";
+    const Icon = isStreakLost ? Flame : (isAura ? Trophy : Flame);
+    const themeColor = isStreakLost ? "#6366F1" : (isAura ? "#EAB308" : "#FF4500"); // Indigo for lost, Yellow for aura, Orange for streak
+    const bgGradient = isStreakLost
+        ? "from-indigo-500/20 via-reddit-card to-slate-900/10"
+        : (isAura
+            ? "from-yellow-400/20 via-reddit-card to-yellow-900/10"
+            : "from-orange-500/20 via-reddit-card to-red-900/10");
 
     return (
         <AnimatePresence mode="wait">
@@ -179,7 +183,7 @@ const CelebrationModal = () => {
                                     style={{ background: `conic-gradient(from 0deg, transparent, ${themeColor}, transparent)` }}
                                 />
                                 <div className="relative bg-reddit-card hover:bg-[#272729] rounded-2xl py-4 flex items-center justify-center gap-2 transition-colors">
-                                    <span className="text-white font-black text-lg">Claim Achievement</span>
+                                    <span className="text-white font-black text-lg">{isStreakLost ? "Start Fresh" : "Claim Achievement"}</span>
                                     <Sparkles size={20} style={{ color: themeColor }} />
                                 </div>
                             </button>
