@@ -4,6 +4,9 @@ import { Trophy, Flame, Sparkles, Star } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useCelebration } from "../../context/CelebrationContext";
 
+const STREAK_MILESTONES = [1, 2, 3, 4, 5, 6, 7, 10, 14, 21, 30, 50, 75, 100, 200, 365];
+const AURA_MILESTONES = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000];
+
 const CelebrationModal = () => {
     const { showCelebration, celebrationData, closeCelebration } = useCelebration();
     const lastCelebrationId = useRef(null);
@@ -67,6 +70,14 @@ const CelebrationModal = () => {
         if (celebrationData.value === 1) return "First Milestone!";
         return `${celebrationData.value} Day Streak!`;
     };
+
+    const getNextMilestone = () => {
+        const milestones = isAura ? AURA_MILESTONES : STREAK_MILESTONES;
+        return milestones.find(m => m > celebrationData.value);
+    };
+
+    const nextMilestone = getNextMilestone();
+    const progress = nextMilestone ? (celebrationData.value / nextMilestone) * 100 : 100;
 
     const Icon = isStreakLost ? Flame : (isAura ? Trophy : Flame);
     const themeColor = isStreakLost ? "#6366F1" : (isAura ? "#EAB308" : "#FF4500"); // Indigo for lost, Yellow for aura, Orange for streak
@@ -158,15 +169,39 @@ const CelebrationModal = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="space-y-4 mb-10"
+                            className="space-y-4 mb-8"
                         >
                             <h2 className="text-4xl font-black text-white leading-tight font-righteous">
                                 {getTitle()}
                             </h2>
-                            <p className="text-lg text-reddit-textMuted font-medium px-4">
+                            <p className="text-lg text-reddit-textMuted font-medium px-4 leading-relaxed">
                                 {celebrationData.message}
                             </p>
                         </motion.div>
+
+                        {/* Progress Bar (if applicable) */}
+                        {!isStreakLost && nextMilestone && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                                className="mb-10 px-4"
+                            >
+                                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-reddit-textMuted mb-2">
+                                    <span>Current: {celebrationData.value}</span>
+                                    <span>Next: {nextMilestone}</span>
+                                </div>
+                                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${progress}%` }}
+                                        transition={{ delay: 0.6, duration: 1, ease: "circOut" }}
+                                        className="h-full rounded-full"
+                                        style={{ backgroundColor: themeColor }}
+                                    />
+                                </div>
+                            </motion.div>
+                        )}
 
                         {/* Actions */}
                         <motion.div

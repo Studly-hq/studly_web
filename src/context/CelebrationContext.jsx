@@ -16,12 +16,17 @@ export const useCelebration = () => {
 export const CelebrationProvider = ({ children }) => {
     const [queue, setQueue] = useState([]);
     const [activeCelebration, setActiveCelebration] = useState(null);
+    const [processedIds] = useState(new Set()); // Track IDs to prevent double-popups in same session
     const { isAuthenticated } = useAuth();
     const { subscribe } = useWebSocketContext();
 
     const pushToQueue = useCallback((newItem) => {
+        const id = `${newItem.type}-${newItem.value}`;
+        if (processedIds.has(id)) return;
+        processedIds.add(id);
+
         setQueue(q => [...q, newItem]);
-    }, []);
+    }, [processedIds]);
 
     const popQueue = useCallback(() => {
         setQueue(prev => {
