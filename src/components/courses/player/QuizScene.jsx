@@ -4,7 +4,7 @@ import { Check, X } from 'lucide-react';
 import { useCoursePlayer } from '../../../context/CoursePlayerContext';
 
 const QuizScene = ({ scene, typedQuestion, isQuestionTyped, onComplete }) => {
-  const { submitQuizAnswer } = useCoursePlayer();
+  const { submitQuizAnswer, progress, currentTopic } = useCoursePlayer();
   const [selectedChoices, setSelectedChoices] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState(null);
@@ -12,47 +12,71 @@ const QuizScene = ({ scene, typedQuestion, isQuestionTyped, onComplete }) => {
 
   const isMultiSelect = scene.multiSelect || false;
 
-  // Reset state when scene changes
+  // Reset/Initialize state when scene changes
   useEffect(() => {
-    setSelectedChoices([]);
-    setSubmitted(false);
-    setResult(null);
-    setShowFeedback(false);
-  }, [scene.id]);
+    const topicProgress = progress[currentTopic?.id];
+    const sceneProgress = topicProgress?.scenes?.[scene.id];
+    const isCompleted = sceneProgress?.completed;
+    const previousSelection = sceneProgress?.selectedChoices;
+
+    if (isCompleted || previousSelection) {
+      setSubmitted(true);
+      setResult({
+        isCorrect: sceneProgress?.correct,
+        points: sceneProgress?.correct ? (scene.points || 10) : 0,
+        alreadyCompleted: isCompleted
+      });
+      setShowFeedback(true);
+      if (previousSelection) {
+        setSelectedChoices(previousSelection);
+      } else if (isCompleted) {
+        // Fallback for migrated data
+        const correctIds = scene.choices.filter(c => c.correct).map(c => String(c.id));
+        setSelectedChoices(correctIds);
+      }
+    } else {
+      setSelectedChoices([]);
+      setSubmitted(false);
+      setResult(null);
+      setShowFeedback(false);
+    }
+  }, [scene.id, progress, currentTopic?.id, scene.choices, scene.points]);
 
   const handleChoiceClick = (choiceId) => {
     if (submitted) return;
 
     if (isMultiSelect) {
-      setSelectedChoices(prev =>
-        prev.includes(choiceId)
-          ? prev.filter(id => id !== choiceId)
-          : [...prev, choiceId]
-      );
+      setSelectedChoices(prev => {
+        const normalizedPrev = (prev || []).map(String);
+        return normalizedPrev.includes(String(choiceId))
+          ? normalizedPrev.filter(id => id !== String(choiceId))
+          : [...normalizedPrev, String(choiceId)]
+      });
     } else {
-      setSelectedChoices([choiceId]);
+      setSelectedChoices([String(choiceId)]);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedChoices.length === 0 || submitted) return;
 
-    const correctChoiceIds = scene.choices
-      .filter(choice => choice.correct)
-      .map(choice => choice.id);
-
-    const { isCorrect, points } = submitQuizAnswer(scene.id, selectedChoices, correctChoiceIds);
+    // Correctness is now handled centrally in the context
+    // scene.id is the questionId, scene.quizId is the quizId
+    const response = await submitQuizAnswer(scene.quizId, selectedChoices, scene.id);
+    const { isCorrect, points } = response || { isCorrect: false, points: 0 };
 
     setResult({ isCorrect, points });
     setSubmitted(true);
     setShowFeedback(true);
 
-    // Auto-advance after showing feedback
-    setTimeout(() => {
-      if (onComplete) {
-        onComplete(isCorrect);
-      }
-    }, 3000);
+    // Auto-advance after showing feedback if correct
+    if (isCorrect) {
+      setTimeout(() => {
+        if (onComplete) {
+          onComplete(isCorrect);
+        }
+      }, 3000);
+    }
   };
 
   const isChoiceCorrect = (choiceId) => {
@@ -204,8 +228,8 @@ const QuizScene = ({ scene, typedQuestion, isQuestionTyped, onComplete }) => {
                   {result.isCorrect ? <Check className="w-6 h-6 text-white" /> : <X className="w-6 h-6 text-white" />}
                 </div>
                 <div>
-                  <h4 className={`text-lg font-bold mb-1 ${result.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                    {result.isCorrect ? 'Correct!' : 'Incorrect'}
+                  <h4 className={`text-lg font-bold mb-1 ${result.alreadyCompleted ? 'text-reddit-orange' : result.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                    {result.alreadyCompleted ? 'Previously Completed' : result.isCorrect ? 'Correct!' : 'Incorrect'}
                   </h4>
                   <p className="text-white/80 leading-relaxed text-sm">
                     {scene.explanation}

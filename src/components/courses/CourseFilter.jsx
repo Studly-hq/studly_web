@@ -1,11 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { categories } from '../../data/courseBankData';
+import { CATEGORIES } from '../../constants/courseConstants';
 
 const CourseFilter = ({ activeCategory, onCategoryChange }) => {
   return (
     <div className="flex items-center gap-2 overflow-x-auto pb-2 hide-scrollbar">
-      {categories.map((category, index) => {
+      {CATEGORIES.map((category, index) => {
         const isActive = activeCategory === category;
 
         return (

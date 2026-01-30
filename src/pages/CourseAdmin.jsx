@@ -27,6 +27,7 @@ const CourseAdmin = () => {
   const [courseData, setCourseData] = useState({
     name: '',
     description: '',
+    category: 'Tech',
     level: 'beginner',
     duration_minutes: null,
     image_url: null,
@@ -34,43 +35,35 @@ const CourseAdmin = () => {
     sections: [
       {
         title: '',
-        content: '',
-        duration_minutes: null,
         order_index: 1,
-        quiz: {
-          title: '',
-          passing_score: null,
-          questions: [
-            {
-              question_text: '',
-              question_type: 'single_choice',
-              points: null,
-              order_index: 1,
-              answers: [
+        duration_minutes: null,
+        media: [],
+        lessons: [
+          {
+            title: '',
+            content: '',
+            duration_minutes: null,
+            order_index: 1,
+            quiz: {
+              title: '',
+              passing_score: 70,
+              questions: [
                 {
-                  answer_text: '',
-                  is_correct: true,
-                  order_index: 1
-                },
-                {
-                  answer_text: '',
-                  is_correct: false,
-                  order_index: 2
-                },
-                {
-                  answer_text: '',
-                  is_correct: false,
-                  order_index: 3
-                },
-                {
-                  answer_text: '',
-                  is_correct: false,
-                  order_index: 4
+                  question_text: '',
+                  question_type: 'single_choice',
+                  points: 10,
+                  order_index: 1,
+                  answers: [
+                    { answer_text: '', is_correct: true, order_index: 1 },
+                    { answer_text: '', is_correct: false, order_index: 2 },
+                    { answer_text: '', is_correct: false, order_index: 3 },
+                    { answer_text: '', is_correct: false, order_index: 4 }
+                  ]
                 }
               ]
             }
-          ]
-        }
+          }
+        ]
       }
     ]
   });
@@ -111,28 +104,35 @@ const CourseAdmin = () => {
         ...prev.sections,
         {
           title: '',
-          content: '',
-          duration_minutes: null,
           order_index: prev.sections.length + 1,
-          quiz: {
-            title: '',
-            passing_score: null,
-            questions: [
-              {
-                question_text: '',
-                question_type: 'multiple_choice',
-                points: null,
-                order_index: 1,
-                answers: [
+          duration_minutes: null,
+          media: [],
+          lessons: [
+            {
+              title: '',
+              content: '',
+              duration_minutes: null,
+              order_index: 1,
+              quiz: {
+                title: '',
+                passing_score: 70,
+                questions: [
                   {
-                    answer_text: '',
-                    is_correct: true,
-                    order_index: 1
+                    question_text: '',
+                    question_type: 'single_choice',
+                    points: 10,
+                    order_index: 1,
+                    answers: [
+                      { answer_text: '', is_correct: true, order_index: 1 },
+                      { answer_text: '', is_correct: false, order_index: 2 },
+                      { answer_text: '', is_correct: false, order_index: 3 },
+                      { answer_text: '', is_correct: false, order_index: 4 }
+                    ]
                   }
                 ]
               }
-            ]
-          }
+            }
+          ]
         }
       ]
     }));
@@ -157,102 +157,187 @@ const CourseAdmin = () => {
     }));
   };
 
-  const addQuestion = (sectionIndex) => {
+  const addLesson = (sectionIndex) => {
     setCourseData(prev => ({
       ...prev,
       sections: prev.sections.map((section, i) =>
         i === sectionIndex
           ? {
             ...section,
-            quiz: {
-              ...section.quiz,
-              questions: [
-                ...section.quiz.questions,
-                {
-                  question_text: '',
-                  question_type: 'single_choice',
-                  points: null,
-                  order_index: section.quiz.questions.length + 1,
-                  answers: [
+            lessons: [
+              ...section.lessons,
+              {
+                title: '',
+                content: '',
+                duration_minutes: null,
+                order_index: section.lessons.length + 1,
+                quiz: {
+                  title: '',
+                  passing_score: 70,
+                  questions: [
                     {
-                      answer_text: '',
-                      is_correct: true,
-                      order_index: 1
-                    },
-                    {
-                      answer_text: '',
-                      is_correct: false,
-                      order_index: 2
-                    },
-                    {
-                      answer_text: '',
-                      is_correct: false,
-                      order_index: 3
-                    },
-                    {
-                      answer_text: '',
-                      is_correct: false,
-                      order_index: 4
+                      question_text: '',
+                      question_type: 'single_choice',
+                      points: 10,
+                      order_index: 1,
+                      answers: [
+                        { answer_text: '', is_correct: true, order_index: 1 },
+                        { answer_text: '', is_correct: false, order_index: 2 },
+                        { answer_text: '', is_correct: false, order_index: 3 },
+                        { answer_text: '', is_correct: false, order_index: 4 }
+                      ]
                     }
                   ]
                 }
-              ]
-            }
+              }
+            ]
           }
           : section
       )
     }));
   };
 
-  const removeQuestion = (sectionIndex, questionIndex) => {
+  const removeLesson = (sectionIndex, lessonIndex) => {
     setCourseData(prev => ({
       ...prev,
       sections: prev.sections.map((section, i) =>
         i === sectionIndex
           ? {
             ...section,
-            quiz: {
-              ...section.quiz,
-              questions: section.quiz.questions
-                .filter((_, qi) => qi !== questionIndex)
-                .map((q, qi) => ({ ...q, order_index: qi + 1 }))
-            }
+            lessons: section.lessons.filter((_, li) => li !== lessonIndex).map((l, li) => ({
+              ...l,
+              order_index: li + 1
+            }))
           }
           : section
       )
     }));
   };
 
-  const updateQuestion = (sectionIndex, questionIndex, field, value) => {
+  const updateLesson = (sectionIndex, lessonIndex, field, value) => {
     setCourseData(prev => ({
       ...prev,
       sections: prev.sections.map((section, i) =>
         i === sectionIndex
           ? {
             ...section,
-            quiz: {
-              ...section.quiz,
-              questions: section.quiz.questions.map((q, qi) =>
-                qi === questionIndex ? { ...q, [field]: value } : q
-              )
-            }
+            lessons: section.lessons.map((l, li) =>
+              li === lessonIndex ? { ...l, [field]: value } : l
+            )
           }
           : section
       )
     }));
   };
 
-  const updateQuizField = (sectionIndex, field, value) => {
+  const addQuestion = (sectionIndex, lessonIndex) => {
     setCourseData(prev => ({
       ...prev,
       sections: prev.sections.map((section, i) =>
         i === sectionIndex
           ? {
             ...section,
-            quiz: {
-              ...section.quiz,
-              [field]: value
-            }
+            lessons: section.lessons.map((lesson, li) =>
+              li === lessonIndex
+                ? {
+                  ...lesson,
+                  quiz: {
+                    ...lesson.quiz,
+                    questions: [
+                      ...lesson.quiz.questions,
+                      {
+                        question_text: '',
+                        question_type: 'single_choice',
+                        points: 10,
+                        order_index: lesson.quiz.questions.length + 1,
+                        answers: [
+                          { answer_text: '', is_correct: true, order_index: 1 },
+                          { answer_text: '', is_correct: false, order_index: 2 },
+                          { answer_text: '', is_correct: false, order_index: 3 },
+                          { answer_text: '', is_correct: false, order_index: 4 }
+                        ]
+                      }
+                    ]
+                  }
+                }
+                : lesson
+            )
+          }
+          : section
+      )
+    }));
+  };
+
+  const removeQuestion = (sectionIndex, lessonIndex, questionIndex) => {
+    setCourseData(prev => ({
+      ...prev,
+      sections: prev.sections.map((section, i) =>
+        i === sectionIndex
+          ? {
+            ...section,
+            lessons: section.lessons.map((lesson, li) =>
+              li === lessonIndex
+                ? {
+                  ...lesson,
+                  quiz: {
+                    ...lesson.quiz,
+                    questions: lesson.quiz.questions
+                      .filter((_, qi) => qi !== questionIndex)
+                      .map((q, qi) => ({ ...q, order_index: qi + 1 }))
+                  }
+                }
+                : lesson
+            )
+          }
+          : section
+      )
+    }));
+  };
+
+  const updateQuestion = (sectionIndex, lessonIndex, questionIndex, field, value) => {
+    setCourseData(prev => ({
+      ...prev,
+      sections: prev.sections.map((section, i) =>
+        i === sectionIndex
+          ? {
+            ...section,
+            lessons: section.lessons.map((lesson, li) =>
+              li === lessonIndex
+                ? {
+                  ...lesson,
+                  quiz: {
+                    ...lesson.quiz,
+                    questions: lesson.quiz.questions.map((q, qi) =>
+                      qi === questionIndex ? { ...q, [field]: value } : q
+                    )
+                  }
+                }
+                : lesson
+            )
+          }
+          : section
+      )
+    }));
+  };
+
+  const updateQuizField = (sectionIndex, lessonIndex, field, value) => {
+    setCourseData(prev => ({
+      ...prev,
+      sections: prev.sections.map((section, i) =>
+        i === sectionIndex
+          ? {
+            ...section,
+            lessons: section.lessons.map((lesson, li) =>
+              li === lessonIndex
+                ? {
+                  ...lesson,
+                  quiz: {
+                    ...lesson.quiz,
+                    [field]: value
+                  }
+                }
+                : lesson
+            )
           }
           : section
       )
@@ -266,14 +351,22 @@ const CourseAdmin = () => {
       case 1:
         return courseData.name.trim() !== '' && courseData.level !== '';
       case 2:
-        return courseData.sections.every(s => s.title.trim() !== '' && s.content.trim() !== '');
+        return courseData.sections.length > 0 && courseData.sections.every(s =>
+          s.title.trim() !== '' &&
+          s.lessons.length > 0 &&
+          s.lessons.every(l => l.title.trim() !== '' && l.content.trim() !== '')
+        );
       case 3:
         return courseData.sections.every(s =>
-          s.quiz.questions.every(q =>
-            q.question_text.trim() !== '' &&
-            q.answers.length > 0 &&
-            q.answers.every(a => a.answer_text.trim() !== '') &&
-            q.answers.some(a => a.is_correct)
+          s.lessons.every(l =>
+            !l.quiz || (
+              l.quiz.questions.every(q =>
+                q.question_text.trim() !== '' &&
+                q.answers.length > 0 &&
+                q.answers.every(a => a.answer_text.trim() !== '') &&
+                q.answers.some(a => a.is_correct)
+              )
+            )
           )
         );
       default:
@@ -286,10 +379,41 @@ const CourseAdmin = () => {
     try {
       // Clean up the data before submission
       const cleanedData = {
-        ...courseData,
-        tags: courseData.tags.filter(tag => tag.trim() !== ''),
-        duration_minutes: courseData.duration_minutes || null,
-        image_url: courseData.image_url || null
+        name: courseData.name.trim(),
+        description: courseData.description.trim(),
+        level: courseData.level,
+        duration_minutes: courseData.duration_minutes || 0,
+        image_url: courseData.image_url || null,
+        tags: [
+          `cat:${courseData.category}`,
+          ...courseData.tags.filter(tag => tag.trim() !== '').map(tag => tag.trim().toLowerCase())
+        ],
+        sections: courseData.sections.map(section => ({
+          title: section.title.trim(),
+          order_index: section.order_index,
+          duration_minutes: section.duration_minutes || 0,
+          lessons: section.lessons.map(lesson => ({
+            title: lesson.title.trim(),
+            content: lesson.content.trim(),
+            order_index: lesson.order_index,
+            duration_minutes: lesson.duration_minutes || 0,
+            quiz: lesson.quiz && lesson.quiz.questions.length > 0 ? {
+              title: lesson.quiz.title || `${lesson.title} Quiz`,
+              passing_score: lesson.quiz.passing_score || 70,
+              questions: lesson.quiz.questions.map(q => ({
+                question_text: q.question_text.trim(),
+                question_type: q.question_type,
+                order_index: q.order_index,
+                points: q.points || 10,
+                answers: q.answers.map(a => ({
+                  answer_text: a.answer_text.trim(),
+                  is_correct: a.is_correct,
+                  order_index: a.order_index
+                }))
+              }))
+            } : null
+          }))
+        }))
       };
 
       await createCourse(cleanedData);
@@ -306,48 +430,41 @@ const CourseAdmin = () => {
         sections: [
           {
             title: '',
-            content: '',
-            duration_minutes: null,
             order_index: 1,
-            quiz: {
-              title: '',
-              passing_score: null,
-              questions: [
-                {
-                  question_text: '',
-                  question_type: 'single_choice',
-                  points: null,
-                  order_index: 1,
-                  answers: [
+            duration_minutes: null,
+            media: [],
+            lessons: [
+              {
+                title: '',
+                content: '',
+                duration_minutes: null,
+                order_index: 1,
+                quiz: {
+                  title: '',
+                  passing_score: 70,
+                  questions: [
                     {
-                      answer_text: '',
-                      is_correct: true,
-                      order_index: 1
-                    },
-                    {
-                      answer_text: '',
-                      is_correct: false,
-                      order_index: 2
-                    },
-                    {
-                      answer_text: '',
-                      is_correct: false,
-                      order_index: 3
-                    },
-                    {
-                      answer_text: '',
-                      is_correct: false,
-                      order_index: 4
+                      question_text: '',
+                      question_type: 'single_choice',
+                      points: 10,
+                      order_index: 1,
+                      answers: [
+                        { answer_text: '', is_correct: true, order_index: 1 },
+                        { answer_text: '', is_correct: false, order_index: 2 },
+                        { answer_text: '', is_correct: false, order_index: 3 },
+                        { answer_text: '', is_correct: false, order_index: 4 }
+                      ]
                     }
                   ]
                 }
-              ]
-            }
+              }
+            ]
           }
         ]
       });
       setCurrentStep(1);
     } catch (error) {
+      console.error('Submit error:', error);
       toast.error(error.response?.data?.message || 'Failed to create course');
     } finally {
       setIsSubmitting(false);
@@ -382,10 +499,10 @@ const CourseAdmin = () => {
                   initial={{ scale: 0.9 }}
                   animate={{ scale: currentStep >= step.id ? 1 : 0.9 }}
                   className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all ${currentStep > step.id
-                      ? 'bg-green-500 text-white'
-                      : currentStep === step.id
-                        ? 'bg-reddit-orange text-white'
-                        : 'bg-reddit-cardHover text-reddit-placeholder border border-reddit-border'
+                    ? 'bg-green-500 text-white'
+                    : currentStep === step.id
+                      ? 'bg-reddit-orange text-white'
+                      : 'bg-reddit-cardHover text-reddit-placeholder border border-reddit-border'
                     }`}
                 >
                   {currentStep > step.id ? <Check size={20} /> : <step.icon size={18} />}
@@ -450,6 +567,24 @@ const CourseAdmin = () => {
 
                 {/* Level and Duration */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-reddit-card border border-reddit-border rounded-xl p-6">
+                    <label className="block">
+                      <span className="text-sm font-semibold mb-2 block">
+                        Category <span className="text-red-500">*</span>
+                      </span>
+                      <select
+                        value={courseData.category}
+                        onChange={(e) => setCourseData({ ...courseData, category: e.target.value })}
+                        className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                      >
+                        <option value="STEM">STEM</option>
+                        <option value="Tech">Tech</option>
+                        <option value="Languages">Languages</option>
+                        <option value="Arts">Arts</option>
+                      </select>
+                    </label>
+                  </div>
+
                   <div className="bg-reddit-card border border-reddit-border rounded-xl p-6">
                     <label className="block">
                       <span className="text-sm font-semibold mb-2 block">
@@ -533,7 +668,7 @@ const CourseAdmin = () => {
             </motion.div>
           )}
 
-          {/* Step 2: Sections */}
+          {/* Step 2: Sections & Lessons */}
           {currentStep === 2 && (
             <motion.div
               key="step2"
@@ -543,70 +678,115 @@ const CourseAdmin = () => {
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold mb-2">Course Sections</h2>
-                <p className="text-reddit-placeholder">Add sections to organize your course content</p>
+                <h2 className="text-2xl font-bold mb-2">Sections & Lessons</h2>
+                <p className="text-reddit-placeholder">Organize your course into sections and detailed lessons</p>
               </div>
 
-              <div className="max-w-4xl mx-auto space-y-6">
+              <div className="max-w-4xl mx-auto space-y-8">
                 {courseData.sections.map((section, sectionIndex) => (
-                  <div key={sectionIndex} className="bg-reddit-card border border-reddit-border rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-lg">Section {sectionIndex + 1}</h3>
+                  <div key={sectionIndex} className="bg-reddit-card border border-reddit-border rounded-xl p-6 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-reddit-orange/20 text-reddit-orange flex items-center justify-center font-bold">
+                          {sectionIndex + 1}
+                        </div>
+                        <h3 className="font-bold text-lg">Section Details</h3>
+                      </div>
                       {courseData.sections.length > 1 && (
                         <button
                           onClick={() => removeSection(sectionIndex)}
                           className="p-2 hover:bg-red-500/20 rounded-lg text-red-500 transition-colors"
+                          title="Remove Section"
                         >
                           <Trash2 size={18} />
                         </button>
                       )}
                     </div>
 
+                    {/* Section Title */}
+                    <div>
+                      <label className="block">
+                        <span className="text-sm font-semibold mb-2 block">
+                          Section Title <span className="text-red-500">*</span>
+                        </span>
+                        <input
+                          type="text"
+                          value={section.title}
+                          onChange={(e) => updateSection(sectionIndex, 'title', e.target.value)}
+                          placeholder="e.g., Introduction to the Course"
+                          className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
+                        />
+                      </label>
+                    </div>
+
+                    {/* Lessons within this section */}
                     <div className="space-y-4">
-                      {/* Section Title */}
-                      <div>
-                        <label className="block">
-                          <span className="text-sm font-semibold mb-2 block">
-                            Title <span className="text-red-500">*</span>
-                          </span>
-                          <input
-                            type="text"
-                            value={section.title}
-                            onChange={(e) => updateSection(sectionIndex, 'title', e.target.value)}
-                            placeholder="e.g., Getting Started with Variables"
-                            className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
-                          />
-                        </label>
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-reddit-placeholder">Lessons</h4>
+                        <button
+                          onClick={() => addLesson(sectionIndex)}
+                          className="text-xs flex items-center gap-1.5 px-3 py-1.5 bg-reddit-cardHover hover:bg-reddit-border border border-reddit-border rounded-lg font-medium transition-colors"
+                        >
+                          <Plus size={14} />
+                          Add Lesson
+                        </button>
                       </div>
 
-                      {/* Section Content */}
-                      <div>
-                        <label className="block">
-                          <span className="text-sm font-semibold mb-2 block">
-                            Content <span className="text-red-500">*</span>
-                          </span>
-                          <textarea
-                            value={section.content}
-                            onChange={(e) => updateSection(sectionIndex, 'content', e.target.value)}
-                            placeholder="Enter the lesson content here..."
-                            rows={6}
-                            className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors resize-none"
-                          />
-                        </label>
-                      </div>
+                      <div className="space-y-4">
+                        {section.lessons.map((lesson, lessonIndex) => (
+                          <div key={lessonIndex} className="bg-reddit-dark/50 border border-reddit-border rounded-lg p-4 space-y-4 relative">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-reddit-orange">Lesson {lessonIndex + 1}</span>
+                              {section.lessons.length > 1 && (
+                                <button
+                                  onClick={() => removeLesson(sectionIndex, lessonIndex)}
+                                  className="text-reddit-placeholder hover:text-red-500 transition-colors"
+                                >
+                                  <X size={14} />
+                                </button>
+                              )}
+                            </div>
 
-                      {/* Section Duration */}
-                      <div>
-                        <label className="block">
-                          <span className="text-sm font-semibold mb-2 block">Duration (minutes)</span>
-                          <input
-                            type="number"
-                            value={section.duration_minutes || ''}
-                            onChange={(e) => updateSection(sectionIndex, 'duration_minutes', e.target.value ? parseInt(e.target.value) : null)}
-                            placeholder="e.g., 30"
-                            className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
-                          />
-                        </label>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="md:col-span-2">
+                                <label className="block">
+                                  <span className="text-xs font-semibold mb-1.5 block">Lesson Title</span>
+                                  <input
+                                    type="text"
+                                    value={lesson.title}
+                                    onChange={(e) => updateLesson(sectionIndex, lessonIndex, 'title', e.target.value)}
+                                    placeholder="e.g., What is logic?"
+                                    className="w-full px-3 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                                  />
+                                </label>
+                              </div>
+                              <div className="md:col-span-2">
+                                <label className="block">
+                                  <span className="text-xs font-semibold mb-1.5 block">Content (Markdown)</span>
+                                  <textarea
+                                    value={lesson.content}
+                                    onChange={(e) => updateLesson(sectionIndex, lessonIndex, 'content', e.target.value)}
+                                    placeholder="Enter lesson content..."
+                                    rows={4}
+                                    className="w-full px-3 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors resize-none"
+                                  />
+                                </label>
+                              </div>
+                              <div>
+                                <label className="block">
+                                  <span className="text-xs font-semibold mb-1.5 block">Duration (mins)</span>
+                                  <input
+                                    type="number"
+                                    value={lesson.duration_minutes || ''}
+                                    onChange={(e) => updateLesson(sectionIndex, lessonIndex, 'duration_minutes', e.target.value ? parseInt(e.target.value) : null)}
+                                    placeholder="15"
+                                    className="w-full px-3 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                                  />
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -617,7 +797,7 @@ const CourseAdmin = () => {
                   className="w-full py-4 border-2 border-dashed border-reddit-border hover:border-reddit-orange rounded-xl text-reddit-placeholder hover:text-reddit-orange transition-colors flex items-center justify-center gap-2 font-medium"
                 >
                   <Plus size={20} />
-                  Add Another Section
+                  Add New Section
                 </button>
               </div>
             </motion.div>
@@ -633,185 +813,150 @@ const CourseAdmin = () => {
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold mb-2">Section Quizzes</h2>
-                <p className="text-reddit-placeholder">Add quiz questions for each section</p>
+                <h2 className="text-2xl font-bold mb-2">Lesson Quizzes</h2>
+                <p className="text-reddit-placeholder">Add assessments to your lessons to track student progress</p>
               </div>
 
-              <div className="max-w-5xl mx-auto space-y-8">
+              <div className="max-w-5xl mx-auto space-y-12">
                 {courseData.sections.map((section, sectionIndex) => (
-                  <div key={sectionIndex} className="bg-reddit-card border border-reddit-border rounded-xl p-6">
-                    <h3 className="font-semibold text-lg mb-4">
-                      Quiz for: {section.title || `Section ${sectionIndex + 1}`}
-                    </h3>
-
-                    {/* Quiz Title and Passing Score */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div>
-                        <label className="block">
-                          <span className="text-sm font-semibold mb-2 block">Quiz Title</span>
-                          <input
-                            type="text"
-                            value={section.quiz.title}
-                            onChange={(e) => updateQuizField(sectionIndex, 'title', e.target.value)}
-                            placeholder="e.g., Variables Quiz"
-                            className="w-full px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
-                          />
-                        </label>
+                  <div key={sectionIndex} className="space-y-6">
+                    <div className="flex items-center gap-4 bg-reddit-card border border-reddit-border p-4 rounded-xl">
+                      <div className="w-10 h-10 rounded-full bg-reddit-orange/10 text-reddit-orange flex items-center justify-center font-bold text-lg">
+                        {sectionIndex + 1}
                       </div>
-                      <div>
-                        <label className="block">
-                          <span className="text-sm font-semibold mb-2 block">Passing Score (%)</span>
-                          <input
-                            type="number"
-                            value={section.quiz.passing_score || ''}
-                            onChange={(e) => updateQuizField(sectionIndex, 'passing_score', e.target.value ? parseInt(e.target.value) : null)}
-                            placeholder="e.g., 70"
-                            className="w-full px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
-                          />
-                        </label>
-                      </div>
+                      <h3 className="font-bold text-xl">{section.title || `Section ${sectionIndex + 1}`}</h3>
                     </div>
 
-                    {/* Questions */}
-                    <div className="space-y-6">
-                      {section.quiz.questions.map((question, questionIndex) => (
-                        <div key={questionIndex} className="bg-reddit-cardHover border border-reddit-border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-semibold">Question {questionIndex + 1}</h4>
-                            {section.quiz.questions.length > 1 && (
-                              <button
-                                onClick={() => removeQuestion(sectionIndex, questionIndex)}
-                                className="p-1.5 hover:bg-red-500/20 rounded text-red-500 transition-colors"
-                              >
-                                <X size={16} />
-                              </button>
-                            )}
-                          </div>
+                    <div className="grid grid-cols-1 gap-8 pl-4 border-l-2 border-reddit-border/30">
+                      {section.lessons.map((lesson, lessonIndex) => (
+                        <div key={lessonIndex} className="bg-reddit-card border border-reddit-border rounded-xl p-6 relative overflow-hidden">
+                          <div className="absolute top-0 left-0 w-1 h-full bg-reddit-orange" />
+                          <h4 className="font-bold text-lg mb-6 flex items-center gap-2">
+                            <span className="text-reddit-placeholder text-sm">Lesson {lessonIndex + 1}:</span>
+                            {lesson.title || "Untitled Lesson"}
+                          </h4>
 
-                          {/* Question Text */}
-                          <div className="mb-4">
-                            <label className="block">
-                              <span className="text-sm font-semibold mb-2 block">
-                                Question <span className="text-red-500">*</span>
-                              </span>
-                              <textarea
-                                value={question.question_text}
-                                onChange={(e) => updateQuestion(sectionIndex, questionIndex, 'question_text', e.target.value)}
-                                placeholder="Enter your question here..."
-                                rows={2}
-                                className="w-full px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors resize-none"
-                              />
-                            </label>
-                          </div>
+                          <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block">
+                                  <span className="text-sm font-semibold mb-2 block">Quiz Title</span>
+                                  <input
+                                    type="text"
+                                    value={lesson.quiz.title}
+                                    onChange={(e) => updateQuizField(sectionIndex, lessonIndex, 'title', e.target.value)}
+                                    placeholder="e.g., Module Assessment"
+                                    className="w-full px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
+                                  />
+                                </label>
+                              </div>
+                              <div>
+                                <label className="block">
+                                  <span className="text-sm font-semibold mb-2 block">Passing Score (%)</span>
+                                  <input
+                                    type="number"
+                                    value={lesson.quiz.passing_score || ''}
+                                    onChange={(e) => updateQuizField(sectionIndex, lessonIndex, 'passing_score', e.target.value ? parseInt(e.target.value) : null)}
+                                    placeholder="70"
+                                    className="w-full px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
+                                  />
+                                </label>
+                              </div>
+                            </div>
 
-                          {/* Question Type and Points */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                              <label className="block">
-                                <span className="text-sm font-semibold mb-2 block">
-                                  Question Type <span className="text-red-500">*</span>
-                                </span>
-                                <select
-                                  value={question.question_type}
-                                  onChange={(e) => updateQuestion(sectionIndex, questionIndex, 'question_type', e.target.value)}
-                                  className="w-full px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                            <div className="space-y-6">
+                              <div className="flex items-center justify-between">
+                                <h5 className="text-sm font-bold uppercase tracking-widest text-reddit-placeholder">Questions</h5>
+                                <button
+                                  onClick={() => addQuestion(sectionIndex, lessonIndex)}
+                                  className="text-xs bg-reddit-orange hover:bg-reddit-orange/90 text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors"
                                 >
-                                  <option value="single_choice">Single Choice (One Correct Answer)</option>
-                                  <option value="multiple_choice">Multiple Choice (Multiple Correct Answers)</option>
-                                </select>
-                              </label>
-                            </div>
-                            <div>
-                              <label className="block">
-                                <span className="text-sm font-semibold mb-2 block">Points</span>
-                                <input
-                                  type="number"
-                                  value={question.points || ''}
-                                  onChange={(e) => updateQuestion(sectionIndex, questionIndex, 'points', e.target.value ? parseInt(e.target.value) : null)}
-                                  placeholder="e.g., 10"
-                                  className="w-full px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
-                                />
-                              </label>
-                            </div>
-                          </div>
+                                  <Plus size={14} />
+                                  Add Question
+                                </button>
+                              </div>
 
-                          {/* Answers - Fixed to 4 options */}
-                          <div>
-                            <div className="mb-3">
-                              <span className="text-sm font-semibold">
-                                Answers (4 Options) <span className="text-red-500">*</span>
-                              </span>
-                              <p className="text-xs text-reddit-placeholder mt-1">
-                                {question.question_type === 'single_choice'
-                                  ? 'Select one correct answer'
-                                  : 'Select one or more correct answers'}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              {[0, 1, 2, 3].map((answerIndex) => {
-                                const answer = question.answers[answerIndex] || { answer_text: '', is_correct: false, order_index: answerIndex + 1 };
-                                return (
-                                  <div key={answerIndex} className="flex gap-2 items-center">
-                                    <div className="w-8 h-8 rounded-full bg-reddit-cardHover border border-reddit-border flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                                      {String.fromCharCode(65 + answerIndex)}
-                                    </div>
-                                    <input
-                                      type="text"
-                                      value={answer.answer_text}
-                                      onChange={(e) => {
-                                        const newAnswers = [...question.answers];
-                                        if (!newAnswers[answerIndex]) {
-                                          newAnswers[answerIndex] = { answer_text: '', is_correct: false, order_index: answerIndex + 1 };
-                                        }
-                                        newAnswers[answerIndex].answer_text = e.target.value;
-                                        updateQuestion(sectionIndex, questionIndex, 'answers', newAnswers);
-                                      }}
-                                      placeholder={`Option ${String.fromCharCode(65 + answerIndex)}`}
-                                      className="flex-1 px-3 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors text-sm"
-                                    />
-                                    <label className="flex items-center gap-2 px-3 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg cursor-pointer hover:border-reddit-orange transition-colors">
-                                      <input
-                                        type={question.question_type === 'single_choice' ? 'radio' : 'checkbox'}
-                                        name={question.question_type === 'single_choice' ? `question-${sectionIndex}-${questionIndex}` : undefined}
-                                        checked={answer.is_correct}
-                                        onChange={(e) => {
-                                          const newAnswers = [...question.answers];
-                                          if (!newAnswers[answerIndex]) {
-                                            newAnswers[answerIndex] = { answer_text: '', is_correct: false, order_index: answerIndex + 1 };
-                                          }
-
-                                          if (question.question_type === 'single_choice') {
-                                            // For single choice, uncheck all others
-                                            newAnswers.forEach((a, i) => {
-                                              if (newAnswers[i]) {
-                                                newAnswers[i].is_correct = i === answerIndex;
-                                              }
-                                            });
-                                          } else {
-                                            // For multiple choice, toggle this one
-                                            newAnswers[answerIndex].is_correct = e.target.checked;
-                                          }
-                                          updateQuestion(sectionIndex, questionIndex, 'answers', newAnswers);
-                                        }}
-                                        className="w-4 h-4 accent-reddit-orange"
-                                      />
-                                      <span className="text-xs text-reddit-placeholder">Correct</span>
-                                    </label>
+                              {lesson.quiz.questions.map((question, questionIndex) => (
+                                <div key={questionIndex} className="bg-reddit-cardHover border border-reddit-border rounded-lg p-4 space-y-4">
+                                  <div className="flex items-center justify-between">
+                                    <h6 className="font-bold text-sm">Q{questionIndex + 1}</h6>
+                                    {lesson.quiz.questions.length > 1 && (
+                                      <button
+                                        onClick={() => removeQuestion(sectionIndex, lessonIndex, questionIndex)}
+                                        className="text-reddit-placeholder hover:text-red-500 transition-colors"
+                                      >
+                                        <Trash2 size={16} />
+                                      </button>
+                                    )}
                                   </div>
-                                );
-                              })}
+
+                                  <textarea
+                                    value={question.question_text}
+                                    onChange={(e) => updateQuestion(sectionIndex, lessonIndex, questionIndex, 'question_text', e.target.value)}
+                                    placeholder="Type your question..."
+                                    rows={2}
+                                    className="w-full px-4 py-2 bg-reddit-dark border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors resize-none"
+                                  />
+
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <select
+                                      value={question.question_type}
+                                      onChange={(e) => updateQuestion(sectionIndex, lessonIndex, questionIndex, 'question_type', e.target.value)}
+                                      className="w-full px-4 py-2 bg-reddit-dark border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                                    >
+                                      <option value="single_choice">Single Choice</option>
+                                      <option value="multiple_choice">Multiple Choice</option>
+                                    </select>
+                                    <input
+                                      type="number"
+                                      value={question.points || ''}
+                                      onChange={(e) => updateQuestion(sectionIndex, lessonIndex, questionIndex, 'points', e.target.value ? parseInt(e.target.value) : null)}
+                                      placeholder="Points (e.g., 10)"
+                                      className="w-full px-4 py-2 bg-reddit-dark border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    {question.answers.map((answer, answerIndex) => (
+                                      <div key={answerIndex} className="flex items-center gap-2">
+                                        <div className="w-6 h-6 rounded bg-reddit-dark flex items-center justify-center text-[10px] font-bold text-reddit-placeholder">
+                                          {String.fromCharCode(65 + answerIndex)}
+                                        </div>
+                                        <input
+                                          type="text"
+                                          value={answer.answer_text}
+                                          onChange={(e) => {
+                                            const newAnswers = [...question.answers];
+                                            newAnswers[answerIndex].answer_text = e.target.value;
+                                            updateQuestion(sectionIndex, lessonIndex, questionIndex, 'answers', newAnswers);
+                                          }}
+                                          placeholder="Answer option..."
+                                          className="flex-1 px-3 py-1.5 bg-reddit-dark border border-reddit-border rounded-lg text-xs text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                                        />
+                                        <input
+                                          type={question.question_type === 'single_choice' ? 'radio' : 'checkbox'}
+                                          name={`q-${sectionIndex}-${lessonIndex}-${questionIndex}`}
+                                          checked={answer.is_correct}
+                                          onChange={(e) => {
+                                            const newAnswers = [...question.answers];
+                                            if (question.question_type === 'single_choice') {
+                                              newAnswers.forEach((a, i) => a.is_correct = i === answerIndex);
+                                            } else {
+                                              newAnswers[answerIndex].is_correct = e.target.checked;
+                                            }
+                                            updateQuestion(sectionIndex, lessonIndex, questionIndex, 'answers', newAnswers);
+                                          }}
+                                          className="w-4 h-4 accent-reddit-orange"
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         </div>
                       ))}
-
-                      <button
-                        onClick={() => addQuestion(sectionIndex)}
-                        className="w-full py-3 border border-dashed border-reddit-border hover:border-reddit-orange rounded-lg text-reddit-placeholder hover:text-reddit-orange transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                      >
-                        <Plus size={16} />
-                        Add Question
-                      </button>
                     </div>
                   </div>
                 ))}
@@ -819,99 +964,88 @@ const CourseAdmin = () => {
             </motion.div>
           )}
 
-          {/* Step 4: Review */}
+          {/* Step 4: Preview/Review */}
           {currentStep === 4 && (
             <motion.div
               key="step4"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
+              className="space-y-8"
             >
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold mb-2">Review & Submit</h2>
-                <p className="text-reddit-placeholder">Review your course details before publishing</p>
+              <div className="text-center mb-12">
+                <h2 className="text-2xl font-bold mb-2">Review Course</h2>
+                <p className="text-reddit-placeholder">Check your course details before publishing</p>
               </div>
 
-              <div className="max-w-4xl mx-auto space-y-6">
-                {/* Basic Info Summary */}
-                <div className="bg-reddit-card border border-reddit-border rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-lg">Basic Information</h3>
-                    <button
-                      onClick={() => setCurrentStep(1)}
-                      className="text-sm text-reddit-orange hover:underline"
-                    >
-                      Edit
-                    </button>
-                  </div>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-reddit-placeholder">Course Name:</span>
-                      <span className="font-medium">{courseData.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-reddit-placeholder">Level:</span>
-                      <span className="font-medium capitalize">{courseData.level}</span>
-                    </div>
-                    {courseData.duration_minutes && (
-                      <div className="flex justify-between">
-                        <span className="text-reddit-placeholder">Duration:</span>
-                        <span className="font-medium">{courseData.duration_minutes} minutes</span>
+              <div className="max-w-3xl mx-auto space-y-8">
+                {/* Course Overview */}
+                <div className="bg-reddit-card border border-reddit-border rounded-xl overflow-hidden">
+                  <div className="h-48 bg-reddit-cardHover relative">
+                    {courseData.image_url ? (
+                      <img src={courseData.image_url} alt="Course" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-reddit-placeholder">
+                        <BookOpen size={48} />
                       </div>
                     )}
-                    <div className="flex justify-between">
-                      <span className="text-reddit-placeholder">Tags:</span>
-                      <span className="font-medium">{courseData.tags.filter(t => t.trim()).join(', ') || 'None'}</span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                    <div className="absolute bottom-4 left-6">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-2 py-0.5 bg-reddit-orange rounded text-[10px] font-bold uppercase tracking-wider">
+                          {courseData.level}
+                        </span>
+                        {courseData.duration_minutes && (
+                          <span className="text-xs text-reddit-placeholder">
+                            {courseData.duration_minutes} mins
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-2xl font-bold">{courseData.name || "Untitled Course"}</h3>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-reddit-placeholder text-sm mb-4">
+                      {courseData.description || "No description provided."}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {courseData.tags.map((tag, i) => tag && (
+                        <span key={i} className="px-3 py-1 bg-reddit-cardHover border border-reddit-border rounded-full text-xs text-reddit-placeholder">
+                          #{tag.toLowerCase()}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>
 
-                {/* Sections Summary */}
-                <div className="bg-reddit-card border border-reddit-border rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-lg">Sections ({courseData.sections.length})</h3>
-                    <button
-                      onClick={() => setCurrentStep(2)}
-                      className="text-sm text-reddit-orange hover:underline"
-                    >
-                      Edit
-                    </button>
-                  </div>
+                {/* Structure Overview */}
+                <div className="space-y-4">
+                  <h3 className="font-bold text-lg flex items-center gap-2">
+                    <CheckCircle size={20} className="text-green-500" />
+                    Course Structure
+                  </h3>
                   <div className="space-y-4">
-                    {courseData.sections.map((section, index) => (
-                      <div key={index} className="bg-reddit-cardHover rounded-lg p-4">
-                        <h4 className="font-semibold mb-2">{section.title}</h4>
-                        <p className="text-sm text-reddit-placeholder line-clamp-2">{section.content}</p>
-                        {section.duration_minutes && (
-                          <p className="text-xs text-reddit-placeholder mt-2">{section.duration_minutes} minutes</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Quiz Summary */}
-                <div className="bg-reddit-card border border-reddit-border rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-lg">Quizzes</h3>
-                    <button
-                      onClick={() => setCurrentStep(3)}
-                      className="text-sm text-reddit-orange hover:underline"
-                    >
-                      Edit
-                    </button>
-                  </div>
-                  <div className="space-y-4">
-                    {courseData.sections.map((section, index) => (
-                      <div key={index} className="bg-reddit-cardHover rounded-lg p-4">
-                        <h4 className="font-semibold mb-2">
-                          {section.quiz.title || `Quiz ${index + 1}`}
-                        </h4>
-                        <p className="text-sm text-reddit-placeholder">
-                          {section.quiz.questions.length} question{section.quiz.questions.length !== 1 ? 's' : ''}
-                          {section.quiz.passing_score && ` • ${section.quiz.passing_score}% passing score`}
-                        </p>
+                    {courseData.sections.map((section, si) => (
+                      <div key={si} className="bg-reddit-card border border-reddit-border rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-bold text-reddit-placeholder">Section {si + 1}: {section.title}</h4>
+                          <span className="text-xs bg-reddit-cardHover px-2 py-1 rounded border border-reddit-border">
+                            {section.lessons.length} Lessons
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {section.lessons.map((lesson, li) => (
+                            <div key={li} className="flex items-center justify-between py-2 border-t border-reddit-border/30 text-sm">
+                              <span className="text-white">{lesson.title}</span>
+                              <div className="flex items-center gap-3">
+                                {lesson.quiz && lesson.quiz.questions.length > 0 && (
+                                  <span className="text-[10px] text-green-500 font-bold uppercase tracking-tighter">Quiz Included</span>
+                                )}
+                                <span className="text-reddit-placeholder text-xs">{lesson.duration_minutes || 0}m</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -925,69 +1059,77 @@ const CourseAdmin = () => {
                       <h4 className="font-semibold text-red-500 mb-1">Validation Errors</h4>
                       <ul className="text-sm text-red-400 space-y-1">
                         {!validateStep(1) && <li>• Please fill in all required basic information</li>}
-                        {!validateStep(2) && <li>• All sections must have a title and content</li>}
-                        {!validateStep(3) && <li>• All questions must have text, at least one answer, and at least one correct answer</li>}
+                        {!validateStep(2) && <li>• All sections must have a title and at least one lesson</li>}
+                        {!validateStep(3) && <li>• Quiz questions must have text, at least one answer, and a correct answer marked</li>}
                       </ul>
                     </div>
                   </div>
                 ) : (
                   <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 flex items-center gap-3">
                     <CheckCircle className="text-green-500" size={20} />
-                    <span className="text-green-400 font-medium">All validations passed! Ready to submit.</span>
+                    <span className="text-green-400 font-medium">All validations passed! Ready to publish.</span>
                   </div>
                 )}
+
+                {/* Final Actions */}
+                <div className="flex flex-col gap-4 pt-8">
+                  <div className="bg-reddit-orange/10 border border-reddit-orange/20 rounded-xl p-4 flex items-start gap-4">
+                    <AlertCircle className="text-reddit-orange mt-0.5" size={20} />
+                    <p className="text-sm text-reddit-placeholder">
+                      Once published, your course will be available in the Course Bank for all students.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting || !validateStep(1) || !validateStep(2) || !validateStep(3)}
+                    className="w-full py-4 bg-reddit-orange hover:bg-reddit-orange/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-bold flex items-center justify-center gap-2 transition-all"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Publishing Course...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save size={20} />
+                        <span>Publish Course & Save</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between mt-10 pt-6 border-t border-reddit-border">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
-            disabled={currentStep === 1}
-            className="px-6 py-3 rounded-full font-semibold border border-reddit-border hover:bg-reddit-cardHover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        <div className="max-w-6xl mx-auto px-4 py-8 flex items-center justify-between border-t border-reddit-border mt-12 mb-20">
+          <button
+            onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+            className={`px-6 py-2.5 rounded-lg font-bold transition-colors ${currentStep === 1
+              ? 'opacity-0 pointer-events-none'
+              : 'bg-reddit-cardHover hover:bg-reddit-border text-white border border-reddit-border'
+              }`}
           >
-            Back
-          </motion.button>
+            Previous Step
+          </button>
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <button
             onClick={() => {
               if (currentStep < 4) {
                 if (validateStep(currentStep)) {
-                  setCurrentStep(currentStep + 1);
+                  setCurrentStep(prev => prev + 1);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
-                  toast.error('Please fill in all required fields');
-                }
-              } else {
-                if (validateStep(1) && validateStep(2) && validateStep(3)) {
-                  handleSubmit();
-                } else {
-                  toast.error('Please fix validation errors before submitting');
+                  toast.error('Please complete all required fields correctly.');
                 }
               }
             }}
-            disabled={isSubmitting}
-            className="px-8 py-3 rounded-full font-bold bg-reddit-orange hover:bg-reddit-orange/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className={`px-8 py-2.5 bg-reddit-orange hover:bg-reddit-orange/90 rounded-lg font-bold transition-all ${currentStep === 4 ? 'hidden' : 'block'
+              }`}
           >
-            {isSubmitting ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Creating...
-              </>
-            ) : currentStep === 4 ? (
-              <>
-                <Save size={18} />
-                Create Course
-              </>
-            ) : (
-              'Continue'
-            )}
-          </motion.button>
+            Continue
+          </button>
         </div>
       </div>
     </div>

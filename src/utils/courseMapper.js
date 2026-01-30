@@ -9,12 +9,13 @@ export const mapApiCourseToTopic = (course) => {
         id: String(course.course_id || course.id),
         title: course.name || course.title,
         subtitle: course.description || '',
-        category: course.category || 'Technology',
+        category: (course.tags || []).find(t => t.startsWith('cat:'))?.split(':')[1] || 'Tech',
         difficulty: course.level || 'Beginner',
         estimatedMinutes: course.duration_minutes || 30,
-        tags: course.tags || [],
+        tags: (course.tags || []).filter(t => !t.startsWith('cat:')),
         imageUrl: course.image_url,
         sections: (course.sections || []).map(mapApiSectionToSection),
+        sectionsCount: course.sections_count || (course.sections ? course.sections.length : 0),
         isApiCourse: true,
     };
 };
@@ -39,21 +40,38 @@ export const mapApiSectionToSection = (section, index) => {
             // Add the content scene
             scenes.push({
                 id: String(lesson.lesson_id || lesson.id),
+                lessonId: lesson.lesson_id,
                 type: 'text', // Defaulting to text, but could be 'media' if logic allows
                 title: lesson.lesson_title,
                 content: lesson.lesson_content,
                 order: lesson.lesson_order,
+                completed: lesson.completed, // Add completion status
             });
 
-            // 3. Add associated Quiz as a scene if it exists
-            if (lesson.quiz_id || lesson.quiz) {
-                scenes.push({
-                    id: String(lesson.quiz_id || (lesson.quiz && lesson.quiz.id)),
-                    type: 'quiz',
-                    title: 'Quiz',
-                    lesson_id: lesson.lesson_id,
-                    // Note: Full quiz details might need a separate fetch or be nested
-                    ...(lesson.quiz || {}),
+            // 3. Add associated Quiz questions as scenes if they exist
+            if (lesson.quiz && lesson.quiz.questions) {
+                lesson.quiz.questions.forEach((question) => {
+                    scenes.push({
+                        id: String(question.id),
+                        quizId: lesson.quiz.quiz_id,
+                        lessonId: lesson.lesson_id,
+                        type: 'quiz',
+                        title: lesson.quiz.title || 'Quiz',
+                        question: question.question_text,
+                        choices: (question.answers || []).map(a => ({
+                            id: String(a.id),
+                            text: a.answer_text,
+                            correct: a.is_correct
+                        })),
+                        correctAnswerIds: (question.answers || [])
+                            .filter(a => a.is_correct)
+                            .map(a => String(a.id)), // Store for context validation
+                        points: question.points || 10,
+                        multiSelect: question.question_type === 'multiple_choice' &&
+                            (question.answers || []).filter(a => a.is_correct).length > 1,
+                        explanation: "Correct answer identified based on course material.",
+                        completed: lesson.quiz.passed, // Add completion status for quiz questions
+                    });
                 });
             }
         });

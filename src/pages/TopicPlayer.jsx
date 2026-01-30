@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Trophy, AlertCircle } from 'lucide-react';
 import { useCoursePlayer } from '../context/CoursePlayerContext';
 import { getCourse } from '../api/coursebank';
 import { mapApiCourseToTopic } from '../utils/courseMapper';
@@ -12,8 +12,6 @@ import AIChatbot from '../components/courses/player/AIChatbot';
 import { Toaster } from 'react-hot-toast';
 import { TopicPlayerSkeleton } from '../components/common/Skeleton';
 import CompletionScreen from '../components/courses/player/CompletionScreen';
-
-import { courseBankTopics } from '../data/courseBankData';
 
 const TopicPlayer = () => {
   const { topicId } = useParams();
@@ -30,39 +28,22 @@ const TopicPlayer = () => {
     getTopicProgress
   } = useCoursePlayer();
 
-  const [isNavOpen, setIsNavOpen] = useState(true); // Default open on desktop
+  const [isNavOpen, setIsNavOpen] = useState(true);
   const [topic, setTopic] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load topic from API or local fallback
   useEffect(() => {
-    const isUuid = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-
     const fetchTopic = async () => {
+      if (!topicId) return;
+
       setLoading(true);
       setError(null);
 
       try {
-        // If it's not a UUID, check local demo topics first
-        if (!isUuid(topicId)) {
-          const demoTopic = courseBankTopics.find(t => t.id === topicId);
-          if (demoTopic) {
-            setTopic(demoTopic);
-            loadTopic(demoTopic);
-            setLoading(false);
-            return;
-          }
-          // If not found in local topics and not a UUID, it's an invalid ID
-          setError('Topic not found');
-          setLoading(false);
-          return;
-        }
-
-        // Proceed with API call for UUIDs
         const data = await getCourse(topicId);
         if (!data) {
-          navigate('/courses');
+          setError('Course not found');
           return;
         }
 
@@ -71,14 +52,14 @@ const TopicPlayer = () => {
         loadTopic(mappedTopic);
       } catch (err) {
         console.error('Failed to fetch course details:', err);
-        setError('Failed to load course details. Please try again later.');
+        setError('Failed to load course details. This course might not exist or there was a server error.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchTopic();
-  }, [topicId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [topicId, loadTopic]);
 
   if (loading) {
     return <TopicPlayerSkeleton />;
@@ -87,26 +68,44 @@ const TopicPlayer = () => {
   if (error || !topic || !currentTopic) {
     return (
       <div className="min-h-screen bg-reddit-bg flex flex-col items-center justify-center p-4 text-center">
-        <h2 className="text-xl font-bold mb-4">{error || 'Topic not found'}</h2>
-        <button
-          onClick={() => navigate('/courses')}
-          className="px-6 py-2 bg-reddit-orange rounded-full font-medium"
-        >
-          Back to Courses
-        </button>
+        <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-6">
+          <AlertCircle className="w-8 h-8 text-red-500" />
+        </div>
+        <h2 className="text-2xl font-bold mb-2">{error || 'Course not found'}</h2>
+        <p className="text-reddit-textMuted mb-8 max-w-md">
+          Something went wrong while trying to load the course. Please try again or return to the course bank.
+        </p>
+        <div className="flex gap-4">
+          <button
+            onClick={() => navigate('/courses')}
+            className="px-8 py-2.5 bg-reddit-cardHover hover:bg-reddit-border border border-reddit-border rounded-full font-bold transition-all"
+          >
+            Back to Bank
+          </button>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-8 py-2.5 bg-reddit-orange hover:bg-reddit-orange/90 rounded-full font-bold transition-all"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
-  const currentSection = topic.sections[currentSectionIndex];
+  const activeTopic = currentTopic || topic;
+  const currentSection = activeTopic?.sections?.[currentSectionIndex];
   const progress = getTopicProgress(topicId);
-  const totalScenes = topic.sections.reduce((sum, section) => sum + section.scenes.length, 0);
+
+  const totalScenes = activeTopic?.sections?.reduce((sum, section) => sum + (section.scenes?.length || 0), 0) || 0;
   const completedScenes = progress ? Object.keys(progress.scenes || {}).length : 0;
-  const progressPercentage = Math.round((completedScenes / totalScenes) * 100);
+  const progressPercentage = totalScenes > 0 ? Math.round((completedScenes / totalScenes) * 100) : 0;
 
   const canGoPrevious = currentSectionIndex > 0 || currentSceneIndex > 0;
-  const canGoNext = currentSectionIndex < topic.sections.length - 1 ||
-    currentSceneIndex < currentSection.scenes.length - 1;
+  const canGoNext = activeTopic && currentSection && (
+    currentSectionIndex < activeTopic.sections.length - 1 ||
+    currentSceneIndex < currentSection.scenes.length - 1
+  );
 
   return (
     <div className="min-h-screen bg-reddit-bg text-white overflow-x-hidden">
@@ -121,7 +120,7 @@ const TopicPlayer = () => {
         }}
       />
 
-      {/* Progress bar - Extremely thin and precise */}
+      {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 h-0.5 bg-reddit-bg z-50">
         <motion.div
           initial={{ width: 0 }}
@@ -131,10 +130,9 @@ const TopicPlayer = () => {
         />
       </div>
 
-      {/* Header - Glassmorphic, minimal */}
+      {/* Header */}
       <div className="fixed top-0 left-0 right-0 z-40 bg-reddit-bg/80 backdrop-blur-xl border-b border-white/5">
         <div className="px-6 py-4 flex items-center justify-between">
-          {/* Left: Back button and title */}
           <div className="flex items-center gap-4 flex-1 min-w-0">
             <button
               onClick={() => navigate('/courses')}
@@ -144,16 +142,15 @@ const TopicPlayer = () => {
               <ArrowLeft className="w-5 h-5 text-reddit-textMuted group-hover:text-white transition-colors" />
             </button>
             <div className="min-w-0 flex flex-col justify-center">
-              <h1 className="text-sm font-medium text-white/90 tracking-wide truncate">{topic.title}</h1>
+              <h1 className="text-sm font-medium text-white/90 tracking-wide truncate">{activeTopic?.title}</h1>
               <div className="flex items-center gap-2 text-xs text-reddit-textMuted">
                 <span className="truncate">{currentSection?.title}</span>
                 <span className="w-1 h-1 rounded-full bg-reddit-textMuted/50" />
-                <span>{currentSceneIndex + 1} / {currentSection?.scenes.length}</span>
+                <span>{currentSceneIndex + 1} / {currentSection?.scenes.length || 0}</span>
               </div>
             </div>
           </div>
 
-          {/* Right: Progress and score */}
           <div className="flex items-center gap-6">
             <div className="hidden sm:flex flex-col items-end">
               <div className="flex items-center gap-2">
@@ -172,13 +169,9 @@ const TopicPlayer = () => {
         </div>
       </div>
 
-
-
-      {/* Main layout */}
       <div className="flex h-screen pt-[72px] overflow-hidden">
-        {/* Left: Section Navigator */}
         <SectionNavigator
-          topic={topic}
+          topic={activeTopic}
           currentSectionIndex={currentSectionIndex}
           currentSceneIndex={currentSceneIndex}
           onSceneClick={goToScene}
@@ -186,15 +179,13 @@ const TopicPlayer = () => {
           onToggle={() => setIsNavOpen(!isNavOpen)}
         />
 
-        {/* Center: Content Player */}
         <main className="flex-1 flex flex-col relative min-w-0 bg-gradient-to-b from-reddit-bg to-[#0f0f10]">
           <div className="flex-1 overflow-y-auto custom-scrollbar px-8 lg:px-16 py-8">
             <div className="max-w-4xl mx-auto h-full">
-              <ContentPlayer topic={topic} />
+              <ContentPlayer topic={activeTopic} />
             </div>
           </div>
 
-          {/* Minimal Floating Navigation Controls */}
           <div className="absolute bottom-8 right-8 flex items-center gap-3 z-30">
             <button
               onClick={previousScene}
@@ -229,19 +220,17 @@ const TopicPlayer = () => {
           </div>
         </main>
 
-        {/* Right: Notes + AI Chatbot */}
         <aside className="hidden xl:flex xl:flex-col w-96 h-[calc(100vh-4rem)] sticky top-16 border-l border-reddit-border bg-reddit-bg overflow-hidden flex-shrink-0">
-          <NotesPanel topicId={topic.id} topicTitle={topic.title} />
+          <NotesPanel topicId={activeTopic?.id} topicTitle={activeTopic?.title} />
           <AIChatbot
-            topicTitle={topic.title}
+            topicTitle={activeTopic?.title}
             currentSectionTitle={currentSection?.title}
           />
         </aside>
       </div>
 
-      {/* Topic completion screen */}
-      {playerState === 'completed' && (
-        <CompletionScreen topic={topic} progress={progress} />
+      {playerState === 'completed' && activeTopic && (
+        <CompletionScreen topic={activeTopic} progress={progress} />
       )}
     </div>
   );

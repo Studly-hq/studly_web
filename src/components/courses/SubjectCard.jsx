@@ -23,7 +23,7 @@ const SubjectCard = ({
   const IconComponent = Icons[topic.icon] || Icons.BookOpen;
 
   // Calculate total topics
-  const totalTopics = topic.sections.length;
+  const totalTopics = topic.sectionsCount || topic.sections?.length || 0;
 
   const handleClick = async (e) => {
     // If it's an API course and not enrolled, enroll first
@@ -64,31 +64,29 @@ const SubjectCard = ({
       <div className="relative z-10">
         {/* Header */}
         <div className="flex items-start justify-between mb-5">
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-4">
             <div className={`
-              w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300
-              ${hasStarted ? 'bg-reddit-orange text-white shadow-none' : 'bg-white/10 text-white group-hover:bg-reddit-orange group-hover:text-white'}
+              w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 flex-shrink-0
+              ${hasStarted ? 'bg-reddit-orange text-white shadow-lg shadow-reddit-orange/20' : 'bg-white/10 text-white group-hover:bg-reddit-orange group-hover:text-white group-hover:shadow-lg group-hover:shadow-reddit-orange/20'}
             `}>
               <IconComponent className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white group-hover:text-reddit-orange transition-colors duration-300">
+              <h3 className="text-lg font-bold text-white group-hover:text-reddit-orange transition-colors duration-300 leading-tight mb-1">
                 {topic.title}
               </h3>
-              <p className="text-sm text-white/50 group-hover:text-white/70 transition-colors">
+              <p className="text-sm text-white/50 group-hover:text-white/70 transition-colors line-clamp-2">
                 {topic.subtitle}
               </p>
             </div>
           </div>
-
-
         </div>
 
         {/* Info Row - Minimal */}
         <div className="flex items-center gap-6 text-sm text-white/40 mb-6 group-hover:text-white/60 transition-colors">
           <div className="flex items-center gap-1.5">
             <Icons.Layers className="w-4 h-4" />
-            <span>{totalTopics} sections</span>
+            <span>{totalTopics} {totalTopics === 1 ? 'section' : 'sections'}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Icons.Clock className="w-4 h-4" />
@@ -132,10 +130,13 @@ const SubjectCard = ({
 const calculateProgress = (topic, progressData) => {
   if (!progressData || !progressData.scenes) return 0;
 
-  const totalScenes = topic.sections.reduce(
-    (sum, section) => sum + section.scenes.length,
+  const totalScenes = topic.sections?.reduce(
+    (sum, section) => sum + (section.scenes?.length || 0),
     0
-  );
+  ) || 0;
+
+  if (totalScenes === 0) return 0;
+
   const completedScenes = Object.keys(progressData.scenes).length;
 
   return Math.round((completedScenes / totalScenes) * 100);

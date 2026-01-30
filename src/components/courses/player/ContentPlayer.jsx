@@ -32,12 +32,12 @@ const ContentPlayer = ({ topic }) => {
 
     // Auto-complete text and media scenes
     if (currentScene.type === 'text' || currentScene.type === 'media') {
-      completeScene(currentScene.id);
+      completeScene(currentScene.id, currentScene.lessonId);
     }
   }, [currentScene?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleQuizComplete = (isCorrect) => {
-    completeScene(currentScene.id);
+    completeScene(currentScene.id, currentScene.lessonId);
 
     // Show toast with result
     if (isCorrect) {

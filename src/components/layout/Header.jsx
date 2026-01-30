@@ -119,9 +119,11 @@ const Header = () => {
               className="relative w-9 h-9 flex items-center justify-center bg-reddit-cardHover rounded text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-border border border-reddit-border transition-colors"
             >
               <Bell size={16} />
-              <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-reddit-orange text-white text-[8px] font-bold flex items-center justify-center rounded-full border border-reddit-card">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
+              {unreadCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-reddit-orange text-white text-[8px] font-bold flex items-center justify-center rounded-full border border-reddit-card">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
             </motion.button>
           )}
 

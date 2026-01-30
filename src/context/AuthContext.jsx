@@ -202,9 +202,11 @@ export const AuthProvider = ({ children }) => {
 
     const updateUser = useCallback(async (updatedData) => {
         if (!currentUser) return;
-        const response = await updateProfile(currentUser.username, updatedData);
-        setCurrentUser(prev => ({ ...prev, ...response }));
-        return response;
+        const updatedProfile = await updateProfile(currentUser.username, updatedData);
+        if (updatedProfile) {
+            setCurrentUser(prev => ({ ...prev, ...updatedProfile }));
+        }
+        return updatedProfile;
     }, [currentUser]);
 
     const value = useMemo(() => ({

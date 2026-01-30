@@ -84,7 +84,7 @@ const LeftSidebar = () => {
                 `}>
                   <div className="relative">
                     <item.icon size={26} strokeWidth={isActive ? 3 : 2} />
-                    {item.id === 'notifications' && (
+                    {item.id === 'notifications' && unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 w-5 h-5 bg-reddit-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-[#0D1117] transform translate-x-1 -translate-y-1">
                         {unreadCount > 9 ? '9+' : unreadCount}
                       </span>
@@ -96,21 +96,18 @@ const LeftSidebar = () => {
             );
           })}
 
-          {/* Course Button (Studly Specific) */}
-          <button
-            onClick={() => isAuthenticated ? navigate('/courses') : setShowAuthModal(true)}
-            className="block group mt-2 w-full text-left"
-          >
+          {/* Course Button (Studly Specific) - Disabled per user request */}
+          <div className="block group mt-2 w-full text-left cursor-not-allowed opacity-70">
             <div className={`
                 inline-flex items-center gap-4 px-5 py-3 rounded-full text-xl
                 transition-colors duration-200 font-normal
-                text-white group-hover:bg-reddit-cardHover/50
+                text-white
                 ${isCourseActive ? 'font-bold' : ''}
               `}>
               <PlayCircle size={26} strokeWidth={isCourseActive ? 3 : 2} />
               <span>{courseButtonLabel}</span>
             </div>
-          </button>
+          </div>
 
 
           {/* Post Button */}

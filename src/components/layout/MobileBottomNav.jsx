@@ -13,11 +13,12 @@ const MobileBottomNav = () => {
   const navItems = [
     { icon: Home, label: 'Home', path: isAuthenticated ? '/feed' : '/posts', id: 'home' },
     { icon: Trophy, label: 'Ranking', path: '/leaderboard', id: 'leaderboard' },
-    { icon: GraduationCap, label: 'Study', path: '/courses', id: 'courses' },
+    { icon: GraduationCap, label: 'Study', path: '/courses', id: 'courses', disabled: true },
     { icon: User, label: 'Profile', path: '/profile', id: 'profile', requiresAuth: true }
   ];
 
   const handleNavClick = (item) => {
+    if (item.disabled) return;
     if (item.requiresAuth && !isAuthenticated) {
       setShowAuthModal(true);
       return;
@@ -44,8 +45,9 @@ const MobileBottomNav = () => {
               <motion.button
                 key={item.id}
                 onClick={() => handleNavClick(item)}
-                whileTap={{ scale: 0.95 }}
-                className="flex flex-col items-center gap-0.5 sm:gap-1 px-3 sm:px-5 py-0.5"
+                whileTap={item.disabled ? {} : { scale: 0.95 }}
+                className={`flex flex-col items-center gap-0.5 sm:gap-1 px-3 sm:px-5 py-0.5 ${item.disabled ? 'cursor-not-allowed opacity-50' : ''
+                  }`}
               >
                 {/* Icon */}
                 <div className={`transition-colors duration-200 ${isActive ? 'text-reddit-orange' : 'text-white/50'

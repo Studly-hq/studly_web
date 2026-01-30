@@ -19,7 +19,8 @@ const ProgressStats = ({ courses = [] }) => {
     const topic = activeCourses.find(t => String(t.id) === String(topicId));
     if (!topic) return false;
 
-    const totalScenes = topic.sections.reduce((sum, sec) => sum + (sec.scenes?.length || 0), 0);
+    const totalScenes = topic.sectionsCount ? (topic.sectionsCount * 2) : topic.sections.reduce((sum, sec) => sum + (sec.scenes?.length || 0), 0);
+    // (Note: Using a multiplier for sectionsCount is a heuristic when full section data isn't available)
     const completedScenes = Object.keys(p.scenes || {}).length;
     return totalScenes > 0 && completedScenes >= totalScenes;
   }).length;
@@ -31,7 +32,7 @@ const ProgressStats = ({ courses = [] }) => {
     if (!topic) return sum;
 
     const completedScenes = Object.keys(p.scenes || {}).length;
-    const totalScenes = topic.sections.reduce((s, sec) => s + (sec.scenes?.length || 0), 0);
+    const totalScenes = topic.sectionsCount ? (topic.sectionsCount * 2) : topic.sections.reduce((s, sec) => s + (sec.scenes?.length || 0), 0);
     if (totalScenes === 0) return sum;
 
     const percentage = completedScenes / totalScenes;

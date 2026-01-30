@@ -115,28 +115,52 @@ export const CoursePlayerProvider = ({ children }) => {
     setPlayerState('idle');
 
     // Initialize progress for this topic if doesn't exist
-    if (!progress[topic.id]) {
-      setProgress(prev => ({
-        ...prev,
-        [topic.id]: {
-          sections: {},
-          scenes: {},
-          score: 0,
-          startedAt: Date.now(),
-          lastAccessedAt: Date.now()
-        }
-      }));
-    } else {
-      // Update last accessed
-      setProgress(prev => ({
+    setProgress(prev => {
+      // Build initial scenes progress from topic data
+      const initialScenes = {};
+      if (topic.sections) {
+        topic.sections.forEach(section => {
+          if (section.scenes) {
+            section.scenes.forEach(scene => {
+              if (scene.completed) {
+                initialScenes[scene.id] = {
+                  completed: true,
+                  correct: scene.type === 'quiz' ? true : undefined, // If it's from API as completed, it's passed
+                  completedAt: Date.now()
+                };
+              }
+            });
+          }
+        });
+      }
+
+      if (!prev[topic.id]) {
+        return {
+          ...prev,
+          [topic.id]: {
+            sections: {},
+            scenes: initialScenes,
+            score: 0,
+            startedAt: Date.now(),
+            lastAccessedAt: Date.now()
+          }
+        };
+      }
+
+      // Update last accessed and merge any new API completions
+      return {
         ...prev,
         [topic.id]: {
           ...prev[topic.id],
+          scenes: {
+            ...initialScenes, // API data is the source of truth for persistence
+            ...prev[topic.id].scenes
+          },
           lastAccessedAt: Date.now()
         }
-      }));
-    }
-  }, [progress]);
+      };
+    });
+  }, []);
 
   // Navigation
   const goToScene = useCallback((sectionIndex, sceneIndex) => {
@@ -190,30 +214,39 @@ export const CoursePlayerProvider = ({ children }) => {
     }
   }, [currentTopic, currentSectionIndex, currentSceneIndex]);
 
-  const completeScene = useCallback(async (sceneId) => {
+  const completeScene = useCallback(async (sceneId, lessonId) => {
     if (!currentTopic) return;
 
     // Update local state first for responsiveness
-    setProgress(prev => ({
-      ...prev,
-      [currentTopic.id]: {
-        ...prev[currentTopic.id],
-        scenes: {
-          ...prev[currentTopic.id].scenes,
-          [sceneId]: {
-            completed: true,
-            completedAt: Date.now()
+    setProgress(prev => {
+      const topicProgress = prev[currentTopic.id] || { scenes: {} };
+
+      // Avoid redundant updates if already completed
+      if (topicProgress.scenes[sceneId]?.completed) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [currentTopic.id]: {
+          ...topicProgress,
+          scenes: {
+            ...topicProgress.scenes,
+            [sceneId]: {
+              completed: true,
+              completedAt: Date.now()
+            }
           }
         }
-      }
-    }));
+      };
+    });
 
     emitEvent('scene_completed', { sceneId, topicId: currentTopic.id });
 
-    // Sync with backend if it's an API lesson
-    if (currentTopic.isApiCourse) {
+    // Sync with backend if it's an API lesson and we have a lessonId
+    if (currentTopic.isApiCourse && lessonId) {
       try {
-        await completeLesson(sceneId);
+        await completeLesson(lessonId);
       } catch (error) {
         console.error('Failed to sync lesson completion:', error);
       }
@@ -221,30 +254,48 @@ export const CoursePlayerProvider = ({ children }) => {
   }, [currentTopic, emitEvent]);
 
   // Handle quiz submission
-  const submitQuizAnswer = useCallback(async (quizId, selectedChoices, correctChoiceIds) => {
-    if (!currentTopic) return;
+  const submitQuizAnswer = useCallback(async (quizId, selectedChoices, questionId) => {
+    if (!currentTopic) return { isCorrect: false, points: 0 };
 
-    const isCorrect = JSON.stringify(selectedChoices.sort()) === JSON.stringify(correctChoiceIds.sort());
     const currentScene = currentTopic.sections[currentSectionIndex].scenes[currentSceneIndex];
+    if (!currentScene || currentScene.type !== 'quiz') return { isCorrect: false, points: 0 };
+
+    // Centralized validation using scene metadata
+    const normalize = (arr) => [...(arr || [])].map(id => String(id).toLowerCase()).sort();
+    const correctIds = currentScene.correctAnswerIds || [];
+
+    const isCorrect = JSON.stringify(normalize(selectedChoices)) === JSON.stringify(normalize(correctIds));
     const points = isCorrect ? (currentScene.points || 10) : 0;
 
-    // Update score locally
-    setProgress(prev => ({
-      ...prev,
-      [currentTopic.id]: {
-        ...prev[currentTopic.id],
-        score: (prev[currentTopic.id].score || 0) + points,
-        scenes: {
-          ...prev[currentTopic.id].scenes,
-          [quizId]: {
-            completed: true,
-            correct: isCorrect,
-            selectedChoices,
-            completedAt: Date.now()
+    // Update progress state
+    setProgress(prev => {
+      const topicId = currentTopic.id;
+      const topicProgress = prev[topicId] || { score: 0, scenes: {} };
+
+      // CRITICAL: Only mark as completed if correct (quizzes can be retaken if failed)
+      // If it was already completed (passed), keep it completed
+      const wasCompleted = topicProgress.scenes[currentScene.id]?.completed;
+      const isCompletedNow = isCorrect || wasCompleted;
+
+      const shouldAddPoints = isCorrect && !wasCompleted;
+
+      return {
+        ...prev,
+        [topicId]: {
+          ...topicProgress,
+          score: (topicProgress.score || 0) + (shouldAddPoints ? points : 0),
+          scenes: {
+            ...topicProgress.scenes,
+            [currentScene.id]: {
+              completed: isCompletedNow,
+              correct: isCorrect,
+              selectedChoices: selectedChoices, // Persist for review/persistence
+              completedAt: isCompletedNow ? (topicProgress.scenes[currentScene.id]?.completedAt || Date.now()) : undefined
+            }
           }
         }
-      }
-    }));
+      };
+    });
 
     // Award aura points locally
     if (isCorrect) {
@@ -259,11 +310,14 @@ export const CoursePlayerProvider = ({ children }) => {
       selectedChoices
     });
 
-    // Sync with backend if it's an API course
-    if (currentTopic.isApiCourse) {
+    // Sync with backend if it's an API course and we have a quizId
+    if (currentTopic.isApiCourse && quizId && questionId) {
       try {
-        // Map answers to backend format if necessary
-        const answers = selectedChoices.map(id => ({ question_id: quizId, answer_id: id }));
+        // Map answers to backend format: { question_id, selected_answer_id }
+        const answers = selectedChoices.map(id => ({
+          question_id: questionId,
+          selected_answer_id: id
+        }));
         await submitQuiz(quizId, answers);
       } catch (error) {
         console.error('Failed to sync quiz submission:', error);
