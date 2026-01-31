@@ -222,13 +222,6 @@ const CelebrationModal = () => {
                                     <Sparkles size={20} style={{ color: themeColor }} />
                                 </div>
                             </button>
-
-                            <button
-                                onClick={closeCelebration}
-                                className="mt-4 text-reddit-textMuted text-xs font-bold hover:text-white transition-colors"
-                            >
-                                Not now, let's study
-                            </button>
                         </motion.div>
                     </div>
                 </motion.div>
