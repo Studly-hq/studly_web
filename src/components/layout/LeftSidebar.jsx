@@ -1,21 +1,45 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell } from 'lucide-react';
-import { useCoursePlayer } from '../../context/CoursePlayerContext';
+import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import { useNotifications } from '../../context/NotificationContext';
+import { getStudyToken } from '../../api/profile';
 import logo from '../../assets/logo.png';
+
+// Lucid app URL - update this when deploying
+const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
 
 
 const LeftSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { hasAnyProgress } = useCoursePlayer();
   const { isAuthenticated, currentUser } = useAuth();
   const { setShowAuthModal, setShowCreatePostModal } = useUI();
   const { unreadCount } = useNotifications();
+  const [isStudyLoading, setIsStudyLoading] = useState(false);
+
+  // Handle Study button click - get token and open Lucid
+  const handleStudyClick = async () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    try {
+      setIsStudyLoading(true);
+      const token = await getStudyToken();
+      // Open Lucid in a new tab with the token
+      window.open(`${LUCID_URL}?token=${token}`, '_blank');
+    } catch (error) {
+      console.error('Failed to get study token:', error);
+      // Could show a toast notification here
+    } finally {
+      setIsStudyLoading(false);
+    }
+  };
 
   const navItems = [
     {
@@ -50,8 +74,6 @@ const LeftSidebar = () => {
     }
   ];
 
-  const isCourseActive = location.pathname.startsWith('/courses');
-  const courseButtonLabel = hasAnyProgress() ? 'Continue Topic' : 'Start Studying';
 
   return (
     <motion.aside
@@ -96,18 +118,26 @@ const LeftSidebar = () => {
             );
           })}
 
-          {/* Course Button (Studly Specific) - Disabled per user request */}
-          <div className="block group mt-2 w-full text-left cursor-not-allowed opacity-70">
+          {/* Study Button - Opens Lucid in new tab */}
+          <button
+            onClick={handleStudyClick}
+            disabled={isStudyLoading}
+            className="block group mt-2 w-full text-left"
+          >
             <div className={`
                 inline-flex items-center gap-4 px-5 py-3 rounded-full text-xl
                 transition-colors duration-200 font-normal
-                text-white
-                ${isCourseActive ? 'font-bold' : ''}
+                text-white group-hover:bg-reddit-cardHover/50
+                ${isStudyLoading ? 'opacity-70' : ''}
               `}>
-              <PlayCircle size={26} strokeWidth={isCourseActive ? 3 : 2} />
-              <span>{courseButtonLabel}</span>
+              {isStudyLoading ? (
+                <Loader2 size={26} className="animate-spin" />
+              ) : (
+                <PlayCircle size={26} strokeWidth={2} />
+              )}
+              <span>{isStudyLoading ? 'Loading...' : 'Start Studying'}</span>
             </div>
-          </div>
+          </button>
 
 
           {/* Post Button */}

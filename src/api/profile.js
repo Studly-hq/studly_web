@@ -112,3 +112,21 @@ export const acknowledgeCelebration = async (milestoneType, milestoneValue) => {
     // Don't throw - celebration acknowledgment is fire-and-forget
   }
 };
+
+/**
+ * Get a signed JWT token for Lucid study app integration.
+ * The token contains user info and is valid for 60 seconds.
+ * @returns {Promise<string>} - The signed JWT token
+ */
+export const getStudyToken = async () => {
+  try {
+    const response = await client.get('/auth/study-token');
+    return response.data.token;
+  } catch (error) {
+    console.error(
+      "Get Study Token Error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

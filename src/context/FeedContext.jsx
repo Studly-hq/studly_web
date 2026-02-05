@@ -147,7 +147,11 @@ export const FeedProvider = ({ children }) => {
 
             const mappedPosts = (serverPosts || []).map(mapBackendPostToFrontend).filter(Boolean);
             setPosts(mappedPosts);
-            setHasMore(mappedPosts.length >= 50);
+
+            // If in personalized mode, we always have "more" until we explicitly exhaust and switch to discovery
+            const shouldHaveMore = mappedPosts.length >= 50 || (mode === 'personalized' && !personalizedExhausted);
+            setHasMore(shouldHaveMore);
+
             setLoadingState('ready');
         } catch (error) {
             console.error('[FeedContext] Initialization error:', error);
@@ -159,7 +163,7 @@ export const FeedProvider = ({ children }) => {
         } finally {
             inFlightInitRef.current = false;
         }
-    }, [isAuthenticated, mapBackendPostToFrontend, logout]);
+    }, [isAuthenticated, mapBackendPostToFrontend, logout, personalizedExhausted]);
 
     const loadMorePosts = useCallback(async () => {
         if (loadingState === 'loadingMore' || !hasMore) return;
@@ -191,7 +195,7 @@ export const FeedProvider = ({ children }) => {
                 return [...prev, ...uniqueNew];
             });
 
-            setHasMore(mappedPosts.length >= 50);
+            setHasMore(mappedPosts.length >= 50 || (feedMode === 'personalized' && !personalizedExhausted));
             setLoadingState('ready');
         } catch (error) {
             console.error('[FeedContext] Load more error:', error);

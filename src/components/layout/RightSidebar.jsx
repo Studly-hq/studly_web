@@ -65,7 +65,7 @@ const RightSidebar = () => {
     <motion.aside
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="hidden xl:flex flex-col w-[350px] h-screen sticky top-0 px-4 pt-2 gap-4 overflow-y-auto pb-20 scrollbar-hide"
+      className="hidden xl:flex flex-col w-[350px] flex-shrink-0 h-screen sticky top-0 px-4 pt-2 gap-4 overflow-y-auto pb-20 scrollbar-hide"
     >
 
       {/* Search Bar - Sticky */}

@@ -1,24 +1,50 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Trophy, GraduationCap, User } from 'lucide-react';
+import { Home, Trophy, GraduationCap, User, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
+import { getStudyToken } from '../../api/profile';
+
+// Lucid app URL - update this when deploying
+const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
 
 const MobileBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { setShowAuthModal } = useUI();
+  const [isStudyLoading, setIsStudyLoading] = useState(false);
 
   const navItems = [
     { icon: Home, label: 'Home', path: isAuthenticated ? '/feed' : '/posts', id: 'home' },
     { icon: Trophy, label: 'Ranking', path: '/leaderboard', id: 'leaderboard' },
-    { icon: GraduationCap, label: 'Study', path: '/courses', id: 'courses', disabled: true },
+    { icon: GraduationCap, label: 'Study', id: 'study', isStudy: true },
     { icon: User, label: 'Profile', path: '/profile', id: 'profile', requiresAuth: true }
   ];
 
+  const handleStudyClick = async () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    try {
+      setIsStudyLoading(true);
+      const token = await getStudyToken();
+      window.open(`${LUCID_URL}?token=${token}`, '_blank');
+    } catch (error) {
+      console.error('Failed to get study token:', error);
+    } finally {
+      setIsStudyLoading(false);
+    }
+  };
+
   const handleNavClick = (item) => {
-    if (item.disabled) return;
+    if (item.isStudy) {
+      handleStudyClick();
+      return;
+    }
     if (item.requiresAuth && !isAuthenticated) {
       setShowAuthModal(true);
       return;
@@ -40,19 +66,25 @@ const MobileBottomNav = () => {
               (item.id === 'courses' && location.pathname.startsWith('/courses')) ||
               (item.id === 'progress' && location.pathname === '/profile');
             const Icon = item.icon;
+            const isLoading = item.isStudy && isStudyLoading;
 
             return (
               <motion.button
                 key={item.id}
                 onClick={() => handleNavClick(item)}
-                whileTap={item.disabled ? {} : { scale: 0.95 }}
-                className={`flex flex-col items-center gap-0.5 sm:gap-1 px-3 sm:px-5 py-0.5 ${item.disabled ? 'cursor-not-allowed opacity-50' : ''
+                disabled={isLoading}
+                whileTap={isLoading ? {} : { scale: 0.95 }}
+                className={`flex flex-col items-center gap-0.5 sm:gap-1 px-3 sm:px-5 py-0.5 ${isLoading ? 'opacity-50' : ''
                   }`}
               >
                 {/* Icon */}
                 <div className={`transition-colors duration-200 ${isActive ? 'text-reddit-orange' : 'text-white/50'
                   }`}>
-                  <Icon size={18} className="sm:w-5 sm:h-5" strokeWidth={1.5} />
+                  {isLoading ? (
+                    <Loader2 size={18} className="sm:w-5 sm:h-5 animate-spin" />
+                  ) : (
+                    <Icon size={18} className="sm:w-5 sm:h-5" strokeWidth={1.5} />
+                  )}
                 </div>
 
                 {/* Label */}

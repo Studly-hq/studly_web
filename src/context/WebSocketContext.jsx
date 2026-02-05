@@ -16,6 +16,9 @@ export const WebSocketProvider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [connectionError, setConnectionError] = useState(null);
 
+    const activeTokenRef = useRef(null);
+    const socketRef = useRef(null);
+
     // Track if disconnection was intentional to prevent unwanted reconnections
     const isIntentionalDisconnect = useRef(false);
 
@@ -44,21 +47,30 @@ export const WebSocketProvider = ({ children }) => {
             return;
         }
 
+        // Prevent redundant connection attempts if we're already connecting/connected with this token
+        if (activeTokenRef.current === token && (socketRef.current?.readyState === WebSocket.CONNECTING || socketRef.current?.readyState === WebSocket.OPEN)) {
+            return;
+        }
+
+        activeTokenRef.current = token;
         isIntentionalDisconnect.current = false;
 
-        // Use localhost:8080 as per guide
-        const wsUrl = 'wss://studly-server-production.up.railway.app/ws';
-
-
-        // Clean up existing socket if any before connecting a new one, just in case
-        setSocket((prevSocket) => {
-            if (prevSocket) {
-                prevSocket.close();
+        // Clean up existing socket if any before connecting a new one
+        if (socketRef.current) {
+            const currentSocket = socketRef.current;
+            // Only close if not already closing/closed
+            if (currentSocket.readyState !== WebSocket.CLOSING && currentSocket.readyState !== WebSocket.CLOSED) {
+                // If it's CONNECTING, closing it might trigger the console error, 
+                // but since we check activeTokenRef above, we should rarely hit this.
+                currentSocket.close();
             }
-            return null;
-        });
+            socketRef.current = null;
+            setSocket(null);
+        }
 
+        const wsUrl = 'wss://studly-server-production.up.railway.app/ws';
         const ws = new WebSocket(wsUrl);
+        socketRef.current = ws;
 
         ws.onopen = () => {
             if (token) {
@@ -74,7 +86,6 @@ export const WebSocketProvider = ({ children }) => {
                 const payload = JSON.parse(event.data);
                 const { type, data } = payload;
 
-                // Notify subscribers for this event type
                 if (subscribersRef.current[type]) {
                     subscribersRef.current[type].forEach(callback => callback(data));
                 }
@@ -85,19 +96,16 @@ export const WebSocketProvider = ({ children }) => {
 
         ws.onclose = (event) => {
             setIsConnected(false);
-            setSocket(null);
+            if (socketRef.current === ws) {
+                socketRef.current = null;
+                setSocket(null);
+                activeTokenRef.current = null;
+            }
 
-            // Attempt reconnection if not intentional and not clean
             if (!isIntentionalDisconnect.current && !event.wasClean && reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
                 const delay = Math.min(10000, BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttemptsRef.current));
                 reconnectTimeoutRef.current = setTimeout(() => {
                     reconnectAttemptsRef.current += 1;
-                    // Try to get fresh token if we can, otherwise use what we have (needs logic in callsite ideally)
-                    // For now, we will just reconnect. Caller should handle "auth_failed" close if possible.
-                    // But here we don't have the token stored in this scope easily unless we use a Ref or check localStorage.
-                    // The plan says: "Reconnect with fresh token on auth failure".
-                    // Best way: read from localStorage here.
-                    // Reconnect using fresh session logic inside connect()
                     connect();
                 }, delay);
             }
@@ -111,18 +119,9 @@ export const WebSocketProvider = ({ children }) => {
         setSocket(ws);
     }, []);
 
-    // Ref to access current socket in disconnect without closure state issues if needed,
-    // though using the state or closure is fine if dependencies are right.
-    // For simplicity, we just close the socket in state.
-
-    // We'll use a ref to hold the socket instance for reliable cleanup
-    const socketRef = useRef(null);
-    useEffect(() => {
-        socketRef.current = socket;
-    }, [socket]);
-
     const disconnect = useCallback(() => {
         isIntentionalDisconnect.current = true;
+        activeTokenRef.current = null;
 
         if (reconnectTimeoutRef.current) {
             clearTimeout(reconnectTimeoutRef.current);
@@ -130,7 +129,10 @@ export const WebSocketProvider = ({ children }) => {
         }
 
         if (socketRef.current) {
-            socketRef.current.close();
+            if (socketRef.current.readyState !== WebSocket.CLOSING && socketRef.current.readyState !== WebSocket.CLOSED) {
+                socketRef.current.close();
+            }
+            socketRef.current = null;
         }
         setSocket(null);
         setIsConnected(false);
