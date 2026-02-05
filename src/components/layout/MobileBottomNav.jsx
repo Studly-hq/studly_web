@@ -32,7 +32,7 @@ const MobileBottomNav = () => {
     try {
       setIsStudyLoading(true);
       const token = await getStudyToken();
-      window.open(`${LUCID_URL}?token=${token}`, '_blank');
+      window.location.href = `${LUCID_URL}?token=${token}`;
     } catch (error) {
       console.error('Failed to get study token:', error);
     } finally {

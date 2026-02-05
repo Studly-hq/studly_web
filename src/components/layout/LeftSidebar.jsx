@@ -21,7 +21,7 @@ const LeftSidebar = () => {
   const { unreadCount } = useNotifications();
   const [isStudyLoading, setIsStudyLoading] = useState(false);
 
-  // Handle Study button click - get token and open Lucid
+  // Handle Study button click - get token and navigate to Lucid
   const handleStudyClick = async () => {
     if (!isAuthenticated) {
       setShowAuthModal(true);
@@ -31,8 +31,9 @@ const LeftSidebar = () => {
     try {
       setIsStudyLoading(true);
       const token = await getStudyToken();
-      // Open Lucid in a new tab with the token
-      window.open(`${LUCID_URL}?token=${token}`, '_blank');
+
+      // Navigate in the same tab to avoid popup blockers and user context loss
+      window.location.href = `${LUCID_URL}?token=${token}`;
     } catch (error) {
       console.error('Failed to get study token:', error);
       // Could show a toast notification here
