@@ -12,7 +12,6 @@ export const useWebSocketContext = () => {
 };
 
 export const WebSocketProvider = ({ children }) => {
-    const [socket, setSocket] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [connectionError, setConnectionError] = useState(null);
 
@@ -65,7 +64,6 @@ export const WebSocketProvider = ({ children }) => {
                 currentSocket.close();
             }
             socketRef.current = null;
-            setSocket(null);
         }
 
         const wsUrl = 'wss://studly-server-production.up.railway.app/ws';
@@ -98,7 +96,6 @@ export const WebSocketProvider = ({ children }) => {
             setIsConnected(false);
             if (socketRef.current === ws) {
                 socketRef.current = null;
-                setSocket(null);
                 activeTokenRef.current = null;
             }
 
@@ -116,7 +113,6 @@ export const WebSocketProvider = ({ children }) => {
             setConnectionError(error);
         };
 
-        setSocket(ws);
     }, []);
 
     const disconnect = useCallback(() => {
@@ -134,7 +130,6 @@ export const WebSocketProvider = ({ children }) => {
             }
             socketRef.current = null;
         }
-        setSocket(null);
         setIsConnected(false);
     }, []);
 
