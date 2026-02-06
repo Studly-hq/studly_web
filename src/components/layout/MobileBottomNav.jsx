@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Trophy, GraduationCap, User, Loader2 } from 'lucide-react';
@@ -15,6 +15,26 @@ const MobileBottomNav = () => {
   const { isAuthenticated } = useAuth();
   const { setShowAuthModal } = useUI();
   const [isStudyLoading, setIsStudyLoading] = useState(false);
+  const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
+
+  // Prefetch study token to speed up transition
+  const prefetchStudyToken = useCallback(async () => {
+    if (!isAuthenticated || (cachedStudyToken.token && Date.now() - cachedStudyToken.timestamp < 45000)) return;
+
+    try {
+      const token = await getStudyToken();
+      setCachedStudyToken({ token, timestamp: Date.now() });
+    } catch (error) {
+      console.error('Study token prefetch failed:', error);
+    }
+  }, [isAuthenticated, cachedStudyToken.token, cachedStudyToken.timestamp]);
+
+  // Prefetch on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      prefetchStudyToken();
+    }
+  }, [isAuthenticated, prefetchStudyToken]);
 
   const navItems = [
     { icon: Home, label: 'Home', path: isAuthenticated ? '/feed' : '/posts', id: 'home' },
@@ -29,12 +49,28 @@ const MobileBottomNav = () => {
       return;
     }
 
+    // Check if we have a fresh cached token (less than 55 seconds old)
+    const isTokenFresh = cachedStudyToken.token && (Date.now() - cachedStudyToken.timestamp < 55000);
+
     try {
       setIsStudyLoading(true);
-      const token = await getStudyToken();
+
+      let token = cachedStudyToken.token;
+
+      if (!isTokenFresh) {
+        token = await getStudyToken();
+      }
+
       window.location.href = `${LUCID_URL}?token=${token}`;
     } catch (error) {
       console.error('Failed to get study token:', error);
+      // Fallback
+      try {
+        const freshToken = await getStudyToken();
+        window.location.href = `${LUCID_URL}?token=${freshToken}`;
+      } catch (innerError) {
+        console.error('Final attempt failed:', innerError);
+      }
     } finally {
       setIsStudyLoading(false);
     }
@@ -72,6 +108,7 @@ const MobileBottomNav = () => {
               <motion.button
                 key={item.id}
                 onClick={() => handleNavClick(item)}
+                onTouchStart={item.isStudy ? prefetchStudyToken : undefined}
                 disabled={isLoading}
                 whileTap={isLoading ? {} : { scale: 0.95 }}
                 className={`flex flex-col items-center gap-0.5 sm:gap-1 px-3 sm:px-5 py-0.5 ${isLoading ? 'opacity-50' : ''

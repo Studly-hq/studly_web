@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, Loader2 } from 'lucide-react';
@@ -20,6 +20,26 @@ const LeftSidebar = () => {
   const { setShowAuthModal, setShowCreatePostModal } = useUI();
   const { unreadCount } = useNotifications();
   const [isStudyLoading, setIsStudyLoading] = useState(false);
+  const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
+
+  // Prefetch study token to speed up transition
+  const prefetchStudyToken = useCallback(async () => {
+    if (!isAuthenticated || (cachedStudyToken.token && Date.now() - cachedStudyToken.timestamp < 45000)) return;
+
+    try {
+      const token = await getStudyToken();
+      setCachedStudyToken({ token, timestamp: Date.now() });
+    } catch (error) {
+      console.error('Study token prefetch failed:', error);
+    }
+  }, [isAuthenticated, cachedStudyToken.token, cachedStudyToken.timestamp]);
+
+  // Prefetch on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      prefetchStudyToken();
+    }
+  }, [isAuthenticated, prefetchStudyToken]);
 
   // Handle Study button click - get token and navigate to Lucid
   const handleStudyClick = async () => {
@@ -28,15 +48,29 @@ const LeftSidebar = () => {
       return;
     }
 
+    // Check if we have a fresh cached token (less than 55 seconds old)
+    const isTokenFresh = cachedStudyToken.token && (Date.now() - cachedStudyToken.timestamp < 55000);
+
     try {
       setIsStudyLoading(true);
-      const token = await getStudyToken();
+
+      let token = cachedStudyToken.token;
+
+      if (!isTokenFresh) {
+        token = await getStudyToken();
+      }
 
       // Navigate in the same tab to avoid popup blockers and user context loss
       window.location.href = `${LUCID_URL}?token=${token}`;
     } catch (error) {
       console.error('Failed to get study token:', error);
-      // Could show a toast notification here
+      // Fallback: try to fetch one last time if cached one failed
+      try {
+        const freshToken = await getStudyToken();
+        window.location.href = `${LUCID_URL}?token=${freshToken}`;
+      } catch (innerError) {
+        console.error('Final attempt failed:', innerError);
+      }
     } finally {
       setIsStudyLoading(false);
     }
@@ -122,6 +156,7 @@ const LeftSidebar = () => {
           {/* Study Button - Opens Lucid in new tab */}
           <button
             onClick={handleStudyClick}
+            onMouseEnter={prefetchStudyToken}
             disabled={isStudyLoading}
             className="block group mt-2 w-full text-left"
           >
