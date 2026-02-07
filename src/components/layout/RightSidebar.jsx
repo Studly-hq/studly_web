@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LogOut,
-  Bookmark,
   ExternalLink,
   Flame,
   Trophy,
@@ -13,7 +12,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import { getUserStreak, getUserAuraPoints } from '../../api/profile';
-import AdPromotionWidget from '../ads/AdPromotionWidget';
+
 
 const RightSidebar = () => {
   const navigate = useNavigate();
@@ -21,7 +20,6 @@ const RightSidebar = () => {
   const { isAuthenticated, currentUser, logout } = useAuth();
   const { setShowAuthModal } = useUI();
   const [searchQuery, setSearchQuery] = useState('');
-  const [adWidgetDismissed, setAdWidgetDismissed] = useState(false);
   const [stats, setStats] = useState({ streak: 0, auraPoints: 0 });
 
   useEffect(() => {
@@ -45,11 +43,9 @@ const RightSidebar = () => {
     }
   }, [isAuthenticated, currentUser]);
 
-  // Hide ad widget on ads-related pages
-  const isOnAdsPage = location.pathname.startsWith('/ads/');
+
 
   const shortcuts = [
-    { icon: Bookmark, label: 'Saved Posts', id: 'saved', path: '/saved' },
     { icon: ExternalLink, label: 'Access CUHUB', id: 'cuhub', href: 'https://cuhub.usestudly.com?ref=feed', external: true }
   ];
 
@@ -114,10 +110,7 @@ const RightSidebar = () => {
         </div>
       )}
 
-      {/* Ad Promotion Widget - Show for all users unless dismissed or on ads page */}
-      {!adWidgetDismissed && !isOnAdsPage && (
-        <AdPromotionWidget onDismiss={() => setAdWidgetDismissed(true)} />
-      )}
+
 
       {/* Stats Widget (if logged in) */}
       {isAuthenticated && (
