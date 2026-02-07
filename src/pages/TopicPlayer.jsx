@@ -220,7 +220,7 @@ const TopicPlayer = () => {
           </div>
         </main>
 
-        <aside className="hidden xl:flex xl:flex-col w-96 h-[calc(100vh-4rem)] sticky top-16 border-l border-reddit-border bg-reddit-bg overflow-hidden flex-shrink-0">
+        <aside className="hidden lg:flex lg:flex-col w-96 h-[calc(100vh-4rem)] sticky top-16 border-l border-reddit-border bg-reddit-bg overflow-hidden flex-shrink-0">
           <NotesPanel topicId={activeTopic?.id} topicTitle={activeTopic?.title} />
           <AIChatbot
             topicTitle={activeTopic?.title}

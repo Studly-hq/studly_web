@@ -222,7 +222,7 @@ const Leaderboard = () => {
                 <motion.div
                     initial={{ y: 100 }}
                     animate={{ y: 0 }}
-                    className="fixed bottom-20 xl:bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-[500px] z-40"
+                    className="fixed bottom-20 lg:bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-[500px] z-40"
                 >
                     <div className="bg-[#1A1A1B] border border-reddit-orange/30 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl p-4 flex items-center gap-4 ring-1 ring-reddit-orange/20">
                         <div className="w-10 h-10 bg-reddit-orange rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-reddit-orange/20">

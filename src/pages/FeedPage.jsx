@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Compass, Bell } from 'lucide-react';
+import { Compass, Bell, ExternalLink } from 'lucide-react';
 import Feed from '../components/feed/Feed';
 import FeedComposer from '../components/feed/FeedComposer';
 import { useFeed } from '../context/FeedContext';
@@ -53,26 +53,37 @@ const FeedPage = () => {
         return (
             <div>
                 {/* Mobile Header */}
-                <div className="xl:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center justify-between">
+                <div className="lg:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                         <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
                     </div>
-                    <div className="flex items-center gap-1.5">
-                        <button
-                            className="p-2 rounded-full text-reddit-textMuted relative"
+                    <div className="flex items-center gap-2">
+                        <a
+                            href="https://cuhub.usestudly.com?ref=feed"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text rounded-full text-[11px] font-bold border border-reddit-border transition-colors"
                         >
-                            <Bell size={22} />
-                            {unreadCount > 0 && (
-                                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-reddit-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-reddit-bg">
-                                    {unreadCount > 9 ? '9+' : unreadCount}
-                                </span>
-                            )}
-                        </button>
-                        <button
-                            className="p-2 rounded-full text-reddit-textMuted"
-                        >
-                            <Compass size={22} />
-                        </button>
+                            <ExternalLink size={14} className="text-reddit-orange" />
+                            <span>CUHUB</span>
+                        </a>
+                        <div className="flex items-center gap-1">
+                            <button
+                                className="p-2 rounded-full text-reddit-textMuted relative"
+                            >
+                                <Bell size={22} />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-reddit-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-reddit-bg">
+                                        {unreadCount > 9 ? '9+' : unreadCount}
+                                    </span>
+                                )}
+                            </button>
+                            <button
+                                className="p-2 rounded-full text-reddit-textMuted"
+                            >
+                                <Compass size={22} />
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <FeedSkeleton />
@@ -83,28 +94,39 @@ const FeedPage = () => {
     return (
         <div>
             {/* Mobile Header */}
-            <div className="xl:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center justify-between">
+            <div className="lg:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                     <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
                 </div>
-                <div className="flex items-center gap-1.5">
-                    <button
-                        onClick={() => navigate('/notifications')}
-                        className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange relative"
+                <div className="flex items-center gap-2">
+                    <a
+                        href="https://cuhub.usestudly.com?ref=feed"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text rounded-full text-[11px] font-bold border border-reddit-border transition-colors"
                     >
-                        <Bell size={22} />
-                        {unreadCount > 0 && (
-                            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-reddit-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-reddit-bg">
-                                {unreadCount > 9 ? '9+' : unreadCount}
-                            </span>
-                        )}
-                    </button>
-                    <button
-                        onClick={() => navigate('/explore')}
-                        className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange"
-                    >
-                        <Compass size={22} />
-                    </button>
+                        <ExternalLink size={14} className="text-reddit-orange" />
+                        <span>CUHUB</span>
+                    </a>
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => navigate('/notifications')}
+                            className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange relative"
+                        >
+                            <Bell size={22} />
+                            {unreadCount > 0 && (
+                                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-reddit-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-reddit-bg">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => navigate('/explore')}
+                            className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange"
+                        >
+                            <Compass size={22} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
