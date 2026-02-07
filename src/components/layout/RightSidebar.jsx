@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   LogOut,
   ExternalLink,
@@ -16,7 +16,6 @@ import { getUserStreak, getUserAuraPoints } from '../../api/profile';
 
 const RightSidebar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { isAuthenticated, currentUser, logout } = useAuth();
   const { setShowAuthModal } = useUI();
   const [searchQuery, setSearchQuery] = useState('');
