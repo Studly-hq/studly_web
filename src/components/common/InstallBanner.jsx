@@ -2,35 +2,45 @@ import { useState, useEffect } from 'react';
 import { Download, X } from 'lucide-react';
 
 export default function InstallBanner() {
-    const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [deferredPrompt, setDeferredPrompt] = useState(window.deferredPwaPrompt);
     const [dismissed, setDismissed] = useState(false);
     const [installing, setInstalling] = useState(false);
     const [isStandalone, setIsStandalone] = useState(false);
 
     useEffect(() => {
-        // Don't show if already installed as PWA
+        // 1. Check if already installed
         const standalone = window.matchMedia('(display-mode: standalone)').matches
             || window.navigator.standalone === true;
         setIsStandalone(standalone);
 
-        // Don't show if user previously dismissed
+        // 2. Check if dismissed this session
         const wasDismissed = sessionStorage.getItem('pwa-banner-dismissed');
         if (wasDismissed) setDismissed(true);
 
+        // 3. Listen for the global prompt update
+        const handlePromptReady = () => {
+            setDeferredPrompt(window.deferredPwaPrompt);
+        };
+
+        // Also add direct listener in case index.html script didn't run or missed it
         const handler = (e) => {
             e.preventDefault();
+            window.deferredPwaPrompt = e;
             setDeferredPrompt(e);
         };
 
         const installedHandler = () => {
             setDismissed(true);
             setDeferredPrompt(null);
+            window.deferredPwaPrompt = null;
         };
 
+        window.addEventListener('pwa-prompt-ready', handlePromptReady);
         window.addEventListener('beforeinstallprompt', handler);
         window.addEventListener('appinstalled', installedHandler);
 
         return () => {
+            window.removeEventListener('pwa-prompt-ready', handlePromptReady);
             window.removeEventListener('beforeinstallprompt', handler);
             window.removeEventListener('appinstalled', installedHandler);
         };
@@ -39,13 +49,19 @@ export default function InstallBanner() {
     const handleInstall = async () => {
         if (!deferredPrompt) return;
         setInstalling(true);
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            setDismissed(true);
+        try {
+            await deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                setDismissed(true);
+            }
+        } catch (err) {
+            console.error('Install prompt failed:', err);
+        } finally {
+            setDeferredPrompt(null);
+            window.deferredPwaPrompt = null;
+            setInstalling(false);
         }
-        setDeferredPrompt(null);
-        setInstalling(false);
     };
 
     const handleDismiss = () => {
@@ -53,7 +69,8 @@ export default function InstallBanner() {
         sessionStorage.setItem('pwa-banner-dismissed', 'true');
     };
 
-    // Don't show if already installed or dismissed or no native prompt available
+    // ONLY hide if already installed, dismissed, or the browser definitely won't fire the prompt
+    // We keep it hidden until deferredPrompt exists to avoid a button that does nothing
     if (isStandalone || dismissed || !deferredPrompt) return null;
 
     return (
