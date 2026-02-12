@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, X } from 'lucide-react';
+import { Download, X, Loader2 } from 'lucide-react';
 
 export default function InstallBanner() {
     const [deferredPrompt, setDeferredPrompt] = useState(window.deferredPwaPrompt);
@@ -98,12 +98,12 @@ export default function InstallBanner() {
                 onClick={handleInstall}
                 disabled={installing}
                 className="flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold
-                   bg-reddit-orange text-white
+                   bg-reddit-orange text-white flex items-center justify-center min-w-[80px]
                    hover:brightness-110
                    active:scale-95 transition-all duration-150
                    disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {installing ? '...' : 'Install'}
+                {installing ? <Loader2 size={18} className="animate-spin text-white" /> : 'Install'}
             </button>
 
             <button
