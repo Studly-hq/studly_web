@@ -18,7 +18,16 @@ export default {
       },
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
-      }
+      },
+      animation: {
+        'slide-down': 'slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+      },
+      keyframes: {
+        slideDown: {
+          '0%': { transform: 'translate(-50%, -100%)', opacity: '0' },
+          '100%': { transform: 'translate(-50%, 0)', opacity: '1' },
+        },
+      },
     },
   },
   plugins: [],

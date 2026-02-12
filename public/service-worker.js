@@ -16,5 +16,5 @@ self.addEventListener('activate', (e) => {
 
 // Pass all requests through to network (no caching)
 self.addEventListener('fetch', (e) => {
-    // Do nothing, let browser handle it
+    e.respondWith(fetch(e.request));
 });

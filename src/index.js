@@ -8,9 +8,9 @@ root.render(
   <App />
 );
 
-// Unregister Service Worker to resolve caching/fetch issues
+// Register Service Worker for PWA install support
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.ready.then(registration => {
-    registration.unregister();
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js');
   });
 }

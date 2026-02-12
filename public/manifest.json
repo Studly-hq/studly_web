@@ -1,6 +1,7 @@
 {
   "short_name": "Studly",
   "name": "Studly",
+  "description": "Share knowledge, track progress, and learn together effectively.",
   "icons": [
     {
       "src": "pwa-icon.jpg",
