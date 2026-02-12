@@ -3,18 +3,27 @@ import { Download, X } from 'lucide-react';
 
 export default function InstallBanner() {
     const [deferredPrompt, setDeferredPrompt] = useState(null);
-    const [visible, setVisible] = useState(false);
+    const [dismissed, setDismissed] = useState(false);
     const [installing, setInstalling] = useState(false);
+    const [isStandalone, setIsStandalone] = useState(false);
 
     useEffect(() => {
+        // Don't show if already installed as PWA
+        const standalone = window.matchMedia('(display-mode: standalone)').matches
+            || window.navigator.standalone === true;
+        setIsStandalone(standalone);
+
+        // Don't show if user previously dismissed
+        const wasDismissed = sessionStorage.getItem('pwa-banner-dismissed');
+        if (wasDismissed) setDismissed(true);
+
         const handler = (e) => {
             e.preventDefault();
             setDeferredPrompt(e);
-            setVisible(true);
         };
 
         const installedHandler = () => {
-            setVisible(false);
+            setDismissed(true);
             setDeferredPrompt(null);
         };
 
@@ -28,22 +37,37 @@ export default function InstallBanner() {
     }, []);
 
     const handleInstall = async () => {
-        if (!deferredPrompt) return;
-        setInstalling(true);
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            setVisible(false);
+        // If native prompt is available, use it
+        if (deferredPrompt) {
+            setInstalling(true);
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                setDismissed(true);
+            }
+            setDeferredPrompt(null);
+            setInstalling(false);
+            return;
         }
-        setDeferredPrompt(null);
-        setInstalling(false);
+
+        // Otherwise show manual instructions based on platform
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+        if (isIOS || isSafari) {
+            alert('To install Studly:\n\n1. Tap the Share button (📤)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add"');
+        } else {
+            alert('To install Studly:\n\n1. Tap the browser menu (⋮)\n2. Tap "Install app" or "Add to Home Screen"\n3. Confirm the installation');
+        }
     };
 
     const handleDismiss = () => {
-        setVisible(false);
+        setDismissed(true);
+        sessionStorage.setItem('pwa-banner-dismissed', 'true');
     };
 
-    if (!visible) return null;
+    // Don't show if already installed or dismissed
+    if (isStandalone || dismissed) return null;
 
     return (
         <div
