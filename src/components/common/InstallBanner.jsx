@@ -79,7 +79,7 @@ export default function InstallBanner() {
                  animate-slide-down"
         >
             {/* Icon */}
-            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-reddit-orange flex items-center justify-center">
                 <Download size={20} className="text-white" />
             </div>
 
@@ -94,8 +94,8 @@ export default function InstallBanner() {
                 onClick={handleInstall}
                 disabled={installing}
                 className="flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold
-                   bg-gradient-to-r from-blue-500 to-purple-600 text-white
-                   hover:from-blue-400 hover:to-purple-500
+                   bg-reddit-orange text-white
+                   hover:brightness-110
                    active:scale-95 transition-all duration-150
                    disabled:opacity-50 disabled:cursor-not-allowed"
             >
