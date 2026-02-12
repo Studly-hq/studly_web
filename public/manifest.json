@@ -4,19 +4,25 @@
   "description": "Share knowledge, track progress, and learn together effectively.",
   "icons": [
     {
-      "src": "pwa-icon.jpg",
-      "type": "image/jpeg",
+      "src": "/icon-192x192.png",
+      "type": "image/png",
       "sizes": "192x192",
       "purpose": "any"
     },
     {
-      "src": "pwa-icon.jpg",
-      "type": "image/jpeg",
+      "src": "/icon-512x512.png",
+      "type": "image/png",
       "sizes": "512x512",
-      "purpose": "maskable any"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#0D1117",
   "background_color": "#0D1117"

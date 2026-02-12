@@ -37,28 +37,15 @@ export default function InstallBanner() {
     }, []);
 
     const handleInstall = async () => {
-        // If native prompt is available, use it
-        if (deferredPrompt) {
-            setInstalling(true);
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                setDismissed(true);
-            }
-            setDeferredPrompt(null);
-            setInstalling(false);
-            return;
+        if (!deferredPrompt) return;
+        setInstalling(true);
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setDismissed(true);
         }
-
-        // Otherwise show manual instructions based on platform
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-        if (isIOS || isSafari) {
-            alert('To install Studly:\n\n1. Tap the Share button (📤)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add"');
-        } else {
-            alert('To install Studly:\n\n1. Tap the browser menu (⋮)\n2. Tap "Install app" or "Add to Home Screen"\n3. Confirm the installation');
-        }
+        setDeferredPrompt(null);
+        setInstalling(false);
     };
 
     const handleDismiss = () => {
@@ -66,8 +53,8 @@ export default function InstallBanner() {
         sessionStorage.setItem('pwa-banner-dismissed', 'true');
     };
 
-    // Don't show if already installed or dismissed
-    if (isStandalone || dismissed) return null;
+    // Don't show if already installed or dismissed or no native prompt available
+    if (isStandalone || dismissed || !deferredPrompt) return null;
 
     return (
         <div
