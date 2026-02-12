@@ -1,3 +1,4 @@
+// Version: 1.0.2 (Force update to remove manual guide)
 // Force immediate unregistration and cache clearing
 self.addEventListener('install', (e) => {
     self.skipWaiting();
