@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Download, X, Loader2 } from 'lucide-react';
+import { Download, X, Loader2, Share } from 'lucide-react';
 
 export default function InstallBanner() {
     const [deferredPrompt, setDeferredPrompt] = useState(window.deferredPwaPrompt);
     const [dismissed, setDismissed] = useState(false);
     const [installing, setInstalling] = useState(false);
     const [isStandalone, setIsStandalone] = useState(false);
+    const [isIOS, setIsIOS] = useState(false);
+    const [isSafari, setIsSafari] = useState(false);
 
     useEffect(() => {
         // 1. Check if already installed
@@ -17,7 +19,13 @@ export default function InstallBanner() {
         const wasDismissed = sessionStorage.getItem('pwa-banner-dismissed');
         if (wasDismissed) setDismissed(true);
 
-        // 3. Listen for the global prompt update
+        // 3. Detect iOS/Safari
+        const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isSafariBrowser = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        setIsIOS(isIOSDevice);
+        setIsSafari(isSafariBrowser);
+
+        // 4. Listen for the global prompt update
         const handlePromptReady = () => {
             setDeferredPrompt(window.deferredPwaPrompt);
         };
@@ -69,9 +77,15 @@ export default function InstallBanner() {
         sessionStorage.setItem('pwa-banner-dismissed', 'true');
     };
 
-    // ONLY hide if already installed, dismissed, or the browser definitely won't fire the prompt
-    // We keep it hidden until deferredPrompt exists to avoid a button that does nothing
-    if (isStandalone || dismissed || !deferredPrompt) return null;
+    // ONLY hide if already installed, dismissed
+    // For non-Safari, also hide if no native prompt is available
+    if (isStandalone || dismissed) return null;
+
+    // If not Safari and no native prompt, hide
+    if (!isSafari && !deferredPrompt) return null;
+
+    // If Safari but no native prompt (expected), we show the banner with instructions
+    const showSafariHint = isSafari && !deferredPrompt;
 
     return (
         <div
@@ -94,17 +108,25 @@ export default function InstallBanner() {
             </div>
 
             {/* Actions */}
-            <button
-                onClick={handleInstall}
-                disabled={installing}
-                className="flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold
-                   bg-reddit-orange text-white flex items-center justify-center min-w-[80px]
-                   hover:brightness-110
-                   active:scale-95 transition-all duration-150
-                   disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {installing ? <Loader2 size={18} className="animate-spin text-white" /> : 'Install'}
-            </button>
+            {showSafariHint ? (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-reddit-cardHover/50 border border-reddit-border/50">
+                    <span className="text-[10px] sm:text-xs text-reddit-text font-medium flex items-center gap-1">
+                        Tap <Share size={14} className="text-blue-400" /> then <span className="text-reddit-orange font-bold text-[14px]">"Add to Home Screen"</span>
+                    </span>
+                </div>
+            ) : (
+                <button
+                    onClick={handleInstall}
+                    disabled={installing}
+                    className="flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold
+                       bg-reddit-orange text-white flex items-center justify-center min-w-[80px]
+                       hover:brightness-110
+                       active:scale-95 transition-all duration-150
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {installing ? <Loader2 size={18} className="animate-spin text-white" /> : 'Install'}
+                </button>
+            )}
 
             <button
                 onClick={handleDismiss}
