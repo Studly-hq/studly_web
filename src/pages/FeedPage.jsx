@@ -5,6 +5,7 @@ import Feed from '../components/feed/Feed';
 import FeedComposer from '../components/feed/FeedComposer';
 import { useFeed } from '../context/FeedContext';
 import { useAuth } from '../context/AuthContext';
+import { useUI } from '../context/UIContext';
 import { useNotifications } from '../context/NotificationContext';
 import logo from '../assets/logo.png';
 
@@ -32,7 +33,8 @@ const FeedSkeleton = () => (
 const FeedPage = () => {
     const navigate = useNavigate();
     const { initializeFeed, loadingState } = useFeed();
-    const { isAuthLoading } = useAuth();
+    const { isAuthLoading, isAuthenticated } = useAuth();
+    const { setShowAuthModal } = useUI();
     const { unreadCount } = useNotifications();
 
     useEffect(() => {
@@ -68,21 +70,32 @@ const FeedPage = () => {
                             <span>CUHUB</span>
                         </a>
                         <div className="flex items-center gap-1">
-                            <button
-                                className="p-2 rounded-full text-reddit-textMuted relative"
-                            >
-                                <Bell size={22} />
-                                {unreadCount > 0 && (
-                                    <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-reddit-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-reddit-bg">
-                                        {unreadCount > 9 ? '9+' : unreadCount}
-                                    </span>
-                                )}
-                            </button>
-                            <button
-                                className="p-2 rounded-full text-reddit-textMuted"
-                            >
-                                <Compass size={22} />
-                            </button>
+                            {!isAuthenticated ? (
+                                <button
+                                    onClick={() => setShowAuthModal(true)}
+                                    className="bg-reddit-orange hover:bg-reddit-orange/90 text-white px-4 py-1.5 rounded-full text-xs font-bold transition-colors ml-1"
+                                >
+                                    Log In
+                                </button>
+                            ) : (
+                                <>
+                                    <button
+                                        className="p-2 rounded-full text-reddit-textMuted relative"
+                                    >
+                                        <Bell size={22} />
+                                        {unreadCount > 0 && (
+                                            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-reddit-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-reddit-bg">
+                                                {unreadCount > 9 ? '9+' : unreadCount}
+                                            </span>
+                                        )}
+                                    </button>
+                                    <button
+                                        className="p-2 rounded-full text-reddit-textMuted"
+                                    >
+                                        <Compass size={22} />
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -109,23 +122,34 @@ const FeedPage = () => {
                         <span>CUHUB</span>
                     </a>
                     <div className="flex items-center gap-1">
-                        <button
-                            onClick={() => navigate('/notifications')}
-                            className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange relative"
-                        >
-                            <Bell size={22} />
-                            {unreadCount > 0 && (
-                                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-reddit-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-reddit-bg">
-                                    {unreadCount > 9 ? '9+' : unreadCount}
-                                </span>
-                            )}
-                        </button>
-                        <button
-                            onClick={() => navigate('/explore')}
-                            className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange"
-                        >
-                            <Compass size={22} />
-                        </button>
+                        {!isAuthenticated ? (
+                            <button
+                                onClick={() => setShowAuthModal(true)}
+                                className="bg-reddit-orange hover:bg-reddit-orange/90 text-white px-4 py-1.5 rounded-full text-xs font-bold transition-colors ml-1"
+                            >
+                                Log In
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={() => navigate('/notifications')}
+                                    className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange relative"
+                                >
+                                    <Bell size={22} />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-reddit-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-reddit-bg">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+                                <button
+                                    onClick={() => navigate('/explore')}
+                                    className="p-2 rounded-full hover:bg-reddit-cardHover transition-colors text-reddit-textMuted hover:text-reddit-orange"
+                                >
+                                    <Compass size={22} />
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
