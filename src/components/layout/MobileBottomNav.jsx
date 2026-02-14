@@ -107,6 +107,7 @@ const MobileBottomNav = () => {
             return (
               <motion.button
                 key={item.id}
+                id={item.isStudy ? 'tour-study-mobile' : undefined}
                 onClick={() => handleNavClick(item)}
                 onTouchStart={item.isStudy ? prefetchStudyToken : undefined}
                 disabled={isLoading}

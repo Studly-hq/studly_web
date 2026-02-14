@@ -22,6 +22,7 @@ import CommentSection from "./components/comments/CommentSection";
 import { Toaster } from "sonner";
 import { Analytics } from '@vercel/analytics/react';
 import InstallBanner from "./components/common/InstallBanner";
+import OnboardingTour from "./components/common/OnboardingTour";
 import "./App.css";
 
 // Pages (Lazy loaded for better performance)
@@ -136,6 +137,7 @@ function AppContent() {
 
                 <Toaster position="top-right" richColors />
                 <InstallBanner />
+                <OnboardingTour />
               </div>
             }
           />

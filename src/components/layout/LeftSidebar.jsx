@@ -153,8 +153,8 @@ const LeftSidebar = () => {
             );
           })}
 
-          {/* Study Button - Opens Lucid in new tab */}
           <button
+            id="tour-study-desktop"
             onClick={handleStudyClick}
             onMouseEnter={prefetchStudyToken}
             disabled={isStudyLoading}
@@ -179,6 +179,7 @@ const LeftSidebar = () => {
           {/* Post Button */}
           <div className="mt-2 px-2">
             <button
+              id="tour-post-desktop"
               onClick={() => isAuthenticated ? setShowCreatePostModal(true) : setShowAuthModal(true)}
               className="w-[90%] bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-2.5 rounded-full shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] text-lg"
             >

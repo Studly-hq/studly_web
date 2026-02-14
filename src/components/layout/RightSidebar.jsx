@@ -146,6 +146,7 @@ const RightSidebar = () => {
             {shortcuts.map((item) => (
               <div
                 key={item.id}
+                id={item.id === 'cuhub' ? 'tour-cuhub-desktop' : undefined}
                 onClick={() => {
                   if (item.external) {
                     window.open(item.href, '_blank', 'noopener,noreferrer');

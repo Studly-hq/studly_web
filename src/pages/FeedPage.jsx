@@ -61,6 +61,7 @@ const FeedPage = () => {
                     </div>
                     <div className="flex items-center gap-2">
                         <a
+                            id="tour-cuhub-mobile"
                             href="https://cuhub.usestudly.com?ref=feed"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -113,6 +114,7 @@ const FeedPage = () => {
                 </div>
                 <div className="flex items-center gap-2">
                     <a
+                        id="tour-cuhub-mobile-active"
                         href="https://cuhub.usestudly.com?ref=feed"
                         target="_blank"
                         rel="noopener noreferrer"
