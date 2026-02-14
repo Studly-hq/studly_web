@@ -12,7 +12,7 @@ const steps = [
     },
     {
         title: "Access CUHUB",
-        description: "Get all your course materials, past questions, and resources in one place.",
+        description: "Get all your course materials, past questions, and resources in one place. The button is located at the right sidebar of your screen.",
         target: {
             desktop: "tour-cuhub-desktop",
             mobile: "tour-cuhub-mobile"
