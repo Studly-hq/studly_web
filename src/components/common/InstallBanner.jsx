@@ -6,7 +6,6 @@ export default function InstallBanner() {
     const [dismissed, setDismissed] = useState(false);
     const [installing, setInstalling] = useState(false);
     const [isStandalone, setIsStandalone] = useState(false);
-    const [isIOS, setIsIOS] = useState(false);
     const [isSafari, setIsSafari] = useState(false);
 
     useEffect(() => {
@@ -19,10 +18,8 @@ export default function InstallBanner() {
         const wasDismissed = sessionStorage.getItem('pwa-banner-dismissed');
         if (wasDismissed) setDismissed(true);
 
-        // 3. Detect iOS/Safari
-        const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        // 3. Detect Safari
         const isSafariBrowser = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        setIsIOS(isIOSDevice);
         setIsSafari(isSafariBrowser);
 
         // 4. Listen for the global prompt update
