@@ -131,9 +131,21 @@ export const AuthProvider = ({ children }) => {
                     console.info('[AuthContext] Found legacy tokens, attempting migration to cookies...');
                     const success = await syncWithBackend(legacyToken, legacyRefreshToken);
                     if (success) {
-                        // Cleanup after successful migration
-                        localStorage.removeItem("token");
-                        localStorage.removeItem("refresh_token");
+                        // FIX: Immediately fetch profile and update state so user is logged in
+                        try {
+                            const userProfile = await getProfile();
+                            if (isMounted) {
+                                setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
+                                setIsAuthenticated(true);
+                                connect();
+
+                                // Cleanup after successful migration & state update
+                                localStorage.removeItem("token");
+                                localStorage.removeItem("refresh_token");
+                            }
+                        } catch (profileErr) {
+                            console.error('[AuthContext] Migration succeeded but profile fetch failed:', profileErr);
+                        }
                     }
                 }
             } finally {
