@@ -87,52 +87,56 @@ export default function InstallBanner() {
     return (
         <div
             className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999]
-                 w-[calc(100%-2rem)] max-w-md
-                 bg-reddit-card/95 backdrop-blur-lg border border-reddit-border
-                 rounded-2xl shadow-2xl shadow-black/40
-                 px-4 py-3 flex items-center gap-3
-                 animate-slide-down"
+                 w-[calc(100%-1.5rem)] max-w-md
+                 bg-reddit-card/90 backdrop-blur-xl border border-white/10
+                 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]
+                 px-4 py-3.5 flex items-center gap-3
+                 animate-slide-down transition-all duration-300"
         >
             {/* Icon */}
-            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-reddit-orange flex items-center justify-center">
-                <Download size={20} className="text-white" />
+            <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-reddit-orange to-orange-600 flex items-center justify-center shadow-lg shadow-reddit-orange/20">
+                <Download size={22} className="text-white" />
             </div>
 
             {/* Text */}
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-reddit-text leading-tight">Install Studly</p>
-                <p className="text-xs text-reddit-textMuted leading-tight mt-0.5">Add to your home screen for quick access</p>
+                <p className="text-[15px] font-bold text-white leading-tight">Install Studly</p>
+                <p className="text-[13px] text-reddit-textMuted leading-tight mt-1 font-medium">Add to home screen for the best experience</p>
             </div>
 
             {/* Actions */}
-            {showSafariHint ? (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-reddit-cardHover/50 border border-reddit-border/50">
-                    <span className="text-[10px] sm:text-xs text-reddit-text font-medium flex items-center gap-1">
-                        Tap <Share size={14} className="text-blue-400" /> then <span className="text-reddit-orange font-bold text-[14px]">"Add to Home Screen"</span>
-                    </span>
-                </div>
-            ) : (
-                <button
-                    onClick={handleInstall}
-                    disabled={installing}
-                    className="flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold
-                       bg-reddit-orange text-white flex items-center justify-center min-w-[80px]
-                       hover:brightness-110
-                       active:scale-95 transition-all duration-150
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {installing ? <Loader2 size={18} className="animate-spin text-white" /> : 'Install'}
-                </button>
-            )}
+            <div className="flex items-center gap-2">
+                {showSafariHint ? (
+                    <div className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-xl px-2.5 py-1.5 min-w-[100px]">
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] text-reddit-textMuted font-semibold">Tap</span>
+                            <Share size={14} className="text-blue-400" />
+                        </div>
+                        <div className="text-[11px] text-reddit-orange font-bold whitespace-nowrap">"Add to Home Screen"</div>
+                    </div>
+                ) : (
+                    <button
+                        onClick={handleInstall}
+                        disabled={installing}
+                        className="flex-shrink-0 px-5 py-2 rounded-xl text-sm font-bold
+                           bg-reddit-orange text-white flex items-center justify-center min-w-[85px]
+                           hover:brightness-110 shadow-lg shadow-reddit-orange/20
+                           active:scale-95 transition-all duration-150
+                           disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {installing ? <Loader2 size={18} className="animate-spin text-white" /> : 'Install'}
+                    </button>
+                )}
 
-            <button
-                onClick={handleDismiss}
-                className="flex-shrink-0 p-1 rounded-full text-reddit-textMuted hover:text-reddit-text
-                   hover:bg-reddit-cardHover transition-colors"
-                aria-label="Dismiss install banner"
-            >
-                <X size={16} />
-            </button>
+                <button
+                    onClick={handleDismiss}
+                    className="flex-shrink-0 p-1.5 rounded-xl text-reddit-textMuted hover:text-white
+                       hover:bg-white/5 transition-all"
+                    aria-label="Dismiss install banner"
+                >
+                    <X size={18} />
+                </button>
+            </div>
         </div>
     );
 }

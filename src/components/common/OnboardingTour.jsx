@@ -126,7 +126,7 @@ export default function OnboardingTour() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/60 backdrop-blur-[2px] pointer-events-auto"
+                    className="absolute inset-0 bg-black/70 backdrop-blur-[1px] pointer-events-auto cursor-pointer"
                     style={{
                         clipPath: targetRect
                             ? `polygon(0% 0%, 0% 100%, ${targetRect.left - 8}px 100%, ${targetRect.left - 8}px ${targetRect.top - 8}px, ${targetRect.left + targetRect.width + 8}px ${targetRect.top - 8}px, ${targetRect.left + targetRect.width + 8}px ${targetRect.top + targetRect.height + 8}px, ${targetRect.left - 8}px ${targetRect.top + targetRect.height + 8}px, ${targetRect.left - 8}px 100%, 100% 100%, 100% 0%)`
@@ -134,80 +134,101 @@ export default function OnboardingTour() {
                     }}
                     onClick={finishTour}
                 />
+
+                {targetRect && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{
+                            opacity: [0.4, 0.8, 0.4],
+                            scale: [1, 1.1, 1],
+                        }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                        className="absolute border-2 border-reddit-orange rounded-xl pointer-events-none"
+                        style={{
+                            top: targetRect.top - 12,
+                            left: targetRect.left - 12,
+                            width: targetRect.width + 24,
+                            height: targetRect.height + 24,
+                        }}
+                    />
+                )}
             </AnimatePresence>
 
             {/* Tooltip Content */}
             <AnimatePresence mode="wait">
                 <motion.div
                     key={currentStep}
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 30, scale: 0.9 }}
                     animate={{
                         opacity: 1,
                         y: 0,
                         scale: 1,
-                        top: targetRect
-                            ? (targetRect.top + targetRect.height + 24 > window.innerHeight - 200 ? targetRect.top - 200 : targetRect.top + targetRect.height + 24)
-                            : '50%',
-                        left: targetRect
-                            ? Math.max(16, Math.min(window.innerWidth - 320, targetRect.left + targetRect.width / 2 - 150))
-                            : '50%',
-                        translateX: targetRect ? 0 : '-50%',
-                        translateY: targetRect ? 0 : '-50%'
+                        // Responsive positioning
+                        top: !targetRect
+                            ? '50%'
+                            : isMobile
+                                ? (targetRect.top > window.innerHeight / 2 ? 'auto' : targetRect.top + targetRect.height + 20)
+                                : (targetRect.top + targetRect.height + 24 > window.innerHeight - 250 ? targetRect.top - 220 : targetRect.top + targetRect.height + 24),
+                        bottom: isMobile && targetRect && targetRect.top > window.innerHeight / 2 ? (window.innerHeight - targetRect.top + 20) : 'auto',
+                        left: '50%',
+                        translateX: '-50%',
+                        translateY: !targetRect ? '-50%' : 0
                     }}
-                    exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                    className="absolute w-[calc(100%-32px)] max-w-[320px] bg-reddit-card border border-reddit-border rounded-2xl shadow-2xl p-6 pointer-events-auto"
+                    className="absolute w-[calc(100%-32px)] max-w-[360px] bg-reddit-card/90 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-7 pointer-events-auto"
                 >
                     {/* Close Button */}
                     <button
                         onClick={finishTour}
-                        className="absolute top-4 right-4 text-reddit-textMuted hover:text-white transition-colors"
+                        className="absolute top-5 right-5 text-reddit-textMuted hover:text-white transition-all hover:rotate-90 p-1"
                     >
-                        <X size={18} />
+                        <X size={20} />
                     </button>
 
                     {/* Icon/Step Indicator */}
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-reddit-orange/20 flex items-center justify-center text-reddit-orange">
-                            {currentStepData.icon ? <currentStepData.icon size={20} /> : <div className="font-bold">{currentStep + 1}</div>}
+                    <div className="flex items-center gap-4 mb-5">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-reddit-orange to-orange-600 flex items-center justify-center text-white shadow-lg shadow-reddit-orange/20">
+                            {currentStepData.icon ? <currentStepData.icon size={24} /> : <div className="font-bold text-lg">{currentStep + 1}</div>}
                         </div>
                         <div className="flex-1">
-                            <h3 className="text-white font-bold text-lg leading-tight">{currentStepData.title}</h3>
-                            <div className="flex gap-1 mt-1">
+                            <h3 className="text-white font-black text-xl leading-tight tracking-tight">{currentStepData.title}</h3>
+                            <div className="flex gap-1.5 mt-2">
                                 {steps.map((_, i) => (
                                     <div
                                         key={i}
-                                        className={`h-1 rounded-full transition-all duration-300 ${i === currentStep ? 'w-4 bg-reddit-orange' : 'w-1 bg-white/20'}`}
+                                        className={`h-1.5 rounded-full transition-all duration-500 ${i === currentStep ? 'w-6 bg-reddit-orange' : 'w-1.5 bg-white/10'}`}
                                     />
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    <p className="text-reddit-textMuted text-sm mb-6 leading-relaxed">
+                    <p className="text-reddit-textMuted text-[15px] mb-8 leading-relaxed font-medium">
                         {currentStepData.description}
                     </p>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mt-auto">
                         <button
                             onClick={handleBack}
                             disabled={currentStep === 0}
-                            className={`flex items-center gap-1 text-sm font-medium transition-colors ${currentStep === 0 ? 'text-white/10' : 'text-reddit-textMuted hover:text-white'}`}
+                            className={`flex items-center gap-2 text-sm font-bold transition-all py-2 px-3 rounded-xl ${currentStep === 0 ? 'opacity-0 pointer-events-none' : 'text-reddit-textMuted hover:text-white hover:bg-white/5'}`}
                         >
-                            <ChevronLeft size={16} />
+                            <ChevronLeft size={18} />
                             Back
                         </button>
 
                         <button
                             onClick={handleNext}
-                            className="px-5 py-2 bg-reddit-orange hover:bg-reddit-orange/90 text-white rounded-full text-sm font-bold flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+                            className="px-7 py-3 bg-reddit-orange hover:bg-reddit-orange/90 text-white rounded-2xl text-base font-black flex items-center gap-2 shadow-lg shadow-reddit-orange/20 transition-all hover:scale-[1.02] active:scale-95"
                         >
-                            {currentStep === steps.length - 1 ? 'Finish' : 'Next'}
-                            {currentStep !== steps.length - 1 && <ChevronRight size={16} />}
+                            {currentStep === steps.length - 1 ? 'Get Started' : 'Next'}
+                            {currentStep !== steps.length - 1 && <ChevronRight size={18} />}
                         </button>
                     </div>
                 </motion.div>
             </AnimatePresence>
         </div>
     );
+
 }
