@@ -48,7 +48,12 @@ export const AuthProvider = ({ children }) => {
                 if (key.startsWith('sb-')) localStorage.removeItem(key);
             });
 
-            window.location.href = "/feed";
+            // Only redirect if we weren't already on a clean state or if specifically requested
+            // This prevents the infinite reload loop when refresh fails
+            const isAtFeed = window.location.pathname === "/feed";
+            if (!isAtFeed) {
+                window.location.href = "/feed";
+            }
         }
     }, [disconnect]);
 
@@ -110,9 +115,27 @@ export const AuthProvider = ({ children }) => {
                     setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
                     setIsAuthenticated(true);
                     connect();
+
+                    // Cleanup legacy localStorage tokens if we are now confirmed cookie-authenticated
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("refresh_token");
                 }
             } catch (err) {
                 console.error('[AuthContext] Auth init fail (likely non-authenticated):', err);
+
+                // MIGRATION FALLBACK: If cookie auth failed, check if we have legacy localStorage tokens
+                const legacyToken = localStorage.getItem("token");
+                const legacyRefreshToken = localStorage.getItem("refresh_token");
+
+                if (legacyToken && isMounted) {
+                    console.info('[AuthContext] Found legacy tokens, attempting migration to cookies...');
+                    const success = await syncWithBackend(legacyToken, legacyRefreshToken);
+                    if (success) {
+                        // Cleanup after successful migration
+                        localStorage.removeItem("token");
+                        localStorage.removeItem("refresh_token");
+                    }
+                }
             } finally {
                 if (isMounted) setIsAuthLoading(false);
             }

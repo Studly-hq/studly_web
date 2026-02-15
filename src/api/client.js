@@ -62,8 +62,9 @@ client.interceptors.response.use(
 
     // If 401 Unauthorized and not already retrying
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Skip refresh for auth endpoints to avoid infinite loops
-      if (originalRequest.url?.includes('/auth/')) {
+      // Skip refresh if we are already doing something auth-relevant
+      // or if it's an initialization call that should just fail gracefully
+      if (originalRequest.url?.includes('/auth/') || originalRequest.url?.includes('/profile/profile')) {
         return Promise.reject(error);
       }
 
