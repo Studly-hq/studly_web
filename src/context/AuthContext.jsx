@@ -40,9 +40,7 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('[AuthContext] Logout error:', error);
         } finally {
-            // 3. Absolute cleanup of tokens
-            localStorage.removeItem("token");
-            localStorage.removeItem("refresh_token");
+            // 3. Absolute cleanup of email and Supabase tokens
             localStorage.removeItem("email");
 
             // Clear any keys starting with sb- (Supabase)
@@ -58,8 +56,6 @@ export const AuthProvider = ({ children }) => {
     const syncWithBackend = useCallback(async (accessToken, refreshToken) => {
         try {
             const data = await apiSync(accessToken, refreshToken);
-            if (data.token) localStorage.setItem("token", data.token);
-            if (data.refresh_token) localStorage.setItem("refresh_token", data.refresh_token);
 
             const userProfile = await getProfile();
             const user = {
@@ -74,7 +70,7 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem("email", userProfile.email);
             }
 
-            connect(data.token);
+            connect();
             return true;
         } catch (error) {
             console.error("[AuthContext] Sync failed:", error);
@@ -108,22 +104,15 @@ export const AuthProvider = ({ children }) => {
 
         const initializeAuth = async () => {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
-                const localToken = localStorage.getItem("token");
-
-                if (session && localToken) {
-                    const userProfile = await getProfile();
-                    if (isMounted) {
-                        setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
-                        setIsAuthenticated(true);
-                        connect(localToken);
-                    }
-                } else if (!session && localToken) {
-                    console.warn('[AuthContext] Token exists but no session. Cleaning up.');
-                    localStorage.removeItem("token");
+                // Rely on getProfile to check if we are authenticated via cookies
+                const userProfile = await getProfile();
+                if (isMounted) {
+                    setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
+                    setIsAuthenticated(true);
+                    connect();
                 }
             } catch (err) {
-                console.error('[AuthContext] Auth init fail:', err);
+                console.error('[AuthContext] Auth init fail (likely non-authenticated):', err);
             } finally {
                 if (isMounted) setIsAuthLoading(false);
             }
@@ -134,10 +123,9 @@ export const AuthProvider = ({ children }) => {
         // Listen for all Supabase Auth events
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session) {
-                const localToken = localStorage.getItem("token");
-                if (!localToken || localToken !== session.access_token) {
-                    await syncWithBackend(session.access_token, session.refresh_token);
-                }
+                // If signed in to Supabase but not our backend, sync it
+                // Note: isAuthenticated check is safer to avoid redundant syncs
+                await syncWithBackend(session.access_token, session.refresh_token);
             } else if (event === 'SIGNED_OUT') {
                 setIsAuthenticated(false);
                 setCurrentUser(null);
@@ -163,8 +151,6 @@ export const AuthProvider = ({ children }) => {
     const login = useCallback(async (email, password) => {
         try {
             const data = await apiLogin(email, password);
-            if (data.token) localStorage.setItem("token", data.token);
-            if (data.refresh_token) localStorage.setItem("refresh_token", data.refresh_token);
             if (email) localStorage.setItem("email", email);
 
             await supabase.auth.setSession({
@@ -175,7 +161,7 @@ export const AuthProvider = ({ children }) => {
             const userProfile = await getProfile();
             setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
             setIsAuthenticated(true);
-            connect(data.token);
+            connect();
             return data;
         } catch (error) {
             console.error("[AuthContext] Login failed:", error);
@@ -185,18 +171,10 @@ export const AuthProvider = ({ children }) => {
 
     const signup = useCallback(async (name, email, password) => {
         const data = await apiSignup(email, password, name);
-        if (data.token) {
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("refresh_token", data.refresh_token);
-            await supabase.auth.setSession({
-                access_token: data.token,
-                refresh_token: data.refresh_token
-            });
-            const userProfile = await getProfile();
-            setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
-            setIsAuthenticated(true);
-            connect(data.token);
-        }
+        const userProfile = await getProfile();
+        setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
+        setIsAuthenticated(true);
+        connect();
         return data;
     }, [connect]);
 

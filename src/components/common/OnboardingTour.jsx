@@ -137,81 +137,98 @@ export default function OnboardingTour() {
             </AnimatePresence>
 
             {/* Tooltip Content */}
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={currentStep}
-                    initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                    animate={{
-                        opacity: 1,
-                        y: 0,
-                        scale: 1,
-                        // Responsive positioning
-                        top: !targetRect
-                            ? '50%'
-                            : isMobile
-                                ? (targetRect.top > window.innerHeight / 2 ? 'auto' : targetRect.top + targetRect.height + 20)
-                                : (targetRect.top + targetRect.height + 24 > window.innerHeight - 250 ? targetRect.top - 220 : targetRect.top + targetRect.height + 24),
-                        bottom: isMobile && targetRect && targetRect.top > window.innerHeight / 2 ? (window.innerHeight - targetRect.top + 20) : 'auto',
-                        left: '50%',
-                        translateX: '-50%',
-                        translateY: !targetRect ? '-50%' : 0
-                    }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                    className="absolute w-[calc(100%-32px)] max-w-[360px] bg-reddit-card border border-reddit-border rounded-3xl p-7 pointer-events-auto"
+            <motion.div
+                layout
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                animate={{
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    // Responsive positioning
+                    top: !targetRect
+                        ? '50%'
+                        : isMobile
+                            ? (targetRect.top > window.innerHeight / 2 ? 'auto' : targetRect.top + targetRect.height + 20)
+                            : (targetRect.top + targetRect.height + 24 > window.innerHeight - 250 ? targetRect.top - 220 : targetRect.top + targetRect.height + 24),
+                    bottom: isMobile && targetRect && targetRect.top > window.innerHeight / 2 ? (window.innerHeight - targetRect.top + 20) : 'auto',
+                    left: '50%',
+                    translateX: '-50%',
+                    translateY: !targetRect ? '-50%' : 0
+                }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{
+                    type: 'spring',
+                    damping: 25,
+                    stiffness: 200,
+                    layout: { duration: 0.3, type: 'spring', damping: 25, stiffness: 200 }
+                }}
+                className="absolute w-[calc(100%-32px)] max-w-[360px] bg-reddit-card border border-reddit-border rounded-3xl p-7 pointer-events-auto"
+            >
+                {/* Close Button */}
+                <button
+                    onClick={finishTour}
+                    className="absolute top-5 right-5 text-reddit-textMuted hover:text-white p-1 z-10"
                 >
-                    {/* Close Button */}
-                    <button
-                        onClick={finishTour}
-                        className="absolute top-5 right-5 text-reddit-textMuted hover:text-white p-1"
-                    >
-                        <X size={20} />
-                    </button>
+                    <X size={20} />
+                </button>
 
-                    {/* Icon/Step Indicator */}
-                    <div className="flex items-center gap-4 mb-5">
-                        <div className="w-12 h-12 rounded-2xl bg-reddit-orange flex items-center justify-center text-white">
-                            {currentStepData.icon ? <currentStepData.icon size={24} /> : <div className="font-bold text-lg">{currentStep + 1}</div>}
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="text-white font-bold text-xl leading-tight tracking-tight">{currentStepData.title}</h3>
-                            <div className="flex gap-1.5 mt-2">
-                                {steps.map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className={`h-1.5 rounded-full transition-all duration-300 ${i === currentStep ? 'w-6 bg-reddit-orange' : 'w-1.5 bg-white/20'}`}
-                                    />
-                                ))}
+                <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                        key={currentStep}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        {/* Icon/Step Indicator */}
+                        <div className="flex items-center gap-4 mb-5">
+                            <motion.div
+                                layout
+                                className="w-12 h-12 rounded-2xl bg-reddit-orange flex items-center justify-center text-white shrink-0"
+                            >
+                                {currentStepData.icon ? <currentStepData.icon size={24} /> : <div className="font-bold text-lg">{currentStep + 1}</div>}
+                            </motion.div>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="text-white font-bold text-xl leading-tight tracking-tight truncate">{currentStepData.title}</h3>
+                                <div className="flex gap-1.5 mt-2">
+                                    {steps.map((_, i) => (
+                                        <motion.div
+                                            layout
+                                            key={i}
+                                            className={`h-1.5 rounded-full transition-colors duration-300 ${i === currentStep ? 'w-6 bg-reddit-orange' : 'w-1.5 bg-white/20'}`}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <p className="text-reddit-textMuted text-[15px] mb-8 leading-relaxed font-medium">
-                        {currentStepData.description}
-                    </p>
+                        <p className="text-reddit-textMuted text-[15px] mb-8 leading-relaxed font-medium">
+                            {currentStepData.description}
+                        </p>
+                    </motion.div>
+                </AnimatePresence>
 
-                    <div className="flex items-center justify-between mt-auto gap-4">
-                        <motion.button
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleBack}
-                            disabled={currentStep === 0}
-                            className={`flex items-center gap-2 text-sm font-bold transition-all py-3 px-4 rounded-xl cursor-pointer touch-manipulation shadow-sm ${currentStep === 0 ? 'opacity-0 pointer-events-none' : 'text-reddit-textMuted hover:text-white hover:bg-white/5 bg-white/5'}`}
-                        >
-                            <ChevronLeft size={18} />
-                            Back
-                        </motion.button>
+                <div className="flex items-center justify-between mt-auto gap-4">
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleBack}
+                        disabled={currentStep === 0}
+                        className={`flex items-center gap-2 text-sm font-bold transition-all py-3 px-4 rounded-xl cursor-pointer touch-manipulation shadow-sm ${currentStep === 0 ? 'opacity-0 pointer-events-none' : 'text-reddit-textMuted hover:text-white hover:bg-white/5 bg-white/5'}`}
+                    >
+                        <ChevronLeft size={18} />
+                        Back
+                    </motion.button>
 
-                        <motion.button
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleNext}
-                            className="flex-1 px-4 py-3 bg-reddit-orange hover:bg-reddit-orange/90 text-white rounded-2xl text-base font-bold flex items-center justify-center gap-2 transition-all cursor-pointer touch-manipulation"
-                        >
-                            {currentStep === steps.length - 1 ? 'Get Started' : 'Next'}
-                            {currentStep !== steps.length - 1 && <ChevronRight size={18} />}
-                        </motion.button>
-                    </div>
-                </motion.div>
-            </AnimatePresence>
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleNext}
+                        className="flex-1 px-4 py-3 bg-reddit-orange hover:bg-reddit-orange/90 text-white rounded-2xl text-base font-bold flex items-center justify-center gap-2 transition-all cursor-pointer touch-manipulation"
+                    >
+                        {currentStep === steps.length - 1 ? 'Get Started' : 'Next'}
+                        {currentStep !== steps.length - 1 && <ChevronRight size={18} />}
+                    </motion.button>
+                </div>
+            </motion.div>
         </div>
     );
 

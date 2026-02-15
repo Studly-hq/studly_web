@@ -20,14 +20,8 @@ const client = axios.create({
   }
 });
 
-// Add a request interceptor to include the auth token and standardize headers
 client.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
     // ROBUST FIX: Backend strictly requires Content-Type: application/json for ALL requests
     // Even GET requests must have this header and a parseable body
     config.headers["Content-Type"] = "application/json";
@@ -89,39 +83,21 @@ client.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Call refresh token endpoint with the refresh token and email in the body
-        const refreshToken = localStorage.getItem("refresh_token");
-        const email = localStorage.getItem("email");
-
-        if (!email) {
-          throw new Error("No user email found for refresh");
-        }
-
-        const response = await client.post("/auth/refresh-token", {
-          email: email,
-          refresh_token: refreshToken
-        });
-        const { token, refresh_token } = response.data;
+        // Call refresh token endpoint - refresh token is now sent automatically via cookies
+        const response = await client.post("/auth/refresh-token");
+        const { token } = response.data;
 
         if (token) {
-          localStorage.setItem("token", token);
-          if (refresh_token) {
-            localStorage.setItem("refresh_token", refresh_token);
-          }
-
-          // Update header and retry original request
-          originalRequest.headers.Authorization = `Bearer ${token}`;
+          // Update header is no longer needed as browser handles cookie,
+          // but we retry the original request
           processQueue(null, token);
 
           return client(originalRequest);
         }
       } catch (refreshError) {
-        // Refresh failed - clear tokens and redirect to login
+        // Refresh failed - cookies might be expired or invalid
         console.error("Token refresh failed:", refreshError);
         processQueue(refreshError, null);
-
-        localStorage.removeItem("token");
-        localStorage.removeItem("refresh_token");
 
         // Dispatch a custom event so the app can handle logout
         window.dispatchEvent(new CustomEvent("auth:logout"));
