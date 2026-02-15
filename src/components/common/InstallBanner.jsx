@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Download, X, Loader2, Share } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function InstallBanner() {
     const [deferredPrompt, setDeferredPrompt] = useState(window.deferredPwaPrompt);
@@ -88,13 +89,13 @@ export default function InstallBanner() {
         <div
             className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999]
                  w-[calc(100%-1.5rem)] max-w-md
-                 bg-reddit-card/90 backdrop-blur-xl border border-white/10
-                 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]
+                 bg-reddit-card border border-reddit-border
+                 rounded-2xl
                  px-4 py-3.5 flex items-center gap-3
                  animate-slide-down transition-all duration-300"
         >
             {/* Icon */}
-            <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-reddit-orange to-orange-600 flex items-center justify-center shadow-lg shadow-reddit-orange/20">
+            <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-reddit-orange flex items-center justify-center">
                 <Download size={22} className="text-white" />
             </div>
 
@@ -107,7 +108,7 @@ export default function InstallBanner() {
             {/* Actions */}
             <div className="flex items-center gap-2">
                 {showSafariHint ? (
-                    <div className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-xl px-2.5 py-1.5 min-w-[100px]">
+                    <div className="flex flex-col items-center justify-center bg-white/5 border border-reddit-border rounded-xl px-2.5 py-1.5 min-w-[100px]">
                         <div className="flex items-center gap-1.5">
                             <span className="text-[11px] text-reddit-textMuted font-semibold">Tap</span>
                             <Share size={14} className="text-blue-400" />
@@ -115,27 +116,29 @@ export default function InstallBanner() {
                         <div className="text-[11px] text-reddit-orange font-bold whitespace-nowrap">"Add to Home Screen"</div>
                     </div>
                 ) : (
-                    <button
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
                         onClick={handleInstall}
                         disabled={installing}
                         className="flex-shrink-0 px-5 py-2 rounded-xl text-sm font-bold
                            bg-reddit-orange text-white flex items-center justify-center min-w-[85px]
-                           hover:brightness-110 shadow-lg shadow-reddit-orange/20
+                           hover:brightness-110
                            active:scale-95 transition-all duration-150
-                           disabled:opacity-50 disabled:cursor-not-allowed"
+                           disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer"
                     >
                         {installing ? <Loader2 size={18} className="animate-spin text-white" /> : 'Install'}
-                    </button>
+                    </motion.button>
                 )}
 
-                <button
+                <motion.button
+                    whileTap={{ scale: 0.95 }}
                     onClick={handleDismiss}
                     className="flex-shrink-0 p-1.5 rounded-xl text-reddit-textMuted hover:text-white
-                       hover:bg-white/5 transition-all"
+                       hover:bg-white/5 transition-all touch-manipulation cursor-pointer"
                     aria-label="Dismiss install banner"
                 >
                     <X size={18} />
-                </button>
+                </motion.button>
             </div>
         </div>
     );
