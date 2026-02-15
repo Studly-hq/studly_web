@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     // Internal function to sync with backend after supabase login
     const syncWithBackend = useCallback(async (accessToken, refreshToken) => {
         try {
-            const data = await apiSync(accessToken, refreshToken);
+            await apiSync(accessToken, refreshToken);
 
             const userProfile = await getProfile();
             const user = {
