@@ -50,12 +50,9 @@ export const CelebrationProvider = ({ children }) => {
     // Close celebration and acknowledge to backend
     const closeCelebration = useCallback(async () => {
         if (activeCelebration) {
-            // Only acknowledge milestone types the backend tracks (not streak-lost which is a notification)
-            if (activeCelebration.type !== 'streak-lost') {
-                acknowledgeCelebration(activeCelebration.type, activeCelebration.value).catch(err => {
-                    console.error("Failed to acknowledge celebration:", err);
-                });
-            }
+            acknowledgeCelebration(activeCelebration.type, activeCelebration.value).catch(err => {
+                console.error("Failed to acknowledge celebration:", err);
+            });
         }
         setActiveCelebration(null);
     }, [activeCelebration]);
