@@ -5,7 +5,7 @@ import {
     logout as apiLogout,
     sync as apiSync,
 } from "../api/auth";
-import client, { setAuthToken } from "../api/client";
+import { setAuthToken } from "../api/client";
 import { getProfile, updateProfile } from "../api/profile";
 import { supabase } from "../utils/supabase";
 import { useWebSocketContext } from "./WebSocketContext";
