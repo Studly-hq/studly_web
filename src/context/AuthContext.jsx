@@ -5,6 +5,7 @@ import {
     logout as apiLogout,
     sync as apiSync,
 } from "../api/auth";
+import client, { setAuthToken } from "../api/client";
 import { getProfile, updateProfile } from "../api/profile";
 import { supabase } from "../utils/supabase";
 import { useWebSocketContext } from "./WebSocketContext";
@@ -33,6 +34,7 @@ export const AuthProvider = ({ children }) => {
 
         try {
             // 2. Clear server-side session and Supabase
+            setAuthToken(null);
             await Promise.allSettled([
                 apiLogout(),
                 supabase.auth.signOut()
@@ -60,6 +62,7 @@ export const AuthProvider = ({ children }) => {
     // Internal function to sync with backend after supabase login
     const syncWithBackend = useCallback(async (accessToken, refreshToken) => {
         try {
+            if (accessToken) setAuthToken(accessToken);
             await apiSync(accessToken, refreshToken);
 
             const userProfile = await getProfile();
@@ -129,6 +132,7 @@ export const AuthProvider = ({ children }) => {
 
                 if (legacyToken && isMounted) {
                     console.info('[AuthContext] Found legacy tokens, attempting migration to cookies...');
+                    setAuthToken(legacyToken);
                     const success = await syncWithBackend(legacyToken, legacyRefreshToken);
                     if (success) {
                         // FIX: Immediately fetch profile and update state so user is logged in
@@ -186,6 +190,7 @@ export const AuthProvider = ({ children }) => {
     const login = useCallback(async (email, password) => {
         try {
             const data = await apiLogin(email, password);
+            if (data.token) setAuthToken(data.token);
             if (email) localStorage.setItem("email", email);
 
             await supabase.auth.setSession({
@@ -206,6 +211,7 @@ export const AuthProvider = ({ children }) => {
 
     const signup = useCallback(async (name, email, password) => {
         const data = await apiSignup(email, password, name);
+        if (data.token) setAuthToken(data.token);
         const userProfile = await getProfile();
         setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
         setIsAuthenticated(true);

@@ -113,4 +113,13 @@ client.interceptors.response.use(
   }
 );
 
+// Helper to set the auth token for all requests
+export const setAuthToken = (token) => {
+  if (token) {
+    client.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  } else {
+    delete client.defaults.headers.common["Authorization"];
+  }
+};
+
 export default client;
