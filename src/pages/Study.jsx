@@ -82,7 +82,7 @@ const Study = () => {
                         Notes that teach back
                     </h1>
                     <p className="text-reddit-textMuted text-lg leading-relaxed">
-                        Get topic-by-topic explanations, quizzes and flashcard with instant video support all in one continuous flow.
+                        Get topic-by-topic explanations, quizzes and flashcards, with instant video support all in one continuous flow.
                     </p>
                 </div>
 
