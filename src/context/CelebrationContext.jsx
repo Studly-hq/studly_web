@@ -16,17 +16,21 @@ export const useCelebration = () => {
 export const CelebrationProvider = ({ children }) => {
     const [queue, setQueue] = useState([]);
     const [activeCelebration, setActiveCelebration] = useState(null);
-    const [processedIds] = useState(new Set()); // Track IDs to prevent double-popups in same session
+    const processedIds = useRef(new Set()); // Track IDs to prevent double-popups in same session
     const { isAuthenticated } = useAuth();
     const { subscribe } = useWebSocketContext();
 
     const pushToQueue = useCallback((newItem) => {
         const id = `${newItem.type}-${newItem.value}`;
-        if (processedIds.has(id)) return;
-        processedIds.add(id);
+        if (processedIds.current.has(id)) {
+            console.log(`[CelebrationContext] Deduplicating: ${id}`);
+            return;
+        }
+        processedIds.current.add(id);
 
+        console.log(`[CelebrationContext] Pushing to queue:`, newItem);
         setQueue(q => [...q, newItem]);
-    }, [processedIds]);
+    }, []);
 
     const popQueue = useCallback(() => {
         setQueue(prev => {
@@ -61,8 +65,10 @@ export const CelebrationProvider = ({ children }) => {
     useEffect(() => {
         if (!isAuthenticated) return;
 
+        console.log("[CelebrationContext] Subscribing to celebration events...");
         // Subscribe to celebration milestones
         const unsubscribeCelebration = subscribe('celebration_milestone', (data) => {
+            console.log("[CelebrationContext] Received milestone:", data);
             // Data from backend: { user_id, milestone_type, value, message }
             if (data.value && data.milestone_type) {
                 pushToQueue({

@@ -43,6 +43,7 @@ const CourseAdmin = lazy(() => import("./pages/CourseAdmin"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Study = lazy(() => import("./pages/Study"));
+const CUHUB = lazy(() => import("./pages/CUHUB"));
 
 
 // Legal Pages (Lazy loaded)
@@ -108,6 +109,7 @@ function AppContent() {
                         <Route path="/notifications" element={<Notifications />} />
                         <Route path="/leaderboard" element={<Leaderboard />} />
                         <Route path="/study" element={<Study />} />
+                        <Route path="/cuhub" element={<CUHUB />} />
                         <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
 
 
@@ -128,22 +130,22 @@ function AppContent() {
                   </div>
                 </div>
 
-                {/* Mobile Bottom Nav */}
+                {/* Mobile Bottom Nav moved to its own container logic if needed, but keeping it inside /* for standard layout for now */}
                 <MobileBottomNav />
 
-                {/* Modals */}
-                <AuthModal />
-                <CreatePostModal />
-                <CelebrationModal />
-                <CommentSection />
-
-                <Toaster position="top-right" richColors />
-                <InstallBanner />
-                <OnboardingTour />
               </div>
             }
           />
         </Routes>
+
+        {/* Global Modals & Components (Shared across all routes including /courses) */}
+        <AuthModal />
+        <CreatePostModal />
+        <CelebrationModal />
+        <CommentSection />
+        <Toaster position="top-right" richColors />
+        <InstallBanner />
+        <OnboardingTour />
       </Router>
     </LoadingGate>
   );
