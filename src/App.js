@@ -42,6 +42,7 @@ const PostDetail = lazy(() => import("./pages/PostDetail"));
 const CourseAdmin = lazy(() => import("./pages/CourseAdmin"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const Study = lazy(() => import("./pages/Study"));
 
 
 // Legal Pages (Lazy loaded)
@@ -106,6 +107,7 @@ function AppContent() {
                         <Route path="/post/:postId" element={<PostDetail />} />
                         <Route path="/notifications" element={<Notifications />} />
                         <Route path="/leaderboard" element={<Leaderboard />} />
+                        <Route path="/study" element={<Study />} />
                         <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
 
 
