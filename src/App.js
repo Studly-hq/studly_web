@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useLayoutEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
@@ -54,6 +54,13 @@ const Accessibility = lazy(() => import("./pages/legal/Accessibility"));
 
 function AppContent() {
   const { isAuthLoading } = useAuth();
+
+  // Immediate redirect to the new domain
+  useLayoutEffect(() => {
+    const targetDomain = "https://lucid.usestudly.com";
+    const currentPath = window.location.pathname + window.location.search;
+    window.location.replace(targetDomain + currentPath);
+  }, []);
 
   return (
     <LoadingGate isLoading={isAuthLoading}>
