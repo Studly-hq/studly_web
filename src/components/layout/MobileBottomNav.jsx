@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Trophy, GraduationCap, User, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
-import { getStudyToken } from '../../api/profile';
 
 const MobileBottomNav = () => {
   const location = useLocation();
@@ -12,25 +11,6 @@ const MobileBottomNav = () => {
   const { isAuthenticated } = useAuth();
   const { setShowAuthModal } = useUI();
   const [isStudyLoading] = useState(false);
-
-  // Prefetch study token to speed up transition
-  const prefetchStudyToken = useCallback(async () => {
-    if (!isAuthenticated || (cachedStudyToken.token && Date.now() - cachedStudyToken.timestamp < 45000)) return;
-
-    try {
-      const token = await getStudyToken();
-      setCachedStudyToken({ token, timestamp: Date.now() });
-    } catch (error) {
-      console.error('Study token prefetch failed:', error);
-    }
-  }, [isAuthenticated, cachedStudyToken.token, cachedStudyToken.timestamp]);
-
-  // Prefetch on mount
-  useEffect(() => {
-    if (isAuthenticated) {
-      prefetchStudyToken();
-    }
-  }, [isAuthenticated, prefetchStudyToken]);
 
   const navItems = [
     { icon: Home, label: 'Home', path: isAuthenticated ? '/feed' : '/posts', id: 'home' },
@@ -76,7 +56,6 @@ const MobileBottomNav = () => {
                 key={item.id}
                 id={item.isStudy ? 'tour-study-mobile' : undefined}
                 onClick={() => handleNavClick(item)}
-                onTouchStart={item.isStudy ? prefetchStudyToken : undefined}
                 disabled={isLoading}
                 whileTap={isLoading ? {} : { scale: 0.95 }}
                 className={`flex flex-col items-center gap-0.5 sm:gap-1 px-3 sm:px-5 py-0.5 ${isLoading ? 'opacity-50' : ''
