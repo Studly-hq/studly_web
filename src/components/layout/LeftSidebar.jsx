@@ -43,37 +43,7 @@ const LeftSidebar = () => {
 
   // Handle Study button click - get token and navigate to Lucid
   const handleStudyClick = async () => {
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-
-    // Check if we have a fresh cached token (less than 55 seconds old)
-    const isTokenFresh = cachedStudyToken.token && (Date.now() - cachedStudyToken.timestamp < 55000);
-
-    try {
-      setIsStudyLoading(true);
-
-      let token = cachedStudyToken.token;
-
-      if (!isTokenFresh) {
-        token = await getStudyToken();
-      }
-
-      // Navigate in the same tab to avoid popup blockers and user context loss
-      window.location.href = `${LUCID_URL}?token=${token}`;
-    } catch (error) {
-      console.error('Failed to get study token:', error);
-      // Fallback: try to fetch one last time if cached one failed
-      try {
-        const freshToken = await getStudyToken();
-        window.location.href = `${LUCID_URL}?token=${freshToken}`;
-      } catch (innerError) {
-        console.error('Final attempt failed:', innerError);
-      }
-    } finally {
-      setIsStudyLoading(false);
-    }
+    navigate('/study');
   };
 
   const navItems = [

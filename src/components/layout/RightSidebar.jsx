@@ -45,7 +45,7 @@ const RightSidebar = () => {
 
 
   const shortcuts = [
-    { icon: ExternalLink, label: 'Access CUHUB', id: 'cuhub', href: 'https://cuhub.usestudly.com?ref=feed', external: true }
+    { icon: ExternalLink, label: 'Access CUHUB', id: 'cuhub', path: '/cuhub', external: false }
   ];
 
   const handleSearch = (e) => {

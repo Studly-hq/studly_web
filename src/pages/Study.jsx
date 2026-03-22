@@ -13,8 +13,10 @@ const Study = () => {
     const { setShowAuthModal } = useUI();
     const [isLoading, setIsLoading] = useState(false);
     const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
+    const [isStarted, setIsStarted] = useState(false);
+    const [activeToken, setActiveToken] = useState(null);
 
-    // Prefetch study token when authenticated
+    // ... (prefetch logic remains the same)
     useEffect(() => {
         const prefetchToken = async () => {
             if (!isAuthenticated || (cachedStudyToken.token && Date.now() - cachedStudyToken.timestamp < 45000)) return;
@@ -47,12 +49,14 @@ const Study = () => {
                 token = await getStudyToken();
             }
 
-            window.location.href = `${LUCID_URL}?token=${token}`;
+            setActiveToken(token);
+            setIsStarted(true);
         } catch (error) {
             console.error('Failed to get study token:', error);
             try {
                 const freshToken = await getStudyToken();
-                window.location.href = `${LUCID_URL}?token=${freshToken}`;
+                setActiveToken(freshToken);
+                setIsStarted(true);
             } catch (innerError) {
                 console.error('Final attempt failed:', innerError);
             }
@@ -60,6 +64,19 @@ const Study = () => {
             setIsLoading(false);
         }
     };
+
+    if (isStarted && activeToken) {
+        return (
+            <div className="w-full h-full bg-reddit-bg overflow-hidden flex flex-col">
+                <iframe 
+                    src={`${LUCID_URL}?token=${activeToken}`}
+                    className="w-full flex-1 border-none shadow-premium"
+                    title="Study App"
+                    allow="clipboard-read; clipboard-write"
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center">

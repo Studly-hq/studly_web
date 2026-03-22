@@ -55,12 +55,7 @@ const Accessibility = lazy(() => import("./pages/legal/Accessibility"));
 function AppContent() {
   const { isAuthLoading } = useAuth();
 
-  // Immediate redirect to the new domain
-  useLayoutEffect(() => {
-    const targetDomain = "https://lucid.usestudly.com";
-    const currentPath = window.location.pathname + window.location.search;
-    window.location.replace(targetDomain + currentPath);
-  }, []);
+
 
   return (
     <LoadingGate isLoading={isAuthLoading}>

@@ -60,16 +60,14 @@ const FeedPage = () => {
                         <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
                     </div>
                     <div className="flex items-center gap-2">
-                        <a
+                        <button
                             id="tour-cuhub-mobile"
-                            href="https://cuhub.usestudly.com?ref=feed"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            onClick={() => navigate('/cuhub')}
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text rounded-full text-[11px] font-bold border border-reddit-border transition-colors"
                         >
                             <ExternalLink size={14} className="text-reddit-orange" />
                             <span>CUHUB</span>
-                        </a>
+                        </button>
                         <div className="flex items-center gap-1">
                             {!isAuthenticated ? (
                                 <button
@@ -113,16 +111,14 @@ const FeedPage = () => {
                     <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
                 </div>
                 <div className="flex items-center gap-2">
-                    <a
+                    <button
                         id="tour-cuhub-mobile-active"
-                        href="https://cuhub.usestudly.com?ref=feed"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        onClick={() => navigate('/cuhub')}
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text rounded-full text-[11px] font-bold border border-reddit-border transition-colors"
                     >
                         <ExternalLink size={14} className="text-reddit-orange" />
                         <span>CUHUB</span>
-                    </a>
+                    </button>
                     <div className="flex items-center gap-1">
                         {!isAuthenticated ? (
                             <button
