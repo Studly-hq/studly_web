@@ -1,5 +1,4 @@
-import { motion } from 'framer-motion';
-import { ExternalLink, BookOpen } from 'lucide-react';
+
 
 const CUHUB = () => {
     const CUHUB_URL = 'https://cuhub.usestudly.com';

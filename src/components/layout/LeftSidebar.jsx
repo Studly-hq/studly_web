@@ -8,10 +8,6 @@ import { useNotifications } from '../../context/NotificationContext';
 import { getStudyToken } from '../../api/profile';
 import logo from '../../assets/logo.png';
 
-// Lucid app URL - update this when deploying
-const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
-
-
 const LeftSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -19,8 +15,8 @@ const LeftSidebar = () => {
   const { isAuthenticated, currentUser } = useAuth();
   const { setShowAuthModal, setShowCreatePostModal } = useUI();
   const { unreadCount } = useNotifications();
-  const [isStudyLoading, setIsStudyLoading] = useState(false);
-  const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
+  const [isStudyLoading] = useState(false);
+  const [cachedStudyToken] = useState({ token: null, timestamp: 0 });
 
   // Prefetch study token to speed up transition
   const prefetchStudyToken = useCallback(async () => {

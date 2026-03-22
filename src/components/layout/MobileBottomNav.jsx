@@ -6,16 +6,12 @@ import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import { getStudyToken } from '../../api/profile';
 
-// Lucid app URL - update this when deploying
-const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
-
 const MobileBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { setShowAuthModal } = useUI();
-  const [isStudyLoading, setIsStudyLoading] = useState(false);
-  const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
+  const [isStudyLoading] = useState(false);
 
   // Prefetch study token to speed up transition
   const prefetchStudyToken = useCallback(async () => {
