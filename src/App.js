@@ -26,7 +26,6 @@ import OnboardingTour from "./components/common/OnboardingTour";
 import "./App.css";
 
 // Pages (Lazy loaded for better performance)
-const Home = lazy(() => import("./pages/Home"));
 const FeedPage = lazy(() => import("./pages/FeedPage"));
 // PostsPage removed - /posts now redirects to /feed
 const Explore = lazy(() => import("./pages/Explore"));
