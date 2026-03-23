@@ -1,16 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, Loader2, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import { useNotifications } from '../../context/NotificationContext';
-import { getStudyToken } from '../../api/profile';
 import logo from '../../assets/logo.png';
-
-// Lucid app URL - update this when deploying
-const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
-
 
 const LeftSidebar = () => {
   const location = useLocation();
@@ -19,61 +14,11 @@ const LeftSidebar = () => {
   const { isAuthenticated, currentUser } = useAuth();
   const { setShowAuthModal, setShowCreatePostModal, isLeftSidebarCollapsed, setIsLeftSidebarCollapsed } = useUI();
   const { unreadCount } = useNotifications();
-  const [isStudyLoading, setIsStudyLoading] = useState(false);
-  const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
+  const [isStudyLoading] = useState(false);
 
-  // Prefetch study token to speed up transition
-  const prefetchStudyToken = useCallback(async () => {
-    if (!isAuthenticated || (cachedStudyToken.token && Date.now() - cachedStudyToken.timestamp < 45000)) return;
-
-    try {
-      const token = await getStudyToken();
-      setCachedStudyToken({ token, timestamp: Date.now() });
-    } catch (error) {
-      console.error('Study token prefetch failed:', error);
-    }
-  }, [isAuthenticated, cachedStudyToken.token, cachedStudyToken.timestamp]);
-
-  // Prefetch on mount
-  useEffect(() => {
-    if (isAuthenticated) {
-      prefetchStudyToken();
-    }
-  }, [isAuthenticated, prefetchStudyToken]);
-
-  // Handle Study button click - get token and navigate to Lucid
+  // Handle Study button click - navigate to Study page
   const handleStudyClick = async () => {
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-
-    // Check if we have a fresh cached token (less than 55 seconds old)
-    const isTokenFresh = cachedStudyToken.token && (Date.now() - cachedStudyToken.timestamp < 55000);
-
-    try {
-      setIsStudyLoading(true);
-
-      let token = cachedStudyToken.token;
-
-      if (!isTokenFresh) {
-        token = await getStudyToken();
-      }
-
-      // Navigate in the same tab to avoid popup blockers and user context loss
-      window.location.href = `${LUCID_URL}?token=${token}`;
-    } catch (error) {
-      console.error('Failed to get study token:', error);
-      // Fallback: try to fetch one last time if cached one failed
-      try {
-        const freshToken = await getStudyToken();
-        window.location.href = `${LUCID_URL}?token=${freshToken}`;
-      } catch (innerError) {
-        console.error('Final attempt failed:', innerError);
-      }
-    } finally {
-      setIsStudyLoading(false);
-    }
+    navigate('/study');
   };
 
   const navItems = [
@@ -143,6 +88,7 @@ const LeftSidebar = () => {
           )}
         </div>
 
+
         {/* Nav Items */}
         {!isLeftSidebarCollapsed && (
           <nav className="flex-1 px-2 space-y-1">
@@ -176,7 +122,6 @@ const LeftSidebar = () => {
           <button
             id="tour-study-desktop"
             onClick={handleStudyClick}
-            onMouseEnter={prefetchStudyToken}
             disabled={isStudyLoading}
             className="block group mt-2 w-full text-left"
           >
@@ -191,7 +136,7 @@ const LeftSidebar = () => {
               ) : (
                 <PlayCircle size={26} strokeWidth={2} />
               )}
-              <span>{isStudyLoading ? 'Loading...' : 'Start Studying'}</span>
+              {!isLeftSidebarCollapsed && <span>{isStudyLoading ? 'Loading...' : 'Start Studying'}</span>}
             </div>
           </button>
 

@@ -9,6 +9,7 @@ import {
   BookOpen,
   User,
 } from "lucide-react";
+import SEO from "../components/common/SEO";
 import { ProfileHeaderSkeleton, FeedSkeleton } from "../components/common/Skeleton";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import PostCard from "../components/post/PostCard";
@@ -248,6 +249,12 @@ const UserProfileContent = () => {
 
   return (
     <div className="min-h-screen bg-reddit-bg">
+      <SEO 
+        title={profileUser ? `${profileUser.displayName} (@${profileUser.username})` : 'Profile'} 
+        description={profileUser ? profileUser.bio || `View ${profileUser.displayName}'s educational journey on Studly.` : 'View student profiles on Studly.'}
+        canonical={profileUser ? `/profile/${profileUser.username}` : '/profile'}
+        ogType="profile"
+      />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
         <div className="max-w-2xl mx-auto px-4 py-3">

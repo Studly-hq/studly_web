@@ -11,6 +11,25 @@ export const useUI = () => {
 };
 
 export const UIProvider = ({ children }) => {
+    // Sidebar Collapse States (with persistence)
+    const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(() => {
+        const saved = localStorage.getItem('isLeftSidebarCollapsed');
+        return saved ? JSON.parse(saved) : false;
+    });
+    const [isRightSidebarCollapsed, setIsRightSidebarCollapsed] = useState(() => {
+        const saved = localStorage.getItem('isRightSidebarCollapsed');
+        return saved ? JSON.parse(saved) : false;
+    });
+
+    // Update localStorage when states change
+    React.useEffect(() => {
+        localStorage.setItem('isLeftSidebarCollapsed', JSON.stringify(isLeftSidebarCollapsed));
+    }, [isLeftSidebarCollapsed]);
+
+    React.useEffect(() => {
+        localStorage.setItem('isRightSidebarCollapsed', JSON.stringify(isRightSidebarCollapsed));
+    }, [isRightSidebarCollapsed]);
+
     // Modal States
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [showCreatePostModal, setShowCreatePostModal] = useState(false);
@@ -65,7 +84,11 @@ export const UIProvider = ({ children }) => {
         pendingAction,
         setPendingAction,
         scrollPosition,
-        setScrollPosition
+        setScrollPosition,
+        isLeftSidebarCollapsed,
+        setIsLeftSidebarCollapsed,
+        isRightSidebarCollapsed,
+        setIsRightSidebarCollapsed
     }), [
         showAuthModal,
         showCreatePostModal,
@@ -76,7 +99,9 @@ export const UIProvider = ({ children }) => {
         startLoading,
         finishLoading,
         pendingAction,
-        scrollPosition
+        scrollPosition,
+        isLeftSidebarCollapsed,
+        isRightSidebarCollapsed
     ]);
 
     return (

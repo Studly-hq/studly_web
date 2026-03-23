@@ -1,4 +1,4 @@
-import { Suspense, lazy, useLayoutEffect } from "react";
+import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
@@ -26,7 +26,6 @@ import OnboardingTour from "./components/common/OnboardingTour";
 import "./App.css";
 
 // Pages (Lazy loaded for better performance)
-const Home = lazy(() => import("./pages/Home"));
 const FeedPage = lazy(() => import("./pages/FeedPage"));
 // PostsPage removed - /posts now redirects to /feed
 const Explore = lazy(() => import("./pages/Explore"));
@@ -55,12 +54,7 @@ const Accessibility = lazy(() => import("./pages/legal/Accessibility"));
 function AppContent() {
   const { isAuthLoading } = useAuth();
 
-  // Immediate redirect to the new domain
-  useLayoutEffect(() => {
-    const targetDomain = "https://lucid.usestudly.com";
-    const currentPath = window.location.pathname + window.location.search;
-    window.location.replace(targetDomain + currentPath);
-  }, []);
+
 
   return (
     <LoadingGate isLoading={isAuthLoading}>
@@ -102,7 +96,7 @@ function AppContent() {
                       </div>
                     }>
                       <Routes>
-                        <Route path="/" element={<Home />} />
+                        <Route path="/" element={<Navigate to="/study" replace />} />
                         <Route path="/feed" element={<FeedPage />} />
                         <Route path="/posts" element={<Navigate to="/feed" replace />} />
                         <Route path="/explore" element={<Explore />} />
@@ -132,7 +126,7 @@ function AppContent() {
                   </main>
 
                   {/* Right Sidebar */}
-                  <div className="hidden lg:block w-[350px] flex-shrink-0">
+                  <div className="hidden lg:block flex-shrink-0">
                     <RightSidebar />
                   </div>
                 </div>

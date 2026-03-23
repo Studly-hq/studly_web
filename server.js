@@ -11,12 +11,7 @@ const API_BASE_URL = 'https://studly-server-production.up.railway.app';
 // Serve static files from the React app build directory
 app.use(express.static(path.join(__dirname, 'build'), { index: false }));
 
-// Redirect ALL traffic to lucid.usestudly.com immediately
-app.use((req, res, next) => {
-    // Only redirect if it's not the new domain already (to avoid loops if misconfigured)
-    // and only for actual requests (not internal API stuff if any, though here it's simple)
-    res.redirect(301, `https://lucid.usestudly.com${req.url}`);
-});
+
 
 // Helper to inject meta tags
 function injectMeta(html, metadata) {

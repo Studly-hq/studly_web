@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { getLeaderboard } from "../api/coursebank";
 import { useAuth } from "../context/AuthContext";
+import SEO from "../components/common/SEO";
 
 const Leaderboard = () => {
     const navigate = useNavigate();
@@ -70,6 +71,11 @@ const Leaderboard = () => {
 
     return (
         <div className="max-w-[640px] mx-auto min-h-screen bg-reddit-bg pb-24">
+            <SEO 
+                title="Leaderboard" 
+                description="See who is leading the way in knowledge sharing and earning aura points on the Studly leaderboard."
+                canonical="/leaderboard"
+            />
             {/* Header */}
             <div className="sticky top-0 z-30 bg-reddit-bg/95 backdrop-blur-md border-b border-reddit-border px-4 py-4 flex items-center gap-4">
                 <button

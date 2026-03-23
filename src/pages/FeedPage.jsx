@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import { useNotifications } from '../context/NotificationContext';
 import logo from '../assets/logo.png';
+import SEO from '../components/common/SEO';
 
 // Skeleton loader for feed
 const FeedSkeleton = () => (
@@ -60,16 +61,14 @@ const FeedPage = () => {
                         <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
                     </div>
                     <div className="flex items-center gap-2">
-                        <a
+                        <button
                             id="tour-cuhub-mobile"
-                            href="https://cuhub.usestudly.com?ref=feed"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            onClick={() => navigate('/cuhub')}
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text rounded-full text-[11px] font-bold border border-reddit-border transition-colors"
                         >
                             <ExternalLink size={14} className="text-reddit-orange" />
                             <span>CUHUB</span>
-                        </a>
+                        </button>
                         <div className="flex items-center gap-1">
                             {!isAuthenticated ? (
                                 <button
@@ -107,22 +106,25 @@ const FeedPage = () => {
 
     return (
         <div>
+            <SEO 
+                title="Feed" 
+                description="Stay updated with the latest knowledge sharing and educational posts from the Studly community."
+                canonical="/feed"
+            />
             {/* Mobile Header */}
             <div className="lg:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                     <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
                 </div>
                 <div className="flex items-center gap-2">
-                    <a
+                    <button
                         id="tour-cuhub-mobile-active"
-                        href="https://cuhub.usestudly.com?ref=feed"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        onClick={() => navigate('/cuhub')}
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-reddit-cardHover hover:bg-reddit-border text-reddit-text rounded-full text-[11px] font-bold border border-reddit-border transition-colors"
                     >
                         <ExternalLink size={14} className="text-reddit-orange" />
                         <span>CUHUB</span>
-                    </a>
+                    </button>
                     <div className="flex items-center gap-1">
                         {!isAuthenticated ? (
                             <button
