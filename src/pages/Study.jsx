@@ -89,7 +89,7 @@ const Study = () => {
     return (
         <div className="w-full h-full bg-reddit-bg overflow-hidden flex flex-col relative">
             <SEO 
-                title="Study Engine" 
+                title="Lucid" 
                 description="Enter your personalized study focus mode with Studly's AI-powered learning engine."
                 canonical="/study"
             />
