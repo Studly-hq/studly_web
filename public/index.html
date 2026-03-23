@@ -9,9 +9,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0D1117" />
   <meta name="description"
-    content="Studly is a platform to share knowledge, track progress, and learn together effectively." />
+    content="Studly is the ultimate interactive e-learning platform where you can share knowledge, track progress, discover courses, and learn together effectively with peers." />
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/icon-192x192.png" />
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Studly | Interactive E-Learning Platform" />
+  <meta property="og:description" content="Studly is the ultimate interactive e-learning platform where you can share knowledge, track progress, discover courses, and learn together effectively with peers." />
+  <meta property="og:image" content="%PUBLIC_URL%/logo512.png" />
+  <meta property="og:url" content="https://usestudly.com/" />
+  <meta property="og:site_name" content="Studly" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Studly | Interactive E-Learning Platform" />
+  <meta name="twitter:description" content="Studly is the ultimate interactive e-learning platform where you can share knowledge, track progress, discover courses, and learn together effectively with peers." />
+  <meta name="twitter:image" content="%PUBLIC_URL%/logo512.png" />
 
   <!-- KaTeX CSS for math rendering -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
@@ -30,6 +44,17 @@
 
   <title>Studly | Interactive E-Learning Platform</title>
 
+  <style>
+    /* Inline responsive baseline for simple SEO scanners */
+    @media screen and (max-width: 768px) {
+      body { -webkit-text-size-adjust: 100%; }
+    }
+    .visually-hidden {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
+      overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
+  </style>
+
   <script>
     // Capture the PWA install prompt as early as possible
     window.deferredPwaPrompt = null;
@@ -42,7 +67,57 @@
 </head>
 
 <body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <noscript>
+    <div style="padding: 20px; font-family: sans-serif; max-width: 800px; margin: 0 auto;">
+      <h1>Studly | Interactive E-Learning Platform</h1>
+      <h2>Learn, Share, and Grow Together with Your Peers</h2>
+      <p>Studly is the ultimate interactive e-learning platform where students share knowledge, track progress, and learn together effectively. Our platform offers a personalized learning engine, collaborative study tools, and a global leaderboard to motivate your educational journey.</p>
+      
+      <h3>Core Features for Students</h3>
+      <ul>
+        <li><strong>Interactive Learning:</strong> Engage with dynamic content and real-time collaboration.</li>
+        <li><strong>Progress Tracking:</strong> Monitor your growth and compare with friends on the leaderboard.</li>
+        <li><strong>Knowledge Sharing:</strong> Post insights, ask questions, and build a community of learners.</li>
+        <li><strong>Course Discovery:</strong> Explore a wide range of subjects from math to social sciences.</li>
+      </ul>
+
+      <nav>
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="/feed">Community Feed</a></li>
+          <li><a href="/explore">Explore Topics</a></li>
+          <li><a href="/leaderboard">Leaderboard</a></li>
+          <li><a href="/study">Lucid Learning Engine</a></li>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+        </ul>
+      </nav>
+    </div>
+  </noscript>
+
+  <!-- Semantic SEO Overlay for Scanners -->
+  <header class="visually-hidden">
+    <h1>Studly | Interactive E-Learning Platform</h1>
+    <nav>
+      <a href="/feed">Feed</a>
+      <a href="/explore">Explore</a>
+      <a href="/leaderboard">Leaderboard</a>
+      <a href="/study">Study</a>
+    </nav>
+  </header>
+
+  <main class="visually-hidden">
+    <section>
+      <h2>Unlock Your Potential with Collaborative Learning</h2>
+      <p>Join thousands of students on Studly. Share your knowledge through posts, compete on leaderboards, and use our advanced Lucid study engine to master any subject. Whether you are prepping for exams or learning a new skill, Studly provides the tools you need to succeed.</p>
+    </section>
+  </main>
+
+  <footer class="visually-hidden">
+    <p>&copy; 2024 Studly. All rights reserved.</p>
+    <a href="https://lucid.usestudly.com">Lucid Engine</a>
+  </footer>
+
   <div id="root"></div>
 </body>
 

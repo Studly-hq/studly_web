@@ -72,7 +72,7 @@ function AppContent() {
               <div className="flex bg-reddit-bg h-screen overflow-hidden">
                 <div className="flex w-full max-w-[1440px] mx-auto relative relative-sidebar-container h-full">
                   {/* Left Sidebar */}
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 w-0 lg:w-auto">
                     <LeftSidebar />
                   </div>
 
@@ -126,7 +126,7 @@ function AppContent() {
                   </main>
 
                   {/* Right Sidebar */}
-                  <div className="hidden lg:block flex-shrink-0">
+                  <div className="hidden lg:block w-[320px] xl:w-[350px] flex-shrink-0">
                     <RightSidebar />
                   </div>
                 </div>
