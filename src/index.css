@@ -26,28 +26,27 @@
 
   /* Custom scrollbar for Reddit theme */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 4px;
+    height: 4px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #0D1117;
-    border-left: 1px solid #343536;
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #343536;
+    background: #555555;
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #818384;
+    background: #717171;
   }
 
   /* Firefox scrollbar */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #343536 #0D1117;
+    scrollbar-color: #555555 transparent;
   }
 
   /* Smooth transitions */
