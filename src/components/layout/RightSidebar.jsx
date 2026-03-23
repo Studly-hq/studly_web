@@ -61,8 +61,8 @@ const RightSidebar = () => {
   return (
     <motion.aside
       initial={false}
-      animate={{ width: isRightSidebarCollapsed ? '80px' : '350px' }}
-      className="hidden lg:flex flex-col flex-shrink-0 h-screen sticky top-0 px-4 pt-2 gap-4 overflow-y-auto pb-20 scrollbar-hide border-l border-reddit-border transition-all duration-300"
+      animate={{ width: isRightSidebarCollapsed ? '60px' : '350px' }}
+      className={`hidden lg:flex flex-col flex-shrink-0 h-screen sticky top-0 ${isRightSidebarCollapsed ? 'px-1 items-center' : 'px-4'} pt-2 gap-4 overflow-y-auto pb-20 scrollbar-hide border-l border-reddit-border`}
     >
 
       {/* Toggle Button */}
@@ -128,7 +128,7 @@ const RightSidebar = () => {
 
       {/* Stats Widget (if logged in) */}
       {isAuthenticated && (
-        <div className={`bg-[#16181c] rounded-2xl overflow-hidden border border-[#2f3336] ${isRightSidebarCollapsed ? 'flex flex-col items-center py-4 gap-6' : ''}`}>
+        <div className={`bg-[#16181c] rounded-2xl overflow-hidden border border-[#2f3336] ${isRightSidebarCollapsed ? 'flex flex-col items-center py-4 gap-6 w-full max-w-[48px]' : ''}`}>
           {!isRightSidebarCollapsed && <h2 className="font-bold text-xl px-4 py-3 border-b border-[#2f3336]">Your Progress</h2>}
 
           <div className={`${isRightSidebarCollapsed ? '' : 'px-4 py-3 hover:bg-[#1d1f23] transition-colors cursor-pointer'}`} onClick={() => navigate('/profile')}>

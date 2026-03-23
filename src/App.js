@@ -122,7 +122,7 @@ function AppContent() {
                 </main>
 
                 {/* Right Sidebar */}
-                <div className="hidden lg:block w-[320px] xl:w-[350px] flex-shrink-0">
+                <div className="hidden lg:block flex-shrink-0">
                   <RightSidebar />
                 </div>
               </div>

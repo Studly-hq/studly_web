@@ -46,6 +46,7 @@ const MobileBottomNav = () => {
         <div className="flex items-center justify-around px-2 sm:px-4 py-2 sm:py-2.5">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path ||
+              (item.isStudy && location.pathname === '/study') ||
               (item.id === 'courses' && location.pathname.startsWith('/courses')) ||
               (item.id === 'progress' && location.pathname === '/profile');
             const Icon = item.icon;
