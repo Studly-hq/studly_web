@@ -11,6 +11,7 @@ const Study = () => {
     const { isAuthenticated } = useAuth();
     const { setShowAuthModal } = useUI();
     const [isLoading, setIsLoading] = useState(false);
+    const [iframeLoading, setIframeLoading] = useState(true);
     const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
     const [activeToken, setActiveToken] = useState(null);
 
@@ -78,20 +79,25 @@ const Study = () => {
 
     if (isLoading || !activeToken) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[80vh]">
-                <Loader2 className="animate-spin text-reddit-orange mb-4" size={48} />
-                <p className="text-reddit-textMuted font-medium italic">Starting your personalized study engine...</p>
+            <div className="flex items-center justify-center min-h-[80vh]">
+                <Loader2 className="animate-spin text-reddit-orange" size={48} />
             </div>
         );
     }
 
     return (
-        <div className="w-full h-full bg-reddit-bg overflow-hidden flex flex-col">
+        <div className="w-full h-full bg-reddit-bg overflow-hidden flex flex-col relative">
+            {iframeLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-reddit-bg z-10">
+                    <Loader2 className="animate-spin text-reddit-orange" size={48} />
+                </div>
+            )}
             <iframe 
                 src={`${LUCID_URL}?token=${activeToken}`}
-                className="w-full flex-1 border-none"
+                className={`w-full flex-1 border-none transition-opacity duration-300 ${iframeLoading ? 'opacity-0' : 'opacity-100'}`}
                 title="Study App"
                 allow="clipboard-read; clipboard-write"
+                onLoad={() => setIframeLoading(false)}
             />
         </div>
     );

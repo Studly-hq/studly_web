@@ -97,7 +97,7 @@ function AppContent() {
                       </div>
                     }>
                       <Routes>
-                        <Route path="/" element={<Home />} />
+                        <Route path="/" element={<Navigate to="/study" replace />} />
                         <Route path="/feed" element={<FeedPage />} />
                         <Route path="/posts" element={<Navigate to="/feed" replace />} />
                         <Route path="/explore" element={<Explore />} />
@@ -127,7 +127,7 @@ function AppContent() {
                   </main>
 
                   {/* Right Sidebar */}
-                  <div className="hidden lg:block w-[350px] flex-shrink-0">
+                  <div className="hidden lg:block flex-shrink-0">
                     <RightSidebar />
                   </div>
                 </div>

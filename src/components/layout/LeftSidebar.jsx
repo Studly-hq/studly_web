@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, Loader2 } from 'lucide-react';
+import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, Loader2, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import { useNotifications } from '../../context/NotificationContext';
@@ -12,7 +12,7 @@ const LeftSidebar = () => {
   const navigate = useNavigate();
 
   const { isAuthenticated, currentUser } = useAuth();
-  const { setShowAuthModal, setShowCreatePostModal } = useUI();
+  const { setShowAuthModal, setShowCreatePostModal, isLeftSidebarCollapsed, setIsLeftSidebarCollapsed } = useUI();
   const { unreadCount } = useNotifications();
   const [isStudyLoading] = useState(false);
 
@@ -57,17 +57,38 @@ const LeftSidebar = () => {
 
   return (
     <motion.aside
-      initial={{ x: -20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      className="hidden lg:flex flex-col w-[280px] h-screen sticky top-0 px-2 justify-between"
+      initial={false}
+      animate={{ width: isLeftSidebarCollapsed ? '88px' : '280px' }}
+      className="hidden lg:flex flex-col h-screen sticky top-0 px-2 justify-between border-r border-reddit-border transition-all duration-300"
     >
       <div className="flex flex-col h-full">
         {/* Logo Area */}
-        <div className="p-3 my-1">
+        <div className="p-3 my-1 flex items-center justify-between">
           <Link to={isAuthenticated ? "/feed" : "/posts"} className="inline-flex items-center justify-center p-2 rounded-full hover:bg-reddit-cardHover/50 transition-colors w-12 h-12">
             <img src={logo} alt="Studly Logo" className="w-10 h-10 object-contain" />
           </Link>
+          {!isLeftSidebarCollapsed && (
+            <button 
+              onClick={() => setIsLeftSidebarCollapsed(true)}
+              className="p-2 rounded-full hover:bg-reddit-cardHover/50 text-reddit-textMuted hover:text-white transition-colors"
+              title="Collapse sidebar"
+            >
+              <PanelLeftClose size={20} />
+            </button>
+          )}
         </div>
+
+        {isLeftSidebarCollapsed && (
+          <div className="flex justify-center mb-4">
+            <button 
+              onClick={() => setIsLeftSidebarCollapsed(false)}
+              className="p-2 rounded-full hover:bg-reddit-cardHover/50 text-reddit-textMuted hover:text-white transition-colors"
+              title="Expand sidebar"
+            >
+              <PanelLeftOpen size={20} />
+            </button>
+          </div>
+        )}
 
         {/* Nav Items */}
         <nav className="flex-1 px-2 space-y-1">
@@ -92,7 +113,7 @@ const LeftSidebar = () => {
                       </span>
                     )}
                   </div>
-                  <span>{item.label}</span>
+                  {!isLeftSidebarCollapsed && <span>{item.label}</span>}
                 </div>
               </Component>
             );
@@ -115,7 +136,7 @@ const LeftSidebar = () => {
               ) : (
                 <PlayCircle size={26} strokeWidth={2} />
               )}
-              <span>{isStudyLoading ? 'Loading...' : 'Start Studying'}</span>
+              {!isLeftSidebarCollapsed && <span>{isStudyLoading ? 'Loading...' : 'Start Studying'}</span>}
             </div>
           </button>
 
@@ -125,9 +146,9 @@ const LeftSidebar = () => {
             <button
               id="tour-post-desktop"
               onClick={() => isAuthenticated ? setShowCreatePostModal(true) : setShowAuthModal(true)}
-              className="w-[90%] bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-2.5 rounded-full shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] text-lg"
+              className={`bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold rounded-full shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] ${isLeftSidebarCollapsed ? 'w-12 h-12 p-0 flex items-center justify-center mx-auto' : 'w-[90%] py-2.5 text-lg'}`}
             >
-              Post
+              {isLeftSidebarCollapsed ? <Plus size={24} /> : 'Post'}
             </button>
           </div>
         </nav>
@@ -151,12 +172,14 @@ const LeftSidebar = () => {
                     <User size={20} className="text-reddit-textMuted" />
                   </div>
                 )}
-                <div className="flex flex-col leading-snug hidden xl:flex min-w-0 overflow-hidden">
-                  <span className="font-bold text-sm truncate" title={currentUser?.displayName}>{currentUser?.displayName}</span>
-                  <span className="text-reddit-textMuted text-sm truncate" title={`@${currentUser?.username}`}>@{currentUser?.username}</span>
-                </div>
+                {!isLeftSidebarCollapsed && (
+                  <div className="flex flex-col leading-snug hidden xl:flex min-w-0 overflow-hidden">
+                    <span className="font-bold text-sm truncate" title={currentUser?.displayName}>{currentUser?.displayName}</span>
+                    <span className="text-reddit-textMuted text-sm truncate" title={`@${currentUser?.username}`}>@{currentUser?.username}</span>
+                  </div>
+                )}
               </div>
-              <MoreHorizontal className="hidden xl:block" size={18} />
+              {!isLeftSidebarCollapsed && <MoreHorizontal className="hidden xl:block" size={18} />}
             </button>
           ) : (
             <button
