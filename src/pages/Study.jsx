@@ -3,6 +3,7 @@ import { Loader2, GraduationCap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import { getStudyToken } from '../api/profile';
+import SEO from '../components/common/SEO';
 
 // Lucid app URL - update this when deploying
 const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
@@ -87,6 +88,11 @@ const Study = () => {
 
     return (
         <div className="w-full h-full bg-reddit-bg overflow-hidden flex flex-col relative">
+            <SEO 
+                title="Study Engine" 
+                description="Enter your personalized study focus mode with Studly's AI-powered learning engine."
+                canonical="/study"
+            />
             {iframeLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-reddit-bg z-10">
                     <Loader2 className="animate-spin text-reddit-orange" size={48} />

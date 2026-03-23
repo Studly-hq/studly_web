@@ -5,6 +5,7 @@ import { Search, TrendingUp, Hash, X, Flame, Sparkles, Clock, Loader2 } from 'lu
 import { useFeed } from '../context/FeedContext';
 import PostCard from '../components/post/PostCard';
 import { FeedSkeleton } from '../components/common/Skeleton';
+import SEO from '../components/common/SEO';
 
 const POSTS_PER_BATCH = 5;
 
@@ -122,6 +123,11 @@ const Explore = () => {
 
   return (
     <div className="min-h-screen bg-reddit-bg">
+      <SEO 
+        title="Explore" 
+        description="Discover trending educational topics, helpful tags, and inspiring students on Studly."
+        canonical="/explore"
+      />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
         <div className="max-w-[1200px] mx-auto px-4 py-3">

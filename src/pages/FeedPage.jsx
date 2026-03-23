@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import { useNotifications } from '../context/NotificationContext';
 import logo from '../assets/logo.png';
+import SEO from '../components/common/SEO';
 
 // Skeleton loader for feed
 const FeedSkeleton = () => (
@@ -105,6 +106,11 @@ const FeedPage = () => {
 
     return (
         <div>
+            <SEO 
+                title="Feed" 
+                description="Stay updated with the latest knowledge sharing and educational posts from the Studly community."
+                canonical="/feed"
+            />
             {/* Mobile Header */}
             <div className="lg:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
