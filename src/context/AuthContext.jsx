@@ -52,9 +52,9 @@ export const AuthProvider = ({ children }) => {
 
             // Only redirect if we weren't already on a clean state or if specifically requested
             // This prevents the infinite reload loop when refresh fails
-            const isAtFeed = window.location.pathname === "/feed";
-            if (!isAtFeed) {
-                window.location.href = "/feed";
+            const isAtStudy = window.location.pathname === "/study";
+            if (!isAtStudy) {
+                window.location.href = "/study";
             }
         }
     }, [disconnect]);
