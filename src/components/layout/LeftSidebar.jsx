@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, Loader2, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, Loader2, PanelLeftClose, PanelLeftOpen, Plus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import { useNotifications } from '../../context/NotificationContext';
