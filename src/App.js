@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
@@ -54,100 +54,95 @@ const Accessibility = lazy(() => import("./pages/legal/Accessibility"));
 function AppContent() {
   const { isAuthLoading } = useAuth();
 
-
-
   return (
     <LoadingGate isLoading={isAuthLoading}>
-      <Router>
-        <Routes>
-          {/* Course Bank routes (full screen, no header/sidebars) */}
-          <Route path="/courses" element={<Suspense fallback={null}><CourseBank /></Suspense>} />
-          <Route path="/courses/:topicId" element={<Suspense fallback={null}><TopicPlayer /></Suspense>} />
-          <Route path="/courses/admin" element={<Suspense fallback={null}><CourseAdmin /></Suspense>} />
+      <Routes>
+        {/* Course Bank routes (full screen, no header/sidebars) */}
+        <Route path="/courses" element={<Suspense fallback={null}><CourseBank /></Suspense>} />
+        <Route path="/courses/:topicId" element={<Suspense fallback={null}><TopicPlayer /></Suspense>} />
+        <Route path="/courses/admin" element={<Suspense fallback={null}><CourseAdmin /></Suspense>} />
 
-          {/* Main app routes (with sidebars) */}
-          <Route
-            path="/*"
-            element={
-              <div className="flex bg-reddit-bg h-screen overflow-hidden">
-                <div className="flex w-full max-w-[1440px] mx-auto relative relative-sidebar-container h-full">
-                  {/* Left Sidebar */}
-                  <div className="flex-shrink-0 w-0 lg:w-auto">
-                    <LeftSidebar />
-                  </div>
-
-                  {/* Center Content - Routes */}
-                  <main className="flex-1 min-w-0 border-x border-reddit-border pb-20 lg:pb-0 overflow-y-auto min-h-0 h-full">
-                    <Suspense fallback={
-                      <div className="max-w-[640px] mx-auto px-4 py-5">
-                        <div className="bg-reddit-card rounded border border-reddit-border p-4 animate-pulse mb-3">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 bg-reddit-cardHover rounded-full" />
-                            <div className="flex-1">
-                              <div className="w-24 h-3 bg-reddit-cardHover rounded mb-2" />
-                              <div className="w-16 h-2 bg-reddit-cardHover rounded" />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="h-3 bg-reddit-cardHover rounded" />
-                            <div className="h-3 bg-reddit-cardHover rounded w-[90%]" />
-                          </div>
-                        </div>
-                      </div>
-                    }>
-                      <Routes>
-                        <Route path="/" element={<Navigate to="/study" replace />} />
-                        <Route path="/feed" element={<FeedPage />} />
-                        <Route path="/posts" element={<Navigate to="/feed" replace />} />
-                        <Route path="/explore" element={<Explore />} />
-                        <Route path="/saved" element={<SavedPosts />} />
-                        <Route path="/upload" element={<UploadNotes />} />
-                        <Route path="/quiz-feed" element={<QuizFeed />} />
-                        <Route path="/profile" element={<UserProfile />} />
-                        <Route path="/profile/edit" element={<EditProfile />} />
-                        <Route path="/profile/:username" element={<UserProfile />} />
-                        <Route path="/post/:postId" element={<PostDetail />} />
-                        <Route path="/notifications" element={<Notifications />} />
-                        <Route path="/leaderboard" element={<Leaderboard />} />
-                        <Route path="/study" element={<Study />} />
-                        <Route path="/cuhub" element={<CUHUB />} />
-                        <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
-
-
-                        <Route path="/settings" element={<Settings />} />
-
-                        {/* Legal Routes */}
-                        <Route path="/terms" element={<TermsOfService />} />
-                        <Route path="/privacy" element={<PrivacyPolicy />} />
-                        <Route path="/cookie-policy" element={<CookiePolicy />} />
-                        <Route path="/accessibility" element={<Accessibility />} />
-                      </Routes>
-                    </Suspense>
-                  </main>
-
-                  {/* Right Sidebar */}
-                  <div className="hidden lg:block w-[320px] xl:w-[350px] flex-shrink-0">
-                    <RightSidebar />
-                  </div>
+        {/* Main app routes (with sidebars) */}
+        <Route
+          path="/*"
+          element={
+            <div className="flex bg-reddit-bg h-screen overflow-hidden">
+              <div className="flex w-full max-w-[1440px] mx-auto relative relative-sidebar-container h-full">
+                {/* Left Sidebar */}
+                <div className="flex-shrink-0 w-0 lg:w-auto">
+                  <LeftSidebar />
                 </div>
 
-                {/* Mobile Bottom Nav moved to its own container logic if needed, but keeping it inside /* for standard layout for now */}
-                <MobileBottomNav />
+                {/* Center Content - Routes */}
+                <main className="flex-1 min-w-0 border-x border-reddit-border pb-20 lg:pb-0 overflow-y-auto min-h-0 h-full">
+                  <Suspense fallback={
+                    <div className="max-w-[640px] mx-auto px-4 py-5">
+                      <div className="bg-reddit-card rounded border border-reddit-border p-4 animate-pulse mb-3">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 bg-reddit-cardHover rounded-full" />
+                          <div className="flex-1">
+                            <div className="w-24 h-3 bg-reddit-cardHover rounded mb-2" />
+                            <div className="w-16 h-2 bg-reddit-cardHover rounded" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="h-3 bg-reddit-cardHover rounded" />
+                          <div className="h-3 bg-reddit-cardHover rounded w-[90%]" />
+                        </div>
+                      </div>
+                    </div>
+                  }>
+                    <Routes>
+                      <Route path="/" element={<Navigate to="/study" replace />} />
+                      <Route path="/feed" element={<FeedPage />} />
+                      <Route path="/posts" element={<Navigate to="/feed" replace />} />
+                      <Route path="/explore" element={<Explore />} />
+                      <Route path="/saved" element={<SavedPosts />} />
+                      <Route path="/upload" element={<UploadNotes />} />
+                      <Route path="/quiz-feed" element={<QuizFeed />} />
+                      <Route path="/profile" element={<UserProfile />} />
+                      <Route path="/profile/edit" element={<EditProfile />} />
+                      <Route path="/profile/:username" element={<UserProfile />} />
+                      <Route path="/post/:postId" element={<PostDetail />} />
+                      <Route path="/notifications" element={<Notifications />} />
+                      <Route path="/leaderboard" element={<Leaderboard />} />
+                      <Route path="/study" element={<Study />} />
+                      <Route path="/cuhub" element={<CUHUB />} />
+                      <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
 
+
+                      <Route path="/settings" element={<Settings />} />
+                      {/* Legal Routes */}
+                      <Route path="/terms" element={<TermsOfService />} />
+                      <Route path="/privacy" element={<PrivacyPolicy />} />
+                      <Route path="/cookie-policy" element={<CookiePolicy />} />
+                      <Route path="/accessibility" element={<Accessibility />} />
+                    </Routes>
+                  </Suspense>
+                </main>
+
+                {/* Right Sidebar */}
+                <div className="hidden lg:block w-[320px] xl:w-[350px] flex-shrink-0">
+                  <RightSidebar />
+                </div>
               </div>
-            }
-          />
-        </Routes>
 
-        {/* Global Modals & Components (Shared across all routes including /courses) */}
-        <AuthModal />
-        <CreatePostModal />
-        <CelebrationModal />
-        <CommentSection />
-        <Toaster position="top-right" richColors />
-        <InstallBanner />
-        <OnboardingTour />
-      </Router>
+              {/* Mobile Bottom Nav moved to its own container logic if needed, but keeping it inside /* for standard layout for now */}
+              <MobileBottomNav />
+
+            </div>
+          }
+        />
+      </Routes>
+
+      {/* Global Modals & Components (Shared across all routes including /courses) */}
+      <AuthModal />
+      <CreatePostModal />
+      <CelebrationModal />
+      <CommentSection />
+      <Toaster position="top-right" richColors />
+      <InstallBanner />
+      <OnboardingTour />
     </LoadingGate>
   );
 }
@@ -164,9 +159,11 @@ function App() {
               <StudyGramProvider>
                 <CoursePlayerProvider>
                   <CelebrationProvider>
-                    <TopLoadingBar />
-                    <AppContent />
-                    <Analytics />
+                    <Router>
+                      <TopLoadingBar />
+                      <AppContent />
+                      <Analytics />
+                    </Router>
                   </CelebrationProvider>
                 </CoursePlayerProvider>
               </StudyGramProvider>

@@ -1,6 +1,13 @@
 {
     "version": 2,
 
+    "redirects": [
+        {
+            "source": "/",
+            "destination": "/study",
+            "permanent": false
+        }
+    ],
     "rewrites": [
         {
             "source": "/post/:postId",
