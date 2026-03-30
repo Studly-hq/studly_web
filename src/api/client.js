@@ -84,15 +84,21 @@ client.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Call refresh token endpoint - refresh token is now sent automatically via cookies
-        const response = await client.post("/auth/refresh-token");
-        const { token } = response.data;
+        // Send refresh_token via body in addition to cookies (for environments where cookies fail)
+        const cachedRefreshToken = localStorage.getItem("refresh_token");
+        const body = cachedRefreshToken ? { refresh_token: cachedRefreshToken } : {};
+        const response = await client.post("/auth/refresh-token", body);
+        const { token, refresh_token: newRefreshToken } = response.data;
 
         if (token) {
-          // Update header is no longer needed as browser handles cookie,
-          // but we retry the original request
+          // Update local storage and set header back up
+          localStorage.setItem("token", token);
+          if (newRefreshToken) localStorage.setItem("refresh_token", newRefreshToken);
+          
+          setAuthToken(token);
           processQueue(null, token);
 
+          originalRequest.headers.Authorization = `Bearer ${token}`;
           return client(originalRequest);
         }
       } catch (refreshError) {
@@ -121,5 +127,11 @@ export const setAuthToken = (token) => {
     delete client.defaults.headers.common["Authorization"];
   }
 };
+
+// Initialize token from localStorage if present
+const initialToken = localStorage.getItem("token");
+if (initialToken) {
+  setAuthToken(initialToken);
+}
 
 export default client;

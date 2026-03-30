@@ -10,7 +10,7 @@ const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com
 
 const Study = () => {
     const { isAuthenticated } = useAuth();
-    const { setShowAuthModal } = useUI();
+    const { setShowAuthModal, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
     const [isLoading, setIsLoading] = useState(false);
     const [iframeLoading, setIframeLoading] = useState(true);
     const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
@@ -46,6 +46,14 @@ const Study = () => {
             setIsLoading(false);
         }
     }, [isAuthenticated, cachedStudyToken, setShowAuthModal]);
+
+    // Auto-minimize sidebars when entering Study Hub (particularly on desktop)
+    useEffect(() => {
+        if (setIsLeftSidebarCollapsed && setIsRightSidebarCollapsed) {
+            setIsLeftSidebarCollapsed(true);
+            setIsRightSidebarCollapsed(true);
+        }
+    }, [setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed]);
 
     // Automatically start studying when authenticated and component mounts
     useEffect(() => {

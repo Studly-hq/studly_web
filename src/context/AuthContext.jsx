@@ -42,8 +42,10 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('[AuthContext] Logout error:', error);
         } finally {
-            // 3. Absolute cleanup of email and Supabase tokens
+            // 3. Absolute cleanup of email and tokens
             localStorage.removeItem("email");
+            localStorage.removeItem("token");
+            localStorage.removeItem("refresh_token");
 
             // Clear any keys starting with sb- (Supabase)
             Object.keys(localStorage).forEach(key => {
@@ -77,6 +79,8 @@ export const AuthProvider = ({ children }) => {
             if (userProfile.email) {
                 localStorage.setItem("email", userProfile.email);
             }
+            if (accessToken) localStorage.setItem("token", accessToken);
+            if (refreshToken) localStorage.setItem("refresh_token", refreshToken);
 
             connect();
             return true;
@@ -118,10 +122,6 @@ export const AuthProvider = ({ children }) => {
                     setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
                     setIsAuthenticated(true);
                     connect();
-
-                    // Cleanup legacy localStorage tokens if we are now confirmed cookie-authenticated
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("refresh_token");
                 }
             } catch (err) {
                 console.error('[AuthContext] Auth init fail (likely non-authenticated):', err);
@@ -142,10 +142,6 @@ export const AuthProvider = ({ children }) => {
                                 setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
                                 setIsAuthenticated(true);
                                 connect();
-
-                                // Cleanup after successful migration & state update
-                                localStorage.removeItem("token");
-                                localStorage.removeItem("refresh_token");
                             }
                         } catch (profileErr) {
                             console.error('[AuthContext] Migration succeeded but profile fetch failed:', profileErr);
@@ -190,7 +186,13 @@ export const AuthProvider = ({ children }) => {
     const login = useCallback(async (email, password) => {
         try {
             const data = await apiLogin(email, password);
-            if (data.token) setAuthToken(data.token);
+            if (data.token) {
+                setAuthToken(data.token);
+                localStorage.setItem("token", data.token);
+            }
+            if (data.refresh_token) {
+                localStorage.setItem("refresh_token", data.refresh_token);
+            }
             if (email) localStorage.setItem("email", email);
 
             await supabase.auth.setSession({
@@ -211,7 +213,13 @@ export const AuthProvider = ({ children }) => {
 
     const signup = useCallback(async (name, email, password) => {
         const data = await apiSignup(email, password, name);
-        if (data.token) setAuthToken(data.token);
+        if (data.token) {
+            setAuthToken(data.token);
+            localStorage.setItem("token", data.token);
+        }
+        if (data.refresh_token) {
+            localStorage.setItem("refresh_token", data.refresh_token);
+        }
         const userProfile = await getProfile();
         setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
         setIsAuthenticated(true);
