@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, Loader2, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, Loader2, PanelLeftClose, PanelLeftOpen, Zap } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import { useNotifications } from '../../context/NotificationContext';
@@ -12,7 +12,7 @@ const LeftSidebar = () => {
   const navigate = useNavigate();
 
   const { isAuthenticated, currentUser } = useAuth();
-  const { setShowAuthModal, setShowCreatePostModal, isLeftSidebarCollapsed, setIsLeftSidebarCollapsed } = useUI();
+  const { setShowAuthModal, setShowCreatePostModal, setShowUpgradeModal, setShowManagePlanModal, isLeftSidebarCollapsed, setIsLeftSidebarCollapsed } = useUI();
   const { unreadCount } = useNotifications();
   const [isStudyLoading] = useState(false);
 
@@ -152,6 +152,36 @@ const LeftSidebar = () => {
               </button>
             </div>
           </nav>
+        )}
+
+        {/* Plan Upgrade/Status Card */}
+        {isAuthenticated && !isLeftSidebarCollapsed && (
+          <div className="px-4 mb-4">
+            <div 
+              onClick={() => currentUser?.planType === 'pro' ? setShowManagePlanModal(true) : setShowUpgradeModal(true)}
+              className={`
+                relative overflow-hidden cursor-pointer p-4 rounded-2xl group transition-all duration-300
+                ${currentUser?.planType === 'pro' 
+                  ? 'bg-gradient-to-br from-indigo-600 to-purple-700 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]' 
+                  : 'bg-gradient-to-br from-reddit-orange to-orange-600 hover:shadow-[0_0_20px_rgba(255,69,0,0.4)]'}
+              `}
+            >
+              <div className="absolute top-0 left-0 w-full h-full bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
+                  <Zap className={`w-6 h-6 fill-white text-white ${currentUser?.planType === 'pro' ? '' : 'animate-pulse'}`} />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-white font-bold text-sm">
+                    {currentUser?.planType === 'pro' ? 'Pro Plan Active' : 'Upgrade to Pro'}
+                  </span>
+                  <span className="text-white/80 text-xs truncate">
+                    {currentUser?.planType === 'pro' ? 'Manage your subscription' : 'Unlock all premium features'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* User Profile / Auth Area (Bottom) */}

@@ -21,6 +21,7 @@ const mapBackendUserToFrontend = (backendUser) => {
     auraPoints: backendUser.aura_points || 0, // Default if missing, note snake_case
     following: backendUser.following_count || 0,
     followers: backendUser.followers_count || 0,
+    planType: backendUser.plan_type || "free",
   };
 };
 

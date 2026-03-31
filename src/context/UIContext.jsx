@@ -34,6 +34,7 @@ export const UIProvider = ({ children }) => {
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [showCreatePostModal, setShowCreatePostModal] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [showManagePlanModal, setShowManagePlanModal] = useState(false);
     const [showComments, setShowComments] = useState(null);
     const [selectedPost, setSelectedPost] = useState(null);
 
@@ -74,6 +75,8 @@ export const UIProvider = ({ children }) => {
         setShowCreatePostModal,
         showUpgradeModal,
         setShowUpgradeModal,
+        showManagePlanModal,
+        setShowManagePlanModal,
         showComments,
         setShowComments,
         selectedPost,
@@ -96,6 +99,7 @@ export const UIProvider = ({ children }) => {
         showAuthModal,
         showCreatePostModal,
         showUpgradeModal,
+        showManagePlanModal,
         showComments,
         selectedPost,
         isMobileMenuOpen,
