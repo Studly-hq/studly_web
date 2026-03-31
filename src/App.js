@@ -17,7 +17,9 @@ import RightSidebar from "./components/layout/RightSidebar";
 import MobileBottomNav from "./components/layout/MobileBottomNav";
 import AuthModal from "./components/modals/AuthModal";
 import CreatePostModal from "./components/modals/CreatePostModal";
-import CelebrationModal from "./components/modals/CelebrationModal";
+import CeleberationModal from "./components/modals/CelebrationModal";
+import UpgradeModal from "./components/modals/UpgradeModal";
+import ManagePlanModal from "./components/modals/ManagePlanModal";
 import CommentSection from "./components/comments/CommentSection";
 import { Toaster } from "sonner";
 import { Analytics } from '@vercel/analytics/react';
@@ -43,6 +45,7 @@ const Notifications = lazy(() => import("./pages/Notifications"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Study = lazy(() => import("./pages/Study"));
 const CUHUB = lazy(() => import("./pages/CUHUB"));
+const VerifyPayment = lazy(() => import("./pages/VerifyPayment"));
 
 
 // Legal Pages (Lazy loaded)
@@ -108,6 +111,7 @@ function AppContent() {
                       <Route path="/leaderboard" element={<Leaderboard />} />
                       <Route path="/study" element={<Study />} />
                       <Route path="/cuhub" element={<CUHUB />} />
+                      <Route path="/verify-payment" element={<VerifyPayment />} />
                       <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
 
 
@@ -138,6 +142,8 @@ function AppContent() {
       {/* Global Modals & Components (Shared across all routes including /courses) */}
       <AuthModal />
       <CreatePostModal />
+      <UpgradeModal />
+      <ManagePlanModal />
       <CelebrationModal />
       <CommentSection />
       <Toaster position="top-right" richColors />
