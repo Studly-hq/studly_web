@@ -34,9 +34,20 @@ export const UIProvider = ({ children }) => {
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [showCreatePostModal, setShowCreatePostModal] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [upgradeReason, setUpgradeReason] = useState(null); // 'limit_reached', 'manual', etc.
     const [showManagePlanModal, setShowManagePlanModal] = useState(false);
     const [showComments, setShowComments] = useState(null);
     const [selectedPost, setSelectedPost] = useState(null);
+
+    const openUpgradeModal = useCallback((reason = 'manual') => {
+        setUpgradeReason(reason);
+        setShowUpgradeModal(true);
+    }, []);
+
+    const closeUpgradeModal = useCallback(() => {
+        setShowUpgradeModal(false);
+        setTimeout(() => setUpgradeReason(null), 300); // Clear after animation
+    }, []);
 
     // Mobile Menu State
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -75,6 +86,10 @@ export const UIProvider = ({ children }) => {
         setShowCreatePostModal,
         showUpgradeModal,
         setShowUpgradeModal,
+        upgradeReason,
+        setUpgradeReason,
+        openUpgradeModal,
+        closeUpgradeModal,
         showManagePlanModal,
         setShowManagePlanModal,
         showComments,
@@ -99,6 +114,9 @@ export const UIProvider = ({ children }) => {
         showAuthModal,
         showCreatePostModal,
         showUpgradeModal,
+        upgradeReason,
+        openUpgradeModal,
+        closeUpgradeModal,
         showManagePlanModal,
         showComments,
         selectedPost,

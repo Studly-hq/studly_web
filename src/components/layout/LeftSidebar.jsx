@@ -11,8 +11,7 @@ const LeftSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { isAuthenticated, currentUser } = useAuth();
-  const { setShowAuthModal, setShowCreatePostModal, setShowUpgradeModal, setShowManagePlanModal, isLeftSidebarCollapsed, setIsLeftSidebarCollapsed } = useUI();
+  const { setShowAuthModal, setShowCreatePostModal, openUpgradeModal, setShowManagePlanModal, isLeftSidebarCollapsed, setIsLeftSidebarCollapsed } = useUI();
   const { unreadCount } = useNotifications();
   const [isStudyLoading] = useState(false);
 
@@ -158,12 +157,12 @@ const LeftSidebar = () => {
         {isAuthenticated && !isLeftSidebarCollapsed && (
           <div className="px-4 mb-4">
             <div 
-              onClick={() => currentUser?.planType === 'pro' ? setShowManagePlanModal(true) : setShowUpgradeModal(true)}
+              onClick={() => currentUser?.planType === 'pro' ? setShowManagePlanModal(true) : openUpgradeModal('manual')}
               className={`
                 relative overflow-hidden cursor-pointer p-4 rounded-2xl group transition-all duration-300
                 ${currentUser?.planType === 'pro' 
-                  ? 'bg-gradient-to-br from-indigo-600 to-purple-700 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]' 
-                  : 'bg-gradient-to-br from-reddit-orange to-orange-600 hover:shadow-[0_0_20px_rgba(255,69,0,0.4)]'}
+                  ? 'bg-gradient-to-br from-indigo-600 to-purple-700' 
+                  : 'bg-gradient-to-br from-reddit-orange to-orange-600'}
               `}
             >
               <div className="absolute top-0 left-0 w-full h-full bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
