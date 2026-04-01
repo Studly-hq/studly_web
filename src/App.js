@@ -17,7 +17,7 @@ import RightSidebar from "./components/layout/RightSidebar";
 import MobileBottomNav from "./components/layout/MobileBottomNav";
 import AuthModal from "./components/modals/AuthModal";
 import CreatePostModal from "./components/modals/CreatePostModal";
-import CeleberationModal from "./components/modals/CelebrationModal";
+import CelebrationModal from "./components/modals/CelebrationModal";
 import UpgradeModal from "./components/modals/UpgradeModal";
 import ManagePlanModal from "./components/modals/ManagePlanModal";
 import CommentSection from "./components/comments/CommentSection";
