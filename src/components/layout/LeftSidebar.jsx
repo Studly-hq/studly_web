@@ -11,6 +11,7 @@ const LeftSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const { isAuthenticated, currentUser } = useAuth();
   const { setShowAuthModal, setShowCreatePostModal, openUpgradeModal, setShowManagePlanModal, isLeftSidebarCollapsed, setIsLeftSidebarCollapsed } = useUI();
   const { unreadCount } = useNotifications();
   const [isStudyLoading] = useState(false);
@@ -154,30 +155,35 @@ const LeftSidebar = () => {
         )}
 
         {/* Plan Upgrade/Status Card */}
-        {isAuthenticated && !isLeftSidebarCollapsed && (
-          <div className="px-4 mb-4">
+        {/* Plan Upgrade/Status Card */}
+        {isAuthenticated && (
+          <div className={`${isLeftSidebarCollapsed ? 'px-1 mb-4 flex justify-center' : 'px-4 mb-4'}`}>
             <div 
               onClick={() => currentUser?.planType === 'pro' ? setShowManagePlanModal(true) : openUpgradeModal('manual')}
+              title={isLeftSidebarCollapsed ? (currentUser?.planType === 'pro' ? 'Pro Plan Active' : 'Upgrade to Pro') : ''}
               className={`
-                relative overflow-hidden cursor-pointer p-4 rounded-2xl group transition-all duration-300
+                relative overflow-hidden cursor-pointer rounded-2xl group transition-all duration-300
+                ${isLeftSidebarCollapsed ? 'w-10 h-10 flex items-center justify-center' : 'p-4 w-full'}
                 ${currentUser?.planType === 'pro' 
                   ? 'bg-gradient-to-br from-indigo-600 to-purple-700' 
                   : 'bg-gradient-to-br from-reddit-orange to-orange-600'}
               `}
             >
               <div className="absolute top-0 left-0 w-full h-full bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
+              <div className={`flex items-center gap-3 ${isLeftSidebarCollapsed ? 'justify-center w-full h-full' : ''}`}>
+                <div className={`${isLeftSidebarCollapsed ? 'w-full h-full bg-transparent' : 'w-10 h-10 rounded-xl bg-white/20'} flex items-center justify-center flex-shrink-0 backdrop-blur-sm`}>
                   <Zap className={`w-6 h-6 fill-white text-white ${currentUser?.planType === 'pro' ? '' : 'animate-pulse'}`} />
                 </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-white font-bold text-sm">
-                    {currentUser?.planType === 'pro' ? 'Pro Plan Active' : 'Upgrade to Pro'}
-                  </span>
-                  <span className="text-white/80 text-xs truncate">
-                    {currentUser?.planType === 'pro' ? 'Manage your subscription' : 'Unlock all premium features'}
-                  </span>
-                </div>
+                {!isLeftSidebarCollapsed && (
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-white font-bold text-sm">
+                      {currentUser?.planType === 'pro' ? 'Pro Plan Active' : 'Upgrade to Pro'}
+                    </span>
+                    <span className="text-white/80 text-xs truncate">
+                      {currentUser?.planType === 'pro' ? 'Manage your subscription' : 'Unlock all premium features'}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

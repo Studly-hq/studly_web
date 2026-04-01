@@ -9,6 +9,7 @@ import SEO from '../components/common/SEO';
 const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
 
 const Study = () => {
+    const { isAuthenticated } = useAuth();
     const { setShowAuthModal, openUpgradeModal, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
     const [isLoading, setIsLoading] = useState(false);
     const [iframeLoading, setIframeLoading] = useState(true);
