@@ -34,7 +34,7 @@ const FeedSkeleton = () => (
 const FeedPage = () => {
     const navigate = useNavigate();
     const { initializeFeed, loadingState } = useFeed();
-    const { isAuthenticated, currentUser } = useAuth();
+    const { isAuthenticated, currentUser, isAuthLoading } = useAuth();
     const { setShowAuthModal, openUpgradeModal } = useUI();
     const { unreadCount } = useNotifications();
 

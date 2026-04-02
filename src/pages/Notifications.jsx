@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Bell, Heart, MessageSquare, Bookmark, UserPlus, ArrowLeft, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useUI } from "../context/UIContext";
 import { useNotifications } from "../context/NotificationContext"; // New import
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { toast } from "sonner";
