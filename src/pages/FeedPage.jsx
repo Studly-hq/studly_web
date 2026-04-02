@@ -69,9 +69,9 @@ const FeedPage = () => {
                             <ExternalLink size={14} className="text-reddit-orange" />
                             <span>CUHUB</span>
                         </button>
-                        {isAuthenticated && currentUser?.planType !== 'pro' && (
+                        {(!isAuthenticated || currentUser?.planType !== 'pro') && (
                             <button
-                                onClick={() => openUpgradeModal('manual')}
+                                onClick={() => isAuthenticated ? openUpgradeModal('manual') : setShowAuthModal(true)}
                                 className="flex items-center gap-1.5 bg-gradient-to-r from-reddit-orange to-orange-600 text-white px-3 py-1.5 rounded-full text-[11px] font-bold shadow-sm"
                             >
                                 <Zap size={12} fill="white" className="text-white" />
@@ -134,9 +134,9 @@ const FeedPage = () => {
                         <ExternalLink size={14} className="text-reddit-orange" />
                         <span>CUHUB</span>
                     </button>
-                    {isAuthenticated && currentUser?.planType !== 'pro' && (
+                    {(!isAuthenticated || currentUser?.planType !== 'pro') && (
                         <button
-                            onClick={() => openUpgradeModal('manual')}
+                            onClick={() => isAuthenticated ? openUpgradeModal('manual') : setShowAuthModal(true)}
                             className="flex items-center gap-1.5 bg-gradient-to-r from-reddit-orange to-orange-600 text-white px-3 py-1.5 rounded-full text-[11px] font-bold shadow-sm"
                         >
                             <Zap size={12} fill="white" className="text-white" />

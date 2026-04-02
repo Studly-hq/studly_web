@@ -1,17 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUI } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
 import { X, ShieldCheck, CreditCard, Calendar, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { getQuota } from '../../api/billing';
 
 const ManagePlanModal = () => {
   const { showManagePlanModal, setShowManagePlanModal } = useUI();
   const { updateUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmCancel, setShowConfirmCancel] = useState(false);
+  const [nextBillingDate, setNextBillingDate] = useState(null);
+
+  useEffect(() => {
+    if (!showManagePlanModal) return;
+    const fetchBillingInfo = async () => {
+      try {
+        const quota = await getQuota();
+        if (quota?.current_period_end) {
+          setNextBillingDate(new Date(quota.current_period_end));
+        }
+      } catch (e) {
+        // Non-critical, we'll just not show the date
+      }
+    };
+    fetchBillingInfo();
+  }, [showManagePlanModal]);
 
   if (!showManagePlanModal) return null;
+
+  const formatBillingDate = (date) => {
+    if (!date || isNaN(date.getTime())) return 'N/A';
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
 
   const handleCancelSubscription = async () => {
     try {
@@ -72,7 +98,7 @@ const ManagePlanModal = () => {
               </div>
               <div className="flex items-center gap-2 text-reddit-text text-sm">
                 <Calendar size={16} className="text-reddit-textMuted" />
-                <span>Next billing date: In 30 days</span>
+                <span>Next billing date: {nextBillingDate ? formatBillingDate(nextBillingDate) : 'Loading...'}</span>
               </div>
             </div>
           </div>
@@ -129,3 +155,4 @@ const ManagePlanModal = () => {
 };
 
 export default ManagePlanModal;
+

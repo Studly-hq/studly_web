@@ -122,7 +122,7 @@ const Study = () => {
                 src={`${LUCID_URL}?token=${activeToken}`}
                 className={`w-full flex-1 border-none transition-opacity duration-300 ${iframeLoading ? 'opacity-0' : 'opacity-100'}`}
                 title="Study App"
-                allow="clipboard-read; clipboard-write"
+                allow="clipboard-read; clipboard-write; microphone; camera"
                 onLoad={() => setIframeLoading(false)}
             />
         </div>
