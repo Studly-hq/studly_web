@@ -1,16 +1,18 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Bell, Heart, MessageSquare, Bookmark, UserPlus, ArrowLeft } from "lucide-react";
+import { Bell, Heart, MessageSquare, Bookmark, UserPlus, ArrowLeft, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useUI } from "../context/UIContext";
 import { useNotifications } from "../context/NotificationContext"; // New import
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { toast } from "sonner";
 
 const Notifications = () => {
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
-    const { notifications, loading, markAllRead } = useNotifications(); // Refactored to use NotificationContext
+    const { isAuthenticated, currentUser } = useAuth();
+    const { notifications, loading, markAllRead } = useNotifications(); 
+    const { openUpgradeModal } = useUI();
 
     useEffect(() => {
         if (isAuthenticated && notifications.some(n => !n.is_read)) {
@@ -74,12 +76,21 @@ const Notifications = () => {
             {/* Header */}
             <div className="sticky top-0 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
                 <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 flex-1">
                         <button onClick={() => navigate(-1)} className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors">
                             <ArrowLeft size={20} />
                         </button>
                         <h1 className="text-xl font-bold">Notifications</h1>
                     </div>
+                    {isAuthenticated && currentUser?.planType !== 'pro' && (
+                        <button
+                            onClick={() => openUpgradeModal('manual')}
+                            className="lg:hidden flex items-center gap-1.5 bg-gradient-to-r from-reddit-orange to-orange-600 text-white px-3 py-1.5 rounded-full text-[11px] font-bold shadow-sm"
+                        >
+                            <Zap size={12} fill="white" className="text-white" />
+                            <span>Upgrade</span>
+                        </button>
+                    )}
                     {notifications.some(n => !n.is_read) && (
                         <button
                             onClick={handleMarkAllRead}

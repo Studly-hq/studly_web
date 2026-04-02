@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Compass, Bell, ExternalLink } from 'lucide-react';
+import { Compass, Bell, ExternalLink, Zap } from 'lucide-react';
 import Feed from '../components/feed/Feed';
 import FeedComposer from '../components/feed/FeedComposer';
 import { useFeed } from '../context/FeedContext';
@@ -34,8 +34,8 @@ const FeedSkeleton = () => (
 const FeedPage = () => {
     const navigate = useNavigate();
     const { initializeFeed, loadingState } = useFeed();
-    const { isAuthLoading, isAuthenticated } = useAuth();
-    const { setShowAuthModal } = useUI();
+    const { isAuthenticated, currentUser, isAuthLoading } = useAuth();
+    const { setShowAuthModal, openUpgradeModal } = useUI();
     const { unreadCount } = useNotifications();
 
     useEffect(() => {
@@ -69,6 +69,15 @@ const FeedPage = () => {
                             <ExternalLink size={14} className="text-reddit-orange" />
                             <span>CUHUB</span>
                         </button>
+                        {isAuthenticated && currentUser?.planType !== 'pro' && (
+                            <button
+                                onClick={() => openUpgradeModal('manual')}
+                                className="flex items-center gap-1.5 bg-gradient-to-r from-reddit-orange to-orange-600 text-white px-3 py-1.5 rounded-full text-[11px] font-bold shadow-sm"
+                            >
+                                <Zap size={12} fill="white" className="text-white" />
+                                <span>Upgrade</span>
+                            </button>
+                        )}
                         <div className="flex items-center gap-1">
                             {!isAuthenticated ? (
                                 <button
@@ -125,6 +134,15 @@ const FeedPage = () => {
                         <ExternalLink size={14} className="text-reddit-orange" />
                         <span>CUHUB</span>
                     </button>
+                    {isAuthenticated && currentUser?.planType !== 'pro' && (
+                        <button
+                            onClick={() => openUpgradeModal('manual')}
+                            className="flex items-center gap-1.5 bg-gradient-to-r from-reddit-orange to-orange-600 text-white px-3 py-1.5 rounded-full text-[11px] font-bold shadow-sm"
+                        >
+                            <Zap size={12} fill="white" className="text-white" />
+                            <span>Upgrade</span>
+                        </button>
+                    )}
                     <div className="flex items-center gap-1">
                         {!isAuthenticated ? (
                             <button

@@ -8,6 +8,7 @@ import {
   Trophy,
   BookOpen,
   User,
+  Zap
 } from "lucide-react";
 import SEO from "../components/common/SEO";
 import { ProfileHeaderSkeleton, FeedSkeleton } from "../components/common/Skeleton";
@@ -39,7 +40,7 @@ const UserProfileContent = () => {
     deletePostFromState,
   } = useFeed();
 
-  const { setShowAuthModal } = useUI();
+  const { setShowAuthModal, openUpgradeModal } = useUI();
 
   const [activeTab, setActiveTab] = useState("posts");
   const [profileUser, setProfileUser] = useState(null);
@@ -267,14 +268,23 @@ const UserProfileContent = () => {
             >
               <ArrowLeft size={20} className="text-reddit-text" />
             </motion.button>
-            <div>
-              <h1 className="text-xl font-bold text-reddit-text">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl font-bold text-reddit-text truncate">
                 {profileUser.displayName}
               </h1>
-              <p className="text-sm text-reddit-textMuted">
+              <p className="text-sm text-reddit-textMuted truncate">
                 {userPosts.length} posts
               </p>
             </div>
+            {isAuthenticated && currentUser?.planType !== 'pro' && (
+              <button
+                onClick={() => openUpgradeModal('manual')}
+                className="lg:hidden flex items-center gap-1.5 bg-gradient-to-r from-reddit-orange to-orange-600 text-white px-3 py-1.5 rounded-full text-[11px] font-bold shadow-sm"
+              >
+                <Zap size={12} fill="white" className="text-white" />
+                <span>Upgrade</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
