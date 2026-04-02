@@ -8,7 +8,8 @@ import {
   Trophy,
   BookOpen,
   User,
-  Zap
+  Zap,
+  ShieldCheck
 } from "lucide-react";
 import SEO from "../components/common/SEO";
 import { ProfileHeaderSkeleton, FeedSkeleton } from "../components/common/Skeleton";
@@ -40,7 +41,7 @@ const UserProfileContent = () => {
     deletePostFromState,
   } = useFeed();
 
-  const { setShowAuthModal, openUpgradeModal } = useUI();
+  const { setShowAuthModal, openUpgradeModal, setShowManagePlanModal } = useUI();
 
   const [activeTab, setActiveTab] = useState("posts");
   const [profileUser, setProfileUser] = useState(null);
@@ -285,6 +286,15 @@ const UserProfileContent = () => {
                 <span>Upgrade</span>
               </button>
             )}
+            {isAuthenticated && currentUser?.planType === 'pro' && isOwnProfile && (
+              <button
+                onClick={() => setShowManagePlanModal(true)}
+                className="lg:hidden flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1.5 rounded-full text-[11px] font-bold shadow-sm"
+              >
+                <ShieldCheck size={12} className="text-white" />
+                <span>Pro Plan</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -383,6 +393,24 @@ const UserProfileContent = () => {
             </div>
           </div>
 
+          {/* Manage Subscription - visible for Pro own-profile */}
+          {isOwnProfile && isAuthenticated && currentUser?.planType === 'pro' && (
+            <button
+              onClick={() => setShowManagePlanModal(true)}
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 hover:border-indigo-500/40 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <ShieldCheck size={18} className="text-white" />
+                </div>
+                <div className="text-left">
+                  <p className="text-white text-sm font-bold">Pro Plan Active</p>
+                  <p className="text-reddit-textMuted text-xs">Manage your subscription</p>
+                </div>
+              </div>
+              <ArrowLeft size={16} className="text-reddit-textMuted rotate-180 group-hover:translate-x-1 transition-transform" />
+            </button>
+          )}
 
         </motion.div>
 
