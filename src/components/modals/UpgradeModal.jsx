@@ -68,7 +68,7 @@ const UpgradeModal = () => {
             </h2>
             <p className="text-reddit-textMuted text-base sm:text-lg leading-relaxed max-w-lg mx-auto">
               {isLimitReached 
-                ? "You've hit your free daily limit! Upgrade now to get 30 uploads per day and limitless AI power."
+                ? "You've hit your free daily limit! Upgrade now to get 10 uploads per day and limitless AI power."
                 : "Unlock limitless study power and accelerate your learning with Studly Premium."}
             </p>
           </div>
