@@ -136,7 +136,7 @@ const UpgradeModal = () => {
         {/* Close Button */}
         <button
           onClick={closeUpgradeModal}
-          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-reddit-bg text-reddit-textMuted hover:text-white hover:bg-reddit-dark transition-all"
+          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-reddit-bg text-reddit-textMuted hover:text-white hover:bg-reddit-cardHover transition-all"
         >
           <X size={18} />
         </button>
@@ -213,7 +213,7 @@ const UpgradeModal = () => {
                       </button>
                     </div>
                   ) : (
-                    <div className="flex gap-2">
+                    <div className="space-y-2">
                       <input
                         type="text"
                         value={voucherCode}
@@ -221,17 +221,19 @@ const UpgradeModal = () => {
                           setVoucherCode(e.target.value.toUpperCase());
                           setVoucherError('');
                         }}
-                        placeholder="Enter code"
+                        placeholder="ENTER CODE"
                         maxLength={6}
-                        className="flex-1 bg-reddit-dark border border-reddit-border/50 rounded-lg px-4 py-2.5 text-white text-sm font-mono placeholder:text-reddit-textMuted/50 focus:outline-none focus:border-reddit-orange/50 focus:ring-1 focus:ring-reddit-orange/20 transition-all uppercase tracking-widest"
+                        className="w-full bg-reddit-input border border-reddit-border rounded-lg px-4 py-3 text-white text-sm font-mono placeholder:text-reddit-textMuted focus:outline-none focus:border-reddit-orange/50 focus:ring-1 focus:ring-reddit-orange/20 transition-all uppercase tracking-widest text-center"
                       />
-                      <button
-                        onClick={handleApplyVoucher}
-                        disabled={isApplyingVoucher || !voucherCode.trim()}
-                        className="px-4 py-2.5 bg-reddit-dark border border-reddit-border/50 rounded-lg text-reddit-textMuted hover:text-white hover:border-reddit-orange/50 transition-all text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
-                      >
-                        {isApplyingVoucher ? <Loader2 className="animate-spin w-4 h-4" /> : "Apply"}
-                      </button>
+                      {voucherCode.trim().length === 6 && (
+                        <button
+                          onClick={handleApplyVoucher}
+                          disabled={isApplyingVoucher}
+                          className="w-full py-2.5 bg-reddit-input border border-reddit-orange/40 rounded-lg text-reddit-orange hover:bg-reddit-orange/10 hover:border-reddit-orange transition-all text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          {isApplyingVoucher ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : "Apply Code"}
+                        </button>
+                      )}
                     </div>
                   )}
 
