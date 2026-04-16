@@ -5,7 +5,6 @@ import { useAuth } from "../../context/AuthContext";
 import { useUI } from "../../context/UIContext";
 import { toast } from "sonner";
 import LoadingSpinner from "../common/LoadingSpinner";
-import { supabase } from "../../utils/supabase";
 
 const AuthModal = () => {
   const { showAuthModal, setShowAuthModal } = useUI();
