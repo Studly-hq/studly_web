@@ -9,7 +9,7 @@ import SEO from '../components/common/SEO';
 const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
 
 const Study = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, currentUser } = useAuth();
     const { setShowAuthModal, openUpgradeModal, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
     const [isLoading, setIsLoading] = useState(false);
     const [iframeLoading, setIframeLoading] = useState(true);
@@ -66,13 +66,16 @@ const Study = () => {
     useEffect(() => {
         const handleMessage = (event) => {
             if (event.data?.type === 'QUOTA_EXCEEDED') {
-                openUpgradeModal('limit_reached');
+                const isFree = !currentUser || currentUser.planType === 'free';
+                if (isFree) {
+                    openUpgradeModal('limit_reached');
+                }
             }
         };
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    }, [openUpgradeModal]);
+    }, [openUpgradeModal, currentUser]);
 
     if (!isAuthenticated) {
         return (
