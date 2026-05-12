@@ -36,6 +36,7 @@ export const UIProvider = ({ children }) => {
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [upgradeReason, setUpgradeReason] = useState(null); // 'limit_reached', 'manual', etc.
     const [showManagePlanModal, setShowManagePlanModal] = useState(false);
+    const [showPlanExpiredModal, setShowPlanExpiredModal] = useState(false);
     const [showComments, setShowComments] = useState(null);
     const [selectedPost, setSelectedPost] = useState(null);
 
@@ -92,6 +93,8 @@ export const UIProvider = ({ children }) => {
         closeUpgradeModal,
         showManagePlanModal,
         setShowManagePlanModal,
+        showPlanExpiredModal,
+        setShowPlanExpiredModal,
         showComments,
         setShowComments,
         selectedPost,
@@ -118,6 +121,7 @@ export const UIProvider = ({ children }) => {
         openUpgradeModal,
         closeUpgradeModal,
         showManagePlanModal,
+        showPlanExpiredModal,
         showComments,
         selectedPost,
         isMobileMenuOpen,
