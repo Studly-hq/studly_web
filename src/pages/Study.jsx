@@ -36,11 +36,15 @@ const Study = () => {
             setActiveToken(token);
         } catch (error) {
             console.error('Failed to get study token:', error);
-            try {
-                const freshToken = await getStudyToken();
-                setActiveToken(freshToken);
-            } catch (innerError) {
-                console.error('Final attempt failed:', innerError);
+            // Don't retry immediately on 429 — it will just consume more rate-limit quota
+            // and cause a cascade of failures. Let the user try again manually.
+            if (error.response?.status !== 429) {
+                try {
+                    const freshToken = await getStudyToken();
+                    setActiveToken(freshToken);
+                } catch (innerError) {
+                    console.error('Final attempt failed:', innerError);
+                }
             }
         } finally {
             setIsLoading(false);
