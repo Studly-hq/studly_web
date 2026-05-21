@@ -1,11 +1,11 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
 import { CelebrationProvider } from "./context/CelebrationContext";
 import TopLoadingBar from "./components/common/TopLoadingBar";
 import { WebSocketProvider } from "./context/WebSocketContext";
-import { UIProvider, useUI } from "./context/UIContext";
+import { UIProvider } from "./context/UIContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { FeedProvider } from "./context/FeedContext";
 import { NotificationProvider } from "./context/NotificationContext";
@@ -20,7 +20,6 @@ import CreatePostModal from "./components/modals/CreatePostModal";
 import CelebrationModal from "./components/modals/CelebrationModal";
 import UpgradeModal from "./components/modals/UpgradeModal";
 import ManagePlanModal from "./components/modals/ManagePlanModal";
-import PlanExpiredModal from "./components/modals/PlanExpiredModal";
 import CommentSection from "./components/comments/CommentSection";
 import { Toaster } from "sonner";
 import { Analytics } from '@vercel/analytics/react';
@@ -56,24 +55,7 @@ const CookiePolicy = lazy(() => import("./pages/legal/CookiePolicy"));
 const Accessibility = lazy(() => import("./pages/legal/Accessibility"));
 
 function AppContent() {
-  const { isAuthLoading, currentUser } = useAuth();
-  const { setShowPlanExpiredModal } = useUI();
-
-  // Handle plan expiration detection
-  useEffect(() => {
-    if (!currentUser) return;
-    
-    const lastPlan = localStorage.getItem('last_known_plan');
-    const currentPlan = currentUser.planType || 'free';
-    
-    // If they were pro and now they are free, it means they expired
-    if (lastPlan === 'pro' && currentPlan === 'free') {
-      setShowPlanExpiredModal(true);
-    }
-    
-    // Update the stored plan
-    localStorage.setItem('last_known_plan', currentPlan);
-  }, [currentUser, setShowPlanExpiredModal]);
+  const { isAuthLoading } = useAuth();
 
   return (
     <LoadingGate isLoading={isAuthLoading}>
@@ -162,7 +144,6 @@ function AppContent() {
       <CreatePostModal />
       <UpgradeModal />
       <ManagePlanModal />
-      <PlanExpiredModal />
       <CelebrationModal />
       <CommentSection />
       <Toaster position="top-right" richColors />

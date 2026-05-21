@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, TrendingUp, Hash, X, Flame, Sparkles, Clock, Loader2, Zap } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { useUI } from '../context/UIContext';
+import { Search, TrendingUp, Hash, X, Flame, Sparkles, Clock, Loader2 } from 'lucide-react';
 import { useFeed } from '../context/FeedContext';
 import PostCard from '../components/post/PostCard';
 import { FeedSkeleton } from '../components/common/Skeleton';
@@ -13,8 +11,6 @@ const POSTS_PER_BATCH = 5;
 
 const Explore = () => {
   const { posts, isFeedLoading, updatePostInState, deletePostFromState } = useFeed();
-  const { isAuthenticated, currentUser } = useAuth();
-  const { openUpgradeModal } = useUI();
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   const [searchQuery, setSearchQuery] = useState(initialQuery);
@@ -136,32 +132,21 @@ const Explore = () => {
       <div className="sticky top-0 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
         <div className="max-w-[1200px] mx-auto px-4 py-3">
           {/* Search Bar */}
-          <div className="flex items-center gap-3 mb-3">
-            <div className="relative flex-1">
-              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-reddit-textMuted" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search posts, tags, users..."
-                className="w-full pl-10 pr-10 py-2 bg-reddit-input border border-reddit-border rounded text-reddit-text text-sm placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange transition-colors"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 hover:bg-reddit-cardHover rounded transition-colors"
-                >
-                  <X size={16} className="text-reddit-textMuted" />
-                </button>
-              )}
-            </div>
-            {isAuthenticated && currentUser?.planType !== 'pro' && (
+          <div className="relative mb-3">
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-reddit-textMuted" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search posts, tags, users..."
+              className="w-full pl-10 pr-10 py-2 bg-reddit-input border border-reddit-border rounded text-reddit-text text-sm placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange transition-colors"
+            />
+            {searchQuery && (
               <button
-                onClick={() => openUpgradeModal('manual')}
-                className="lg:hidden flex items-center gap-1.5 bg-gradient-to-r from-reddit-orange to-orange-600 text-white px-3 py-1.5 rounded-full text-[11px] font-bold shadow-sm flex-shrink-0"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 hover:bg-reddit-cardHover rounded transition-colors"
               >
-                <Zap size={12} fill="white" className="text-white" />
-                <span>Upgrade</span>
+                <X size={16} className="text-reddit-textMuted" />
               </button>
             )}
           </div>

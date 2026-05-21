@@ -30,14 +30,3 @@ export const getQuota = async () => {
         throw error;
     }
 };
-
-export const redeemVoucher = async (code) => {
-    try {
-        const response = await client.post('/billing/voucher/redeem', { code });
-        return response.data;
-    } catch (error) {
-        console.error("Redeem voucher error:", error);
-        throw error;
-    }
-};
-
