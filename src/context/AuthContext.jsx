@@ -108,7 +108,8 @@ export const AuthProvider = ({ children }) => {
             }
         };
         handleHash();
-    }, [syncWithBackend]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Centralized Authentication Listener & Initializer
     useEffect(() => {
