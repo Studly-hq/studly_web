@@ -236,18 +236,6 @@ export const AuthProvider = ({ children }) => {
         return updatedProfile;
     }, [currentUser]);
 
-    // Re-fetch user profile from server (e.g. after payment upgrade)
-    const refetchUser = useCallback(async () => {
-        try {
-            const userProfile = await getProfile();
-            setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
-            return userProfile;
-        } catch (error) {
-            console.error('[AuthContext] refetchUser failed:', error);
-            throw error;
-        }
-    }, []);
-
     const value = useMemo(() => ({
         isAuthenticated,
         isAuthLoading,
@@ -257,8 +245,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         syncWithBackend,
         updateUser,
-        refetchUser,
-    }), [isAuthenticated, isAuthLoading, currentUser, login, signup, logout, syncWithBackend, updateUser, refetchUser]);
+    }), [isAuthenticated, isAuthLoading, currentUser, login, signup, logout, syncWithBackend, updateUser]);
 
     return (
         <AuthContext.Provider value={value}>

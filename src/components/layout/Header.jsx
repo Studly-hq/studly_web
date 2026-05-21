@@ -5,8 +5,7 @@ import {
   Search,
   Plus,
   Bell,
-  X,
-  Zap
+  X
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useFeed } from '../../context/FeedContext';
@@ -22,7 +21,7 @@ const Header = () => {
   } = useAuth();
 
   const { handleCreatePost } = useFeed();
-  const { setShowAuthModal, openUpgradeModal } = useUI();
+  const { setShowAuthModal } = useUI();
   const { unreadCount } = useNotifications();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,19 +43,6 @@ const Header = () => {
         >
           <img src={logo} alt="Studly" className="w-8 h-8" />
         </motion.div>
-
-        {/* Responsive 'Upgrade to Pro' pill for mobile */}
-        {isAuthenticated && currentUser?.planType !== 'pro' && (
-          <motion.button
-            onClick={() => openUpgradeModal('manual')}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="lg:hidden flex items-center gap-1.5 bg-gradient-to-r from-reddit-orange to-orange-600 text-white px-2.5 py-1 rounded-full text-[11px] font-bold shadow-sm flex-shrink-0"
-          >
-            <Zap size={12} fill="white" className="text-white" />
-            <span className="xs:inline hidden">Upgrade</span>
-          </motion.button>
-        )}
 
         {/* Search Bar - Reddit Style */}
         <div className="flex-1 max-w-xl mx-1 sm:mx-2 md:mx-4">

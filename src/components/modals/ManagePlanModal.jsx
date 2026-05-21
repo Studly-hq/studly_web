@@ -1,56 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useUI } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
 import { X, ShieldCheck, CreditCard, Calendar, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { getQuota } from '../../api/billing';
-import client from '../../api/client';
+import axios from 'axios';
 
 const ManagePlanModal = () => {
   const { showManagePlanModal, setShowManagePlanModal } = useUI();
-  const { refetchUser } = useAuth();
+  const { currentUser, updateUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetchingQuota, setIsFetchingQuota] = useState(true);
   const [showConfirmCancel, setShowConfirmCancel] = useState(false);
-  const [nextBillingDate, setNextBillingDate] = useState(null);
-
-  useEffect(() => {
-    if (!showManagePlanModal) return;
-    const fetchBillingInfo = async () => {
-      try {
-        setIsFetchingQuota(true);
-        const quota = await getQuota();
-        if (quota?.current_period_end) {
-          setNextBillingDate(new Date(quota.current_period_end));
-        }
-      } catch (e) {
-        // Non-critical
-      } finally {
-        setIsFetchingQuota(false);
-      }
-    };
-    fetchBillingInfo();
-  }, [showManagePlanModal]);
 
   if (!showManagePlanModal) return null;
-
-  const formatBillingDate = (date) => {
-    if (!date || isNaN(date.getTime())) return 'N/A';
-    return date.toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-  };
 
   const handleCancelSubscription = async () => {
     try {
       setIsLoading(true);
-      await client.post('/billing/subscription/cancel');
+      await axios.post('/billing/subscription/cancel', {}, { withCredentials: true });
       
-      // Refetch user profile to get updated plan status from server
-      if (refetchUser) {
-        try { await refetchUser(); } catch (e) {}
+      // Update local state
+      if (updateUser) {
+        await updateUser({ plan_type: 'free' });
       }
       
       toast.success("Subscription canceled successfully.");
@@ -102,9 +72,7 @@ const ManagePlanModal = () => {
               </div>
               <div className="flex items-center gap-2 text-reddit-text text-sm">
                 <Calendar size={16} className="text-reddit-textMuted" />
-                <span>
-                  Plan Expires On: {isFetchingQuota ? 'Loading...' : (nextBillingDate ? formatBillingDate(nextBillingDate) : 'N/A')}
-                </span>
+                <span>Next billing date: In 30 days</span>
               </div>
             </div>
           </div>
@@ -114,7 +82,7 @@ const ManagePlanModal = () => {
               <div className="bg-amber-500/5 rounded-lg p-3 border border-amber-500/20 flex gap-3">
                 <AlertCircle className="text-amber-500 flex-shrink-0" size={20} />
                 <p className="text-reddit-text text-xs leading-relaxed">
-                  Canceling will immediately end your premium access. Your remaining time will not be refunded.
+                  Canceling will stop your recurring payments. You'll keep your premium access until the end of the current billing cycle.
                 </p>
               </div>
               <button
@@ -161,4 +129,3 @@ const ManagePlanModal = () => {
 };
 
 export default ManagePlanModal;
-

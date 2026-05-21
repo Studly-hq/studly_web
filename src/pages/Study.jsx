@@ -9,8 +9,8 @@ import SEO from '../components/common/SEO';
 const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
 
 const Study = () => {
-    const { isAuthenticated, currentUser } = useAuth();
-    const { setShowAuthModal, openUpgradeModal, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
+    const { isAuthenticated } = useAuth();
+    const { setShowAuthModal, setShowUpgradeModal, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
     const [isLoading, setIsLoading] = useState(false);
     const [iframeLoading, setIframeLoading] = useState(true);
     const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
@@ -66,16 +66,13 @@ const Study = () => {
     useEffect(() => {
         const handleMessage = (event) => {
             if (event.data?.type === 'QUOTA_EXCEEDED') {
-                const isFree = !currentUser || currentUser.planType === 'free';
-                if (isFree) {
-                    openUpgradeModal('limit_reached');
-                }
+                setShowUpgradeModal(true);
             }
         };
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    }, [openUpgradeModal, currentUser]);
+    }, [setShowUpgradeModal]);
 
     if (!isAuthenticated) {
         return (
@@ -125,7 +122,7 @@ const Study = () => {
                 src={`${LUCID_URL}?token=${activeToken}`}
                 className={`w-full flex-1 border-none transition-opacity duration-300 ${iframeLoading ? 'opacity-0' : 'opacity-100'}`}
                 title="Study App"
-                allow="clipboard-read; clipboard-write; microphone; camera"
+                allow="clipboard-read; clipboard-write"
                 onLoad={() => setIframeLoading(false)}
             />
         </div>
