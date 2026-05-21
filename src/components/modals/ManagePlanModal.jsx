@@ -7,7 +7,7 @@ import axios from 'axios';
 
 const ManagePlanModal = () => {
   const { showManagePlanModal, setShowManagePlanModal } = useUI();
-  const { updateUser } = useAuth();
+  const { currentUser, updateUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmCancel, setShowConfirmCancel] = useState(false);
 

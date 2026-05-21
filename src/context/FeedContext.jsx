@@ -303,7 +303,8 @@ export const FeedProvider = ({ children }) => {
         } else {
             setBookmarkedPosts([]);
         }
-    }, [isAuthenticated, fetchBookmarks]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated]);
 
     const updatePostInState = useCallback((postId, newContent) => {
         setPosts(prev => prev.map(p => String(p.id) === String(postId) ? { ...p, content: newContent } : p));
