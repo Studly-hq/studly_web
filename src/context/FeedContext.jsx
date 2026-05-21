@@ -274,8 +274,10 @@ export const FeedProvider = ({ children }) => {
 
     const isFeedLoadingView = useMemo(() => loadingState === 'loading' || loadingState === 'idle', [loadingState]);
 
+    const isBookmarksLoadingRef = useRef(false);
     const fetchBookmarks = useCallback(async () => {
-        if (!isAuthenticated || isBookmarksLoading) return;
+        if (!isAuthenticated || isBookmarksLoadingRef.current) return;
+        isBookmarksLoadingRef.current = true;
         setIsBookmarksLoading(true);
         try {
             const serverBookmarks = await apiGetBookmarks();
@@ -283,9 +285,11 @@ export const FeedProvider = ({ children }) => {
         } catch (error) {
             console.error("[FeedContext] Bookmarks error:", error);
         } finally {
+            isBookmarksLoadingRef.current = false;
             setIsBookmarksLoading(false);
         }
-    }, [isAuthenticated, mapBackendPostToFrontend, isBookmarksLoading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated, mapBackendPostToFrontend]);
 
     // Handle Initialization and Auth Transitions
     useEffect(() => {
