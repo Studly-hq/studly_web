@@ -56,7 +56,12 @@ export const FeedProvider = ({ children }) => {
     // Track initialization to avoid redundant calls
     const inFlightInitRef = useRef(false);
 
-    // Map backend post to frontend format
+    // Keep currentUser in a ref so mapBackendPostToFrontend never needs to be recreated
+    // when currentUser changes (e.g. after Supabase silent token refresh).
+    const currentUserRef = useRef(currentUser);
+    useEffect(() => { currentUserRef.current = currentUser; }, [currentUser]);
+
+    // Map backend post to frontend format — STABLE: no external state deps, reads currentUser via ref
     const mapBackendPostToFrontend = useCallback(
         (post) => {
             if (!post) return null;
@@ -81,6 +86,7 @@ export const FeedProvider = ({ children }) => {
                 }
             }
 
+            const user = currentUserRef.current;
             return {
                 id: post.post_id,
                 type: images.length > 0 ? (images.length > 1 ? "carousel" : "single-image") : "text",
@@ -89,14 +95,14 @@ export const FeedProvider = ({ children }) => {
                 likeCount: post.post_like_count || 0,
                 commentCount: post.post_comment_count || 0,
                 userId: post.creator_id,
-                likes: post.post_is_liked_by_requester && currentUser ? [currentUser.id] : [],
-                bookmarkedBy: post.post_is_bookmarked_by_requester && currentUser ? [currentUser.id] : [],
+                likes: post.post_is_liked_by_requester && user ? [user.id] : [],
+                bookmarkedBy: post.post_is_bookmarked_by_requester && user ? [user.id] : [],
                 tags: post.post_hashtags || [],
                 images: images,
                 user: postUser,
             };
         },
-        [currentUser]
+        [] // stable forever — reads currentUser via ref
     );
 
     /**
@@ -289,7 +295,7 @@ export const FeedProvider = ({ children }) => {
             setIsBookmarksLoading(false);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated, mapBackendPostToFrontend]);
+    }, [isAuthenticated]); // mapBackendPostToFrontend is now stable ([] deps), safe to omit
 
     // Handle Initialization and Auth Transitions
     useEffect(() => {
