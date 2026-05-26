@@ -19,10 +19,102 @@ const AdminDashboard = () => {
   const [quotasData, setQuotasData] = useState([]);
   const [postsData, setPostsData] = useState([]);
   const [fetchingTab, setFetchingTab] = useState(false);
+  
+  const [searchSubEmail, setSearchSubEmail] = useState('');
+  const [searchQuotaEmail, setSearchQuotaEmail] = useState('');
+
+  const [usersPage, setUsersPage] = useState(1);
+  const [usersTotal, setUsersTotal] = useState(0);
+  const [usersLimit] = useState(20);
+
+  const [subPage, setSubPage] = useState(1);
+  const [subTotal, setSubTotal] = useState(0);
+  const [subLimit] = useState(20);
+
+  const [quotaPage, setQuotaPage] = useState(1);
+  const [quotaTotal, setQuotaTotal] = useState(0);
+  const [quotaLimit] = useState(20);
+
+  const [postsPage, setPostsPage] = useState(1);
+  const [postsTotal, setPostsTotal] = useState(0);
+  const [postsLimit] = useState(20);
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://studly-server-production.up.railway.app';
   const LUCID_API_URL = process.env.REACT_APP_LUCID_API_URL || '';
   const LUCID_API_KEY = process.env.REACT_APP_LUCID_API_KEY || '';
+
+  const fetchUsers = async (page = 1, email = searchEmail) => {
+    try {
+      const res = await fetch(`${API_URL}/admin/users?page=${page}&limit=${usersLimit}&email=${encodeURIComponent(email)}`, {
+        headers: { 'x-admin-password': password }
+      });
+      if (res.ok) {
+        const uData = await res.json();
+        setUsersData(uData.data || []);
+        setUsersTotal(uData.total || 0);
+        setUsersPage(uData.page || 1);
+      }
+    } catch (err) {
+      console.error('Fetch users failed', err);
+    }
+  };
+
+  const fetchSubscriptions = async (page = 1, email = searchSubEmail) => {
+    setFetchingTab(true);
+    try {
+      const res = await fetch(`${API_URL}/admin/subscriptions?page=${page}&limit=${subLimit}&email=${encodeURIComponent(email)}`, {
+        headers: { 'x-admin-password': password }
+      });
+      if (res.ok) {
+        const sData = await res.json();
+        setSubscriptionsData(sData.data || []);
+        setSubTotal(sData.total || 0);
+        setSubPage(sData.page || 1);
+      }
+    } catch (err) {
+      console.error('Fetch subscriptions failed', err);
+    } finally {
+      setFetchingTab(false);
+    }
+  };
+
+  const fetchQuotas = async (page = 1, email = searchQuotaEmail) => {
+    setFetchingTab(true);
+    try {
+      const res = await fetch(`${API_URL}/admin/quotas?page=${page}&limit=${quotaLimit}&email=${encodeURIComponent(email)}`, {
+        headers: { 'x-admin-password': password }
+      });
+      if (res.ok) {
+        const qData = await res.json();
+        setQuotasData(qData.data || []);
+        setQuotaTotal(qData.total || 0);
+        setQuotaPage(qData.page || 1);
+      }
+    } catch (err) {
+      console.error('Fetch quotas failed', err);
+    } finally {
+      setFetchingTab(false);
+    }
+  };
+
+  const fetchPosts = async (page = 1) => {
+    setFetchingTab(true);
+    try {
+      const res = await fetch(`${API_URL}/admin/posts?page=${page}&limit=${postsLimit}`, {
+        headers: { 'x-admin-password': password }
+      });
+      if (res.ok) {
+        const pData = await res.json();
+        setPostsData(pData.data || []);
+        setPostsTotal(pData.total || 0);
+        setPostsPage(pData.page || 1);
+      }
+    } catch (err) {
+      console.error('Fetch posts failed', err);
+    } finally {
+      setFetchingTab(false);
+    }
+  };
 
   const handleUnlock = async (e) => {
     e.preventDefault();
@@ -37,13 +129,7 @@ const AdminDashboard = () => {
       const data = await res.json();
       setOverviewData(data);
       
-      const usersRes = await fetch(`${API_URL}/admin/users`, {
-        headers: { 'x-admin-password': password }
-      });
-      if (usersRes.ok) {
-        const uData = await usersRes.json();
-        setUsersData(uData);
-      }
+      await fetchUsers(1, '');
 
       // Fetch from Lucid (only if env vars are configured)
       if (LUCID_API_URL && LUCID_API_KEY) {
@@ -70,74 +156,31 @@ const AdminDashboard = () => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    try {
-      const usersRes = await fetch(`${API_URL}/admin/users?email=${encodeURIComponent(searchEmail)}`, {
-        headers: { 'x-admin-password': password }
-      });
-      if (usersRes.ok) {
-        const uData = await usersRes.json();
-        setUsersData(uData);
-      }
-    } catch (err) {
-      console.error('Search failed', err);
-    }
+    await fetchUsers(1, searchEmail);
+  };
+
+  const handleSubSearch = async (e) => {
+    e.preventDefault();
+    await fetchSubscriptions(1, searchSubEmail);
+  };
+
+  const handleQuotaSearch = async (e) => {
+    e.preventDefault();
+    await fetchQuotas(1, searchQuotaEmail);
   };
 
   const handleTabChange = async (tab) => {
     setActiveTab(tab);
     if (!isUnlocked) return;
     
-    setFetchingTab(true);
-    try {
-      if (tab === 'Subscriptions') {
-        const res = await fetch(`${API_URL}/admin/subscriptions`, {
-          headers: { 'x-admin-password': password }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setSubscriptionsData(data);
-        }
-      } else if (tab === 'Storage & Quotas') {
-        const res = await fetch(`${API_URL}/admin/quotas`, {
-          headers: { 'x-admin-password': password }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setQuotasData(data);
-        }
-      } else if (tab === 'Moderation Hub') {
-        const res = await fetch(`${API_URL}/admin/posts`, {
-          headers: { 'x-admin-password': password }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setPostsData(data);
-        }
-      }
-    } catch (err) {
-      console.error(`Failed to fetch data for tab: ${tab}`, err);
-    } finally {
-      setFetchingTab(false);
-    }
-  };
-
-  const handleDeletePost = async (postId) => {
-    if (!window.confirm('Are you sure you want to permanently delete this post?')) return;
-    
-    try {
-      const res = await fetch(`${API_URL}/admin/posts/${postId}`, {
-        method: 'DELETE',
-        headers: { 'x-admin-password': password }
-      });
-      if (res.ok) {
-        setPostsData(prev => prev.filter(post => post.post_id !== postId));
-        alert('Post deleted successfully');
-      } else {
-        alert('Failed to delete post');
-      }
-    } catch (err) {
-      console.error('Failed to delete post:', err);
-      alert('An error occurred while deleting the post');
+    if (tab === 'Command center') {
+      await fetchUsers(1, searchEmail);
+    } else if (tab === 'Subscriptions') {
+      await fetchSubscriptions(1, searchSubEmail);
+    } else if (tab === 'Storage & Quotas') {
+      await fetchQuotas(1, searchQuotaEmail);
+    } else if (tab === 'Moderation Hub') {
+      await fetchPosts(1);
     }
   };
 
@@ -200,6 +243,39 @@ const AdminDashboard = () => {
               </Pie>
             </PieChart>
           </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPagination = (currentPage, totalItems, limit, onPageChange) => {
+    const totalPages = Math.ceil(totalItems / limit);
+    if (totalPages <= 1) return null;
+
+    return (
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'var(--space-4)', padding: 'var(--space-3) var(--space-4)', backgroundColor: 'var(--input)', borderBottomLeftRadius: 'var(--radius)', borderBottomRightRadius: 'var(--radius)', borderTop: '1px solid var(--border)' }}>
+        <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', margin: 0 }}>
+          Showing <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{((currentPage - 1) * limit) + 1}</span> to{' '}
+          <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{Math.min(currentPage * limit, totalItems)}</span> of{' '}
+          <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{totalItems}</span> records
+        </p>
+        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+          <button 
+            disabled={currentPage === 1}
+            onClick={() => onPageChange(currentPage - 1)}
+            className="btn-secondary"
+            style={{ padding: '6px 12px', minHeight: 'auto', fontSize: 'var(--text-xs)', opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+          >
+            Previous
+          </button>
+          <button 
+            disabled={currentPage === totalPages}
+            onClick={() => onPageChange(currentPage + 1)}
+            className="btn-secondary"
+            style={{ padding: '6px 12px', minHeight: 'auto', fontSize: 'var(--text-xs)', opacity: currentPage === totalPages ? 0.5 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+          >
+            Next
+          </button>
         </div>
       </div>
     );
@@ -449,6 +525,7 @@ const AdminDashboard = () => {
                       )}
                     </tbody>
                   </table>
+                  {renderPagination(usersPage, usersTotal, usersLimit, (p) => fetchUsers(p, searchEmail))}
                 </div>
               </section>
             </>
@@ -456,10 +533,23 @@ const AdminDashboard = () => {
 
           {activeTab === 'Subscriptions' && (
             <>
-              <header style={{ marginBottom: 'var(--space-8)' }}>
-                <h2 className="heading-lg">Active Subscriptions</h2>
-                <p style={{ color: 'var(--muted-foreground)' }}>Track all premium Pro subscriptions on the platform</p>
-              </header>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-8)' }}>
+                <div>
+                  <h2 className="heading-lg">Active Subscriptions</h2>
+                  <p style={{ color: 'var(--muted-foreground)' }}>Track all premium Pro subscriptions on the platform</p>
+                </div>
+                <form onSubmit={handleSubSearch} style={{ display: 'flex', gap: 'var(--space-2)', maxWidth: '300px', width: '100%' }}>
+                  <input
+                    type="email"
+                    className="input-field"
+                    placeholder="Search user email"
+                    value={searchSubEmail}
+                    onChange={(e) => setSearchSubEmail(e.target.value)}
+                    style={{ minHeight: '40px' }}
+                  />
+                  <button type="submit" className="btn-secondary" style={{ minHeight: '40px', width: 'auto', padding: '0 var(--space-4)' }}>Search</button>
+                </form>
+              </div>
               {fetchingTab ? (
                 <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--muted-foreground)' }}>Loading subscriptions...</div>
               ) : (
@@ -520,6 +610,7 @@ const AdminDashboard = () => {
                       )}
                     </tbody>
                   </table>
+                  {renderPagination(subPage, subTotal, subLimit, (p) => fetchSubscriptions(p, searchSubEmail))}
                 </div>
               )}
             </>
@@ -527,10 +618,23 @@ const AdminDashboard = () => {
 
           {activeTab === 'Storage & Quotas' && (
             <>
-              <header style={{ marginBottom: 'var(--space-8)' }}>
-                <h2 className="heading-lg">Platform Quotas & Uploads</h2>
-                <p style={{ color: 'var(--muted-foreground)' }}>Monitor user note uploads and free tier quota consumption</p>
-              </header>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-8)' }}>
+                <div>
+                  <h2 className="heading-lg">Platform Quotas & Uploads</h2>
+                  <p style={{ color: 'var(--muted-foreground)' }}>Monitor user note uploads and free tier quota consumption</p>
+                </div>
+                <form onSubmit={handleQuotaSearch} style={{ display: 'flex', gap: 'var(--space-2)', maxWidth: '300px', width: '100%' }}>
+                  <input
+                    type="email"
+                    className="input-field"
+                    placeholder="Search user email"
+                    value={searchQuotaEmail}
+                    onChange={(e) => setSearchQuotaEmail(e.target.value)}
+                    style={{ minHeight: '40px' }}
+                  />
+                  <button type="submit" className="btn-secondary" style={{ minHeight: '40px', width: 'auto', padding: '0 var(--space-4)' }}>Search</button>
+                </form>
+              </div>
               {fetchingTab ? (
                 <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--muted-foreground)' }}>Loading quotas...</div>
               ) : (
@@ -563,6 +667,7 @@ const AdminDashboard = () => {
                       )}
                     </tbody>
                   </table>
+                  {renderPagination(quotaPage, quotaTotal, quotaLimit, (p) => fetchQuotas(p, searchQuotaEmail))}
                 </div>
               )}
             </>
@@ -623,6 +728,7 @@ const AdminDashboard = () => {
                       </div>
                     ))
                   )}
+                  {renderPagination(postsPage, postsTotal, postsLimit, (p) => fetchPosts(p))}
                 </div>
               )}
             </>
