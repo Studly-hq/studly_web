@@ -364,20 +364,36 @@ const AdminDashboard = () => {
 
               {/* Lucid Systems Row */}
               <section style={{ marginBottom: 'var(--space-10)' }}>
-                <h2 className="heading-lg" style={{ marginBottom: 'var(--space-6)' }}>Lucid systems</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-4)' }}>
+                <h2 className="heading-lg" style={{ marginBottom: 'var(--space-6)' }}>Lucid companion app insights</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 'var(--space-4)' }}>
                   <div className="admin-card">
-                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total notes saved</p>
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total notes</p>
                     <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--primary)' }}>{lucidData?.total_notes || 0}</div>
                   </div>
                   <div className="admin-card">
-                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total lucid users</p>
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total users</p>
                     <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{lucidData?.total_users || 0}</div>
                   </div>
                   <div className="admin-card">
-                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>System status</p>
-                    <div style={{ fontSize: 'var(--text-md)', fontWeight: 500, color: lucidData?.status === 'ok' ? 'var(--foreground)' : 'var(--destructive)' }}>
-                      {lucidData?.status || 'Offline'}
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Daily active (Lucid)</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--primary)' }}>{lucidData?.active_users_24h || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Weekly active (Lucid)</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{lucidData?.active_users_7d || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Note uploads (24h)</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{lucidData?.notes_24h || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Note uploads (7d)</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{lucidData?.notes_7d || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Lucid Status</p>
+                    <div style={{ fontSize: 'var(--text-md)', fontWeight: 600, color: lucidData?.status === 'ok' ? '#2ea043' : 'var(--destructive)' }}>
+                      {lucidData?.status ? 'Online' : 'Offline'}
                     </div>
                   </div>
                 </div>
