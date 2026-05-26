@@ -12,7 +12,7 @@ const LeftSidebar = () => {
   const navigate = useNavigate();
 
   const { isAuthenticated, currentUser } = useAuth();
-  const { setShowAuthModal, setShowCreatePostModal, setShowUpgradeModal, setShowManagePlanModal, isLeftSidebarCollapsed, setIsLeftSidebarCollapsed } = useUI();
+  const { setShowAuthModal, setShowCreatePostModal, setShowUpgradeModal, setUpgradeReason, setShowManagePlanModal, isLeftSidebarCollapsed, setIsLeftSidebarCollapsed } = useUI();
   const { unreadCount } = useNotifications();
   const [isStudyLoading] = useState(false);
 
@@ -158,7 +158,14 @@ const LeftSidebar = () => {
         {isAuthenticated && !isLeftSidebarCollapsed && (
           <div className="px-4 mb-4">
             <div 
-              onClick={() => currentUser?.planType === 'pro' ? setShowManagePlanModal(true) : setShowUpgradeModal(true)}
+              onClick={() => {
+                if (currentUser?.planType === 'pro') {
+                  setShowManagePlanModal(true);
+                } else {
+                  setUpgradeReason('manual');
+                  setShowUpgradeModal(true);
+                }
+              }}
               className={`
                 relative overflow-hidden cursor-pointer p-4 rounded-2xl group transition-all duration-300
                 ${currentUser?.planType === 'pro' 

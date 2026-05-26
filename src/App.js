@@ -41,6 +41,7 @@ const CourseBank = lazy(() => import("./pages/CourseBank"));
 const TopicPlayer = lazy(() => import("./pages/TopicPlayer"));
 const PostDetail = lazy(() => import("./pages/PostDetail"));
 const CourseAdmin = lazy(() => import("./pages/CourseAdmin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Study = lazy(() => import("./pages/Study"));
@@ -64,6 +65,9 @@ function AppContent() {
         <Route path="/courses" element={<Suspense fallback={null}><CourseBank /></Suspense>} />
         <Route path="/courses/:topicId" element={<Suspense fallback={null}><TopicPlayer /></Suspense>} />
         <Route path="/courses/admin" element={<Suspense fallback={null}><CourseAdmin /></Suspense>} />
+        
+        {/* Admin Dashboard (full screen) */}
+        <Route path="/admin/dashboard" element={<Suspense fallback={null}><AdminDashboard /></Suspense>} />
 
         {/* Main app routes (with sidebars) */}
         <Route

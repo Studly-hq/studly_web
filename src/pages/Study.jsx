@@ -10,7 +10,7 @@ const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com
 
 const Study = () => {
     const { isAuthenticated } = useAuth();
-    const { setShowAuthModal, setShowUpgradeModal, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
+    const { setShowAuthModal, setShowUpgradeModal, setUpgradeReason, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
     const [isLoading, setIsLoading] = useState(false);
     const [iframeLoading, setIframeLoading] = useState(true);
     const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
@@ -70,13 +70,14 @@ const Study = () => {
     useEffect(() => {
         const handleMessage = (event) => {
             if (event.data?.type === 'QUOTA_EXCEEDED') {
+                setUpgradeReason('limit_reached');
                 setShowUpgradeModal(true);
             }
         };
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    }, [setShowUpgradeModal]);
+    }, [setShowUpgradeModal, setUpgradeReason]);
 
     if (!isAuthenticated) {
         return (
