@@ -14,6 +14,11 @@ const AdminDashboard = () => {
   const [usersData, setUsersData] = useState([]);
   const [searchEmail, setSearchEmail] = useState('');
   const [lucidData, setLucidData] = useState(null);
+  const [activeTab, setActiveTab] = useState('Command center');
+  const [subscriptionsData, setSubscriptionsData] = useState([]);
+  const [quotasData, setQuotasData] = useState([]);
+  const [postsData, setPostsData] = useState([]);
+  const [fetchingTab, setFetchingTab] = useState(false);
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://studly-server-production.up.railway.app';
   const LUCID_API_URL = process.env.REACT_APP_LUCID_API_URL || '';
@@ -75,6 +80,64 @@ const AdminDashboard = () => {
       }
     } catch (err) {
       console.error('Search failed', err);
+    }
+  };
+
+  const handleTabChange = async (tab) => {
+    setActiveTab(tab);
+    if (!isUnlocked) return;
+    
+    setFetchingTab(true);
+    try {
+      if (tab === 'Subscriptions') {
+        const res = await fetch(`${API_URL}/admin/subscriptions`, {
+          headers: { 'x-admin-password': password }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setSubscriptionsData(data);
+        }
+      } else if (tab === 'Storage & Quotas') {
+        const res = await fetch(`${API_URL}/admin/quotas`, {
+          headers: { 'x-admin-password': password }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setQuotasData(data);
+        }
+      } else if (tab === 'Moderation Hub') {
+        const res = await fetch(`${API_URL}/admin/posts`, {
+          headers: { 'x-admin-password': password }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPostsData(data);
+        }
+      }
+    } catch (err) {
+      console.error(`Failed to fetch data for tab: ${tab}`, err);
+    } finally {
+      setFetchingTab(false);
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('Are you sure you want to permanently delete this post?')) return;
+    
+    try {
+      const res = await fetch(`${API_URL}/admin/posts/${postId}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-password': password }
+      });
+      if (res.ok) {
+        setPostsData(prev => prev.filter(post => post.post_id !== postId));
+        alert('Post deleted successfully');
+      } else {
+        alert('Failed to delete post');
+      }
+    } catch (err) {
+      console.error('Failed to delete post:', err);
+      alert('An error occurred while deleting the post');
     }
   };
 
@@ -155,202 +218,420 @@ const AdminDashboard = () => {
         </div>
 
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', padding: '0 var(--space-4)' }}>
-          {['Command center', 'Transactions', 'Customers', 'Refunds', 'Disputes', 'Payouts'].map((item, idx) => (
-            <button key={item} style={{ 
-              background: idx === 0 ? 'var(--input)' : 'transparent',
-              color: idx === 0 ? 'var(--primary)' : 'var(--foreground)',
-              border: 'none',
-              textAlign: 'left',
-              padding: 'var(--space-2) var(--space-3)',
-              borderRadius: 'var(--radius-sm)',
-              cursor: 'pointer',
-              fontSize: 'var(--text-base)',
-              fontWeight: 500,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
-              <span style={{ opacity: 0.7 }}>❖</span> {item}
+          {['Command center', 'Subscriptions', 'Storage & Quotas', 'Moderation Hub'].map((item) => (
+            <button 
+              key={item} 
+              onClick={() => handleTabChange(item)}
+              style={{ 
+                background: activeTab === item ? 'var(--input)' : 'transparent',
+                color: activeTab === item ? 'var(--primary)' : 'var(--foreground)',
+                border: 'none',
+                textAlign: 'left',
+                padding: 'var(--space-2) var(--space-3)',
+                borderRadius: 'var(--radius-sm)',
+                cursor: 'pointer',
+                fontSize: 'var(--text-base)',
+                fontWeight: 500,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                transition: 'background-color 150ms ease, color 150ms ease'
+              }}
+            >
+              <span style={{ opacity: 0.7, color: activeTab === item ? 'var(--primary)' : 'var(--muted-foreground)' }}>❖</span> {item}
             </button>
           ))}
         </nav>
 
         <div style={{ padding: '0 var(--space-4)', borderTop: '1px solid var(--border)', paddingTop: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           {['Audit logs', 'Developers'].map(item => (
-            <button key={item} style={{ background: 'transparent', color: 'var(--muted-foreground)', border: 'none', textAlign: 'left', padding: 'var(--space-2) var(--space-3)', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: 'var(--text-sm)', fontWeight: 500 }}>
+            <button 
+              key={item} 
+              onClick={() => setActiveTab(item)}
+              style={{ 
+                background: activeTab === item ? 'var(--input)' : 'transparent', 
+                color: activeTab === item ? 'var(--primary)' : 'var(--muted-foreground)', 
+                border: 'none', 
+                textAlign: 'left', 
+                padding: 'var(--space-2) var(--space-3)', 
+                borderRadius: 'var(--radius-sm)', 
+                cursor: 'pointer', 
+                fontSize: 'var(--text-sm)', 
+                fontWeight: 500,
+                transition: 'background-color 150ms ease, color 150ms ease'
+              }}
+            >
               {item}
             </button>
           ))}
           <button style={{ background: 'transparent', color: 'var(--foreground)', border: 'none', textAlign: 'left', padding: 'var(--space-2) var(--space-3)', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: 'var(--text-sm)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '10px', marginTop: 'var(--space-2)' }}>
-            <div style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--destructive)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>D</div>
+            <div style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>D</div>
             David
           </button>
         </div>
       </aside>
 
       {/* Main Content Pane */}
+      {/* Main Content Pane */}
       <main style={{ flex: 1, overflowY: 'auto', backgroundColor: 'var(--background)', padding: 'var(--space-8)' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          
-          <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-8)' }}>
-            <h2 className="heading-lg">Insights</h2>
-            <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
-              <button className="btn-secondary" style={{ padding: '6px 16px', minHeight: 'auto', fontSize: '13px' }}>Filter by date: Last 30 days</button>
-              <button className="btn-secondary" style={{ padding: '6px 16px', minHeight: 'auto', fontSize: '13px' }}>NGN</button>
-            </div>
-          </header>
-
-          {/* Top 4 Stat Cards */}
-          <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-6)', marginBottom: 'var(--space-10)' }}>
-            <div style={{ padding: 'var(--space-4) 0', borderBottom: '1px solid var(--border)' }}>
-              <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)', fontWeight: 500 }}>Total signups</p>
-              <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_signups || 0}</div>
-            </div>
-            <div style={{ padding: 'var(--space-4) 0', borderBottom: '1px solid var(--border)' }}>
-              <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)', fontWeight: 500 }}>Daily active users</p>
-              <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.dau || 0}</div>
-            </div>
-            <div style={{ padding: 'var(--space-4) 0', borderBottom: '1px solid var(--border)' }}>
-              <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)', fontWeight: 500 }}>Monthly active users</p>
-              <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.mau || 0}</div>
-            </div>
-            <div style={{ padding: 'var(--space-4) 0', borderBottom: '1px solid var(--border)' }}>
-              <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)', fontWeight: 500 }}>Aura points distributed</p>
-              <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--primary)' }}>{overviewData?.total_aura_points || 0}</div>
-            </div>
-          </section>
-
-          {/* Main Chart: User Stats */}
-          <section style={{ marginBottom: 'var(--space-10)', backgroundColor: 'transparent', borderRadius: 'var(--radius)', border: '1px solid var(--border)', padding: 'var(--space-6)' }}>
-            <h3 style={{ color: 'var(--foreground)', fontSize: 'var(--text-md)', fontWeight: 500, marginBottom: 'var(--space-8)' }}>User signups breakdown</h3>
-            <div style={{ width: '100%', height: '300px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={overviewData?.chart_data || []} margin={{ top: 5, right: 0, left: -20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--foreground)' }}
-                    itemStyle={{ color: 'var(--primary)' }}
-                  />
-                  <Line type="linear" dataKey="users" stroke="var(--primary)" strokeWidth={2} dot={false} activeDot={{ r: 6, fill: 'var(--primary)' }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </section>
-
-          {/* Gauge Charts Row */}
-          <section style={{ display: 'flex', borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: 'var(--space-6) 0', marginBottom: 'var(--space-12)' }}>
-            {renderGauge(85, 100, 'Success rate')}
-            {renderGauge(15, 100, 'Payment issues')}
-            {renderGauge(30, 100, 'Abandonment rate')}
-          </section>
-
-          {/* Platform Engagement Row */}
-          <section style={{ marginBottom: 'var(--space-10)' }}>
-            <h2 className="heading-lg" style={{ marginBottom: 'var(--space-6)' }}>Platform engagement</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'var(--space-4)' }}>
-              <div className="admin-card">
-                <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total posts</p>
-                <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_posts || 0}</div>
-              </div>
-              <div className="admin-card">
-                <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total comments</p>
-                <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_comments || 0}</div>
-              </div>
-              <div className="admin-card">
-                <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total likes</p>
-                <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_likes || 0}</div>
-              </div>
-              <div className="admin-card">
-                <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total bookmarks</p>
-                <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_bookmarks || 0}</div>
-              </div>
-              <div className="admin-card">
-                <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Hashtags</p>
-                <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_hashtags || 0}</div>
-              </div>
-              <div className="admin-card">
-                <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Celebrations</p>
-                <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_celebrations || 0}</div>
-              </div>
-            </div>
-          </section>
-
-          {/* Lucid Systems Row */}
-          <section style={{ marginBottom: 'var(--space-10)' }}>
-            <h2 className="heading-lg" style={{ marginBottom: 'var(--space-6)' }}>Lucid systems</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-4)' }}>
-              <div className="admin-card">
-                <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total notes saved</p>
-                <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--primary)' }}>{lucidData?.total_notes || 0}</div>
-              </div>
-              <div className="admin-card">
-                <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total lucid users</p>
-                <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{lucidData?.total_users || 0}</div>
-              </div>
-              <div className="admin-card">
-                <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>System status</p>
-                <div style={{ fontSize: 'var(--text-md)', fontWeight: 500, color: lucidData?.status === 'ok' ? 'var(--foreground)' : 'var(--destructive)' }}>
-                  {lucidData?.status || 'Offline'}
+          {activeTab === 'Command center' && (
+            <>
+              <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-8)' }}>
+                <h2 className="heading-lg">Insights</h2>
+                <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
+                  <button className="btn-secondary" style={{ padding: '6px 16px', minHeight: 'auto', fontSize: '13px' }}>Filter by date: Last 30 days</button>
+                  <button className="btn-secondary" style={{ padding: '6px 16px', minHeight: 'auto', fontSize: '13px' }}>NGN</button>
                 </div>
-              </div>
-            </div>
-          </section>
+              </header>
 
-          {/* User Directory Table */}
-          <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
-              <h2 className="heading-lg">User directory</h2>
-              <form onSubmit={handleSearch} style={{ display: 'flex', gap: 'var(--space-2)', maxWidth: '300px', width: '100%' }}>
-                <input
-                  type="email"
-                  className="input-field"
-                  placeholder="Search by email"
-                  value={searchEmail}
-                  onChange={(e) => setSearchEmail(e.target.value)}
-                  style={{ minHeight: '40px' }}
-                />
-                <button type="submit" className="btn-secondary" style={{ minHeight: '40px', width: 'auto', padding: '0 var(--space-4)' }}>Search</button>
-              </form>
-            </div>
+              {/* Top 4 Stat Cards */}
+              <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-6)', marginBottom: 'var(--space-10)' }}>
+                <div style={{ padding: 'var(--space-4) 0', borderBottom: '1px solid var(--border)' }}>
+                  <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)', fontWeight: 500 }}>Total signups</p>
+                  <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_signups || 0}</div>
+                </div>
+                <div style={{ padding: 'var(--space-4) 0', borderBottom: '1px solid var(--border)' }}>
+                  <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)', fontWeight: 500 }}>Daily active users</p>
+                  <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.dau || 0}</div>
+                </div>
+                <div style={{ padding: 'var(--space-4) 0', borderBottom: '1px solid var(--border)' }}>
+                  <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)', fontWeight: 500 }}>Monthly active users</p>
+                  <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.mau || 0}</div>
+                </div>
+                <div style={{ padding: 'var(--space-4) 0', borderBottom: '1px solid var(--border)' }}>
+                  <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)', fontWeight: 500 }}>Aura points distributed</p>
+                  <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--primary)' }}>{overviewData?.total_aura_points || 0}</div>
+                </div>
+              </section>
 
-            <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
-              <table style={{ minWidth: '800px', width: '100%' }}>
-                <thead style={{ backgroundColor: 'var(--input)' }}>
-                  <tr>
-                    <th>User details</th>
-                    <th>Email address</th>
-                    <th>Aura points</th>
-                    <th>Current streak</th>
-                    <th>Last active</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {usersData.length === 0 ? (
-                    <tr>
-                      <td colSpan="5" style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: 'var(--space-8)' }}>
-                        No users found.
-                      </td>
-                    </tr>
-                  ) : (
-                    usersData.map((user, idx) => (
-                      <tr key={idx}>
-                        <td style={{ fontWeight: 500 }}>{user.name || user.username || 'Unknown user'}</td>
-                        <td style={{ color: 'var(--muted-foreground)' }}>{user.email}</td>
-                        <td className="tabular-nums" style={{ color: 'var(--primary)' }}>{user.aura_points || 0}</td>
-                        <td className="tabular-nums">{user.current_streak || 0}</td>
-                        <td style={{ color: 'var(--muted-foreground)' }}>
-                          {user.last_active ? new Date(user.last_active).toLocaleDateString() : 'Never'}
-                        </td>
+              {/* Main Chart: User Stats */}
+              <section style={{ marginBottom: 'var(--space-10)', backgroundColor: 'transparent', borderRadius: 'var(--radius)', border: '1px solid var(--border)', padding: 'var(--space-6)' }}>
+                <h3 style={{ color: 'var(--foreground)', fontSize: 'var(--text-md)', fontWeight: 500, marginBottom: 'var(--space-8)' }}>User signups breakdown</h3>
+                <div style={{ width: '100%', height: '300px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={overviewData?.chart_data || []} margin={{ top: 5, right: 0, left: -20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--foreground)' }}
+                        itemStyle={{ color: 'var(--primary)' }}
+                      />
+                      <Line type="linear" dataKey="users" stroke="var(--primary)" strokeWidth={2} dot={false} activeDot={{ r: 6, fill: 'var(--primary)' }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </section>
+
+              {/* Gauge Charts Row */}
+              <section style={{ display: 'flex', borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: 'var(--space-6) 0', marginBottom: 'var(--space-12)' }}>
+                {renderGauge(85, 100, 'Success rate')}
+                {renderGauge(15, 100, 'Payment issues')}
+                {renderGauge(30, 100, 'Abandonment rate')}
+              </section>
+
+              {/* Platform Engagement Row */}
+              <section style={{ marginBottom: 'var(--space-10)' }}>
+                <h2 className="heading-lg" style={{ marginBottom: 'var(--space-6)' }}>Platform engagement</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'var(--space-4)' }}>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total posts</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_posts || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total comments</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_comments || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total likes</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_likes || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total bookmarks</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_bookmarks || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Hashtags</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_hashtags || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Celebrations</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{overviewData?.total_celebrations || 0}</div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Lucid Systems Row */}
+              <section style={{ marginBottom: 'var(--space-10)' }}>
+                <h2 className="heading-lg" style={{ marginBottom: 'var(--space-6)' }}>Lucid systems</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-4)' }}>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total notes saved</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--primary)' }}>{lucidData?.total_notes || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>Total lucid users</p>
+                    <div className="tabular-nums" style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>{lucidData?.total_users || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>System status</p>
+                    <div style={{ fontSize: 'var(--text-md)', fontWeight: 500, color: lucidData?.status === 'ok' ? 'var(--foreground)' : 'var(--destructive)' }}>
+                      {lucidData?.status || 'Offline'}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* User Directory Table */}
+              <section>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
+                  <h2 className="heading-lg">User directory</h2>
+                  <form onSubmit={handleSearch} style={{ display: 'flex', gap: 'var(--space-2)', maxWidth: '300px', width: '100%' }}>
+                    <input
+                      type="email"
+                      className="input-field"
+                      placeholder="Search by email"
+                      value={searchEmail}
+                      onChange={(e) => setSearchEmail(e.target.value)}
+                      style={{ minHeight: '40px' }}
+                    />
+                    <button type="submit" className="btn-secondary" style={{ minHeight: '40px', width: 'auto', padding: '0 var(--space-4)' }}>Search</button>
+                  </form>
+                </div>
+
+                <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
+                  <table style={{ minWidth: '800px', width: '100%' }}>
+                    <thead style={{ backgroundColor: 'var(--input)' }}>
+                      <tr>
+                        <th>User details</th>
+                        <th>Email address</th>
+                        <th>Aura points</th>
+                        <th>Current streak</th>
+                        <th>Last active</th>
                       </tr>
+                    </thead>
+                    <tbody>
+                      {usersData.length === 0 ? (
+                        <tr>
+                          <td colSpan="5" style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: 'var(--space-8)' }}>
+                            No users found.
+                          </td>
+                        </tr>
+                      ) : (
+                        usersData.map((user, idx) => (
+                          <tr key={idx}>
+                            <td style={{ fontWeight: 500 }}>{user.name || user.username || 'Unknown user'}</td>
+                            <td style={{ color: 'var(--muted-foreground)' }}>{user.email}</td>
+                            <td className="tabular-nums" style={{ color: 'var(--primary)' }}>{user.aura_points || 0}</td>
+                            <td className="tabular-nums">{user.current_streak || 0}</td>
+                            <td style={{ color: 'var(--muted-foreground)' }}>
+                              {user.last_active ? new Date(user.last_active).toLocaleDateString() : 'Never'}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </>
+          )}
+
+          {activeTab === 'Subscriptions' && (
+            <>
+              <header style={{ marginBottom: 'var(--space-8)' }}>
+                <h2 className="heading-lg">Active Subscriptions</h2>
+                <p style={{ color: 'var(--muted-foreground)' }}>Track all premium Pro subscriptions on the platform</p>
+              </header>
+              {fetchingTab ? (
+                <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--muted-foreground)' }}>Loading subscriptions...</div>
+              ) : (
+                <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
+                  <table style={{ minWidth: '800px', width: '100%' }}>
+                    <thead style={{ backgroundColor: 'var(--input)' }}>
+                      <tr>
+                        <th>User details</th>
+                        <th>Email address</th>
+                        <th>Plan Type</th>
+                        <th>Status</th>
+                        <th>Paystack Code</th>
+                        <th>Renewal Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {subscriptionsData.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: 'var(--space-8)' }}>
+                            No subscriptions found.
+                          </td>
+                        </tr>
+                      ) : (
+                        subscriptionsData.map((sub, idx) => (
+                          <tr key={idx}>
+                            <td style={{ fontWeight: 500 }}>{sub.name}</td>
+                            <td style={{ color: 'var(--muted-foreground)' }}>{sub.email}</td>
+                            <td>
+                              <span style={{ 
+                                padding: '2px 8px', 
+                                borderRadius: '4px', 
+                                fontSize: '11px', 
+                                fontWeight: 'bold', 
+                                backgroundColor: sub.plan_type === 'pro' ? 'rgba(255, 69, 0, 0.15)' : 'rgba(255, 255, 255, 0.1)',
+                                color: sub.plan_type === 'pro' ? 'var(--primary)' : 'var(--foreground)'
+                              }}>
+                                {sub.plan_type.toUpperCase()}
+                              </span>
+                            </td>
+                            <td>
+                              <span style={{ 
+                                padding: '2px 8px', 
+                                borderRadius: '4px', 
+                                fontSize: '11px', 
+                                fontWeight: 'bold', 
+                                backgroundColor: sub.status === 'active' ? 'rgba(46, 160, 67, 0.15)' : 'rgba(248, 81, 73, 0.15)',
+                                color: sub.status === 'active' ? '#2ea043' : '#f85149'
+                              }}>
+                                {sub.status.toUpperCase()}
+                              </span>
+                            </td>
+                            <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>{sub.paystack_subscription_code || 'N/A'}</td>
+                            <td style={{ color: 'var(--muted-foreground)' }}>
+                              {sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString() : 'N/A'}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === 'Storage & Quotas' && (
+            <>
+              <header style={{ marginBottom: 'var(--space-8)' }}>
+                <h2 className="heading-lg">Platform Quotas & Uploads</h2>
+                <p style={{ color: 'var(--muted-foreground)' }}>Monitor user note uploads and free tier quota consumption</p>
+              </header>
+              {fetchingTab ? (
+                <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--muted-foreground)' }}>Loading quotas...</div>
+              ) : (
+                <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
+                  <table style={{ minWidth: '600px', width: '100%' }}>
+                    <thead style={{ backgroundColor: 'var(--input)' }}>
+                      <tr>
+                        <th>User details</th>
+                        <th>Email address</th>
+                        <th>Lifetime Notes Uploaded</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {quotasData.length === 0 ? (
+                        <tr>
+                          <td colSpan="3" style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: 'var(--space-8)' }}>
+                            No quota records found.
+                          </td>
+                        </tr>
+                      ) : (
+                        quotasData.map((quota, idx) => (
+                          <tr key={idx}>
+                            <td style={{ fontWeight: 500 }}>{quota.name}</td>
+                            <td style={{ color: 'var(--muted-foreground)' }}>{quota.email}</td>
+                            <td className="tabular-nums" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>
+                              {quota.lifetime_free_notes_uploaded}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === 'Moderation Hub' && (
+            <>
+              <header style={{ marginBottom: 'var(--space-8)' }}>
+                <h2 className="heading-lg">Content Moderation Feed</h2>
+                <p style={{ color: 'var(--muted-foreground)' }}>Review and manage feed posts to maintain community guidelines</p>
+              </header>
+              {fetchingTab ? (
+                <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--muted-foreground)' }}>Loading posts...</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                  {postsData.length === 0 ? (
+                    <div style={{ padding: 'var(--space-8)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', textAlign: 'center', color: 'var(--muted-foreground)' }}>
+                      No posts available for moderation.
+                    </div>
+                  ) : (
+                    postsData.map((post) => (
+                      <div key={post.post_id} className="admin-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-6)' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
+                            <span style={{ fontWeight: 600, color: 'var(--foreground)' }}>{post.author_name}</span>
+                            <span style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)' }}>({post.author_email})</span>
+                            <span style={{ color: 'var(--border)' }}>•</span>
+                            <span style={{ color: 'var(--muted-foreground)', fontSize: 'var(--text-xs)' }}>
+                              {new Date(post.created_at).toLocaleString()}
+                            </span>
+                          </div>
+                          <p style={{ color: 'var(--foreground)', fontSize: 'var(--text-md)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                            {post.content}
+                          </p>
+                          <div style={{ marginTop: 'var(--space-2)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'monospace' }}>
+                            ID: {post.post_id}
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => handleDeletePost(post.post_id)}
+                          style={{ 
+                            backgroundColor: 'rgba(248, 81, 73, 0.1)', 
+                            color: '#ff585b', 
+                            border: '1px solid rgba(248, 81, 73, 0.2)', 
+                            padding: '6px 12px', 
+                            borderRadius: 'var(--radius-sm)', 
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                            fontSize: '12px',
+                            transition: 'all 150ms ease',
+                            flexShrink: 0
+                          }}
+                          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(248, 81, 73, 0.2)'}
+                          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(248, 81, 73, 0.1)'}
+                        >
+                          Delete Post
+                        </button>
+                      </div>
                     ))
                   )}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                </div>
+              )}
+            </>
+          )}
 
+          {!['Command center', 'Subscriptions', 'Storage & Quotas', 'Moderation Hub'].includes(activeTab) && (
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              minHeight: '60vh', 
+              textAlign: 'center',
+              color: 'var(--muted-foreground)',
+              padding: 'var(--space-8) 0'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: 'var(--space-4)' }}>🚧</div>
+              <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--foreground)', marginBottom: 'var(--space-2)' }}>
+                {activeTab} is under construction
+              </h2>
+              <p style={{ maxWidth: '400px', fontSize: 'var(--text-md)', lineHeight: 1.6 }}>
+                This section is currently being integrated with your financial and analytics gateways. Check back soon for updates!
+              </p>
+            </div>
+          )}
         </div>
       </main>
     </div>
