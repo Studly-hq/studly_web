@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useUI } from '../../context/UIContext';
+import { useAuth } from '../../context/AuthContext';
 import { X, Sparkles, Check, Loader2 } from 'lucide-react';
 import { initializePayment } from '../../api/billing';
 import { toast } from 'sonner';
 
 const UpgradeModal = () => {
-  const { showUpgradeModal, setShowUpgradeModal } = useUI();
+  const { showUpgradeModal, setShowUpgradeModal, upgradeReason } = useUI();
+  const { currentUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   if (!showUpgradeModal) return null;
@@ -28,13 +30,16 @@ const UpgradeModal = () => {
   };
 
   const features = [
-    "Upload Notes (PDF, PPTX, Images, Audio)",
+    "Unlimited Note Uploads (PDF, PPTX, Images, Audio)",
     "Personalized AI Study Tutor Chat",
     "Generate Smart Quizzes & Exercises",
     "Create Dynamic Study Flashcards",
     "Discover Topic-Based YouTube Videos",
     "Detailed AI Explanations & Deep Dives"
   ];
+
+  const hasHadSubscription = !!currentUser?.subscriptionStatus;
+  const isLimitHit = upgradeReason === 'limit_reached';
 
   return (
     <div
@@ -71,25 +76,38 @@ const UpgradeModal = () => {
               Upgrade to Premium
             </h2>
             <p className="text-reddit-textMuted text-sm sm:text-base leading-relaxed max-w-md mx-auto">
-              You've hit your free trial limit! Unlock limitless study power and accelerate your learning with Premium.
+              {isLimitHit 
+                ? "You've used your 2 free notes. Upgrade to Premium to upload unlimited notes and unlock the full AI study experience." 
+                : "Upgrade to Premium to upload unlimited notes and unlock the full AI study experience."}
             </p>
           </div>
 
-          {/* Two-column layout on md+, stacked below */}
+          {/* Grid: pricing | features on desktop, stacked on mobile */}
+          {/* Mobile order: pricing → button → features */}
+          {/* Desktop order: [pricing | features] then button full-width below */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-7">
-            {/* Pricing Box */}
-            <div className="bg-reddit-bg rounded-xl p-5 border border-reddit-border/50">
+            {/* Pricing Box — always first */}
+            <div className="order-1 bg-reddit-bg rounded-xl p-5 border border-reddit-border/50">
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <span className="text-white font-semibold">Monthly Plan</span>
-                <span className="text-[10px] uppercase font-bold bg-reddit-orange/20 text-reddit-orange px-2 py-0.5 rounded flex-shrink-0">
-                  Most Popular
-                </span>
               </div>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-4xl font-bold text-white">₦500</span>
-                <span className="text-reddit-textMuted text-sm">for the first month</span>
-              </div>
-              <p className="text-reddit-textMuted text-xs mt-2 italic">Then ₦1500/month after</p>
+              
+              {hasHadSubscription ? (
+                <>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-4xl font-bold text-white">₦1500</span>
+                    <span className="text-reddit-textMuted text-sm">/month</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-4xl font-bold text-white">₦500</span>
+                    <span className="text-reddit-textMuted text-sm">for the first month</span>
+                  </div>
+                  <p className="text-reddit-textMuted text-xs mt-2 italic">Then ₦1500/month after</p>
+                </>
+              )}
 
               {/* Mini divider */}
               <div className="border-t border-reddit-border/30 my-4" />
@@ -99,8 +117,25 @@ const UpgradeModal = () => {
               </p>
             </div>
 
-            {/* Features */}
-            <div className="flex flex-col justify-center">
+            {/* CTA Button — second on mobile, third (full-width) on desktop */}
+            <button
+              onClick={handleUpgrade}
+              disabled={isLoading}
+              className="order-2 md:order-3 md:col-span-2 w-full bg-gradient-to-r from-reddit-orange to-orange-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="animate-spin w-5 h-5" /> Processing...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  Join Premium Now
+                </span>
+              )}
+            </button>
+
+            {/* Features — third on mobile, second on desktop */}
+            <div className="order-3 md:order-2 flex flex-col justify-center">
               <p className="text-sm font-semibold text-white mb-3">Everything you get:</p>
               <div className="space-y-2.5">
                 {features.map((feature, idx) => (
@@ -115,24 +150,7 @@ const UpgradeModal = () => {
             </div>
           </div>
 
-          {/* CTA */}
-          <button
-            onClick={handleUpgrade}
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-reddit-orange to-orange-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
-          >
-            {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader2 className="animate-spin w-5 h-5" /> Processing...
-              </span>
-            ) : (
-              <span className="flex items-center justify-center gap-2">
-                Join Premium Now
-              </span>
-            )}
-          </button>
-
-          <p className="text-center text-xs text-reddit-textMuted mt-4 opacity-70">
+          <p className="text-center text-xs text-reddit-textMuted mt-2 opacity-70">
             Secure checkout powered by Paystack
           </p>
         </div>
