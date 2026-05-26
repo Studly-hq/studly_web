@@ -50,9 +50,11 @@ const AdminDashboard = () => {
       });
       if (res.ok) {
         const uData = await res.json();
-        setUsersData(uData.data || []);
-        setUsersTotal(uData.total || 0);
-        setUsersPage(uData.page || 1);
+        const usersArray = Array.isArray(uData) ? uData : (uData.data || []);
+        const totalUsers = Array.isArray(uData) ? uData.length : (uData.total || 0);
+        setUsersData(usersArray);
+        setUsersTotal(totalUsers);
+        setUsersPage(Array.isArray(uData) ? 1 : (uData.page || 1));
       }
     } catch (err) {
       console.error('Fetch users failed', err);
@@ -67,9 +69,11 @@ const AdminDashboard = () => {
       });
       if (res.ok) {
         const sData = await res.json();
-        setSubscriptionsData(sData.data || []);
-        setSubTotal(sData.total || 0);
-        setSubPage(sData.page || 1);
+        const subsArray = Array.isArray(sData) ? sData : (sData.data || []);
+        const totalSubs = Array.isArray(sData) ? sData.length : (sData.total || 0);
+        setSubscriptionsData(subsArray);
+        setSubTotal(totalSubs);
+        setSubPage(Array.isArray(sData) ? 1 : (sData.page || 1));
       }
     } catch (err) {
       console.error('Fetch subscriptions failed', err);
@@ -81,14 +85,22 @@ const AdminDashboard = () => {
   const fetchQuotas = async (page = 1, email = searchQuotaEmail) => {
     setFetchingTab(true);
     try {
-      const res = await fetch(`${API_URL}/admin/quotas?page=${page}&limit=${quotaLimit}&email=${encodeURIComponent(email)}`, {
-        headers: { 'x-admin-password': password }
-      });
+      const url = (LUCID_API_URL && LUCID_API_KEY)
+        ? `${LUCID_API_URL}/api/admin/quotas?page=${page}&limit=${quotaLimit}&email=${encodeURIComponent(email)}`
+        : `${API_URL}/admin/quotas?page=${page}&limit=${quotaLimit}&email=${encodeURIComponent(email)}`;
+        
+      const headers = (LUCID_API_URL && LUCID_API_KEY)
+        ? { 'x-api-key': LUCID_API_KEY }
+        : { 'x-admin-password': password };
+
+      const res = await fetch(url, { headers });
       if (res.ok) {
         const qData = await res.json();
-        setQuotasData(qData.data || []);
-        setQuotaTotal(qData.total || 0);
-        setQuotaPage(qData.page || 1);
+        const quotasArray = Array.isArray(qData) ? qData : (qData.data || []);
+        const totalQuotas = Array.isArray(qData) ? qData.length : (qData.total || 0);
+        setQuotasData(quotasArray);
+        setQuotaTotal(totalQuotas);
+        setQuotaPage(Array.isArray(qData) ? 1 : (qData.page || 1));
       }
     } catch (err) {
       console.error('Fetch quotas failed', err);
@@ -105,9 +117,11 @@ const AdminDashboard = () => {
       });
       if (res.ok) {
         const pData = await res.json();
-        setPostsData(pData.data || []);
-        setPostsTotal(pData.total || 0);
-        setPostsPage(pData.page || 1);
+        const postsArray = Array.isArray(pData) ? pData : (pData.data || []);
+        const totalPosts = Array.isArray(pData) ? pData.length : (pData.total || 0);
+        setPostsData(postsArray);
+        setPostsTotal(totalPosts);
+        setPostsPage(Array.isArray(pData) ? 1 : (pData.page || 1));
       }
     } catch (err) {
       console.error('Fetch posts failed', err);
@@ -406,7 +420,7 @@ const AdminDashboard = () => {
                 <h3 style={{ color: 'var(--foreground)', fontSize: 'var(--text-md)', fontWeight: 500, marginBottom: 'var(--space-8)' }}>User signups breakdown</h3>
                 <div style={{ width: '100%', height: '300px' }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={overviewData?.chart_data || []} margin={{ top: 5, right: 0, left: -20, bottom: 5 }}>
+                    <LineChart data={Array.isArray(overviewData?.chart_data) ? overviewData.chart_data : []} margin={{ top: 5, right: 0, left: -20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} dy={10} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
@@ -524,7 +538,7 @@ const AdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {usersData.length === 0 ? (
+                      {!Array.isArray(usersData) || usersData.length === 0 ? (
                         <tr>
                           <td colSpan="5" style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: 'var(--space-8)' }}>
                             No users found.
@@ -586,7 +600,7 @@ const AdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {subscriptionsData.length === 0 ? (
+                      {!Array.isArray(subscriptionsData) || subscriptionsData.length === 0 ? (
                         <tr>
                           <td colSpan="6" style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: 'var(--space-8)' }}>
                             No subscriptions found.
@@ -659,28 +673,52 @@ const AdminDashboard = () => {
                 <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--muted-foreground)' }}>Loading quotas...</div>
               ) : (
                 <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
-                  <table style={{ minWidth: '600px', width: '100%' }}>
+                  <table style={{ minWidth: '850px', width: '100%' }}>
                     <thead style={{ backgroundColor: 'var(--input)' }}>
                       <tr>
                         <th>User details</th>
                         <th>Email address</th>
-                        <th>Lifetime Notes Uploaded</th>
+                        <th>Plan Type</th>
+                        <th>Lifetime Uploads</th>
+                        <th>Daily Uploads</th>
+                        <th>AI Ops Count</th>
+                        <th>Last Active (Lucid)</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {quotasData.length === 0 ? (
+                      {!Array.isArray(quotasData) || quotasData.length === 0 ? (
                         <tr>
-                          <td colSpan="3" style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: 'var(--space-8)' }}>
+                          <td colSpan="7" style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: 'var(--space-8)' }}>
                             No quota records found.
                           </td>
                         </tr>
                       ) : (
                         quotasData.map((quota, idx) => (
                           <tr key={idx}>
-                            <td style={{ fontWeight: 500 }}>{quota.name}</td>
+                            <td style={{ fontWeight: 500 }}>
+                              <div>{quota.name}</div>
+                              {quota.username && <div style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>@{quota.username}</div>}
+                            </td>
                             <td style={{ color: 'var(--muted-foreground)' }}>{quota.email}</td>
+                            <td>
+                              <span style={{ 
+                                padding: '2px 8px', 
+                                borderRadius: '4px', 
+                                fontSize: '11px', 
+                                fontWeight: 'bold', 
+                                backgroundColor: quota.plan_type === 'pro' ? 'rgba(255, 69, 0, 0.15)' : 'rgba(255, 255, 255, 0.1)',
+                                color: quota.plan_type === 'pro' ? 'var(--primary)' : 'var(--foreground)'
+                              }}>
+                                {(quota.plan_type || 'free').toUpperCase()}
+                              </span>
+                            </td>
                             <td className="tabular-nums" style={{ fontWeight: 'bold', color: 'var(--primary)' }}>
-                              {quota.lifetime_free_notes_uploaded}
+                              {quota.lifetime_free_notes_uploaded || 0}
+                            </td>
+                            <td className="tabular-nums">{quota.daily_notes_uploaded || 0}</td>
+                            <td className="tabular-nums">{quota.hourly_ai_ops || 0}</td>
+                            <td style={{ color: 'var(--muted-foreground)', fontSize: '13px' }}>
+                              {quota.last_login ? new Date(quota.last_login).toLocaleString() : 'Never'}
                             </td>
                           </tr>
                         ))
@@ -703,7 +741,7 @@ const AdminDashboard = () => {
                 <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--muted-foreground)' }}>Loading posts...</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                  {postsData.length === 0 ? (
+                  {!Array.isArray(postsData) || postsData.length === 0 ? (
                     <div style={{ padding: 'var(--space-8)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', textAlign: 'center', color: 'var(--muted-foreground)' }}>
                       No posts available for moderation.
                     </div>
