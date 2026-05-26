@@ -1,22 +1,22 @@
-/* Admin Theme - Based on Ping Project Design Rules */
+/* Admin Theme - Aligned with Studly Dark Reddit-like Aesthetic */
 
 .admin-theme {
-  --background: #0F3D2E;
-  --foreground: #F5F5DC;
-  --card: #0F3D2E;
-  --card-foreground: #F5F5DC;
-  --primary: #D4AF37;
-  --primary-foreground: #0F3D2E;
-  --secondary: #1C1C1C;
-  --secondary-foreground: #F5F5DC;
-  --muted: #1A4D3E;
-  --muted-foreground: rgba(245, 245, 220, 0.5); /* #F5F5DC80 */
-  --accent: #D4AF37;
-  --accent-foreground: #0F3D2E;
-  --destructive: #7F1D1D;
-  --border: rgba(212, 175, 55, 0.188); /* #D4AF3730 */
-  --input: rgba(212, 175, 55, 0.125); /* #D4AF3720 */
-  --ring: #D4AF37;
+  --background: #0D1117;       /* Brand deep dark background */
+  --foreground: #D7DADC;       /* Clean ash white text */
+  --card: #1A1A1B;             /* Slightly lighter premium grey background */
+  --card-foreground: #D7DADC;
+  --primary: #FF4500;          /* Brand orange matching Studly's orange accent */
+  --primary-foreground: #FFFFFF;
+  --secondary: #272729;        /* Medium dark grey button backgrounds */
+  --secondary-foreground: #D7DADC;
+  --muted: #1A1A1B;
+  --muted-foreground: #818384; /* Clean ash/grey text */
+  --accent: #FF4500;
+  --accent-foreground: #FFFFFF;
+  --destructive: #FF585B;      /* Premium modern red */
+  --border: #343536;           /* Crisp, clean borders */
+  --input: #272729;            /* Inner input field backdrops */
+  --ring: #FF4500;
 
   /* 8-point spacing tokens */
   --space-1: 4px;
@@ -58,7 +58,7 @@
 
 .admin-theme * {
   border-color: var(--border);
-  outline-color: rgba(212, 175, 55, 0.5); /* ring/50 */
+  outline-color: rgba(255, 69, 0, 0.5); /* Brand orange ring/50 */
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
   box-sizing: border-box;
@@ -105,6 +105,22 @@
   transform: scale(0.98);
 }
 
+.admin-theme .btn-secondary {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: var(--text-base);
+  font-weight: 500;
+  padding: var(--space-2) var(--space-4);
+  transition: background-color 150ms ease;
+}
+
+.admin-theme .btn-secondary:hover {
+  background-color: #343536;
+}
+
 .admin-theme .input-field {
   width: 100%;
   background-color: var(--input);
@@ -122,7 +138,7 @@
   outline: none;
 }
 
-/* Cards (only when necessary) */
+/* Cards */
 .admin-theme .admin-card {
   background-color: var(--card);
   border: 1px solid var(--border);
@@ -147,5 +163,3 @@
   font-size: var(--text-sm);
   letter-spacing: 0;
 }
-
-/* No italic, no shadows, no gradients enforced by not having them */
