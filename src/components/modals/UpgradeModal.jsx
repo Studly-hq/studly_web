@@ -40,6 +40,18 @@ const UpgradeModal = () => {
 
   const hasHadSubscription = !!currentUser?.subscriptionStatus;
   const isLimitHit = upgradeReason === 'limit_reached';
+  const isPlanExpired = upgradeReason === 'plan_expired';
+
+  // Derive heading, subtitle and CTA label based on the reason the modal was opened
+  const heading = isPlanExpired ? 'Your Pro Plan Has Expired' : 'Upgrade to Premium';
+
+  const subtitle = isPlanExpired
+    ? "Your subscription has ended. Renew now to restore unlimited uploads and your full AI study experience."
+    : isLimitHit
+      ? "You've used your 2 free notes. Upgrade to Premium to upload unlimited notes and unlock the full AI study experience."
+      : "Upgrade to Premium to upload unlimited notes and unlock the full AI study experience.";
+
+  const ctaLabel = isPlanExpired ? 'Renew Premium' : 'Join Premium Now';
 
   return (
     <div
@@ -73,12 +85,10 @@ const UpgradeModal = () => {
           {/* Title */}
           <div className="text-center space-y-2 mb-7">
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white drop-shadow-sm">
-              Upgrade to Premium
+              {heading}
             </h2>
             <p className="text-reddit-textMuted text-sm sm:text-base leading-relaxed max-w-md mx-auto">
-              {isLimitHit 
-                ? "You've used your 2 free notes. Upgrade to Premium to upload unlimited notes and unlock the full AI study experience." 
-                : "Upgrade to Premium to upload unlimited notes and unlock the full AI study experience."}
+              {subtitle}
             </p>
           </div>
 
@@ -129,7 +139,7 @@ const UpgradeModal = () => {
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  Join Premium Now
+                  {ctaLabel}
                 </span>
               )}
             </button>

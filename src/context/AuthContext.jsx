@@ -9,6 +9,7 @@ import { setAuthToken } from "../api/client";
 import { getProfile, updateProfile } from "../api/profile";
 import { supabase } from "../utils/supabase";
 import { useWebSocketContext } from "./WebSocketContext";
+import { toast } from "sonner";
 
 const AuthContext = createContext();
 
@@ -21,7 +22,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const { connect, disconnect } = useWebSocketContext();
+    const { connect, disconnect, subscribe } = useWebSocketContext();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [isAuthLoading, setIsAuthLoading] = useState(true);
@@ -188,6 +189,26 @@ export const AuthProvider = ({ children }) => {
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Subscribe to subscription_expired WS events.
+    // We fire a window CustomEvent so UIContext can open the modal
+    // without creating a circular context dependency.
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        const unsubscribe = subscribe("subscription_expired", (data) => {
+            // Downgrade the local user immediately so the UI reflects free plan
+            setCurrentUser(prev => prev ? { ...prev, planType: "free" } : prev);
+
+            // Toast so something shows even before the modal opens
+            toast.info("Your Pro plan has expired.", { duration: 4000 });
+
+            // Let UIContext handle opening the modal
+            window.dispatchEvent(new CustomEvent("plan:expired", { detail: data }));
+        });
+
+        return () => unsubscribe();
+    }, [isAuthenticated, subscribe]);
 
     const login = useCallback(async (email, password) => {
         try {
