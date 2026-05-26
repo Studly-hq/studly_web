@@ -184,6 +184,26 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('Are you sure you want to permanently delete this post?')) return;
+    
+    try {
+      const res = await fetch(`${API_URL}/admin/posts/${postId}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-password': password }
+      });
+      if (res.ok) {
+        setPostsData(prev => prev.filter(post => post.post_id !== postId));
+        alert('Post deleted successfully');
+      } else {
+        alert('Failed to delete post');
+      }
+    } catch (err) {
+      console.error('Failed to delete post:', err);
+      alert('An error occurred while deleting the post');
+    }
+  };
+
   if (!isUnlocked) {
     return (
       <div className="admin-theme" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
