@@ -179,7 +179,7 @@ const TopicPlayer = () => {
           onToggle={() => setIsNavOpen(!isNavOpen)}
         />
 
-        <main className="flex-1 flex flex-col relative min-w-0 bg-gradient-to-b from-reddit-bg to-[#0f0f10]">
+        <main className="flex-1 flex flex-col relative min-w-0 bg-reddit-bg">
           <div className="flex-1 overflow-y-auto custom-scrollbar px-8 lg:px-16 py-8">
             <div className="max-w-4xl mx-auto h-full">
               <ContentPlayer topic={activeTopic} />

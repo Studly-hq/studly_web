@@ -61,7 +61,7 @@ const LeftSidebar = () => {
       animate={{ width: isLeftSidebarCollapsed ? '60px' : '280px' }}
       className="hidden lg:flex flex-col h-screen sticky top-0 px-2 justify-between border-r border-reddit-border transition-all duration-300"
     >
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full overflow-y-auto scrollbar-hide pb-4">
         {/* Logo Area */}
         <div className={`p-3 my-1 flex items-center ${isLeftSidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
           {!isLeftSidebarCollapsed && (
@@ -91,7 +91,7 @@ const LeftSidebar = () => {
 
         {/* Nav Items */}
         {!isLeftSidebarCollapsed && (
-          <nav className="flex-1 px-2 space-y-1">
+          <nav className="px-2 space-y-1 mb-4">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Component = item.disabled ? 'div' : Link;
@@ -156,7 +156,7 @@ const LeftSidebar = () => {
 
         {/* Plan Upgrade/Status Card */}
         {isAuthenticated && !isLeftSidebarCollapsed && (
-          <div className="px-4 mb-4">
+          <div className="px-4 mb-4 mt-auto">
             <div 
               onClick={() => {
                 if (currentUser?.planType === 'pro') {
@@ -193,7 +193,7 @@ const LeftSidebar = () => {
 
         {/* User Profile / Auth Area (Bottom) */}
         {!isLeftSidebarCollapsed && (
-          <div className="p-3 mb-2">
+          <div className={`p-3 mb-2 ${!isAuthenticated || isLeftSidebarCollapsed ? 'mt-auto' : ''}`}>
             {isAuthenticated ? (
               <button
                 className="w-full flex items-center justify-between p-3 rounded-full hover:bg-reddit-cardHover/50 transition-colors group text-left"

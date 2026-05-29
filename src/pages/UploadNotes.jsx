@@ -154,10 +154,8 @@ const UploadNotes = () => {
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <motion.button
+              <button
                 onClick={() => navigate(-1)}
-                whileHover={{ x: -2 }}
-                whileTap={{ scale: 0.95 }}
                 className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors"
               >
                 <ArrowLeft size={20} className="text-reddit-text" />
@@ -176,7 +174,7 @@ const UploadNotes = () => {
           className="space-y-6"
         >
           {/* Info Card */}
-          <div className="bg-gradient-to-br from-reddit-orange/10 to-reddit-orange/10 backdrop-blur-sm border border-reddit-orange/20 rounded-2xl p-6">
+          <div className="bg-reddit-orange/10 border border-reddit-orange/20 rounded-2xl p-6">
             <div className="flex items-start gap-4">
               <div className="bg-reddit-orange/20 p-3 rounded-xl">
                 <Sparkles size={24} className="text-reddit-orange" />
@@ -194,7 +192,7 @@ const UploadNotes = () => {
           </div>
 
           {/* File Upload */}
-          <div className="bg-reddit-card backdrop-blur-sm border border-reddit-border rounded-2xl p-6">
+          <div className="bg-reddit-card border border-reddit-border rounded-2xl p-6">
             <label className="block text-sm font-semibold text-reddit-text mb-3">
               Upload Notes
             </label>
@@ -217,10 +215,7 @@ const UploadNotes = () => {
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
 
-                <motion.div
-                  animate={isDragging ? { scale: 1.1 } : { scale: 1 }}
-                  transition={{ duration: 0.2 }}
-                >
+                <div className="transition-all duration-200">
                   <Upload size={48} className={`mx-auto mb-4 ${isDragging ? 'text-reddit-orange' : 'text-reddit-textMuted'}`} />
                   <p className="text-reddit-text font-medium mb-2">
                     {isDragging ? 'Drop your file here' : 'Drag & drop your notes'}
@@ -231,14 +226,10 @@ const UploadNotes = () => {
                   <p className="text-xs text-reddit-textMuted">
                     Supported: PDF, DOC, DOCX, TXT (Max 10MB)
                   </p>
-                </motion.div>
+                </div>
               </div>
             ) : (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-reddit-input border border-reddit-border rounded-xl p-4"
-              >
+              <div className="bg-reddit-input border border-reddit-border rounded-xl p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="bg-reddit-orange/20 p-3 rounded-lg">
@@ -251,16 +242,14 @@ const UploadNotes = () => {
                       </p>
                     </div>
                   </div>
-                  <motion.button
+                  <button
                     onClick={handleRemoveFile}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
                     className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
                   >
                     <X size={20} className="text-red-400" />
-                  </motion.button>
+                  </button>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {error && (
@@ -276,7 +265,7 @@ const UploadNotes = () => {
           </div>
 
           {/* Topic Input */}
-          <div className="bg-reddit-card backdrop-blur-sm border border-reddit-border rounded-2xl p-6">
+          <div className="bg-reddit-card border border-reddit-border rounded-2xl p-6">
             <label className="block text-sm font-semibold text-reddit-text mb-3">
               Topic / Subject
             </label>
@@ -293,7 +282,7 @@ const UploadNotes = () => {
           </div>
 
           {/* Question Count */}
-          <div className="bg-reddit-card backdrop-blur-sm border border-reddit-border rounded-2xl p-6">
+          <div className="bg-reddit-card border border-reddit-border rounded-2xl p-6">
             <label className="block text-sm font-semibold text-reddit-text mb-3">
               Number of Questions
             </label>
@@ -317,13 +306,11 @@ const UploadNotes = () => {
           </div>
 
           {/* Generate Button */}
-          <motion.button
+          <button
             onClick={handleGenerate}
             disabled={!canGenerate || isGenerating}
-            whileHover={canGenerate && !isGenerating ? { scale: 1.02 } : {}}
-            whileTap={canGenerate && !isGenerating ? { scale: 0.98 } : {}}
-            className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${canGenerate && !isGenerating
-              ? 'bg-gradient-to-r from-reddit-orange to-reddit-orange hover:from-reddit-orange/90 hover:to-reddit-orange/90 text-white'
+            className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-colors ${canGenerate && !isGenerating
+              ? 'bg-reddit-orange hover:bg-reddit-orange/90 text-white'
               : 'bg-reddit-input text-reddit-textMuted cursor-not-allowed'
               }`}
           >
@@ -338,10 +325,10 @@ const UploadNotes = () => {
                 Generate Quiz
               </>
             )}
-          </motion.button>
+          </button>
 
           {/* Tips */}
-          <div className="bg-reddit-card/50 backdrop-blur-sm border border-reddit-border rounded-xl p-4">
+          <div className="bg-reddit-card/50 border border-reddit-border rounded-xl p-4">
             <h4 className="text-reddit-text font-semibold mb-2 flex items-center gap-2">
               <CheckCircle size={16} className="text-green-400" />
               Tips for best results

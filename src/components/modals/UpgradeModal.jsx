@@ -59,11 +59,11 @@ const UpgradeModal = () => {
       onClick={() => setShowUpgradeModal(false)}
     >
       <div
-        className="relative bg-reddit-card w-full max-w-2xl rounded-2xl shadow-2xl border border-reddit-border animate-in fade-in zoom-in duration-300 flex flex-col max-h-[90vh]"
+        className="relative bg-reddit-card w-full max-w-2xl rounded-2xl border border-reddit-border flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Background */}
-        <div className="absolute top-0 left-0 w-full h-36 bg-gradient-to-br from-reddit-orange/20 to-reddit-orange/5 opacity-50 pointer-events-none rounded-t-2xl" />
+        <div className="absolute top-0 left-0 w-full h-32 bg-reddit-orange/5 pointer-events-none rounded-t-2xl border-b border-reddit-border/20" />
 
         {/* Close Button */}
         <button
@@ -76,15 +76,15 @@ const UpgradeModal = () => {
         {/* Scrollable content */}
         <div className="relative overflow-y-auto flex-1 p-6 sm:p-10 pt-8">
           {/* Icon */}
-          <div className="flex justify-center mb-5">
-            <div className="w-16 h-16 bg-gradient-to-br from-reddit-orange to-orange-400 rounded-2xl shadow-lg shadow-reddit-orange/30 flex items-center justify-center transform rotate-3">
-              <Sparkles className="text-white w-8 h-8" />
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-reddit-orange/10 rounded-2xl border border-reddit-orange/20 flex items-center justify-center">
+              <Sparkles className="text-reddit-orange w-8 h-8" />
             </div>
           </div>
 
           {/* Title */}
-          <div className="text-center space-y-2 mb-7">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white drop-shadow-sm">
+          <div className="text-center space-y-3 mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
               {heading}
             </h2>
             <p className="text-reddit-textMuted text-sm sm:text-base leading-relaxed max-w-md mx-auto">
@@ -131,7 +131,7 @@ const UpgradeModal = () => {
             <button
               onClick={handleUpgrade}
               disabled={isLoading}
-              className="order-2 md:order-3 md:col-span-2 w-full bg-gradient-to-r from-reddit-orange to-orange-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+              className="order-2 md:order-3 md:col-span-2 w-full bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -150,8 +150,8 @@ const UpgradeModal = () => {
               <div className="space-y-2.5">
                 {features.map((feature, idx) => (
                   <div key={idx} className="flex items-center gap-3 text-reddit-text text-sm">
-                    <div className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                      <Check size={12} className="text-green-500" />
+                    <div className="w-5 h-5 rounded-full bg-reddit-orange/10 flex items-center justify-center flex-shrink-0">
+                      <Check size={12} className="text-reddit-orange" />
                     </div>
                     {feature}
                   </div>

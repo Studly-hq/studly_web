@@ -138,15 +138,13 @@ const EditProfile = () => {
               >
                 <ArrowLeft size={20} className="text-reddit-text" />
               </motion.button>
-              <h1 className="text-xl font-bold text-reddit-text">
+              <h1 className="text-xl font-bold text-reddit-text tracking-tight">
                 Edit Profile
               </h1>
             </div>
-            <motion.button
+            <button
               onClick={handleSave}
               disabled={isSaving}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
               className="px-4 py-2 bg-reddit-orange hover:bg-reddit-orange/90 disabled:bg-reddit-orange/50 text-white rounded-lg font-semibold flex items-center gap-2 transition-colors"
             >
               {isSaving ? (
@@ -160,7 +158,7 @@ const EditProfile = () => {
                   Save
                 </>
               )}
-            </motion.button>
+            </button>
           </div>
         </div>
       </div>
@@ -173,33 +171,31 @@ const EditProfile = () => {
           className="space-y-6"
         >
           {/* Avatar Upload */}
-          <div className="flex flex-col items-center">
-            <div className="relative mb-4">
+          <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-reddit-border">
+            <div className="relative">
               {formData.avatar ? (
                 <img
                   src={formData.avatar}
                   alt="Profile"
-                  className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-orange object-cover"
+                  className="w-24 h-24 rounded-full border border-reddit-border object-cover"
                 />
               ) : (
-                <div className="w-24 md:w-32 h-24 md:h-32 rounded-full border-3 md:border-4 border-reddit-orange bg-reddit-cardHover flex items-center justify-center">
-                  <User size={48} className="text-reddit-textMuted" />
+                <div className="w-24 h-24 rounded-full border border-reddit-border bg-reddit-cardHover flex items-center justify-center">
+                  <User size={32} className="text-reddit-textMuted" />
                 </div>
               )}
-              <motion.button
+              <button
                 onClick={() => document.getElementById("avatarUpload").click()}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
                 type="button"
                 disabled={isUploadingAvatar}
-                className="absolute bottom-0 right-0 p-2 md:p-3 bg-reddit-orange hover:bg-reddit-orange/90 disabled:bg-reddit-orange/50 rounded-full text-white transition-colors"
+                className="absolute bottom-0 right-0 p-2 bg-reddit-card hover:bg-reddit-cardHover border border-reddit-border disabled:opacity-50 rounded-full text-reddit-text transition-colors shadow-sm"
               >
                 {isUploadingAvatar ? (
-                  <LoadingSpinner size={18} color="#ffffff" />
+                  <LoadingSpinner size={16} color="#ffffff" />
                 ) : (
-                  <Camera size={18} className="md:w-5 md:h-5" />
+                  <Camera size={16} />
                 )}
-              </motion.button>
+              </button>
               <input
                 id="avatarUpload"
                 type="file"
@@ -208,11 +204,14 @@ const EditProfile = () => {
                 className="hidden"
               />
             </div>
-            <p className="text-xs md:text-sm text-reddit-textMuted text-center">
-              {isUploadingAvatar
-                ? "Uploading avatar..."
-                : "Click the camera icon to change your profile picture"}
-            </p>
+            <div className="flex flex-col items-center sm:items-start">
+              <h2 className="text-lg font-bold text-reddit-text tracking-tight mb-1">Profile Picture</h2>
+              <p className="text-sm text-reddit-textMuted text-center sm:text-left">
+                {isUploadingAvatar
+                  ? "Uploading avatar..."
+                  : "We recommend an image of at least 400x400. Max size 5MB."}
+              </p>
+            </div>
           </div>
 
           {/* Display Name */}
@@ -225,7 +224,7 @@ const EditProfile = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange transition-colors"
+              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange focus:ring-1 focus:ring-reddit-orange transition-colors"
               placeholder="Your display name"
             />
           </div>
@@ -244,7 +243,7 @@ const EditProfile = () => {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full pl-8 pr-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange transition-colors"
+                className="w-full pl-8 pr-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange focus:ring-1 focus:ring-reddit-orange transition-colors"
                 placeholder="username"
               />
             </div>
@@ -264,7 +263,7 @@ const EditProfile = () => {
               onChange={handleChange}
               rows={4}
               maxLength={160}
-              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange transition-colors resize-none"
+              className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange focus:ring-1 focus:ring-reddit-orange transition-colors resize-none"
               placeholder="Tell others about yourself..."
             />
             <div className="flex items-center justify-between mt-1">
@@ -278,17 +277,21 @@ const EditProfile = () => {
           </div>
 
           {/* Danger Zone */}
-          <div className="pt-6 border-t border-reddit-border">
-            <h3 className="text-sm font-semibold text-red-400 mb-3">
+          <div className="pt-8 mt-8 border-t border-reddit-border">
+            <h3 className="text-sm font-semibold text-red-400 mb-2 uppercase tracking-wider">
               Danger Zone
             </h3>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full px-4 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg font-semibold transition-colors"
-            >
-              Delete Account
-            </motion.button>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-reddit-border rounded-xl">
+              <div className="mb-4 sm:mb-0">
+                <h4 className="text-reddit-text font-medium text-sm">Delete Account</h4>
+                <p className="text-reddit-textMuted text-xs mt-1">Permanently delete your account and all data.</p>
+              </div>
+              <button
+                className="px-4 py-2 border border-red-500/30 hover:bg-red-500/10 text-red-400 rounded-lg font-medium text-sm transition-colors w-full sm:w-auto"
+              >
+                Delete Account
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>
