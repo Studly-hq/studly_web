@@ -5,7 +5,7 @@ export default {
     extend: {
       colors: {
         reddit: {
-          bg: '#0D1117',           // Main page/feed background (matched to Course Bank)
+          bg: 'hsl(240, 2%, 8%)',           // Main page/feed background (matched to Lucid)
           card: '#1A1A1B',         // Post cards and surfaces
           cardHover: '#272729',    // Card hover state
           border: '#343536',       // Borders and dividers
