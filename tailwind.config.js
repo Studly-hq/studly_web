@@ -17,6 +17,8 @@ export default {
         }
       },
       fontFamily: {
+        sans: ['"DM Sans"', 'sans-serif'],
+        heading: ['Outfit', 'sans-serif'],
         inter: ['Inter', 'sans-serif'],
       },
       animation: {
