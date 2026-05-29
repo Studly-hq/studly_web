@@ -159,7 +159,7 @@ const UploadNotes = () => {
                 className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors"
               >
                 <ArrowLeft size={20} className="text-reddit-text" />
-              </motion.button>
+              </button>
               <h1 className="text-xl font-bold text-reddit-text">Generate Quiz</h1>
             </div>
           </div>
