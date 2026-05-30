@@ -41,15 +41,22 @@ const UpgradeModal = () => {
   const hasHadSubscription = !!currentUser?.subscriptionStatus;
   const isLimitHit = upgradeReason === 'limit_reached';
   const isPlanExpired = upgradeReason === 'plan_expired';
+  const isStudyUpsell = upgradeReason === 'study_upsell';
 
   // Derive heading, subtitle and CTA label based on the reason the modal was opened
-  const heading = isPlanExpired ? 'Your Pro Plan Has Expired' : 'Upgrade to Premium';
+  const heading = isPlanExpired 
+    ? 'Your Pro Plan Has Expired' 
+    : isStudyUpsell
+      ? 'Unlock the Full Power of AI Studying'
+      : 'Upgrade to Premium';
 
   const subtitle = isPlanExpired
     ? "Your subscription has ended. Renew now to restore unlimited uploads and your full AI study experience."
-    : isLimitHit
-      ? "You've used your 2 free notes. Upgrade to Premium to upload unlimited notes and unlock the full AI study experience."
-      : "Upgrade to Premium to upload unlimited notes and unlock the full AI study experience.";
+    : isStudyUpsell
+      ? "Upgrade to Premium to get unlimited uploads, personalized AI tutoring, and generate smart quizzes to accelerate your learning."
+      : isLimitHit
+        ? "You've used your 2 free notes. Upgrade to Premium to upload unlimited notes and unlock the full AI study experience."
+        : "Upgrade to Premium to upload unlimited notes and unlock the full AI study experience.";
 
   const ctaLabel = isPlanExpired ? 'Renew Premium' : 'Join Premium Now';
 
