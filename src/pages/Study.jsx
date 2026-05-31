@@ -80,11 +80,14 @@ const Study = () => {
         }
     }, [isAuthenticated, activeToken, isLoading, fetchTokenAndStart]);
 
-    // Listen for Quota Exceeded from Lucid
+    // Listen for Quota Exceeded and Pro Feature Required from Lucid
     useEffect(() => {
         const handleMessage = (event) => {
             if (event.data?.type === 'QUOTA_EXCEEDED') {
                 setUpgradeReason('limit_reached');
+                setShowUpgradeModal(true);
+            } else if (event.data?.type === 'PRO_FEATURE_REQUIRED') {
+                setUpgradeReason('study_upsell');
                 setShowUpgradeModal(true);
             }
         };
