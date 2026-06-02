@@ -5,7 +5,7 @@ export default {
     extend: {
       colors: {
         reddit: {
-          bg: 'hsl(240, 2%, 8%)',           // Main page/feed background (matched to Lucid)
+          bg: 'hsl(240, 2%, 4%)',           // Main page/feed background (matched to Lucid)
           card: '#1A1A1B',         // Post cards and surfaces
           cardHover: '#272729',    // Card hover state
           border: '#343536',       // Borders and dividers

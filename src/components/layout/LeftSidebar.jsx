@@ -65,8 +65,8 @@ const LeftSidebar = () => {
         {/* Logo Area */}
         <div className={`p-3 my-1 flex items-center ${isLeftSidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
           {!isLeftSidebarCollapsed && (
-            <Link to="/feed" className="inline-flex items-center justify-center p-2 rounded-full hover:bg-reddit-cardHover/50 transition-colors w-12 h-12">
-              <img src={logo} alt="Studly Logo" className="w-10 h-10 object-contain" />
+            <Link to="/feed" className="inline-flex items-center justify-center p-2 rounded-full hover:bg-reddit-cardHover/50 transition-colors w-14 h-14">
+              <img src={logo} alt="Studly Logo" className="w-12 h-12 object-contain" />
             </Link>
           )}
           {!isLeftSidebarCollapsed ? (
