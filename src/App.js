@@ -47,6 +47,7 @@ const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Study = lazy(() => import("./pages/Study"));
 const CUHUB = lazy(() => import("./pages/CUHUB"));
 const VerifyPayment = lazy(() => import("./pages/VerifyPayment"));
+const ReleaseNotes = lazy(() => import("./pages/ReleaseNotes"));
 
 
 // Legal Pages (Lazy loaded)
@@ -117,6 +118,7 @@ function AppContent() {
                       <Route path="/study" element={<Study />} />
                       <Route path="/cuhub" element={<CUHUB />} />
                       <Route path="/verify-payment" element={<VerifyPayment />} />
+                      <Route path="/releases" element={<ReleaseNotes />} />
                       <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
 
 
