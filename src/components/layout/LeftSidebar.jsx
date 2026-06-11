@@ -48,7 +48,7 @@ const LeftSidebar = () => {
     },
     {
       icon: Sparkles,
-      label: 'What\\'s New',
+      label: "What's New",
       path: '/releases',
       id: 'releases'
     },

@@ -55,7 +55,7 @@ const ReleaseItem = ({ release, index }) => {
               {release.tags?.map((tag, i) => (
                 <span
                   key={i}
-                  className={\`px-3 py-1 text-xs font-semibold rounded-full border \${getTagColor(tag)}\`}
+                  className={`px-3 py-1 text-xs font-semibold rounded-full border ${getTagColor(tag)}`}
                 >
                   {tag}
                 </span>
