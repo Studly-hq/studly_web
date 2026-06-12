@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
-import { Sparkles, ArrowRightCircle } from "lucide-react";
+
 
 const getTagColor = (tag) => {
   switch (tag.toLowerCase()) {
@@ -67,12 +67,12 @@ const ReleaseItem = ({ release, index }) => {
           <div className="prose prose-invert max-w-none text-reddit-text">
             <ReactMarkdown
               components={{
-                p: ({node, ...props}) => <p className="mb-4 leading-relaxed whitespace-pre-wrap" {...props} />,
-                ul: ({node, ...props}) => <ul className="space-y-2 mb-4 list-disc pl-5" {...props} />,
-                li: ({node, ...props}) => <li className="pl-1" {...props} />,
-                h3: ({node, ...props}) => <h3 className="text-lg font-bold text-white mt-6 mb-3 flex items-center gap-2" {...props} />,
-                strong: ({node, ...props}) => <strong className="font-semibold text-white" {...props} />,
-                em: ({node, ...props}) => <em className="italic text-reddit-textMuted" {...props} />
+                p: ({node, children, ...props}) => <p className="mb-4 leading-relaxed whitespace-pre-wrap" {...props}>{children}</p>,
+                ul: ({node, children, ...props}) => <ul className="space-y-2 mb-4 list-disc pl-5" {...props}>{children}</ul>,
+                li: ({node, children, ...props}) => <li className="pl-1" {...props}>{children}</li>,
+                h3: ({node, children, ...props}) => <h3 className="text-lg font-bold text-white mt-6 mb-3 flex items-center gap-2" {...props}>{children}</h3>,
+                strong: ({node, children, ...props}) => <strong className="font-semibold text-white" {...props}>{children}</strong>,
+                em: ({node, children, ...props}) => <em className="italic text-reddit-textMuted" {...props}>{children}</em>
               }}
             >
               {release.content}
