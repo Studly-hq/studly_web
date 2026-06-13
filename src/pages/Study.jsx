@@ -9,8 +9,8 @@ import SEO from '../components/common/SEO';
 const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
 
 const Study = () => {
-    const { isAuthenticated } = useAuth();
-    const { setShowAuthModal, setShowUpgradeModal, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
+    const { isAuthenticated, currentUser } = useAuth();
+    const { setShowAuthModal, setShowUpgradeModal, setUpgradeReason, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
     const [isLoading, setIsLoading] = useState(false);
     const [iframeLoading, setIframeLoading] = useState(true);
     const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
@@ -36,11 +36,15 @@ const Study = () => {
             setActiveToken(token);
         } catch (error) {
             console.error('Failed to get study token:', error);
-            try {
-                const freshToken = await getStudyToken();
-                setActiveToken(freshToken);
-            } catch (innerError) {
-                console.error('Final attempt failed:', innerError);
+            // Don't retry immediately on 429 — it will just consume more rate-limit quota
+            // and cause a cascade of failures. Let the user try again manually.
+            if (error.response?.status !== 429) {
+                try {
+                    const freshToken = await getStudyToken();
+                    setActiveToken(freshToken);
+                } catch (innerError) {
+                    console.error('Final attempt failed:', innerError);
+                }
             }
         } finally {
             setIsLoading(false);
@@ -55,6 +59,20 @@ const Study = () => {
         }
     }, [setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed]);
 
+    // 30-second upsell timer for free plan users
+    useEffect(() => {
+        if (!isAuthenticated || !currentUser) return;
+
+        if (currentUser.planType !== 'pro') {
+            const timer = setTimeout(() => {
+                setUpgradeReason('study_upsell');
+                setShowUpgradeModal(true);
+            }, 30000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [isAuthenticated, currentUser, setUpgradeReason, setShowUpgradeModal]);
+
     // Automatically start studying when authenticated and component mounts
     useEffect(() => {
         if (isAuthenticated && !activeToken && !isLoading) {
@@ -62,17 +80,21 @@ const Study = () => {
         }
     }, [isAuthenticated, activeToken, isLoading, fetchTokenAndStart]);
 
-    // Listen for Quota Exceeded from Lucid
+    // Listen for Quota Exceeded and Pro Feature Required from Lucid
     useEffect(() => {
         const handleMessage = (event) => {
             if (event.data?.type === 'QUOTA_EXCEEDED') {
+                setUpgradeReason('limit_reached');
+                setShowUpgradeModal(true);
+            } else if (event.data?.type === 'PRO_FEATURE_REQUIRED') {
+                setUpgradeReason('study_upsell');
                 setShowUpgradeModal(true);
             }
         };
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    }, [setShowUpgradeModal]);
+    }, [setShowUpgradeModal, setUpgradeReason]);
 
     if (!isAuthenticated) {
         return (

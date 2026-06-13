@@ -59,14 +59,14 @@ const Settings = () => {
   };
 
   const SettingSection = ({ title, icon: Icon, children }) => (
-    <div className="mb-6">
-      <div className="flex items-center gap-2 mb-3">
+    <div className="mb-10">
+      <div className="flex items-center gap-2 mb-4 px-2">
         <Icon size={18} className="text-reddit-orange" />
-        <h3 className="text-sm font-semibold text-reddit-textMuted uppercase tracking-wider">
+        <h3 className="text-sm font-bold text-reddit-textMuted uppercase tracking-wider">
           {title}
         </h3>
       </div>
-      <div className="bg-reddit-card rounded-xl border border-reddit-border divide-y divide-reddit-border">
+      <div className="flex flex-col gap-1">
         {children}
       </div>
     </div>
@@ -101,7 +101,7 @@ const Settings = () => {
           <SettingSection title="Account" icon={User}>
             <button
               onClick={() => navigate("/profile/edit")}
-              className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full"
+              className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover rounded-xl transition-colors w-full"
             >
               <div className="flex-1 text-left">
                 <p className="text-reddit-text font-medium mb-1">
@@ -115,7 +115,7 @@ const Settings = () => {
             </button>
             <button
               onClick={() => setShowPasswordModal(true)}
-              className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full"
+              className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover rounded-xl transition-colors w-full"
             >
               <div className="flex-1 text-left">
                 <p className="text-reddit-text font-medium mb-1">
@@ -131,7 +131,7 @@ const Settings = () => {
 
           {/* About */}
           <SettingSection title="About" icon={Globe}>
-            <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full">
+            <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover rounded-xl transition-colors w-full">
               <div className="flex-1 text-left">
                 <p className="text-reddit-text font-medium mb-1">
                   Terms of Service
@@ -139,7 +139,7 @@ const Settings = () => {
               </div>
               <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
-            <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full">
+            <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover rounded-xl transition-colors w-full">
               <div className="flex-1 text-left">
                 <p className="text-reddit-text font-medium mb-1">
                   Privacy Policy
@@ -147,7 +147,7 @@ const Settings = () => {
               </div>
               <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
-            <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover transition-colors w-full">
+            <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover rounded-xl transition-colors w-full">
               <div className="flex-1 text-left">
                 <p className="text-reddit-text font-medium mb-1">
                   Help & Support
@@ -170,10 +170,10 @@ const Settings = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-reddit-card w-full max-w-md rounded-xl border border-reddit-border p-6 shadow-xl"
+            className="bg-reddit-card w-full max-w-md rounded-xl border border-reddit-border p-6"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-reddit-text">
+              <h2 className="text-xl font-bold text-reddit-text tracking-tight">
                 Change Password
               </h2>
               <button
@@ -199,7 +199,7 @@ const Settings = () => {
                       oldPassword: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-orange"
+                  className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-orange focus:ring-1 focus:ring-reddit-orange transition-colors"
                   placeholder="Enter current password"
                 />
               </div>
@@ -217,7 +217,7 @@ const Settings = () => {
                       newPassword: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-orange"
+                  className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-orange focus:ring-1 focus:ring-reddit-orange transition-colors"
                   placeholder="Enter new password"
                 />
               </div>
@@ -235,7 +235,7 @@ const Settings = () => {
                       confirmPassword: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-orange"
+                  className="w-full px-4 py-3 bg-reddit-input border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-orange focus:ring-1 focus:ring-reddit-orange transition-colors"
                   placeholder="Confirm new password"
                 />
               </div>

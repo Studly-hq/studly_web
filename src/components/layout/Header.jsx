@@ -5,7 +5,8 @@ import {
   Search,
   Plus,
   Bell,
-  X
+  X,
+  Zap
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useFeed } from '../../context/FeedContext';
@@ -21,7 +22,7 @@ const Header = () => {
   } = useAuth();
 
   const { handleCreatePost } = useFeed();
-  const { setShowAuthModal } = useUI();
+  const { setShowAuthModal, setShowUpgradeModal, setUpgradeReason } = useUI();
   const { unreadCount } = useNotifications();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -74,6 +75,23 @@ const Header = () => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          {/* Mobile Upgrade Button */}
+          {isAuthenticated && currentUser?.planType !== 'pro' && (
+            <motion.button
+              onClick={() => {
+                setUpgradeReason('manual');
+                setShowUpgradeModal(true);
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="flex lg:hidden items-center gap-1 bg-gradient-to-br from-reddit-orange to-orange-600 text-white px-2 py-1.5 rounded text-xs sm:text-sm font-bold shadow-sm"
+            >
+              <Zap size={14} className="fill-white" />
+              <span className="hidden sm:inline">Upgrade</span>
+            </motion.button>
+          )}
+
           {/* Create Post Button */}
           <motion.button
             onClick={() => {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, Loader2, PanelLeftClose, PanelLeftOpen, Zap } from 'lucide-react';
+import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, Loader2, PanelLeftClose, PanelLeftOpen, Zap, Crown, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import { useNotifications } from '../../context/NotificationContext';
@@ -12,7 +12,7 @@ const LeftSidebar = () => {
   const navigate = useNavigate();
 
   const { isAuthenticated, currentUser } = useAuth();
-  const { setShowAuthModal, setShowCreatePostModal, setShowUpgradeModal, setShowManagePlanModal, isLeftSidebarCollapsed, setIsLeftSidebarCollapsed } = useUI();
+  const { setShowAuthModal, setShowCreatePostModal, setShowUpgradeModal, setUpgradeReason, setShowManagePlanModal, isLeftSidebarCollapsed, setIsLeftSidebarCollapsed } = useUI();
   const { unreadCount } = useNotifications();
   const [isStudyLoading] = useState(false);
 
@@ -47,6 +47,12 @@ const LeftSidebar = () => {
       id: 'notifications'
     },
     {
+      icon: Sparkles,
+      label: "What's New",
+      path: '/releases',
+      id: 'releases'
+    },
+    {
       icon: User,
       label: 'Profile',
       path: '/profile',
@@ -59,14 +65,14 @@ const LeftSidebar = () => {
     <motion.aside
       initial={false}
       animate={{ width: isLeftSidebarCollapsed ? '60px' : '280px' }}
-      className="hidden lg:flex flex-col h-screen sticky top-0 px-2 justify-between border-r border-reddit-border transition-all duration-300"
+      className="hidden lg:flex flex-col h-full sticky top-0 px-2 justify-between border-r border-reddit-border transition-all duration-300"
     >
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full overflow-y-auto scrollbar-hide pb-4">
         {/* Logo Area */}
         <div className={`p-3 my-1 flex items-center ${isLeftSidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
           {!isLeftSidebarCollapsed && (
             <Link to="/feed" className="inline-flex items-center justify-center p-2 rounded-full hover:bg-reddit-cardHover/50 transition-colors w-12 h-12">
-              <img src={logo} alt="Studly Logo" className="w-10 h-10 object-contain" />
+              <img src={logo} alt="Studly Logo" className="w-9 h-9 object-contain" />
             </Link>
           )}
           {!isLeftSidebarCollapsed ? (
@@ -91,7 +97,7 @@ const LeftSidebar = () => {
 
         {/* Nav Items */}
         {!isLeftSidebarCollapsed && (
-          <nav className="flex-1 px-2 space-y-1">
+          <nav className="px-2 space-y-1 mb-4">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Component = item.disabled ? 'div' : Link;
@@ -156,20 +162,31 @@ const LeftSidebar = () => {
 
         {/* Plan Upgrade/Status Card */}
         {isAuthenticated && !isLeftSidebarCollapsed && (
-          <div className="px-4 mb-4">
+          <div className="px-4 mb-4 mt-auto">
             <div 
-              onClick={() => currentUser?.planType === 'pro' ? setShowManagePlanModal(true) : setShowUpgradeModal(true)}
+              onClick={() => {
+                if (currentUser?.planType === 'pro') {
+                  setShowManagePlanModal(true);
+                } else {
+                  setUpgradeReason('manual');
+                  setShowUpgradeModal(true);
+                }
+              }}
               className={`
                 relative overflow-hidden cursor-pointer p-4 rounded-2xl group transition-all duration-300
                 ${currentUser?.planType === 'pro' 
-                  ? 'bg-gradient-to-br from-indigo-600 to-purple-700 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]' 
+                  ? 'bg-gradient-to-br from-gray-700 to-gray-900 hover:shadow-[0_0_20px_rgba(75,85,99,0.4)] border border-gray-600/50' 
                   : 'bg-gradient-to-br from-reddit-orange to-orange-600 hover:shadow-[0_0_20px_rgba(255,69,0,0.4)]'}
               `}
             >
               <div className="absolute top-0 left-0 w-full h-full bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
-                  <Zap className={`w-6 h-6 fill-white text-white ${currentUser?.planType === 'pro' ? '' : 'animate-pulse'}`} />
+                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 backdrop-blur-sm shadow-sm">
+                  {currentUser?.planType === 'pro' ? (
+                    <Crown className="w-6 h-6 text-reddit-orange fill-reddit-orange/20" />
+                  ) : (
+                    <Zap className="w-6 h-6 fill-white text-white animate-pulse" />
+                  )}
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="text-white font-bold text-sm">
@@ -186,7 +203,7 @@ const LeftSidebar = () => {
 
         {/* User Profile / Auth Area (Bottom) */}
         {!isLeftSidebarCollapsed && (
-          <div className="p-3 mb-2">
+          <div className={`p-3 mb-2 ${!isAuthenticated || isLeftSidebarCollapsed ? 'mt-auto' : ''}`}>
             {isAuthenticated ? (
               <button
                 className="w-full flex items-center justify-between p-3 rounded-full hover:bg-reddit-cardHover/50 transition-colors group text-left"

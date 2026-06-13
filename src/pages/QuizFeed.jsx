@@ -158,7 +158,7 @@ const QuizFeed = () => {
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
-      className="h-screen w-full overflow-hidden bg-gradient-to-b from-gray-950 to-black fixed inset-0"
+      className="h-screen w-full overflow-hidden bg-reddit-bg fixed inset-0"
     >
       {/* Top bar */}
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-3 sm:px-4 py-3 sm:py-4 bg-black/50 backdrop-blur-sm">
@@ -177,7 +177,7 @@ const QuizFeed = () => {
       </div>
 
       {/* Main quiz feed */}
-      <div className="h-full w-full flex items-center justify-center px-2 sm:px-4 pt-14 sm:pt-16 pb-safe">
+      <div className="h-full w-full flex items-center justify-center px-2 sm:px-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={`${currentQuizIndex}-${currentQuestionIndex}`}

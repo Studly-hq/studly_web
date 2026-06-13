@@ -28,7 +28,7 @@ export const WebSocketProvider = ({ children }) => {
     const reconnectTimeoutRef = useRef(null);
     const reconnectAttemptsRef = useRef(0);
     const MAX_RECONNECT_ATTEMPTS = 5;
-    const BASE_RECONNECT_DELAY = 1000;
+    const BASE_RECONNECT_DELAY = 5000; // Start at 5s, not 1s — avoid hammering a rate-limited server
 
     const connect = useCallback(async (tokenProp) => {
         let token = tokenProp;
@@ -100,7 +100,9 @@ export const WebSocketProvider = ({ children }) => {
             }
 
             if (!isIntentionalDisconnect.current && !event.wasClean && reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
-                const delay = Math.min(10000, BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttemptsRef.current));
+                // Cap at 60s to give the server rate-limiter time to recover
+                const delay = Math.min(60000, BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttemptsRef.current));
+                console.warn(`[WS] Reconnecting in ${delay / 1000}s (attempt ${reconnectAttemptsRef.current + 1}/${MAX_RECONNECT_ATTEMPTS})`);
                 reconnectTimeoutRef.current = setTimeout(() => {
                     reconnectAttemptsRef.current += 1;
                     connect();

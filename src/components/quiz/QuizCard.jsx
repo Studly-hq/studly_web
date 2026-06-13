@@ -41,7 +41,7 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
   const isCorrect = selectedAnswer === question.answer_index;
 
   return (
-    <div className="relative w-full mx-auto bg-black rounded-xl md:rounded-2xl overflow-hidden h-full max-h-[85vh] md:max-h-[80vh]" style={{ maxWidth: '440px' }}>
+    <div className="relative w-full mx-auto bg-reddit-card border border-reddit-border rounded-xl md:rounded-2xl overflow-hidden h-full max-h-[85vh] md:max-h-[80vh]" style={{ maxWidth: '440px' }}>
       {/* Main content area */}
       <div className="h-full flex flex-col justify-between p-4 sm:p-5 md:p-6">
 
@@ -54,9 +54,9 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
         </div>
 
         {/* Center - Question */}
-        <div className="flex-1 flex items-center pr-14 sm:pr-16 overflow-y-auto">
+        <div className="flex-1 flex items-center px-14 sm:px-16 overflow-y-auto w-full">
           <div className="w-full">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight text-center leading-tight mb-4 sm:mb-6">
               {question.question}
             </h1>
 
@@ -75,16 +75,16 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
                     const isCorrectAnswer = index === question.answer_index;
                     const showResult = selectedAnswer !== null;
 
-                    let bgColor = 'bg-white/5 border-white/10';
+                    let bgColor = 'bg-reddit-cardHover border-reddit-border';
                     let textColor = 'text-white';
 
                     if (showResult) {
                       if (isCorrectAnswer) {
-                        bgColor = 'bg-green-500/20 border-green-500/50';
-                        textColor = 'text-green-300';
+                        bgColor = 'bg-green-500/10 border-green-500/30';
+                        textColor = 'text-green-400';
                       } else if (isSelected) {
-                        bgColor = 'bg-red-500/20 border-red-500/50';
-                        textColor = 'text-red-300';
+                        bgColor = 'bg-red-500/10 border-red-500/30';
+                        textColor = 'text-red-400';
                       }
                     }
 
@@ -96,7 +96,7 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
                         transition={{ delay: index * 0.05 }}
                         onClick={() => handleAnswerSelect(index)}
                         disabled={selectedAnswer !== null}
-                        className={`w-full p-3 sm:p-4 rounded-lg sm:rounded-xl border backdrop-blur-sm transition-all ${bgColor} ${selectedAnswer === null ? 'hover:border-white/30 active:scale-95' : ''
+                        className={`w-full p-3 sm:p-4 rounded-lg sm:rounded-xl border transition-colors ${bgColor} ${selectedAnswer === null ? 'hover:bg-reddit-cardHover/80' : ''
                           }`}
                       >
                         <div className="flex items-center gap-2 sm:gap-3">
@@ -134,7 +134,7 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
                   transition={{ delay: 0.2 }}
                   className="mt-3 sm:mt-4"
                 >
-                  <div className="bg-white/5 border border-white/10 rounded-lg sm:rounded-xl p-3 sm:p-4">
+                  <div className="bg-reddit-bg border border-reddit-border rounded-lg sm:rounded-xl p-3 sm:p-4">
                     <div className="flex items-center gap-2 mb-2">
                       {isCorrect ? (
                         <>
@@ -171,7 +171,7 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               onClick={handleNext}
-              className="px-5 sm:px-6 py-2 bg-white text-black rounded-full font-bold text-xs sm:text-sm hover:bg-gray-200 active:scale-95 transition-all"
+              className="px-5 sm:px-6 py-2 bg-reddit-orange text-white rounded-full font-bold text-xs sm:text-sm hover:bg-reddit-orange/90 transition-colors"
             >
               Next
             </motion.button>
@@ -187,11 +187,11 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
           whileTap={{ scale: 0.9 }}
           className="flex flex-col items-center gap-1"
         >
-          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${isLiked ? 'bg-red-500' : 'bg-white/10 hover:bg-white/20'
+          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border border-reddit-border transition-colors ${isLiked ? 'bg-red-500/20 text-red-500' : 'bg-reddit-bg hover:bg-reddit-cardHover'
             }`}>
             <Heart
               size={20}
-              className={isLiked ? 'text-white fill-white' : 'text-white'}
+              className={isLiked ? 'text-red-500 fill-red-500' : 'text-reddit-text'}
               strokeWidth={2}
             />
           </div>
@@ -206,11 +206,11 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
           whileTap={{ scale: 0.9 }}
           className="flex flex-col items-center gap-1"
         >
-          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${isSaved ? 'bg-yellow-500' : 'bg-white/10 hover:bg-white/20'
+          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border border-reddit-border transition-colors ${isSaved ? 'bg-yellow-500/20 text-yellow-500' : 'bg-reddit-bg hover:bg-reddit-cardHover'
             }`}>
             <Bookmark
               size={20}
-              className={isSaved ? 'text-white fill-white' : 'text-white'}
+              className={isSaved ? 'text-yellow-500 fill-yellow-500' : 'text-reddit-text'}
               strokeWidth={2}
             />
           </div>

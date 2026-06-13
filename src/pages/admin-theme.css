@@ -1,0 +1,165 @@
+/* Admin Theme - Aligned with Studly Dark Reddit-like Aesthetic */
+
+.admin-theme {
+  --background: #0D1117;       /* Brand deep dark background */
+  --foreground: #D7DADC;       /* Clean ash white text */
+  --card: #1A1A1B;             /* Slightly lighter premium grey background */
+  --card-foreground: #D7DADC;
+  --primary: #FF4500;          /* Brand orange matching Studly's orange accent */
+  --primary-foreground: #FFFFFF;
+  --secondary: #272729;        /* Medium dark grey button backgrounds */
+  --secondary-foreground: #D7DADC;
+  --muted: #1A1A1B;
+  --muted-foreground: #818384; /* Clean ash/grey text */
+  --accent: #FF4500;
+  --accent-foreground: #FFFFFF;
+  --destructive: #FF585B;      /* Premium modern red */
+  --border: #343536;           /* Crisp, clean borders */
+  --input: #272729;            /* Inner input field backdrops */
+  --ring: #FF4500;
+
+  /* 8-point spacing tokens */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Type scale */
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 48px;
+  --text-4xl: 64px;
+
+  /* Radii */
+  --radius: 0.5rem;
+  --radius-sm: calc(0.5rem * 0.6);
+
+  /* Set defaults for the admin container */
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.admin-theme * {
+  border-color: var(--border);
+  outline-color: rgba(255, 69, 0, 0.5); /* Brand orange ring/50 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  box-sizing: border-box;
+}
+
+/* Typography strictness */
+.admin-theme h1, .admin-theme h2, .admin-theme h3, .admin-theme h4 {
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-weight: 600;
+}
+
+.admin-theme .heading-xl {
+  font-size: clamp(var(--text-xl), 4vw, var(--text-2xl));
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.admin-theme .tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Inputs and Buttons */
+.admin-theme .btn-primary {
+  width: 100%;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 15px;
+  padding: var(--space-3) var(--space-6);
+  min-height: 48px;
+  border: none;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.admin-theme .btn-primary:hover {
+  opacity: 0.9;
+}
+
+.admin-theme .btn-primary:active {
+  transform: scale(0.98);
+}
+
+.admin-theme .btn-secondary {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: var(--text-base);
+  font-weight: 500;
+  padding: var(--space-2) var(--space-4);
+  transition: background-color 150ms ease;
+}
+
+.admin-theme .btn-secondary:hover {
+  background-color: #343536;
+}
+
+.admin-theme .input-field {
+  width: 100%;
+  background-color: var(--input);
+  color: var(--foreground);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  font-size: var(--text-md);
+  padding: var(--space-3) var(--space-4);
+  min-height: 48px;
+  transition: border-color 150ms ease;
+}
+
+.admin-theme .input-field:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+/* Cards */
+.admin-theme .admin-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-6);
+}
+
+.admin-theme table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-theme th, .admin-theme td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-theme th {
+  font-weight: 600;
+  color: var(--muted-foreground);
+  font-size: var(--text-sm);
+  letter-spacing: 0;
+}

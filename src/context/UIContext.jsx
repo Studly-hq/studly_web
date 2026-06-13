@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 
 const UIContext = createContext();
 
@@ -21,25 +21,39 @@ export const UIProvider = ({ children }) => {
         return saved ? JSON.parse(saved) : false;
     });
 
-    // Update localStorage when states change
-    React.useEffect(() => {
-        localStorage.setItem('isLeftSidebarCollapsed', JSON.stringify(isLeftSidebarCollapsed));
-    }, [isLeftSidebarCollapsed]);
-
-    React.useEffect(() => {
-        localStorage.setItem('isRightSidebarCollapsed', JSON.stringify(isRightSidebarCollapsed));
-    }, [isRightSidebarCollapsed]);
-
-    // Modal States
+    // Modal States — declared BEFORE any effect that references them
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [showCreatePostModal, setShowCreatePostModal] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [upgradeReason, setUpgradeReason] = useState(null);
     const [showManagePlanModal, setShowManagePlanModal] = useState(false);
     const [showComments, setShowComments] = useState(null);
     const [selectedPost, setSelectedPost] = useState(null);
 
     // Mobile Menu State
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // Update localStorage when sidebar states change
+    useEffect(() => {
+        localStorage.setItem('isLeftSidebarCollapsed', JSON.stringify(isLeftSidebarCollapsed));
+    }, [isLeftSidebarCollapsed]);
+
+    useEffect(() => {
+        localStorage.setItem('isRightSidebarCollapsed', JSON.stringify(isRightSidebarCollapsed));
+    }, [isRightSidebarCollapsed]);
+
+    // Listen for the plan:expired event fired by AuthContext when a
+    // subscription_expired WebSocket event is received. Using a DOM event
+    // avoids a circular context dependency between AuthContext and UIContext.
+    useEffect(() => {
+        const handlePlanExpired = () => {
+            setUpgradeReason('plan_expired');
+            setShowUpgradeModal(true);
+        };
+
+        window.addEventListener('plan:expired', handlePlanExpired);
+        return () => window.removeEventListener('plan:expired', handlePlanExpired);
+    }, []); // stable: setters from useState never change identity
 
     // Loading Bar Logic
     const [loadingProgress, setLoadingProgress] = useState(0);
@@ -75,6 +89,8 @@ export const UIProvider = ({ children }) => {
         setShowCreatePostModal,
         showUpgradeModal,
         setShowUpgradeModal,
+        upgradeReason,
+        setUpgradeReason,
         showManagePlanModal,
         setShowManagePlanModal,
         showComments,
@@ -99,6 +115,7 @@ export const UIProvider = ({ children }) => {
         showAuthModal,
         showCreatePostModal,
         showUpgradeModal,
+        upgradeReason,
         showManagePlanModal,
         showComments,
         selectedPost,

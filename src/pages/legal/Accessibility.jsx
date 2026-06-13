@@ -38,7 +38,7 @@ const Accessibility = () => {
                         <h2 className="text-xl font-semibold text-white mb-3">Feedback</h2>
                         <p>We welcome your feedback on the accessibility of Studly. Please let us know if you encounter accessibility barriers on Studly:</p>
                         <ul className="list-disc list-inside mt-2 ml-4">
-                            <li>Email: support@studly.com</li>
+                            <li>Email: studlyhelp@gmail.com</li>
                         </ul>
                     </section>
 

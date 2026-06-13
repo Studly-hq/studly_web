@@ -7,7 +7,7 @@ import axios from 'axios';
 
 const ManagePlanModal = () => {
   const { showManagePlanModal, setShowManagePlanModal } = useUI();
-  const { currentUser, updateUser } = useAuth();
+  const { updateUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmCancel, setShowConfirmCancel] = useState(false);
 
@@ -37,13 +37,13 @@ const ManagePlanModal = () => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div 
-        className="relative bg-reddit-card w-full max-w-md rounded-2xl overflow-hidden shadow-2xl border border-reddit-border animate-in fade-in zoom-in duration-300"
+        className="relative bg-reddit-card w-full max-w-md rounded-2xl border border-reddit-border flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-6 border-b border-reddit-border flex justify-between items-center bg-gradient-to-r from-indigo-500/10 to-purple-500/10">
+        <div className="p-6 border-b border-reddit-border flex justify-between items-center bg-reddit-orange/5">
           <div className="flex items-center gap-2 text-white font-bold text-lg">
-            <ShieldCheck className="text-indigo-400" size={24} />
+            <ShieldCheck className="text-reddit-orange" size={24} />
             Manage Subscription
           </div>
           <button
@@ -56,16 +56,16 @@ const ManagePlanModal = () => {
 
         <div className="p-6 space-y-6">
           {/* Plan Info Card */}
-          <div className="bg-reddit-bg rounded-xl p-4 border border-reddit-border/50">
-            <div className="flex justify-between items-start mb-4">
+          <div className="bg-reddit-bg rounded-xl p-5 border border-reddit-border/50">
+            <div className="flex justify-between items-start mb-6">
               <div>
                 <p className="text-reddit-textMuted text-xs uppercase font-bold tracking-wider mb-1">Current Plan</p>
-                <h3 className="text-white text-xl font-bold">Pro Subscription</h3>
+                <h3 className="text-white text-xl font-bold tracking-tight">Pro Subscription</h3>
               </div>
-              <span className="bg-green-500/10 text-green-500 text-[10px] font-bold px-2 py-1 rounded-full uppercase">Active</span>
+              <span className="bg-reddit-orange/10 text-reddit-orange text-[10px] font-bold px-2 py-1 rounded-full uppercase">Active</span>
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="flex items-center gap-2 text-reddit-text text-sm">
                 <CreditCard size={16} className="text-reddit-textMuted" />
                 <span>₦1,500 / month</span>
@@ -79,21 +79,21 @@ const ManagePlanModal = () => {
 
           {!showConfirmCancel ? (
             <div className="space-y-4">
-              <div className="bg-amber-500/5 rounded-lg p-3 border border-amber-500/20 flex gap-3">
-                <AlertCircle className="text-amber-500 flex-shrink-0" size={20} />
+              <div className="bg-reddit-bg rounded-xl p-4 border border-reddit-border flex gap-3">
+                <AlertCircle className="text-reddit-orange flex-shrink-0" size={20} />
                 <p className="text-reddit-text text-xs leading-relaxed">
                   Canceling will stop your recurring payments. You'll keep your premium access until the end of the current billing cycle.
                 </p>
               </div>
               <button
                 onClick={() => setShowConfirmCancel(true)}
-                className="w-full py-3 rounded-xl border border-red-500/30 text-red-400 font-bold hover:bg-red-500/10 transition-colors text-sm"
+                className="w-full py-3 rounded-xl border border-reddit-border text-reddit-text hover:bg-reddit-cardHover hover:text-red-400 transition-colors text-sm font-medium"
               >
                 Cancel Subscription
               </button>
             </div>
           ) : (
-            <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
+            <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
               <p className="text-white font-bold text-center">Are you absolutely sure?</p>
               <p className="text-reddit-textMuted text-center text-sm px-4">
                 You will lose access to all premium study tools once your period ends.
@@ -102,14 +102,14 @@ const ManagePlanModal = () => {
                 <button
                   onClick={() => setShowConfirmCancel(false)}
                   disabled={isLoading}
-                  className="flex-1 py-3 rounded-xl bg-reddit-bg text-white font-bold hover:bg-reddit-card transition-colors text-sm"
+                  className="flex-1 py-3 rounded-xl border border-reddit-border text-reddit-text font-medium hover:bg-reddit-cardHover transition-colors text-sm"
                 >
                   Go Back
                 </button>
                 <button
                   onClick={handleCancelSubscription}
                   disabled={isLoading}
-                  className="flex-1 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors text-sm flex items-center justify-center gap-2"
+                  className="flex-1 py-3 rounded-xl bg-reddit-orange text-white font-medium hover:bg-reddit-orange/90 transition-colors text-sm flex items-center justify-center gap-2"
                 >
                   {isLoading ? <Loader2 className="animate-spin" size={16} /> : "Yes, Cancel"}
                 </button>

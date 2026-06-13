@@ -60,6 +60,32 @@ client.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Handle 429 Too Many Requests to format a user-friendly error with retry time
+    if (error.response?.status === 429) {
+      const retryAfter = error.response.data?.retry_after;
+      if (retryAfter) {
+        let timeString = "";
+        if (retryAfter < 60) {
+          timeString = `${retryAfter} second${retryAfter !== 1 ? 's' : ''}`;
+        } else {
+          const minutes = Math.floor(retryAfter / 60);
+          const seconds = retryAfter % 60;
+          if (seconds > 0) {
+            timeString = `${minutes} minute${minutes !== 1 ? 's' : ''} and ${seconds} second${seconds !== 1 ? 's' : ''}`;
+          } else {
+            timeString = `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+          }
+        }
+        const friendlyMessage = `Too many requests. Please try again after ${timeString}.`;
+        
+        if (error.response.data && typeof error.response.data === 'object') {
+          error.response.data.error = friendlyMessage;
+          error.response.data.message = friendlyMessage;
+        }
+        error.message = friendlyMessage;
+      }
+    }
+
     // If 401 Unauthorized and not already retrying
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Skip refresh if we are already doing something auth-relevant
