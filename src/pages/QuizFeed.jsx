@@ -9,7 +9,7 @@ import { getAllQuizzes } from '../data/quizData';
 
 const QuizFeed = () => {
   const navigate = useNavigate();
-  const { setShowUpgradeModal, setShowAuthModal, setPendingAction } = useUI();
+  const { setShowUpgradeModal, setShowAuthModal, setPendingAction, isUpgradeBannerVisible } = useUI();
   const { isAuthenticated } = useAuth();
   const [quizzes] = useState(getAllQuizzes());
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
@@ -186,13 +186,16 @@ const QuizFeed = () => {
           Quiz {currentQuizIndex + 1}/{quizzes.length}
         </span>
 
-        <button
-          onClick={handleUpgradeClick}
-          className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all active:scale-95 shadow-lg"
-        >
-          <Sparkles className="w-3 h-3" />
-          <span>Upgrade</span>
-        </button>
+        {/* Upgrade Button */}
+        {!isUpgradeBannerVisible && (
+          <button
+            onClick={handleUpgradeClick}
+            className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all active:scale-95 shadow-lg"
+          >
+            <Sparkles className="w-3 h-3" />
+            <span>Upgrade</span>
+          </button>
+        )}
       </div>
 
       {/* Main quiz feed */}

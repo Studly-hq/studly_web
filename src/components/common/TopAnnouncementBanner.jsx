@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useUI } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { X, Sparkles, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const TopAnnouncementBanner = () => {
-  const { setShowUpgradeModal, setShowAuthModal, setPendingAction } = useUI();
+  const { setShowUpgradeModal, setShowAuthModal, setPendingAction, setIsUpgradeBannerVisible } = useUI();
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -15,18 +17,22 @@ const TopAnnouncementBanner = () => {
 
     if (lastShownDate === today) {
       setIsVisible(false);
+      setIsUpgradeBannerVisible(false);
     } else {
       localStorage.setItem('last_banner_date', today);
+      setIsUpgradeBannerVisible(true);
       const timer = setTimeout(() => {
         setIsVisible(false);
+        setIsUpgradeBannerVisible(false);
       }, 60000); // 1 minute
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [setIsUpgradeBannerVisible]);
 
   const handleDismiss = (e) => {
     e.stopPropagation();
     setIsVisible(false);
+    setIsUpgradeBannerVisible(false);
   };
 
   const handleUpgradeClick = (e) => {
