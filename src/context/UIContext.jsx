@@ -29,6 +29,7 @@ export const UIProvider = ({ children }) => {
     const [showManagePlanModal, setShowManagePlanModal] = useState(false);
     const [showComments, setShowComments] = useState(null);
     const [selectedPost, setSelectedPost] = useState(null);
+    const [isUpgradeBannerVisible, setIsUpgradeBannerVisible] = useState(false);
 
     // Mobile Menu State
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -110,7 +111,9 @@ export const UIProvider = ({ children }) => {
         isLeftSidebarCollapsed,
         setIsLeftSidebarCollapsed,
         isRightSidebarCollapsed,
-        setIsRightSidebarCollapsed
+        setIsRightSidebarCollapsed,
+        isUpgradeBannerVisible,
+        setIsUpgradeBannerVisible
     }), [
         showAuthModal,
         showCreatePostModal,
@@ -126,7 +129,8 @@ export const UIProvider = ({ children }) => {
         pendingAction,
         scrollPosition,
         isLeftSidebarCollapsed,
-        isRightSidebarCollapsed
+        isRightSidebarCollapsed,
+        isUpgradeBannerVisible
     ]);
 
     return (

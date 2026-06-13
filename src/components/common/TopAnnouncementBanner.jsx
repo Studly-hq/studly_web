@@ -5,7 +5,7 @@ import { X, Sparkles, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const TopAnnouncementBanner = () => {
-  const { setShowUpgradeModal, setShowAuthModal, setPendingAction } = useUI();
+  const { setShowUpgradeModal, setShowAuthModal, setPendingAction, setIsUpgradeBannerVisible } = useUI();
   const { isAuthenticated } = useAuth();
   const [isVisible, setIsVisible] = useState(true);
 
@@ -15,18 +15,22 @@ const TopAnnouncementBanner = () => {
 
     if (lastShownDate === today) {
       setIsVisible(false);
+      setIsUpgradeBannerVisible(false);
     } else {
       localStorage.setItem('last_banner_date', today);
+      setIsUpgradeBannerVisible(true);
       const timer = setTimeout(() => {
         setIsVisible(false);
+        setIsUpgradeBannerVisible(false);
       }, 60000); // 1 minute
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [setIsUpgradeBannerVisible]);
 
   const handleDismiss = (e) => {
     e.stopPropagation();
     setIsVisible(false);
+    setIsUpgradeBannerVisible(false);
   };
 
   const handleUpgradeClick = (e) => {
