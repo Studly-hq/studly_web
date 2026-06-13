@@ -9,7 +9,7 @@ import SEO from '../components/common/SEO';
 const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
 
 const Study = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, currentUser } = useAuth();
     const { setShowAuthModal, setShowUpgradeModal, setUpgradeReason, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
     const [isLoading, setIsLoading] = useState(false);
     const [iframeLoading, setIframeLoading] = useState(true);
@@ -59,6 +59,20 @@ const Study = () => {
         }
     }, [setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed]);
 
+    // 30-second upsell timer for free plan users
+    useEffect(() => {
+        if (!isAuthenticated || !currentUser) return;
+
+        if (currentUser.planType !== 'pro') {
+            const timer = setTimeout(() => {
+                setUpgradeReason('study_upsell');
+                setShowUpgradeModal(true);
+            }, 30000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [isAuthenticated, currentUser, setUpgradeReason, setShowUpgradeModal]);
+
     // Automatically start studying when authenticated and component mounts
     useEffect(() => {
         if (isAuthenticated && !activeToken && !isLoading) {
@@ -66,11 +80,14 @@ const Study = () => {
         }
     }, [isAuthenticated, activeToken, isLoading, fetchTokenAndStart]);
 
-    // Listen for Quota Exceeded from Lucid
+    // Listen for Quota Exceeded and Pro Feature Required from Lucid
     useEffect(() => {
         const handleMessage = (event) => {
             if (event.data?.type === 'QUOTA_EXCEEDED') {
                 setUpgradeReason('limit_reached');
+                setShowUpgradeModal(true);
+            } else if (event.data?.type === 'PRO_FEATURE_REQUIRED') {
+                setUpgradeReason('study_upsell');
                 setShowUpgradeModal(true);
             }
         };
