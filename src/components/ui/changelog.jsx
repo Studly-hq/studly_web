@@ -77,6 +77,23 @@ const Changelog = ({
                   </ul>
                 )}
 
+                {entry.sections && entry.sections.length > 0 && (
+                  <div className="mt-6 space-y-6">
+                    {entry.sections.map((section, sIdx) => (
+                      <div key={sIdx}>
+                        <h3 className="text-base font-bold text-reddit-text mb-2 font-heading">{section.title}</h3>
+                        <ul className="ml-4 space-y-1.5 text-sm text-reddit-text/70 md:text-base">
+                          {section.items.map((item, itemIndex) => (
+                            <li key={`${entry.version}-s${sIdx}-${itemIndex}`} className="list-disc marker:text-reddit-border">
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {entry.image && (
                   <img
                     src={entry.image}

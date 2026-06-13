@@ -2,33 +2,52 @@ export const changelogData = [
   {
     version: "v2.2",
     date: "Coming soon",
-    title: "The Study Modes Overhaul, learn exactly the way you want",
-    description:
-      "We've completely reimagined how you interact with your materials. Whether you're cramming 10 minutes before a test or doing a deep dive into complex documents, Studly now adapts entirely to your learning style. Four distinct study modes, each built to serve a different kind of learner.",
-    items: [
-      "Quick Study Mode: automatically extracts high-yield concepts from your notes and turns them into flashcards with core concepts, practical examples, memory hooks, and exam hints",
-      "Quick Study Mode: adaptive spaced repetition that adjusts your queue in real time based on how you rate each card, Easy, Hard, or Blank",
-      "Quick Study Mode: built-in 45-second nudges so you never get stuck, plus a mandatory 25-minute brain break to lock in memory consolidation",
-      "Quick Study Mode: session review screen with completion stats and a weak spots summary so you know exactly what to revisit",
-      "Detailed Study Mode: breaks your documents into logical chunks and pages so you can read and absorb at a focused, manageable pace",
-      "Detailed Study Mode: background prefetching means explanations and guidance stream seamlessly without any loading interruptions",
-      "Detailed Study Mode: interactive inline quizzes and dynamic action buttons appear directly inside the chat stream as you read",
-      "Detailed Study Mode: tracks your learner profile, performance history, and adapts to how deep you want to go",
-      "Flashcard Mode: build custom decks of 10, 30, or 50 cards, with 50-card decks exclusively available for Pro users",
-      "Flashcard Mode: choose between Sequential or Shuffled order depending on how you prefer to study",
-      "Flashcard Mode: rate your recall after each card, Struggled, Got it, or Easy, and the deck dynamically adjusts to focus on your weak spots",
-      "Flashcard Mode: card backs feature rich Markdown and LaTeX-rendered explanations for every concept",
-      "Flashcard Mode: session summary at the end showing exactly how many cards you've mastered vs total",
-      "Quiz Mode: six question types available: Multiple Choice, True or False, Fill in the Blank, Subjective, Matching, and Mixed",
-      "Quiz Mode: pick your quiz length, 10, 30, or 50 questions, with 50-question quizzes reserved for Pro users",
-      "Quiz Mode: choose between a relaxed untimed mode or high-pressure Timed mode when you need to simulate exam conditions",
-      "Quiz Mode: real-time AI grading for subjective and fill-in-the-blank answers, with detailed feedback and correct-answer explanations",
-      "Quiz Mode: comprehensive end-of-quiz score breakdown and a full review session so nothing slips through the cracks",
-    ],
+    title: "Study Modes Overhaul",
+    description: "",
+    sections: [
+      {
+        title: "Quick Study Mode",
+        items: [
+          "High-Yield Concept Extraction: Automatically generates flashcards with core concepts, practical examples, and specific insights (\"Memory Hooks\" and \"Exam Hints\").",
+          "Adaptive Spaced Repetition: Queue system automatically adjusts based on self-reported difficulty (Easy, Hard, Blank).",
+          "Smart Pacing: Built-in 45-second nudges to prevent getting stuck, and a mandatory 25-minute brain break to optimize memory consolidation.",
+          "Session Review: Comprehensive completion statistics and a Weak Spots summary for targeted re-studying."
+        ]
+      },
+      {
+        title: "Detailed Study Mode",
+        items: [
+          "Progressive Document Analysis: Breaks documents into logical chunks and pages for focused reading.",
+          "Background Prefetching: Seamless streaming for explanations and guidance.",
+          "Interactive Elements: Features inline quizzes and dynamic action buttons directly within the chat stream.",
+          "Adaptive Learning: Tracks learner profile, performance history, and adapts to study depth preferences."
+        ]
+      },
+      {
+        title: "Flashcard Mode",
+        items: [
+          "Customizable Decks: Select deck sizes of 10, 30, or 50 cards (50 cards reserved for Pro users).",
+          "Study Styles: Choose between Sequential or Shuffled order.",
+          "Self-Assessment Ratings: Users can rate their recall (\"Struggled\", \"Got it\", \"Easy\") to dynamic card repetition.",
+          "Rich Explanations: Detailed markdown and LaTeX-rendered explanations on the back of each card.",
+          "Progress Tracking: Session completion summary showing the ratio of mastered vs total cards."
+        ]
+      },
+      {
+        title: "Quiz Mode",
+        items: [
+          "Diverse Question Types: Includes Multiple Choice, True/False, Fill in the Blank, Subjective, Matching, and Mixed formats.",
+          "Configurable Lengths: Choose quizzes of 10, 30, or 50 questions (50 questions reserved for Pro users).",
+          "Pacing Settings: Standard untimed mode or a high-pressure Timed mode.",
+          "Real-Time AI Grading: Intelligent evaluation for subjective and fill-in-the-blank responses, providing detailed, correct-answer feedback.",
+          "Comprehensive Review: End-of-quiz score presentation and complete review session."
+        ]
+      }
+    ]
   },
   {
     version: "v2.1",
-    date: "May 2025",
+    date: "23 March 2026",
     title: "Your entire study life, in one place",
     description:
       "No more tab-hopping. CUhub, Lucid, your social feed: everything now lives under one roof. Open Studly and everything you need is right there, exactly where you'd expect it.",
@@ -41,7 +60,7 @@ export const changelogData = [
   },
   {
     version: "v2.0",
-    date: "March 2025",
+    date: "7 February 2026",
     title: "Meet the new Studly, redesigned from the ground up",
     description:
       "This is the biggest update we've ever shipped. Two major features that change how you study and connect with your classmates.",
@@ -55,7 +74,7 @@ export const changelogData = [
   },
   {
     version: "v1.0",
-    date: "January 2025",
+    date: "18 September 2025",
     title: "Introducing Studly, your AI-powered study companion",
     description:
       "The first version of Studly is here. We built it for students who want to study smarter, stay consistent, and actually enjoy the process. Here's what you get from day one.",
