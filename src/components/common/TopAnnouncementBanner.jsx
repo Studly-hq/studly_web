@@ -10,10 +10,13 @@ const TopAnnouncementBanner = () => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    const dismissed = localStorage.getItem('pro_banner_dismissed');
-    if (dismissed === 'true') {
+    const lastShownDate = localStorage.getItem('last_banner_date');
+    const today = new Date().toDateString();
+
+    if (lastShownDate === today) {
       setIsVisible(false);
     } else {
+      localStorage.setItem('last_banner_date', today);
       const timer = setTimeout(() => {
         setIsVisible(false);
       }, 60000); // 1 minute
@@ -23,7 +26,6 @@ const TopAnnouncementBanner = () => {
 
   const handleDismiss = (e) => {
     e.stopPropagation();
-    localStorage.setItem('pro_banner_dismissed', 'true');
     setIsVisible(false);
   };
 
