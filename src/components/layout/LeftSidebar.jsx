@@ -65,7 +65,7 @@ const LeftSidebar = () => {
     <motion.aside
       initial={false}
       animate={{ width: isLeftSidebarCollapsed ? '60px' : '280px' }}
-      className="hidden lg:flex flex-col h-screen sticky top-0 px-2 justify-between border-r border-reddit-border transition-all duration-300"
+      className="hidden lg:flex flex-col h-full sticky top-0 px-2 justify-between border-r border-reddit-border transition-all duration-300"
     >
       <div className="flex flex-col h-full overflow-y-auto scrollbar-hide pb-4">
         {/* Logo Area */}

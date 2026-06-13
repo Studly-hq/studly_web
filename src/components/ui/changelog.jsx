@@ -43,10 +43,10 @@ const Changelog = ({
                 delay: Math.min(index, 5) * 0.06,
                 ease: [0.25, 0.1, 0.25, 1],
               }}
-              className="relative flex flex-col gap-4 md:flex-row md:gap-16"
+              className="relative flex flex-col gap-3 md:flex-row md:gap-16"
             >
               {/* Left side — version badge & date (sticky on desktop) */}
-              <div className="top-4 flex h-min w-64 shrink-0 items-center gap-4 md:sticky">
+              <div className="flex h-min w-full md:w-64 md:shrink-0 items-center gap-3 md:sticky top-4">
                 <Badge variant="secondary" className="text-xs">
                   {entry.version}
                 </Badge>
