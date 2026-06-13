@@ -25,7 +25,7 @@ const SEO = ({
   const metaDescription = description || defaultDescription;
   const siteUrl = 'https://usestudly.com'; // Replace with actual production URL if different
   const fullCanonical = canonical ? `${siteUrl}${canonical}` : siteUrl;
-  const defaultOgImage = `${siteUrl}/logo512.png`;
+  const defaultOgImage = `${siteUrl}/social-preview.png`;
   const metaOgImage = ogImage || defaultOgImage;
 
   return (
