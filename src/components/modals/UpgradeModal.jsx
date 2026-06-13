@@ -6,7 +6,7 @@ import { initializePayment } from '../../api/billing';
 import { toast } from 'sonner';
 
 const UpgradeModal = () => {
-  const { showUpgradeModal, setShowUpgradeModal, upgradeReason } = useUI();
+  const { showUpgradeModal, setShowUpgradeModal, upgradeReason, customUpgradeMessage } = useUI();
   const { currentUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -55,7 +55,7 @@ const UpgradeModal = () => {
     : isStudyUpsell
       ? "Upgrade to Premium to get unlimited uploads, personalized AI tutoring, and generate smart quizzes to accelerate your learning."
       : isLimitHit
-        ? "You've used your 2 free notes. Upgrade to Premium to upload unlimited notes and unlock the full AI study experience."
+        ? customUpgradeMessage || "You've used your 1 free note. Upgrade to Premium to upload unlimited notes and unlock the full AI study experience."
         : "Upgrade to Premium to upload unlimited notes and unlock the full AI study experience.";
 
   const ctaLabel = isPlanExpired ? 'Renew Premium' : 'Join Premium Now';
