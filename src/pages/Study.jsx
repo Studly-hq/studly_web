@@ -10,7 +10,7 @@ const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com
 
 const Study = () => {
     const { isAuthenticated, currentUser } = useAuth();
-    const { setShowAuthModal, setShowUpgradeModal, setUpgradeReason, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
+    const { setShowAuthModal, setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
     const [isLoading, setIsLoading] = useState(false);
     const [iframeLoading, setIframeLoading] = useState(true);
     const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
@@ -91,16 +91,22 @@ const Study = () => {
         const handleMessage = (event) => {
             if (event.data?.type === 'QUOTA_EXCEEDED') {
                 setUpgradeReason('limit_reached');
+                if (event.data?.message) {
+                    setCustomUpgradeMessage(event.data.message);
+                } else {
+                    setCustomUpgradeMessage(null);
+                }
                 setShowUpgradeModal(true);
             } else if (event.data?.type === 'PRO_FEATURE_REQUIRED') {
                 setUpgradeReason('study_upsell');
+                setCustomUpgradeMessage(null);
                 setShowUpgradeModal(true);
             }
         };
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    }, [setShowUpgradeModal, setUpgradeReason]);
+    }, [setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage]);
 
     if (!isAuthenticated) {
         return (

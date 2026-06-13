@@ -26,6 +26,7 @@ export const UIProvider = ({ children }) => {
     const [showCreatePostModal, setShowCreatePostModal] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [upgradeReason, setUpgradeReason] = useState(null);
+    const [customUpgradeMessage, setCustomUpgradeMessage] = useState(null);
     const [showManagePlanModal, setShowManagePlanModal] = useState(false);
     const [showComments, setShowComments] = useState(null);
     const [selectedPost, setSelectedPost] = useState(null);
@@ -92,6 +93,8 @@ export const UIProvider = ({ children }) => {
         setShowUpgradeModal,
         upgradeReason,
         setUpgradeReason,
+        customUpgradeMessage,
+        setCustomUpgradeMessage,
         showManagePlanModal,
         setShowManagePlanModal,
         showComments,
@@ -119,6 +122,7 @@ export const UIProvider = ({ children }) => {
         showCreatePostModal,
         showUpgradeModal,
         upgradeReason,
+        customUpgradeMessage,
         showManagePlanModal,
         showComments,
         selectedPost,
