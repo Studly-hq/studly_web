@@ -8,6 +8,7 @@ import {
   Trophy,
   BookOpen,
   User,
+  LogOut,
 } from "lucide-react";
 import SEO from "../components/common/SEO";
 import { ProfileHeaderSkeleton, FeedSkeleton } from "../components/common/Skeleton";
@@ -29,6 +30,7 @@ const UserProfileContent = () => {
     currentUser,
     isAuthenticated,
     isAuthLoading,
+    logout,
   } = useAuth();
 
   const {
@@ -257,7 +259,7 @@ const UserProfileContent = () => {
       />
       {/* Header */}
       <div className="sticky top-0 z-10 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border">
-        <div className="max-w-2xl mx-auto px-4 py-3">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <motion.button
               onClick={() => navigate(-1)}
@@ -276,6 +278,20 @@ const UserProfileContent = () => {
               </p>
             </div>
           </div>
+          {isOwnProfile && (
+            <motion.button
+              onClick={() => {
+                logout();
+                navigate('/');
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors text-reddit-textMuted hover:text-reddit-orange"
+              title="Log Out"
+            >
+              <LogOut size={20} />
+            </motion.button>
+          )}
         </div>
       </div>
 
