@@ -8,7 +8,7 @@ import LoadingSpinner from "../common/LoadingSpinner";
 import { supabase } from "../../utils/supabase";
 
 const AuthModal = () => {
-  const { showAuthModal, setShowAuthModal } = useUI();
+  const { showAuthModal, setShowAuthModal, pendingAction, setPendingAction, setShowUpgradeModal } = useUI();
   const { login, signup } = useAuth();
   /*
    * Updated state to include loading and error handling.
@@ -48,6 +48,11 @@ const AuthModal = () => {
 
         setShowAuthModal(false);
         setFormData({ name: "", email: "", password: "" });
+        
+        if (pendingAction?.type === 'SHOW_UPGRADE_MODAL') {
+          setTimeout(() => setShowUpgradeModal(true), 300);
+          setPendingAction(null);
+        }
       } else {
         // Signup
         if (formData.password.length < 8) {
@@ -60,6 +65,11 @@ const AuthModal = () => {
         toast.success("Account created successfully!");
         setShowAuthModal(false);
         setFormData({ name: "", email: "", password: "" });
+        
+        if (pendingAction?.type === 'SHOW_UPGRADE_MODAL') {
+          setTimeout(() => setShowUpgradeModal(true), 300);
+          setPendingAction(null);
+        }
       }
     } catch (err) {
       // If API fails, we catch the error here and show it

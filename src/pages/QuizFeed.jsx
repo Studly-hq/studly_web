@@ -1,12 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
+import { useUI } from '../context/UIContext';
+import { useAuth } from '../context/AuthContext';
 import QuizCard from '../components/quiz/QuizCard';
 import { getAllQuizzes } from '../data/quizData';
 
 const QuizFeed = () => {
   const navigate = useNavigate();
+  const { setShowUpgradeModal, setShowAuthModal, setPendingAction } = useUI();
+  const { isAuthenticated } = useAuth();
   const [quizzes] = useState(getAllQuizzes());
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -19,6 +23,15 @@ const QuizFeed = () => {
 
   const currentQuiz = quizzes[currentQuizIndex];
   const minSwipeDistance = 50;
+
+  const handleUpgradeClick = () => {
+    if (!isAuthenticated) {
+      setPendingAction({ type: 'SHOW_UPGRADE_MODAL' });
+      setShowAuthModal(true);
+    } else {
+      setShowUpgradeModal(true);
+    }
+  };
 
   const onTouchStart = (e) => {
     setTouchEnd(null);
@@ -173,7 +186,13 @@ const QuizFeed = () => {
           Quiz {currentQuizIndex + 1}/{quizzes.length}
         </span>
 
-        <div className="w-9 sm:w-10" /> {/* Spacer */}
+        <button
+          onClick={handleUpgradeClick}
+          className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all active:scale-95 shadow-lg"
+        >
+          <Sparkles className="w-3 h-3" />
+          <span>Upgrade</span>
+        </button>
       </div>
 
       {/* Main quiz feed */}
