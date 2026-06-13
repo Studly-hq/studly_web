@@ -56,12 +56,7 @@ export const FeedProvider = ({ children }) => {
     // Track initialization to avoid redundant calls
     const inFlightInitRef = useRef(false);
 
-    // Keep currentUser in a ref so mapBackendPostToFrontend never needs to be recreated
-    // when currentUser changes (e.g. after Supabase silent token refresh).
-    const currentUserRef = useRef(currentUser);
-    useEffect(() => { currentUserRef.current = currentUser; }, [currentUser]);
-
-    // Map backend post to frontend format — STABLE: no external state deps, reads currentUser via ref
+    // Map backend post to frontend format
     const mapBackendPostToFrontend = useCallback(
         (post) => {
             if (!post) return null;
@@ -86,7 +81,6 @@ export const FeedProvider = ({ children }) => {
                 }
             }
 
-            const user = currentUserRef.current;
             return {
                 id: post.post_id,
                 type: images.length > 0 ? (images.length > 1 ? "carousel" : "single-image") : "text",
@@ -95,14 +89,14 @@ export const FeedProvider = ({ children }) => {
                 likeCount: post.post_like_count || 0,
                 commentCount: post.post_comment_count || 0,
                 userId: post.creator_id,
-                likes: post.post_is_liked_by_requester && user ? [user.id] : [],
-                bookmarkedBy: post.post_is_bookmarked_by_requester && user ? [user.id] : [],
+                likes: post.post_is_liked_by_requester && currentUser ? [currentUser.id] : [],
+                bookmarkedBy: post.post_is_bookmarked_by_requester && currentUser ? [currentUser.id] : [],
                 tags: post.post_hashtags || [],
                 images: images,
                 user: postUser,
             };
         },
-        [] // stable forever — reads currentUser via ref
+        [currentUser]
     );
 
     /**
@@ -280,10 +274,8 @@ export const FeedProvider = ({ children }) => {
 
     const isFeedLoadingView = useMemo(() => loadingState === 'loading' || loadingState === 'idle', [loadingState]);
 
-    const isBookmarksLoadingRef = useRef(false);
     const fetchBookmarks = useCallback(async () => {
-        if (!isAuthenticated || isBookmarksLoadingRef.current) return;
-        isBookmarksLoadingRef.current = true;
+        if (!isAuthenticated || isBookmarksLoading) return;
         setIsBookmarksLoading(true);
         try {
             const serverBookmarks = await apiGetBookmarks();
@@ -291,11 +283,9 @@ export const FeedProvider = ({ children }) => {
         } catch (error) {
             console.error("[FeedContext] Bookmarks error:", error);
         } finally {
-            isBookmarksLoadingRef.current = false;
             setIsBookmarksLoading(false);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated]); // mapBackendPostToFrontend is now stable ([] deps), safe to omit
+    }, [isAuthenticated, mapBackendPostToFrontend, isBookmarksLoading]);
 
     // Handle Initialization and Auth Transitions
     useEffect(() => {
@@ -313,8 +303,7 @@ export const FeedProvider = ({ children }) => {
         } else {
             setBookmarkedPosts([]);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated]);
+    }, [isAuthenticated, fetchBookmarks]);
 
     const updatePostInState = useCallback((postId, newContent) => {
         setPosts(prev => prev.map(p => String(p.id) === String(postId) ? { ...p, content: newContent } : p));

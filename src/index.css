@@ -5,7 +5,7 @@
 @layer base {
   body {
     @apply font-sans antialiased text-white;
-    background-color: hsl(240, 2%, 4%);
+    background-color: #0D1117;
     margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -15,20 +15,10 @@
     box-sizing: border-box;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: theme('fontFamily.heading'), serif;
-    letter-spacing: -0.025em;
-  }
-
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
-    background-color: hsl(240, 2%, 4%);
+    background-color: #0D1117;
   }
 }
 
@@ -41,14 +31,14 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: hsl(240, 2%, 4%); /* Force dark background to prevent white track */
+    background: #0D1117; /* Force dark background to prevent white track */
   }
 
   ::-webkit-scrollbar-thumb {
     /* Ash-colored bar */
     background: #4a4a4b; 
     border-radius: 10px;
-    border: 1px solid hsl(240, 2%, 4%); /* Creates padding effect */
+    border: 1px solid #0D1117; /* Creates padding effect */
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -62,7 +52,7 @@
   /* Firefox scrollbar */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #4a4a4b hsl(240, 2%, 4%);
+    scrollbar-color: #4a4a4b #0D1117;
   }
 
   /* Smooth transitions */

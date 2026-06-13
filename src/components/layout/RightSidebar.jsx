@@ -62,7 +62,7 @@ const RightSidebar = () => {
     <motion.aside
       initial={false}
       animate={{ width: isRightSidebarCollapsed ? '60px' : '350px' }}
-      className={`hidden lg:flex flex-col flex-shrink-0 h-full sticky top-0 ${isRightSidebarCollapsed ? 'px-1 items-center' : 'px-4'} pt-2 gap-4 overflow-y-auto pb-20 scrollbar-hide border-l border-reddit-border`}
+      className={`hidden lg:flex flex-col flex-shrink-0 h-screen sticky top-0 ${isRightSidebarCollapsed ? 'px-1 items-center' : 'px-4'} pt-2 gap-4 overflow-y-auto pb-20 scrollbar-hide border-l border-reddit-border`}
     >
 
       {/* Toggle Button */}

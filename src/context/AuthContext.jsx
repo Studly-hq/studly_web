@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import {
     signup as apiSignup,
     login as apiLogin,
@@ -9,7 +9,6 @@ import { setAuthToken } from "../api/client";
 import { getProfile, updateProfile } from "../api/profile";
 import { supabase } from "../utils/supabase";
 import { useWebSocketContext } from "./WebSocketContext";
-import { toast } from "sonner";
 
 const AuthContext = createContext();
 
@@ -22,7 +21,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const { connect, disconnect, subscribe } = useWebSocketContext();
+    const { connect, disconnect } = useWebSocketContext();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [isAuthLoading, setIsAuthLoading] = useState(true);
@@ -109,18 +108,9 @@ export const AuthProvider = ({ children }) => {
             }
         };
         handleHash();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [syncWithBackend]);
 
-    // Refs to hold latest callback versions without causing the effect to re-run
-    const connectRef = useRef(connect);
-    const logoutRef = useRef(logout);
-    const syncWithBackendRef = useRef(syncWithBackend);
-    useEffect(() => { connectRef.current = connect; }, [connect]);
-    useEffect(() => { logoutRef.current = logout; }, [logout]);
-    useEffect(() => { syncWithBackendRef.current = syncWithBackend; }, [syncWithBackend]);
-
-    // Centralized Authentication Listener & Initializer — runs ONCE on mount only
+    // Centralized Authentication Listener & Initializer
     useEffect(() => {
         let isMounted = true;
 
@@ -131,7 +121,7 @@ export const AuthProvider = ({ children }) => {
                 if (isMounted) {
                     setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
                     setIsAuthenticated(true);
-                    connectRef.current();
+                    connect();
                 }
             } catch (err) {
                 console.error('[AuthContext] Auth init fail (likely non-authenticated):', err);
@@ -143,14 +133,15 @@ export const AuthProvider = ({ children }) => {
                 if (legacyToken && isMounted) {
                     console.info('[AuthContext] Found legacy tokens, attempting migration to cookies...');
                     setAuthToken(legacyToken);
-                    const success = await syncWithBackendRef.current(legacyToken, legacyRefreshToken);
+                    const success = await syncWithBackend(legacyToken, legacyRefreshToken);
                     if (success) {
+                        // FIX: Immediately fetch profile and update state so user is logged in
                         try {
                             const userProfile = await getProfile();
                             if (isMounted) {
                                 setCurrentUser({ ...userProfile, avatar: userProfile.avatar || null });
                                 setIsAuthenticated(true);
-                                connectRef.current();
+                                connect();
                             }
                         } catch (profileErr) {
                             console.error('[AuthContext] Migration succeeded but profile fetch failed:', profileErr);
@@ -167,17 +158,20 @@ export const AuthProvider = ({ children }) => {
         // Listen for all Supabase Auth events
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session) {
-                await syncWithBackendRef.current(session.access_token, session.refresh_token);
+                // If signed in to Supabase but not our backend, sync it
+                // Note: isAuthenticated check is safer to avoid redundant syncs
+                await syncWithBackend(session.access_token, session.refresh_token);
             } else if (event === 'SIGNED_OUT') {
                 setIsAuthenticated(false);
                 setCurrentUser(null);
+                // Note: Actual cleanup is handled by the logout function or manually if needed
             }
         });
 
         // Forced logout event from API interceptors
         const handleForcedLogout = () => {
             console.warn('[AuthContext] Forced logout triggered');
-            logoutRef.current();
+            logout();
         };
 
         window.addEventListener("auth:logout", handleForcedLogout);
@@ -187,28 +181,7 @@ export const AuthProvider = ({ children }) => {
             subscription.unsubscribe();
             window.removeEventListener("auth:logout", handleForcedLogout);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    // Subscribe to subscription_expired WS events.
-    // We fire a window CustomEvent so UIContext can open the modal
-    // without creating a circular context dependency.
-    useEffect(() => {
-        if (!isAuthenticated) return;
-
-        const unsubscribe = subscribe("subscription_expired", (data) => {
-            // Downgrade the local user immediately so the UI reflects free plan
-            setCurrentUser(prev => prev ? { ...prev, planType: "free" } : prev);
-
-            // Toast so something shows even before the modal opens
-            toast.info("Your Pro plan has expired.", { duration: 4000 });
-
-            // Let UIContext handle opening the modal
-            window.dispatchEvent(new CustomEvent("plan:expired", { detail: data }));
-        });
-
-        return () => unsubscribe();
-    }, [isAuthenticated, subscribe]);
+    }, [connect, logout, syncWithBackend]);
 
     const login = useCallback(async (email, password) => {
         try {
