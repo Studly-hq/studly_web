@@ -1,7 +1,7 @@
 export const changelogData = [
   {
     version: "v2.2",
-    date: "Coming soon",
+    date: "13 June 2026",
     title: "Study Modes Overhaul",
     description: "",
     sections: [

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Compass, Bell, ExternalLink } from 'lucide-react';
+import { Compass, Bell, ExternalLink, Sparkles } from 'lucide-react';
 import Feed from '../components/feed/Feed';
 import FeedComposer from '../components/feed/FeedComposer';
 import { useFeed } from '../context/FeedContext';
@@ -35,7 +35,16 @@ const FeedPage = () => {
     const navigate = useNavigate();
     const { initializeFeed, loadingState } = useFeed();
     const { isAuthLoading, isAuthenticated } = useAuth();
-    const { setShowAuthModal } = useUI();
+    const { setShowAuthModal, setShowUpgradeModal, setPendingAction } = useUI();
+
+    const handleUpgradeClick = () => {
+        if (!isAuthenticated) {
+            setPendingAction({ type: 'SHOW_UPGRADE_MODAL' });
+            setShowAuthModal(true);
+        } else {
+            setShowUpgradeModal(true);
+        }
+    };
     const { unreadCount } = useNotifications();
 
     useEffect(() => {
@@ -61,6 +70,13 @@ const FeedPage = () => {
                         <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
                     </div>
                     <div className="flex items-center gap-2">
+                        <button
+                            onClick={handleUpgradeClick}
+                            className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-lg"
+                        >
+                            <Sparkles className="w-3 h-3" />
+                            <span>Upgrade</span>
+                        </button>
                         <button
                             id="tour-cuhub-mobile"
                             onClick={() => navigate('/cuhub')}
@@ -117,6 +133,13 @@ const FeedPage = () => {
                     <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
                 </div>
                 <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleUpgradeClick}
+                        className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-lg"
+                    >
+                        <Sparkles className="w-3 h-3" />
+                        <span>Upgrade</span>
+                    </button>
                     <button
                         id="tour-cuhub-mobile-active"
                         onClick={() => navigate('/cuhub')}
