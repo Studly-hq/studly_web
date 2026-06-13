@@ -59,17 +59,23 @@ const Study = () => {
         }
     }, [setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed]);
 
-    // 30-second upsell timer for free plan users
+    // 30-second upsell timer for free plan users (Once per day)
     useEffect(() => {
         if (!isAuthenticated || !currentUser) return;
 
         if (currentUser.planType !== 'pro') {
-            const timer = setTimeout(() => {
-                setUpgradeReason('study_upsell');
-                setShowUpgradeModal(true);
-            }, 30000);
+            const lastShownDate = localStorage.getItem('last_upsell_date');
+            const today = new Date().toDateString();
 
-            return () => clearTimeout(timer);
+            if (lastShownDate !== today) {
+                const timer = setTimeout(() => {
+                    localStorage.setItem('last_upsell_date', today);
+                    setUpgradeReason('study_upsell');
+                    setShowUpgradeModal(true);
+                }, 30000);
+
+                return () => clearTimeout(timer);
+            }
         }
     }, [isAuthenticated, currentUser, setUpgradeReason, setShowUpgradeModal]);
 
