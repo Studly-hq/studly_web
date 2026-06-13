@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useUI } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { X, Sparkles, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const TopAnnouncementBanner = () => {
   const { setShowUpgradeModal, setShowAuthModal, setPendingAction, setIsUpgradeBannerVisible } = useUI();
   const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {

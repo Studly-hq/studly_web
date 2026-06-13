@@ -111,7 +111,6 @@ export const UIProvider = ({ children }) => {
         isLeftSidebarCollapsed,
         setIsLeftSidebarCollapsed,
         isRightSidebarCollapsed,
-        isRightSidebarCollapsed,
         setIsRightSidebarCollapsed,
         isUpgradeBannerVisible,
         setIsUpgradeBannerVisible
@@ -129,7 +128,6 @@ export const UIProvider = ({ children }) => {
         finishLoading,
         pendingAction,
         scrollPosition,
-        isLeftSidebarCollapsed,
         isLeftSidebarCollapsed,
         isRightSidebarCollapsed,
         isUpgradeBannerVisible
