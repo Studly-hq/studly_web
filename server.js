@@ -82,7 +82,7 @@ app.get('/post/:postId', async (req, res) => {
         const metadata = {
             title: `${post.post_content?.substring(0, 60)}${post.post_content?.length > 60 ? '...' : ''} | Studly`,
             description: post.post_content?.substring(0, 160) || 'Check out this post on Studly!',
-            image: post.post_media && post.post_media.length > 0 ? post.post_media[0] : `https://${req.get('host')}/logo.png`,
+            image: post.post_media && post.post_media.length > 0 ? post.post_media[0] : `https://${req.get('host')}/social-preview.png`,
             url: `https://${req.get('host')}${req.originalUrl}`
         };
 
