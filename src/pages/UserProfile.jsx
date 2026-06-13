@@ -135,8 +135,7 @@ const UserProfileContent = () => {
     if (isAuthenticated) {
       fetchBookmarks();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchBookmarks]);
 
   // Use bookmarkedPosts from context for the Saved tab
   const savedPosts = bookmarkedPosts;
