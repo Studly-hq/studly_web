@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Loader2, GraduationCap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
@@ -12,9 +12,10 @@ const Study = () => {
     const { isAuthenticated, currentUser } = useAuth();
     const { setShowAuthModal, setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
     const [isLoading, setIsLoading] = useState(false);
-    const [iframeLoading, setIframeLoading] = useState(true);
     const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
     const [activeToken, setActiveToken] = useState(null);
+    const iframeRef = useRef(null);
+    const [isLucidReady, setIsLucidReady] = useState(false);
 
     const fetchTokenAndStart = useCallback(async () => {
         if (!isAuthenticated) {
@@ -86,10 +87,12 @@ const Study = () => {
         }
     }, [isAuthenticated, activeToken, isLoading, fetchTokenAndStart]);
 
-    // Listen for Quota Exceeded and Pro Feature Required from Lucid
+    // Listen for Messages from Lucid
     useEffect(() => {
         const handleMessage = (event) => {
-            if (event.data?.type === 'QUOTA_EXCEEDED') {
+            if (event.data?.type === 'LUCID_READY') {
+                setIsLucidReady(true);
+            } else if (event.data?.type === 'QUOTA_EXCEEDED') {
                 setUpgradeReason('limit_reached');
                 if (event.data?.message) {
                     setCustomUpgradeMessage(event.data.message);
@@ -107,6 +110,16 @@ const Study = () => {
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
     }, [setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage]);
+
+    // Send token to Lucid via postMessage when both are ready
+    useEffect(() => {
+        if (isLucidReady && activeToken && iframeRef.current) {
+            iframeRef.current.contentWindow?.postMessage(
+                { type: 'AUTH_TOKEN', token: activeToken },
+                '*'
+            );
+        }
+    }, [isLucidReady, activeToken]);
 
     if (!isAuthenticated) {
         return (
@@ -132,7 +145,9 @@ const Study = () => {
         );
     }
 
-    if (isLoading || !activeToken) {
+    // We no longer block on !activeToken because we want to load the iframe optimistically
+    if (isLoading && !activeToken && !isLucidReady) {
+        // Fallback loading only if we haven't even started loading the iframe
         return (
             <div className="flex items-center justify-center min-h-[80vh]">
                 <Loader2 className="animate-spin text-reddit-orange" size={48} />
@@ -147,17 +162,12 @@ const Study = () => {
                 description="Enter your personalized study focus mode with Studly's AI-powered learning engine."
                 canonical="/study"
             />
-            {iframeLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-reddit-bg z-10">
-                    <Loader2 className="animate-spin text-reddit-orange" size={48} />
-                </div>
-            )}
             <iframe 
-                src={`${LUCID_URL}?token=${activeToken}`}
-                className={`w-full flex-1 border-none transition-opacity duration-300 ${iframeLoading ? 'opacity-0' : 'opacity-100'}`}
+                ref={iframeRef}
+                src={LUCID_URL}
+                className="w-full flex-1 border-none"
                 title="Study App"
                 allow="clipboard-read; clipboard-write"
-                onLoad={() => setIframeLoading(false)}
             />
         </div>
     );
