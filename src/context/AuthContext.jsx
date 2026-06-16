@@ -136,11 +136,15 @@ export const AuthProvider = ({ children }) => {
             } catch (err) {
                 console.error('[AuthContext] Auth init fail (likely non-authenticated):', err);
 
+                // If the error is a 429 (Rate Limit), do NOT attempt legacy token migration
+                // because it will just spam /auth/sync and make the rate limit ban longer.
+                const isRateLimit = err?.response?.status === 429;
+
                 // MIGRATION FALLBACK: If cookie auth failed, check if we have legacy localStorage tokens
                 const legacyToken = localStorage.getItem("token");
                 const legacyRefreshToken = localStorage.getItem("refresh_token");
 
-                if (legacyToken && isMounted) {
+                if (legacyToken && isMounted && !isRateLimit) {
                     console.info('[AuthContext] Found legacy tokens, attempting migration to cookies...');
                     setAuthToken(legacyToken);
                     const success = await syncWithBackendRef.current(legacyToken, legacyRefreshToken);
