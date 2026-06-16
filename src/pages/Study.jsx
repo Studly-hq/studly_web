@@ -148,6 +148,26 @@ const Study = () => {
         );
     }
 
+    if (fetchError && !activeToken) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
+                <div className="bg-reddit-card p-8 rounded-2xl border border-reddit-border max-w-md w-full">
+                    <h2 className="text-xl font-bold text-white mb-2">Connection Issue</h2>
+                    <p className="text-reddit-textMuted mb-6">
+                        We couldn't connect to the Study Hub servers. The server might be temporarily overloaded.
+                    </p>
+                    <button
+                        onClick={fetchToken}
+                        className="w-full bg-white hover:bg-gray-200 text-black font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                    >
+                        <RefreshCw size={18} />
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     // Block loading until we have a valid token to prevent redirect loops in production
     if (isLoading || !activeToken) {
         return (
@@ -156,27 +176,6 @@ const Study = () => {
             </div>
         );
     }
-    
-    if (fetchError && !activeToken) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center">
-                <div className="max-w-md w-full space-y-4">
-                    <h1 className="text-2xl font-bold text-reddit-text">Connection Error</h1>
-                    <p className="text-reddit-textMuted">Failed to connect to the Study server. You might be rate limited.</p>
-                    <button 
-                        onClick={() => {
-                            setFetchError(false);
-                            fetchTokenAndStart();
-                        }}
-                        className="bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-2 px-6 rounded-xl transition-all"
-                    >
-                        Try Again
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="w-full h-full bg-reddit-bg overflow-hidden flex flex-col relative">
             <SEO 
