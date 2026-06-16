@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
@@ -60,9 +60,21 @@ const Accessibility = lazy(() => import("./pages/legal/Accessibility"));
 function AppContent() {
   const { isAuthLoading } = useAuth();
 
+  const [viewportHeight, setViewportHeight] = useState('100vh');
+
+  useEffect(() => {
+    if (!window.visualViewport) return;
+    const handleResize = () => {
+      setViewportHeight(`${window.visualViewport.height}px`);
+    };
+    window.visualViewport.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.visualViewport.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <LoadingGate isLoading={isAuthLoading}>
-      <div className="flex flex-col h-screen w-full overflow-hidden">
+      <div className="flex flex-col w-full overflow-hidden" style={{ height: viewportHeight }}>
         <TopAnnouncementBanner />
         <div className="flex-1 min-h-0 w-full overflow-hidden relative">
           <Routes>
