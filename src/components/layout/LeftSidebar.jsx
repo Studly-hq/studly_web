@@ -5,7 +5,6 @@ import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, L
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import { useNotifications } from '../../context/NotificationContext';
-import { getStudyToken } from '../../api/profile';
 import logo from '../../assets/logo.png';
 
 const LeftSidebar = () => {
