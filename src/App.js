@@ -72,6 +72,18 @@ function AppContent() {
     return () => window.visualViewport.removeEventListener('resize', handleResize);
   }, []);
 
+  // Pre-warm Next.js server to prevent 30-second cold starts when opening Study mode
+  useEffect(() => {
+    const lucidUrl = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com';
+    const link = document.createElement('link');
+    link.rel = 'preconnect';
+    link.href = lucidUrl;
+    document.head.appendChild(link);
+    
+    // Also do a silent fetch to truly wake up the serverless functions
+    fetch(lucidUrl, { mode: 'no-cors' }).catch(() => {});
+  }, []);
+
   return (
     <LoadingGate isLoading={isAuthLoading}>
       <div className="flex flex-col w-full overflow-hidden" style={{ height: viewportHeight }}>
