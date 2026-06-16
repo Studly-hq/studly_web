@@ -5,7 +5,6 @@ import { Home, Compass, User, PlayCircle, Trophy, MoreHorizontal, LogIn, Bell, L
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import { useNotifications } from '../../context/NotificationContext';
-import { getStudyToken } from '../../api/profile';
 import logo from '../../assets/logo.png';
 
 const LeftSidebar = () => {
@@ -129,12 +128,6 @@ const LeftSidebar = () => {
           <button
             id="tour-study-desktop"
             onClick={handleStudyClick}
-            onMouseEnter={() => {
-              // Pre-fetch the token to wake up the backend servers before the user even clicks
-              if (isAuthenticated) {
-                getStudyToken().catch(() => {});
-              }
-            }}
             disabled={isStudyLoading}
             className="block group mt-2 w-full text-left"
           >

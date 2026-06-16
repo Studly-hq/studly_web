@@ -12,6 +12,7 @@ const Study = () => {
     const { isAuthenticated, currentUser } = useAuth();
     const { setShowAuthModal, setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
     const [isLoading, setIsLoading] = useState(false);
+    const [fetchError, setFetchError] = useState(false);
     const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
     const [activeToken, setActiveToken] = useState(null);
     const iframeRef = useRef(null);
@@ -37,12 +38,14 @@ const Study = () => {
             setActiveToken(token);
         } catch (error) {
             console.error('Failed to get study token:', error);
+            setFetchError(true);
             // Don't retry immediately on 429 — it will just consume more rate-limit quota
             // and cause a cascade of failures. Let the user try again manually.
             if (error.response?.status !== 429) {
                 try {
                     const freshToken = await getStudyToken();
                     setActiveToken(freshToken);
+                    setFetchError(false);
                 } catch (innerError) {
                     console.error('Final attempt failed:', innerError);
                 }
@@ -82,10 +85,10 @@ const Study = () => {
 
     // Automatically start studying when authenticated and component mounts
     useEffect(() => {
-        if (isAuthenticated && !activeToken && !isLoading) {
+        if (isAuthenticated && !activeToken && !isLoading && !fetchError) {
             fetchTokenAndStart();
         }
-    }, [isAuthenticated, activeToken, isLoading, fetchTokenAndStart]);
+    }, [isAuthenticated, activeToken, isLoading, fetchError, fetchTokenAndStart]);
 
     // Listen for Messages from Lucid
     useEffect(() => {
@@ -146,11 +149,31 @@ const Study = () => {
     }
 
     // We no longer block on !activeToken because we want to load the iframe optimistically
-    if (isLoading && !activeToken && !isLucidReady) {
+    if (isLoading && !activeToken && !isLucidReady && !fetchError) {
         // Fallback loading only if we haven't even started loading the iframe
         return (
             <div className="flex items-center justify-center min-h-[80vh]">
                 <Loader2 className="animate-spin text-reddit-orange" size={48} />
+            </div>
+        );
+    }
+    
+    if (fetchError && !activeToken) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center">
+                <div className="max-w-md w-full space-y-4">
+                    <h1 className="text-2xl font-bold text-reddit-text">Connection Error</h1>
+                    <p className="text-reddit-textMuted">Failed to connect to the Study server. You might be rate limited.</p>
+                    <button 
+                        onClick={() => {
+                            setFetchError(false);
+                            fetchTokenAndStart();
+                        }}
+                        className="bg-reddit-orange hover:bg-reddit-orange/90 text-white font-bold py-2 px-6 rounded-xl transition-all"
+                    >
+                        Try Again
+                    </button>
+                </div>
             </div>
         );
     }
