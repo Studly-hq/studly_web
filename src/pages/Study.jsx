@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Loader2, GraduationCap } from 'lucide-react';
+import { Loader2, GraduationCap, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import { getStudyToken } from '../api/profile';
@@ -157,7 +157,10 @@ const Study = () => {
                         We couldn't connect to the Study Hub servers. The server might be temporarily overloaded.
                     </p>
                     <button
-                        onClick={fetchToken}
+                        onClick={() => {
+                            setFetchError(false);
+                            fetchTokenAndStart();
+                        }}
                         className="w-full bg-white hover:bg-gray-200 text-black font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
                     >
                         <RefreshCw size={18} />
