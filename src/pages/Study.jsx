@@ -148,11 +148,10 @@ const Study = () => {
         );
     }
 
-    // We no longer block on !activeToken because we want to load the iframe optimistically
-    if (isLoading && !activeToken && !isLucidReady && !fetchError) {
-        // Fallback loading only if we haven't even started loading the iframe
+    // Block loading until we have a valid token to prevent redirect loops in production
+    if (isLoading || !activeToken) {
         return (
-            <div className="flex items-center justify-center min-h-[80vh]">
+            <div className="absolute inset-0 flex items-center justify-center bg-reddit-bg z-10">
                 <Loader2 className="animate-spin text-reddit-orange" size={48} />
             </div>
         );
@@ -187,7 +186,7 @@ const Study = () => {
             />
             <iframe 
                 ref={iframeRef}
-                src={LUCID_URL}
+                src={`${LUCID_URL}?token=${activeToken}`}
                 className="w-full flex-1 border-none"
                 title="Study App"
                 allow="clipboard-read; clipboard-write"
