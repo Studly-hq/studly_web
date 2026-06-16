@@ -34,13 +34,16 @@ const FeedSkeleton = () => (
 const FeedPage = () => {
     const navigate = useNavigate();
     const { initializeFeed, loadingState } = useFeed();
-    const { isAuthLoading, isAuthenticated } = useAuth();
-    const { setShowAuthModal, setShowUpgradeModal, setPendingAction, isUpgradeBannerVisible } = useUI();
+    const { isAuthLoading, isAuthenticated, currentUser } = useAuth();
+    const { setShowAuthModal, setShowUpgradeModal, setShowManagePlanModal, setPendingAction, isUpgradeBannerVisible } = useUI();
+    const isPro = currentUser?.planType === 'pro';
 
     const handleUpgradeClick = () => {
         if (!isAuthenticated) {
             setPendingAction({ type: 'SHOW_UPGRADE_MODAL' });
             setShowAuthModal(true);
+        } else if (isPro) {
+            setShowManagePlanModal(true);
         } else {
             setShowUpgradeModal(true);
         }
@@ -76,7 +79,7 @@ const FeedPage = () => {
                                 className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-lg"
                             >
                                 <Sparkles className="w-3 h-3" />
-                                <span>Upgrade</span>
+                                <span>{isPro ? "Pro" : "Upgrade"}</span>
                             </button>
                         )}
                         <button
@@ -141,7 +144,7 @@ const FeedPage = () => {
                             className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-lg"
                         >
                             <Sparkles className="w-3 h-3" />
-                            <span>Upgrade</span>
+                            <span>{isPro ? "Pro" : "Upgrade"}</span>
                         </button>
                     )}
                     <button
