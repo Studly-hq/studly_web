@@ -40,9 +40,9 @@ const MobileBottomNav = () => {
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-      className="lg:hidden fixed bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 z-40"
+      className="lg:hidden fixed bottom-2 sm:bottom-4 left-0 right-0 px-2 sm:px-0 flex justify-center z-40 pointer-events-none"
     >
-      <div className="bg-reddit-card rounded-xl sm:rounded-2xl border border-reddit-border shadow-xl">
+      <div className="bg-reddit-card rounded-xl sm:rounded-full border border-reddit-border shadow-xl w-full sm:w-[400px] pointer-events-auto">
         <div className="flex items-center justify-around px-2 sm:px-4 py-2 sm:py-2.5">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path ||

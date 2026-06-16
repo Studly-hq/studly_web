@@ -5,13 +5,20 @@ import { X, Sparkles, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const TopAnnouncementBanner = () => {
-  const { setShowUpgradeModal, setShowAuthModal, setPendingAction, setIsUpgradeBannerVisible } = useUI();
-  const { isAuthenticated } = useAuth();
+  const { setShowUpgradeModal, setShowAuthModal, setShowManagePlanModal, setPendingAction, setIsUpgradeBannerVisible } = useUI();
+  const { isAuthenticated, currentUser } = useAuth();
+  const isPro = currentUser?.planType === 'pro';
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     const lastShownDate = localStorage.getItem('last_banner_date');
     const today = new Date().toDateString();
+
+    if (isPro) {
+      setIsVisible(false);
+      setIsUpgradeBannerVisible(false);
+      return;
+    }
 
     if (lastShownDate === today) {
       setIsVisible(false);
@@ -25,7 +32,7 @@ const TopAnnouncementBanner = () => {
       }, 60000); // 1 minute
       return () => clearTimeout(timer);
     }
-  }, [setIsUpgradeBannerVisible]);
+  }, [setIsUpgradeBannerVisible, isPro]);
 
   const handleDismiss = (e) => {
     e.stopPropagation();
@@ -38,6 +45,8 @@ const TopAnnouncementBanner = () => {
     if (!isAuthenticated) {
       setPendingAction({ type: 'SHOW_UPGRADE_MODAL' });
       setShowAuthModal(true);
+    } else if (isPro) {
+      setShowManagePlanModal(true);
     } else {
       setShowUpgradeModal(true);
     }

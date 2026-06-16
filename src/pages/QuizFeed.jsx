@@ -9,8 +9,9 @@ import { getAllQuizzes } from '../data/quizData';
 
 const QuizFeed = () => {
   const navigate = useNavigate();
-  const { setShowUpgradeModal, setShowAuthModal, setPendingAction, isUpgradeBannerVisible } = useUI();
-  const { isAuthenticated } = useAuth();
+  const { setShowUpgradeModal, setShowAuthModal, setShowManagePlanModal, setPendingAction, isUpgradeBannerVisible } = useUI();
+  const { isAuthenticated, currentUser } = useAuth();
+  const isPro = currentUser?.planType === 'pro';
   const [quizzes] = useState(getAllQuizzes());
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -28,6 +29,8 @@ const QuizFeed = () => {
     if (!isAuthenticated) {
       setPendingAction({ type: 'SHOW_UPGRADE_MODAL' });
       setShowAuthModal(true);
+    } else if (isPro) {
+      setShowManagePlanModal(true);
     } else {
       setShowUpgradeModal(true);
     }
@@ -193,7 +196,7 @@ const QuizFeed = () => {
             className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all active:scale-95 shadow-lg"
           >
             <Sparkles className="w-3 h-3" />
-            <span>Upgrade</span>
+            <span>{isPro ? "Pro" : "Upgrade"}</span>
           </button>
         )}
       </div>
