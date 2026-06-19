@@ -5,7 +5,7 @@ import { CoursePlayerProvider } from "./context/CoursePlayerContext";
 import { CelebrationProvider } from "./context/CelebrationContext";
 import TopLoadingBar from "./components/common/TopLoadingBar";
 import { WebSocketProvider } from "./context/WebSocketContext";
-import { UIProvider } from "./context/UIContext";
+import { UIProvider, useUI } from "./context/UIContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { FeedProvider } from "./context/FeedContext";
 import { NotificationProvider } from "./context/NotificationContext";
@@ -59,6 +59,7 @@ const Accessibility = lazy(() => import("./pages/legal/Accessibility"));
 
 function AppContent() {
   const { isAuthLoading } = useAuth();
+  const { isLucidDetailedMode } = useUI();
 
   const [viewportHeight, setViewportHeight] = useState('100vh');
 
@@ -111,7 +112,7 @@ function AppContent() {
                     </div>
 
                     {/* Center Content - Routes */}
-                    <main className="flex-1 min-w-0 border-x border-reddit-border pb-20 lg:pb-0 overflow-y-auto min-h-0 h-full">
+                    <main className={`flex-1 min-w-0 border-x border-reddit-border ${isLucidDetailedMode ? 'pb-0' : 'pb-20'} lg:pb-0 overflow-y-auto min-h-0 h-full`}>
                       <Suspense fallback={
                         <div className="max-w-[640px] mx-auto px-4 py-5">
                           <div className="bg-reddit-card rounded border border-reddit-border p-4 animate-pulse mb-3">
