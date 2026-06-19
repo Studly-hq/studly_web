@@ -9,7 +9,7 @@ const MobileBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { setShowAuthModal } = useUI();
+  const { setShowAuthModal, isLucidDetailedMode } = useUI();
   const [isStudyLoading] = useState(false);
 
   const navItems = [
@@ -34,6 +34,10 @@ const MobileBottomNav = () => {
     }
     navigate(item.path);
   };
+
+  if (isLucidDetailedMode) {
+    return null;
+  }
 
   return (
     <motion.nav

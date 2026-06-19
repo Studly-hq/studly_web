@@ -35,6 +35,9 @@ export const UIProvider = ({ children }) => {
     // Mobile Menu State
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    // Lucid State
+    const [isLucidDetailedMode, setIsLucidDetailedMode] = useState(false);
+
     // Update localStorage when sidebar states change
     useEffect(() => {
         localStorage.setItem('isLeftSidebarCollapsed', JSON.stringify(isLeftSidebarCollapsed));
@@ -116,7 +119,9 @@ export const UIProvider = ({ children }) => {
         isRightSidebarCollapsed,
         setIsRightSidebarCollapsed,
         isUpgradeBannerVisible,
-        setIsUpgradeBannerVisible
+        setIsUpgradeBannerVisible,
+        isLucidDetailedMode,
+        setIsLucidDetailedMode
     }), [
         showAuthModal,
         showCreatePostModal,
@@ -134,7 +139,8 @@ export const UIProvider = ({ children }) => {
         scrollPosition,
         isLeftSidebarCollapsed,
         isRightSidebarCollapsed,
-        isUpgradeBannerVisible
+        isUpgradeBannerVisible,
+        isLucidDetailedMode
     ]);
 
     return (
