@@ -10,7 +10,7 @@ const LUCID_URL = import.meta.env.VITE_LUCID_URL || 'https://lucid.usestudly.com
 
 const Study = () => {
     const { isAuthenticated, currentUser } = useAuth();
-    const { setShowAuthModal, setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed } = useUI();
+    const { setShowAuthModal, setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed, setIsLucidDetailedMode } = useUI();
     const [isLoading, setIsLoading] = useState(false);
     const [fetchError, setFetchError] = useState(false);
     const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
@@ -107,12 +107,14 @@ const Study = () => {
                 setUpgradeReason('study_upsell');
                 setCustomUpgradeMessage(null);
                 setShowUpgradeModal(true);
+            } else if (event.data?.type === 'DETAILED_MODE_CHANGE') {
+                setIsLucidDetailedMode(event.data.isDetailedMode);
             }
         };
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    }, [setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage]);
+    }, [setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage, setIsLucidDetailedMode]);
 
     // Send token to Lucid via postMessage when both are ready
     useEffect(() => {
@@ -123,6 +125,13 @@ const Study = () => {
             );
         }
     }, [isLucidReady, activeToken]);
+
+    // Reset detailed mode state when unmounting the study page
+    useEffect(() => {
+        return () => {
+            setIsLucidDetailedMode(false);
+        };
+    }, [setIsLucidDetailedMode]);
 
     if (!isAuthenticated) {
         return (
