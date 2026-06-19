@@ -189,7 +189,7 @@ const Study = () => {
         );
     }
     return (
-        <div className="w-full h-full bg-reddit-bg overflow-hidden flex flex-col relative">
+        <div className="w-full flex-1 bg-reddit-bg overflow-hidden flex flex-col relative">
             <SEO 
                 title="Lucid" 
                 description="Enter your personalized study focus mode with Studly's AI-powered learning engine."

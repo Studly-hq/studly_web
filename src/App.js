@@ -112,7 +112,7 @@ function AppContent() {
                     </div>
 
                     {/* Center Content - Routes */}
-                    <main className={`flex-1 min-w-0 border-x border-reddit-border ${isLucidDetailedMode ? 'pb-0' : 'pb-20'} lg:pb-0 overflow-y-auto min-h-0 h-full`}>
+                    <main className={`flex-1 flex flex-col min-w-0 border-x border-reddit-border ${isLucidDetailedMode ? 'pb-0' : 'pb-20'} lg:pb-0 overflow-y-auto min-h-0 h-full`}>
                       <Suspense fallback={
                         <div className="max-w-[640px] mx-auto px-4 py-5">
                           <div className="bg-reddit-card rounded border border-reddit-border p-4 animate-pulse mb-3">
