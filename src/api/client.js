@@ -90,7 +90,7 @@ client.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Skip refresh if we are already doing something auth-relevant
       // or if it's an initialization call that should just fail gracefully
-      if (originalRequest.url?.includes('/auth/') || originalRequest.url?.includes('/profile/profile')) {
+      if ((originalRequest.url?.includes('/auth/') && !originalRequest.url?.includes('/auth/study-token')) || originalRequest.url?.includes('/profile/profile')) {
         return Promise.reject(error);
       }
 
