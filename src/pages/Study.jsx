@@ -13,6 +13,8 @@ const Study = () => {
     const { setShowAuthModal, setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage, setIsLeftSidebarCollapsed, setIsRightSidebarCollapsed, setIsLucidDetailedMode } = useUI();
     const [isLoading, setIsLoading] = useState(false);
     const [fetchError, setFetchError] = useState(false);
+    const [retryAfter, setRetryAfter] = useState(null);
+    const [retryCountdown, setRetryCountdown] = useState(0);
     const [cachedStudyToken, setCachedStudyToken] = useState({ token: null, timestamp: 0 });
     const [activeToken, setActiveToken] = useState(null);
     const iframeRef = useRef(null);
@@ -36,12 +38,23 @@ const Study = () => {
             }
 
             setActiveToken(token);
+            setFetchError(false);
+            setRetryAfter(null);
         } catch (error) {
             console.error('Failed to get study token:', error);
             setFetchError(true);
-            // Don't retry immediately on 429 — it will just consume more rate-limit quota
-            // and cause a cascade of failures. Let the user try again manually.
-            if (error.response?.status !== 429) {
+
+            // Extract rate-limit wait time from server response
+            if (error.response?.status === 429) {
+                const waitSeconds = error.response?.data?.retry_after
+                    || parseInt(error.response?.headers?.['retry-after'], 10)
+                    || 60;
+                setRetryAfter(waitSeconds);
+                setRetryCountdown(waitSeconds);
+            } else {
+                setRetryAfter(null);
+                // Don't retry immediately on 429 — it will just consume more rate-limit quota
+                // and cause a cascade of failures. Let the user try again manually.
                 try {
                     const freshToken = await getStudyToken();
                     setActiveToken(freshToken);
@@ -54,6 +67,21 @@ const Study = () => {
             setIsLoading(false);
         }
     }, [isAuthenticated, cachedStudyToken, setShowAuthModal]);
+
+    // Countdown timer for rate-limited state
+    useEffect(() => {
+        if (retryCountdown <= 0) return;
+        const interval = setInterval(() => {
+            setRetryCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [retryCountdown]);
 
     // Auto-minimize sidebars when entering Study Hub (particularly on desktop)
     useEffect(() => {
@@ -158,22 +186,44 @@ const Study = () => {
     }
 
     if (fetchError && !activeToken) {
+        const isRateLimited = retryAfter !== null;
+        const minutes = Math.floor(retryCountdown / 60);
+        const seconds = retryCountdown % 60;
+
         return (
             <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
                 <div className="bg-reddit-card p-8 rounded-2xl border border-reddit-border max-w-md w-full">
-                    <h2 className="text-xl font-bold text-white mb-2">Connection Issue</h2>
-                    <p className="text-reddit-textMuted mb-6">
-                        We couldn't connect to the Study Hub servers. The server might be temporarily overloaded.
+                    <h2 className="text-xl font-bold text-white mb-2">
+                        {isRateLimited ? 'Too Many Requests' : 'Connection Issue'}
+                    </h2>
+                    <p className="text-reddit-textMuted mb-4">
+                        {isRateLimited
+                            ? "You've made too many requests. Please wait a moment before trying again."
+                            : "We couldn't connect to the Study Hub servers. The server might be temporarily overloaded."
+                        }
                     </p>
+                    {isRateLimited && retryCountdown > 0 && (
+                        <div className="mb-4 py-3 px-4 bg-reddit-orange/10 border border-reddit-orange/20 rounded-xl">
+                            <p className="text-reddit-orange text-sm font-semibold">
+                                Try again in {minutes > 0 ? `${minutes}m ` : ''}{seconds.toString().padStart(2, '0')}s
+                            </p>
+                        </div>
+                    )}
                     <button
                         onClick={() => {
                             setFetchError(false);
+                            setRetryAfter(null);
                             fetchTokenAndStart();
                         }}
-                        className="w-full bg-white hover:bg-gray-200 text-black font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                        disabled={isRateLimited && retryCountdown > 0}
+                        className={`w-full font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 ${
+                            isRateLimited && retryCountdown > 0
+                                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                : 'bg-white hover:bg-gray-200 text-black'
+                        }`}
                     >
                         <RefreshCw size={18} />
-                        Try Again
+                        {isRateLimited && retryCountdown > 0 ? 'Please Wait...' : 'Try Again'}
                     </button>
                 </div>
             </div>
