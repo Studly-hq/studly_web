@@ -230,14 +230,6 @@ const Study = () => {
         );
     }
 
-    // Block loading until we have a valid token to prevent redirect loops in production
-    if (isLoading || !activeToken) {
-        return (
-            <div className="absolute inset-0 flex items-center justify-center bg-reddit-bg z-10">
-                <Loader2 className="animate-spin text-reddit-orange" size={48} />
-            </div>
-        );
-    }
     return (
         <div className="w-full flex-1 bg-reddit-bg overflow-hidden flex flex-col relative">
             <SEO 
@@ -245,10 +237,16 @@ const Study = () => {
                 description="Enter your personalized study focus mode with Studly's AI-powered learning engine."
                 canonical="/study"
             />
+            {/* Show loader over the iframe until both the token is fetched and the iframe is ready */}
+            {(!activeToken || !isLucidReady) && (
+                <div className="absolute inset-0 flex items-center justify-center bg-reddit-bg z-10">
+                    <Loader2 className="animate-spin text-reddit-orange" size={48} />
+                </div>
+            )}
             <iframe 
                 ref={iframeRef}
-                src={`${LUCID_URL}?token=${activeToken}`}
-                className="w-full flex-1 border-none"
+                src={`${LUCID_URL}?token=${activeToken || ''}`}
+                className={`w-full flex-1 border-none transition-opacity duration-300 ${(!activeToken || !isLucidReady) ? 'opacity-0' : 'opacity-100'}`}
                 title="Study App"
                 allow="clipboard-read; clipboard-write"
             />
