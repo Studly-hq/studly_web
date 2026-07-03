@@ -175,7 +175,7 @@ const LeftSidebar = () => {
               className={`
                 relative overflow-hidden cursor-pointer p-4 rounded-2xl group transition-all duration-300
                 ${currentUser?.planType === 'pro' 
-                  ? 'bg-gradient-to-br from-gray-700 to-gray-900 hover:shadow-[0_0_20px_rgba(75,85,99,0.4)] border border-gray-600/50' 
+                  ? 'bg-gradient-to-br from-gray-700 to-gray-900 border border-gray-600/50' 
                   : 'bg-gradient-to-br from-reddit-orange to-orange-600 hover:shadow-[0_0_20px_rgba(255,69,0,0.4)]'}
               `}
             >
