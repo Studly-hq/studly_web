@@ -198,7 +198,7 @@ const Study = () => {
                     </h2>
                     <p className="text-reddit-textMuted mb-4">
                         {isRateLimited
-                            ? "You've made too many requests. Please wait a moment before trying again."
+                            ? "There's too many requests on the server. Please wait a moment before trying again."
                             : "We couldn't connect to the Study Hub servers. The server might be temporarily overloaded."
                         }
                     </p>
