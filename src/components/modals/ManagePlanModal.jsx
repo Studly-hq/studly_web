@@ -3,11 +3,11 @@ import { useUI } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
 import { X, ShieldCheck, CreditCard, Calendar, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import axios from 'axios';
+import client from '../../api/client';
 
 const ManagePlanModal = () => {
   const { showManagePlanModal, setShowManagePlanModal } = useUI();
-  const { updateUser } = useAuth();
+  const { updateUser, currentUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmCancel, setShowConfirmCancel] = useState(false);
 
@@ -16,7 +16,7 @@ const ManagePlanModal = () => {
   const handleCancelSubscription = async () => {
     try {
       setIsLoading(true);
-      await axios.post('/billing/subscription/cancel', {}, { withCredentials: true });
+      await client.post('/billing/subscription/cancel');
       
       // Update local state
       if (updateUser) {
@@ -72,7 +72,7 @@ const ManagePlanModal = () => {
               </div>
               <div className="flex items-center gap-2 text-reddit-text text-sm">
                 <Calendar size={16} className="text-reddit-textMuted" />
-                <span>Next billing date: In 30 days</span>
+                <span>Next billing date: {currentUser?.currentPeriodEnd ? new Date(currentUser.currentPeriodEnd).toLocaleDateString() : 'N/A'}</span>
               </div>
             </div>
           </div>
