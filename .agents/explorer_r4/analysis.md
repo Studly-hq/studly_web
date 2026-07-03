@@ -1,0 +1,109 @@
+# Rate Limit CORS Fix (R4) Audit and Verification Report
+
+**Audit Date:** 2026-06-24  
+**Audit Grade:** **PASS**
+
+---
+
+## 1. Overview of the CORS Configuration
+
+The `CorsLayer` is constructed and configured in `Studly-server/src/libs/router.rs` at lines 33-60:
+
+```rust
+    let cors = CorsLayer::new()
+        .allow_origin(
+            allowed_origins
+                .into_iter()
+                .map(|origin| HeaderValue::from_static(origin))
+                .collect::<Vec<_>>(),
+        )
+        .allow_methods([
+            http::Method::GET,
+            http::Method::POST,
+            http::Method::PUT,
+            http::Method::DELETE,
+            http::Method::OPTIONS,
+        ])
+        .allow_headers([
+            http::header::AUTHORIZATION,
+            http::header::CONTENT_TYPE,
+            http::header::ACCEPT,
+            http::header::HeaderName::from_static("x-requested-with"),
+            http::header::HeaderName::from_static("x-admin-password"),
+        ])
+        .expose_headers([
+            http::header::RETRY_AFTER,
+            http::header::HeaderName::from_static("x-ratelimit-limit"),
+            http::header::HeaderName::from_static("x-ratelimit-remaining"),
+            http::header::HeaderName::from_static("x-ratelimit-window"),
+        ])
+        .allow_credentials(true);
+```
+
+---
+
+## 2. Header Exposure Verification
+
+The frontend browser requires exposure of key headers to read them during a rate-limited event. We verified the exposed headers:
+
+| Header Name | Configuration in `router.rs` | Source in `rate_limit.rs` | Correctly Exposed? |
+| :--- | :--- | :--- | :---: |
+| `Retry-After` | `http::header::RETRY_AFTER` | `set_header(headers, "retry-after", ...)` | **YES** |
+| `x-ratelimit-limit` | `http::header::HeaderName::from_static("x-ratelimit-limit")` | `set_header(headers, "x-ratelimit-limit", ...)` | **YES** |
+| `x-ratelimit-remaining` | `http::header::HeaderName::from_static("x-ratelimit-remaining")` | `set_header(headers, "x-ratelimit-remaining", ...)` | **YES** |
+| `x-ratelimit-window` | `http::header::HeaderName::from_static("x-ratelimit-window")` | `set_header(headers, "x-ratelimit-window", ...)` | **YES** |
+
+### Verification Details:
+1. **`http::header::RETRY_AFTER`**: This standard header compiles to `"retry-after"`. `RateLimitMiddleware` adds the header using `"retry-after"`. The names match exactly (CORS headers are case-insensitive, but they match case exactly anyway).
+2. **`x-ratelimit-*` Headers**: These custom headers are constructed statically using `HeaderName::from_static`. They match the string literals `"x-ratelimit-limit"`, `"x-ratelimit-remaining"`, and `"x-ratelimit-window"` that the rate limiting middleware writes in `rate_limit.rs`.
+
+---
+
+## 3. Position in the Middleware Stack
+
+The routing layer is constructed in `router.rs` lines 90-117:
+
+```rust
+    let router = api_router
+        .merge(Scalar::with_url("/scalar", api))
+        .fallback(|| async { (StatusCode::NOT_FOUND, "Route not found") })
+        .layer(
+            TraceLayer::new_for_http()
+            ...
+        )
+        // General API rate limit wraps the entire stack (except /auth which has its own).
+        .layer(RateLimitLayer::new(API_LIMIT))
+        // CORS must be outermost so 429 responses also carry CORS headers —
+        // otherwise browsers will swallow the response before JS can read the error.
+        .layer(cors);
+```
+
+As observed, `.layer(cors)` is applied at the **bottom of the chain**, making it the outermost layer in the Axum/Tower middleware stack.
+
+---
+
+## 4. Execution Order and Why it Matters
+
+In Axum (which uses Tower middleware), calling `.layer(Layer)` wraps the existing service inside that layer. This means layers are executed in the **reverse order** of how they are written in the chain (bottom-to-top for requests, top-to-bottom for responses).
+
+### Request/Response Lifecycle:
+1. **Incoming Request Flow**:
+   Client -> CorsLayer -> RateLimitLayer -> TraceLayer -> Route Handler
+2. **Outgoing Response Flow (Successful)**:
+   Route Handler -> TraceLayer -> RateLimitLayer -> CorsLayer -> Client
+3. **Outgoing Response Flow (Throttled/429)**:
+   RateLimitLayer (returns 429) -> CorsLayer -> Client
+
+### Rationale for Outermost Placement:
+If a client is rate-limited, `RateLimitLayer` returns a `429 Too Many Requests` response immediately without forwarding the request to the inner layers. 
+
+- **Correct Placement (CORS is Outermost/Bottom)**: Because `CorsLayer` is applied below `RateLimitLayer`, it is *outer* to the rate limiter. The generated 429 response travels back up and passes through `CorsLayer`, which adds the CORS headers (such as `Access-Control-Allow-Origin` and `Access-Control-Expose-Headers`). The browser allows the frontend JS to read the 429 error code and the exposed headers.
+- **Incorrect Placement (CORS is Innermost/Top)**: If `cors` were placed above `RateLimitLayer` in the builder chain, the 429 response generated by `RateLimitLayer` would be sent directly back to the client without ever passing through `CorsLayer`. The browser would block the response due to CORS policy violations, resulting in a generic network failure on the frontend.
+
+---
+
+## 5. Audit Grade
+
+**PASS**
+- Expose headers list matches all Rate Limiting headers exactly.
+- `CorsLayer` is applied at the bottom of the middleware chain, confirming its position as the outermost layer.

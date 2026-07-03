@@ -23,6 +23,7 @@ const mapBackendUserToFrontend = (backendUser) => {
     followers: backendUser.followers_count || 0,
     planType: backendUser.plan_type || "free",
     subscriptionStatus: backendUser.subscription_status || null,
+    currentPeriodEnd: backendUser.current_period_end || null,
   };
 };
 
