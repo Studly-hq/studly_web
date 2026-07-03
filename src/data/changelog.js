@@ -1,5 +1,18 @@
 export const changelogData = [
   {
+    version: "v2.2.1",
+    date: "3 July 2026",
+    title: "Bug Fixes & AI Improvements",
+    description: "This update addresses a few critical bugs in the subscription flow and introduces stability and feature improvements to the Lucid AI chat.",
+    items: [
+      "Fixed Manage Subscription modal to display your actual next billing date dynamically.",
+      "Resolved an issue where your Pro subscription status wouldn't update instantly after payment.",
+      "Fixed UI bugs and AI chat streaming issues in Lucid.",
+      "Added an AI cancellation feature to Lucid, allowing you to stop the AI's response mid-generation.",
+      "Resolved an AI message scope error in Lucid."
+    ]
+  },
+  {
     version: "v2.2",
     date: "13 June 2026",
     title: "Study Modes Overhaul",
