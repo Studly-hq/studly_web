@@ -316,7 +316,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="admin-theme" style={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
+    <div className="admin-theme" style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       
       {/* Left Sidebar */}
       <aside style={{ width: '250px', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--background)', padding: 'var(--space-6) 0' }}>
