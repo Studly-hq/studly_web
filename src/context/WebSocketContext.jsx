@@ -66,7 +66,7 @@ export const WebSocketProvider = ({ children }) => {
             socketRef.current = null;
         }
 
-        const wsUrl = 'wss://studly-server-production.up.railway.app/ws';
+        const wsUrl = 'wss://studly-server.pxxlspace.cv/ws';
         const ws = new WebSocket(wsUrl);
         socketRef.current = ws;
 

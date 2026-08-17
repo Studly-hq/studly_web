@@ -8,7 +8,7 @@ import axios from "axios";
  */
 // Use Railway backend in production, proxy in development
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://studly-server-production.up.railway.app'
+  ? 'https://studly-server.pxxlspace.cv'
   : '';
 
 const client = axios.create({
