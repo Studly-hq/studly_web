@@ -64,7 +64,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://studly-server-production.up.railway.app",
+  "proxy": "https://studly-server.pxxlspace.cv",
   "devDependencies": {
     "sharp": "^0.34.5"
   }

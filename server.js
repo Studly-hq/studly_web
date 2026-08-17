@@ -6,7 +6,7 @@ const { parse } = require('node-html-parser');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-const API_BASE_URL = 'https://studly-server-production.up.railway.app';
+const API_BASE_URL = 'https://studly-server.pxxlspace.cv';
 
 // Serve static files from the React app build directory
 app.use(express.static(path.join(__dirname, 'build'), { index: false }));
