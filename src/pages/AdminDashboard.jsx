@@ -39,7 +39,7 @@ const AdminDashboard = () => {
   const [postsTotal, setPostsTotal] = useState(0);
   const [postsLimit] = useState(20);
 
-  const API_URL = process.env.REACT_APP_API_URL || 'https://studly-server.pxxlspace.cv';
+  const API_URL = process.env.REACT_APP_API_URL || 'https://studly-server.onrender.com';
   const LUCID_API_URL = process.env.REACT_APP_LUCID_API_URL || '';
   const LUCID_API_KEY = process.env.REACT_APP_LUCID_API_KEY || '';
 
