@@ -3,7 +3,7 @@ const path = require('path');
 const axios = require('axios');
 const { parse } = require('node-html-parser');
 
-const API_BASE_URL = 'https://studly-server.pxxlspace.cv';
+const API_BASE_URL = 'https://studly-server.onrender.com';
 
 // Helper to inject meta tags
 function injectMeta(html, metadata) {
