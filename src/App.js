@@ -6,26 +6,21 @@ import { CelebrationProvider } from "./context/CelebrationContext";
 import TopLoadingBar from "./components/common/TopLoadingBar";
 import { WebSocketProvider } from "./context/WebSocketContext";
 import { UIProvider, useUI } from "./context/UIContext";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { FeedProvider } from "./context/FeedContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import ComingSoon from "./components/common/ComingSoon";
-import LoadingGate from "./components/common/LoadingGate";
-import TopAnnouncementBanner from "./components/common/TopAnnouncementBanner";
 
-import LeftSidebar from "./components/layout/LeftSidebar";
-import RightSidebar from "./components/layout/RightSidebar";
-import MobileBottomNav from "./components/layout/MobileBottomNav";
 import AuthModal from "./components/modals/AuthModal";
 import CreatePostModal from "./components/modals/CreatePostModal";
 import CelebrationModal from "./components/modals/CelebrationModal";
 import UpgradeModal from "./components/modals/UpgradeModal";
 import ManagePlanModal from "./components/modals/ManagePlanModal";
 import CommentSection from "./components/comments/CommentSection";
-import { Toaster } from "sonner";
+import DashboardLayout from "./components/layout/DashboardLayout";
+import { Toaster } from "./components/ui/toast";
 import { Analytics } from '@vercel/analytics/react';
-import InstallBanner from "./components/common/InstallBanner";
-import OnboardingTour from "./components/common/OnboardingTour";
 import "./App.css";
 
 // Pages (Lazy loaded for better performance)
@@ -45,11 +40,13 @@ const CourseAdmin = lazy(() => import("./pages/CourseAdmin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
-const Study = lazy(() => import("./pages/Study"));
+const Home = lazy(() => import("./pages/Home"));
 const CUHUB = lazy(() => import("./pages/CUHUB"));
 const VerifyPayment = lazy(() => import("./pages/VerifyPayment"));
 const ReleaseNotes = lazy(() => import("./pages/ReleaseNotes"));
-
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const SignupPage = lazy(() => import("./pages/SignupPage"));
 
 // Legal Pages (Lazy loaded)
 const TermsOfService = lazy(() => import("./pages/legal/TermsOfService"));
@@ -58,9 +55,6 @@ const CookiePolicy = lazy(() => import("./pages/legal/CookiePolicy"));
 const Accessibility = lazy(() => import("./pages/legal/Accessibility"));
 
 function AppContent() {
-  const { isAuthLoading } = useAuth();
-  const { isLucidDetailedMode } = useUI();
-
   const [viewportHeight, setViewportHeight] = useState('100vh');
 
   useEffect(() => {
@@ -80,96 +74,68 @@ function AppContent() {
     link.rel = 'preconnect';
     link.href = lucidUrl;
     document.head.appendChild(link);
-    
+
     // Also do a silent fetch to truly wake up the serverless functions
     fetch(lucidUrl, { mode: 'no-cors' }).catch(() => {});
   }, []);
 
   return (
-    <LoadingGate isLoading={isAuthLoading}>
+    <>
       <div className="flex flex-col w-full overflow-hidden" style={{ height: viewportHeight }}>
-        <TopAnnouncementBanner />
         <div className="flex-1 min-h-0 w-full overflow-hidden relative">
-          <Routes>
-            {/* Course Bank routes (full screen, no header/sidebars) */}
-            <Route path="/courses" element={<Suspense fallback={null}><CourseBank /></Suspense>} />
-            <Route path="/courses/:topicId" element={<Suspense fallback={null}><TopicPlayer /></Suspense>} />
-            <Route path="/courses/admin" element={<Suspense fallback={null}><CourseAdmin /></Suspense>} />
+          <Suspense fallback={null}>
+            <Routes>
+              {/* Landing page (full screen, no sidebars) */}
+              <Route path="/" element={<LandingPage />} />
 
-            {/* Admin Dashboard (full screen) */}
-            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="/admin/dashboard" element={<Suspense fallback={null}><AdminDashboard /></Suspense>} />
+              {/* Auth pages (full screen) */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
 
-            {/* Main app routes (with sidebars) */}
-            <Route
-              path="/*"
-              element={
-                <div className="flex bg-reddit-bg h-full overflow-hidden">
-                  <div className="flex w-full max-w-[1440px] mx-auto relative relative-sidebar-container h-full">
-                    {/* Left Sidebar */}
-                    <div className="flex-shrink-0 w-0 lg:w-auto">
-                      <LeftSidebar />
-                    </div>
+              {/* Course Bank routes (full screen, no header/sidebars) */}
+              <Route path="/courses" element={<CourseBank />} />
+              <Route path="/courses/:topicId" element={<TopicPlayer />} />
+              <Route path="/courses/admin" element={<CourseAdmin />} />
 
-                    {/* Center Content - Routes */}
-                    <main className={`flex-1 flex flex-col min-w-0 border-x border-reddit-border ${isLucidDetailedMode ? 'pb-0 overflow-y-hidden' : 'pb-20 overflow-y-auto'} lg:pb-0 min-h-0 h-full`}>
-                      <Suspense fallback={
-                        <div className="max-w-[640px] mx-auto px-4 py-5">
-                          <div className="bg-reddit-card rounded border border-reddit-border p-4 animate-pulse mb-3">
-                            <div className="flex items-center gap-3 mb-4">
-                              <div className="w-10 h-10 bg-reddit-cardHover rounded-full" />
-                              <div className="flex-1">
-                                <div className="w-24 h-3 bg-reddit-cardHover rounded mb-2" />
-                                <div className="w-16 h-2 bg-reddit-cardHover rounded" />
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="h-3 bg-reddit-cardHover rounded" />
-                              <div className="h-3 bg-reddit-cardHover rounded w-[90%]" />
-                            </div>
-                          </div>
-                        </div>
-                      }>
-                        <Routes>
-                          <Route path="/" element={<Navigate to="/study" replace />} />
-                          <Route path="/feed" element={<FeedPage />} />
-                          <Route path="/posts" element={<Navigate to="/feed" replace />} />
-                          <Route path="/explore" element={<Explore />} />
-                          <Route path="/saved" element={<SavedPosts />} />
-                          <Route path="/upload" element={<UploadNotes />} />
-                          <Route path="/quiz-feed" element={<QuizFeed />} />
-                          <Route path="/profile" element={<UserProfile />} />
-                          <Route path="/profile/edit" element={<EditProfile />} />
-                          <Route path="/profile/:username" element={<UserProfile />} />
-                          <Route path="/post/:postId" element={<PostDetail />} />
-                          <Route path="/notifications" element={<Notifications />} />
-                          <Route path="/leaderboard" element={<Leaderboard />} />
-                          <Route path="/study" element={<Study />} />
-                          <Route path="/cuhub" element={<CUHUB />} />
-                          <Route path="/verify-payment" element={<VerifyPayment />} />
-                          <Route path="/releases" element={<ReleaseNotes />} />
-                          <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
-                          <Route path="/settings" element={<Settings />} />
-                          {/* Legal Routes */}
-                          <Route path="/terms" element={<TermsOfService />} />
-                          <Route path="/privacy" element={<PrivacyPolicy />} />
-                          <Route path="/cookie-policy" element={<CookiePolicy />} />
-                          <Route path="/accessibility" element={<Accessibility />} />
-                        </Routes>
-                      </Suspense>
-                    </main>
+              {/* Admin Dashboard (full screen) */}
+              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-                    {/* Right Sidebar */}
-                    <div className="hidden lg:block flex-shrink-0">
-                      <RightSidebar />
-                    </div>
-                  </div>
+              {/* v3 Dashboard shell (sidebar + rounded canvas) */}
+              <Route element={<DashboardLayout />}>
+                {/* Home = Lucid iframe, first thing after login/signup */}
+                <Route path="/home" element={<Home />} />
+                <Route path="/study" element={<Navigate to="/home" replace />} />
 
-                  <MobileBottomNav />
-                </div>
-              }
-            />
-          </Routes>
+                {/* Community routes — feed untouched, renders in canvas */}
+                <Route path="/feed" element={<FeedPage />} />
+                <Route path="/posts" element={<Navigate to="/feed" replace />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/saved" element={<SavedPosts />} />
+                <Route path="/post/:postId" element={<PostDetail />} />
+                <Route path="/quiz-feed" element={<QuizFeed />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/upload" element={<UploadNotes />} />
+
+                {/* Profile & account */}
+                <Route path="/profile" element={<UserProfile />} />
+                <Route path="/profile/edit" element={<EditProfile />} />
+                <Route path="/profile/:username" element={<UserProfile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/cuhub" element={<CUHUB />} />
+                <Route path="/verify-payment" element={<VerifyPayment />} />
+                <Route path="/releases" element={<ReleaseNotes />} />
+                <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
+
+                {/* Legal Routes */}
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/cookie-policy" element={<CookiePolicy />} />
+                <Route path="/accessibility" element={<Accessibility />} />
+              </Route>
+            </Routes>
+          </Suspense>
         </div>
 
         {/* Global Modals & Components (Shared across all routes including /courses) */}
@@ -180,38 +146,37 @@ function AppContent() {
         <CelebrationModal />
         <CommentSection />
         <Toaster position="top-right" richColors />
-        <InstallBanner />
-        <OnboardingTour />
       </div>
-    </LoadingGate>
+    </>
   );
 }
 
 
-
 function App() {
   return (
-    <WebSocketProvider>
-      <UIProvider>
-        <AuthProvider>
-          <FeedProvider>
-            <NotificationProvider>
-              <StudyGramProvider>
-                <CoursePlayerProvider>
-                  <CelebrationProvider>
-                    <Router>
-                      <TopLoadingBar />
-                      <AppContent />
-                      <Analytics />
-                    </Router>
-                  </CelebrationProvider>
-                </CoursePlayerProvider>
-              </StudyGramProvider>
-            </NotificationProvider>
-          </FeedProvider>
-        </AuthProvider>
-      </UIProvider>
-    </WebSocketProvider>
+    <ThemeProvider>
+      <WebSocketProvider>
+        <UIProvider>
+          <AuthProvider>
+            <FeedProvider>
+              <NotificationProvider>
+                <StudyGramProvider>
+                  <CoursePlayerProvider>
+                    <CelebrationProvider>
+                      <Router>
+                        <TopLoadingBar />
+                        <AppContent />
+                        <Analytics />
+                      </Router>
+                    </CelebrationProvider>
+                  </CoursePlayerProvider>
+                </StudyGramProvider>
+              </NotificationProvider>
+            </FeedProvider>
+          </AuthProvider>
+        </UIProvider>
+      </WebSocketProvider>
+    </ThemeProvider>
   );
 }
 

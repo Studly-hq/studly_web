@@ -13,6 +13,11 @@
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/icon-192x192.png" />
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
+  <!-- Geist font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet" />
+
   <!-- Open Graph / Social -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Studly | Interactive E-Learning Platform" />
@@ -56,6 +61,19 @@
   </style>
 
   <script>
+    // Apply saved theme before paint to prevent flash of wrong theme
+    (function () {
+      try {
+        var theme = localStorage.getItem('studly_theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+        document.documentElement.style.colorScheme = theme;
+      } catch (e) {}
+    })();
+  </script>
+
+  <script>
     // Capture the PWA install prompt as early as possible
     window.deferredPwaPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -64,6 +82,8 @@
       window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
     });
   </script>
+  <link rel="preload" as="image" href="/auth-bottom-left.webp" />
+  <link rel="preload" as="image" href="/auth-bottom-left-signup.webp" />
 </head>
 
 <body>

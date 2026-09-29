@@ -1,11 +1,113 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Class-based dark mode (html.dark), driven by ThemeContext + no-flash script */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-reddit-bg: hsl(240, 2%, 4%);
+  --color-reddit-card: #1A1A1B;
+  --color-reddit-cardHover: #272729;
+  --color-reddit-border: #343536;
+  --color-reddit-text: #D7DADC;
+  --color-reddit-textMuted: #818384;
+  --color-reddit-orange: #FF4500;
+  --color-reddit-blue: #0079D3;
+  --color-reddit-input: #272729;
+
+  --font-sans: "DM Sans", sans-serif;
+  --font-heading: "Outfit", sans-serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+/* Semantic theme tokens — resolved at runtime so .dark overrides cascade */
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-fg);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-fg);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-fg);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-fg);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-fg);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-fg);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-fg);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: var(--primary-fg);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-fg);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--ring);
+}
+
+/* Light theme — matches the auth pages aesthetic */
+:root {
+  --bg: #ffffff;
+  --fg: #141414;
+  --card: #ffffff;
+  --card-fg: #141414;
+  --popover: #ffffff;
+  --popover-fg: #141414;
+  --primary: #141414;
+  --primary-fg: #ffffff;
+  --secondary: #f5f4f1;
+  --secondary-fg: #141414;
+  --muted: #f5f4f1;
+  --muted-fg: #726f6c;
+  --accent: #f0efec;
+  --accent-fg: #141414;
+  --destructive: #e5484d;
+  --border: #e6e6e3;
+  --input: #e6e6e3;
+  --ring: #141414;
+  --sidebar: #f7f6f3;
+  --sidebar-fg: #37352f;
+  --sidebar-accent: #ecebe7;
+  --sidebar-accent-fg: #141414;
+  --sidebar-border: #e9e8e4;
+}
+
+/* Dark theme — the current dashboard blacks */
+.dark {
+  --bg: hsl(240, 2%, 4%);
+  --fg: #d7dadc;
+  --card: #141415;
+  --card-fg: #d7dadc;
+  --popover: #1a1a1b;
+  --popover-fg: #d7dadc;
+  --primary: #ff4500;
+  --primary-fg: #ffffff;
+  --secondary: #272729;
+  --secondary-fg: #d7dadc;
+  --muted: #272729;
+  --muted-fg: #818384;
+  --accent: #272729;
+  --accent-fg: #d7dadc;
+  --destructive: #ff5c5c;
+  --border: #343536;
+  --input: #343536;
+  --ring: #d7dadc;
+  --sidebar: hsl(240, 2%, 4%);
+  --sidebar-fg: #d7dadc;
+  --sidebar-accent: #1f1f21;
+  --sidebar-accent-fg: #ffffff;
+  --sidebar-border: #2a2a2c;
+}
 
 @layer base {
   body {
-    @apply font-sans antialiased text-white;
-    background-color: hsl(240, 2%, 4%);
+    @apply font-sans antialiased;
+    background-color: var(--bg);
+    color: var(--fg);
     margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -21,14 +123,14 @@
   h4,
   h5,
   h6 {
-    font-family: theme('fontFamily.heading'), serif;
+    font-family: var(--font-heading), serif;
     letter-spacing: -0.025em;
   }
 
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
-    background-color: hsl(240, 2%, 4%);
+    background-color: var(--bg);
   }
 }
 
@@ -207,7 +309,7 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #272729 inset !important;
-  -webkit-text-fill-color: #D7DADC !important;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  -webkit-text-fill-color: #141414 !important;
   transition: background-color 0s 600000s, color 600000s 0s !important;
 }

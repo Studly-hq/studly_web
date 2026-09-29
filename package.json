@@ -3,19 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@base-ui/react": "^1.8.0",
     "@cloudinary/react": "^1.14.3",
     "@cloudinary/url-gen": "^1.22.0",
+    "@hugeicons/core-free-icons": "^4.3.5",
+    "@hugeicons/react": "^1.1.10",
     "@radix-ui/react-slot": "^1.2.5",
     "@supabase/supabase-js": "^2.90.0",
+    "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "@vercel/analytics": "^1.6.1",
+    "autoprefixer": "^10.6.1",
     "axios": "^1.13.2",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cn": "^0.4.0",
     "emoji-picker-react": "^4.16.1",
     "express": "^5.2.1",
     "framer-motion": "^10.16.4",
@@ -36,14 +42,15 @@
     "recharts": "^3.8.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.3",
     "web-vitals": "^2.1.4",
     "yaml": "^2.8.2"
   },
   "scripts": {
     "start": "node server.js",
-    "dev": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "dev": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -66,6 +73,7 @@
   },
   "proxy": "https://studly-server.onrender.com",
   "devDependencies": {
+    "react-app-rewired": "^2.2.1",
     "sharp": "^0.34.5"
   }
 }
