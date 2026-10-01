@@ -21,15 +21,14 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // removed unused error state
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
     try {
       if (password.length < 8) {
-        setError("Password must be at least 8 characters");
+        toast.error("Password must be at least 8 characters");
         return;
       }
       await signup(name, email, password);
