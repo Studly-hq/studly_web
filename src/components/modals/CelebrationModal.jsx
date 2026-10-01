@@ -118,7 +118,7 @@ const CelebrationModal = () => {
                                 initial={{ y: -20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.1 }}
-                                className="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase font-black tracking-[0.2em] text-reddit-textMuted mb-8"
+                                className="inline-block px-4 py-1.5 rounded-full bg-reddit-cardHover border border-reddit-border text-[10px] uppercase font-black tracking-[0.2em] text-reddit-textMuted mb-8"
                             >
                                 Achievement Unlocked
                             </motion.div>
@@ -131,7 +131,7 @@ const CelebrationModal = () => {
                                         rotate: [0, 5, -5, 0]
                                     }}
                                     transition={{ duration: 4, repeat: Infinity }}
-                                    className={`w-36 h-36 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center mx-auto relative overflow-hidden backdrop-blur-xl`}
+                                    className={`w-36 h-36 rounded-[2rem] bg-reddit-cardHover border border-reddit-border flex items-center justify-center mx-auto relative overflow-hidden backdrop-blur-xl`}
                                 >
                                     <Icon size={72} strokeWidth={1.5} style={{ color: themeColor }} />
 
@@ -170,7 +170,7 @@ const CelebrationModal = () => {
                                 transition={{ delay: 0.2 }}
                                 className="space-y-4 mb-8"
                             >
-                                <h2 className="text-4xl font-black text-white leading-tight font-righteous">
+                                <h2 className="text-4xl font-black text-reddit-text leading-tight font-righteous">
                                     {getTitle()}
                                 </h2>
                                 <p className="text-lg text-reddit-textMuted font-medium px-4 leading-relaxed">
@@ -190,7 +190,7 @@ const CelebrationModal = () => {
                                         <span>Current: {celebrationData.value}</span>
                                         <span>Next: {nextMilestone}</span>
                                     </div>
-                                    <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">
+                                    <div className="h-2 w-full bg-reddit-cardHover rounded-full overflow-hidden border border-reddit-border p-[1px]">
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${progress}%` }}
@@ -217,7 +217,7 @@ const CelebrationModal = () => {
                                         style={{ background: `conic-gradient(from 0deg, transparent, ${themeColor}, transparent)` }}
                                     />
                                     <div className="relative bg-reddit-card hover:bg-[#272729] rounded-2xl py-4 flex items-center justify-center gap-2 transition-colors">
-                                        <span className="text-white font-black text-lg">{isStreakLost ? "Start Fresh" : "Claim Achievement"}</span>
+                                        <span className="text-reddit-text font-black text-lg">{isStreakLost ? "Start Fresh" : "Claim Achievement"}</span>
                                         <Sparkles size={20} style={{ color: themeColor }} />
                                     </div>
                                 </button>

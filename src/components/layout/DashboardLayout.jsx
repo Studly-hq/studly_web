@@ -22,20 +22,20 @@ const DashboardLayout = () => {
   return (
     <SidebarProvider>
       <DashboardSidebar />
-      <SidebarInset className="overflow-hidden bg-background md:m-2 md:ml-0 md:rounded-2xl md:border md:border-border md:shadow-sm">
+      <SidebarInset className="overflow-hidden bg-background md:m-2 md:ml-0 md:rounded-2xl md:border md:border-border">
         <div
           className={`flex min-h-0 w-full flex-1 ${
             isLucidSurface
               ? 'flex-col overflow-hidden'
               : isLucidDetailedMode
                 ? 'flex-col overflow-y-hidden pb-0'
-                : 'flex-col overflow-y-auto pb-20 lg:pb-0'
+                : 'flex-col overflow-y-auto pb-20 md:pb-6'
           }`}
         >
           <Outlet />
         </div>
-        {!isLucidSurface && <MobileBottomNav />}
       </SidebarInset>
+      <MobileBottomNav />
     </SidebarProvider>
   );
 };

@@ -12,7 +12,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { useUI } from "../../context/UIContext";
 import { useFeed } from "../../context/FeedContext";
-import { toast } from "sonner";
+import { compatToast as toast } from "../../components/ui/toast";
 import { uploadMultipleToCloudinary } from "../../utils/uploadToCloudinary";
 import CircularProgress from "../common/CircularProgress";
 
@@ -303,7 +303,7 @@ const CreatePostModal = () => {
           <div className="flex items-center justify-between p-6 border-b border-reddit-border">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-reddit-orange rounded flex items-center justify-center">
-                <Sparkles className="text-white" size={20} />
+                <Sparkles className="text-reddit-text" size={20} />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-reddit-text">
@@ -421,7 +421,7 @@ const CreatePostModal = () => {
                               onClick={() => setPreviewIndex(index)}
                               className={`h-2 rounded-full transition-all duration-300 ${index === previewIndex
                                 ? "bg-white w-6"
-                                : "bg-white/50 w-2"
+                                : "bg-reddit-cardHover w-2"
                                 }`}
                             />
                           ))}

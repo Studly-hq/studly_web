@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Loader2 } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Loading03Icon } from '@hugeicons/core-free-icons';
 import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import { getStudyToken } from '../api/profile';
@@ -104,7 +105,7 @@ const Home = () => {
         <div className="relative flex h-full w-full flex-1 flex-col overflow-hidden bg-background">
             {(!activeToken || !isLucidReady) && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-background">
-                    <Loader2 className="animate-spin text-reddit-orange" size={40} />
+                    <HugeiconsIcon icon={Loading03Icon} size={40} strokeWidth={2} className="animate-spin text-reddit-orange" />
                 </div>
             )}
             <iframe

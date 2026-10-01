@@ -140,7 +140,7 @@ const Feed = ({ activeTab }) => {
           >
             <button
               onClick={applyBackgroundPosts}
-              className="bg-reddit-orange text-white px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2 hover:bg-reddit-orange/90 transition-colors"
+              className="bg-reddit-orange text-white px-4 py-2 rounded-full font-bold flex items-center gap-2 hover:bg-reddit-orange/90 transition-colors"
             >
               <RefreshCw size={16} className="animate-spin-slow" />
               New posts available

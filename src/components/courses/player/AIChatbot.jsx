@@ -61,15 +61,15 @@ const AIChatbot = ({ topicTitle, currentSectionTitle }) => {
   return (
     <div className="h-1/2 flex flex-col bg-reddit-dark">
       {/* Header */}
-      <div className="p-4 border-b border-white/5 bg-white/[0.02] flex items-center gap-3">
+      <div className="p-4 border-b border-reddit-border bg-white/[0.02] flex items-center gap-3">
         <div className="relative">
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-reddit-orange to-pink-500 flex items-center justify-center">
-            <Bot className="w-4 h-4 text-white" />
+            <Bot className="w-4 h-4 text-reddit-text" />
           </div>
           <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-reddit-dark rounded-full"></div>
         </div>
         <div>
-          <h3 className="text-sm font-bold text-white">AI Tutor</h3>
+          <h3 className="text-sm font-bold text-reddit-text">AI Tutor</h3>
           <p className="text-[10px] text-reddit-textMuted uppercase tracking-wider font-medium">
             {currentSectionTitle ? 'Topic Active' : 'Online'}
           </p>
@@ -88,7 +88,7 @@ const AIChatbot = ({ topicTitle, currentSectionTitle }) => {
               className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {message.role === 'assistant' && (
-                <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="w-6 h-6 rounded-full bg-reddit-cardHover flex items-center justify-center flex-shrink-0 mt-1">
                   <Bot className="w-3.5 h-3.5 text-reddit-textMuted" />
                 </div>
               )}
@@ -98,7 +98,7 @@ const AIChatbot = ({ topicTitle, currentSectionTitle }) => {
                   max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed
                   ${message.role === 'user'
                     ? 'bg-reddit-orange text-white rounded-br-sm shadow-lg shadow-reddit-orange/10'
-                    : 'bg-white/5 text-white/90 rounded-bl-sm border border-white/5'
+                    : 'bg-reddit-cardHover text-reddit-text rounded-bl-sm border border-reddit-border'
                   }
                 `}
               >
@@ -115,10 +115,10 @@ const AIChatbot = ({ topicTitle, currentSectionTitle }) => {
             animate={{ opacity: 1 }}
             className="flex gap-3"
           >
-            <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 mt-1">
+            <div className="w-6 h-6 rounded-full bg-reddit-cardHover flex items-center justify-center flex-shrink-0 mt-1">
               <Bot className="w-3.5 h-3.5 text-reddit-textMuted" />
             </div>
-            <div className="bg-white/5 border border-white/5 px-4 py-3 rounded-2xl rounded-bl-sm">
+            <div className="bg-reddit-cardHover border border-reddit-border px-4 py-3 rounded-2xl rounded-bl-sm">
               <div className="flex gap-1.5 h-2 items-center">
                 <motion.div
                   animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1, 0.8] }}
@@ -154,7 +154,7 @@ const AIChatbot = ({ topicTitle, currentSectionTitle }) => {
             onKeyPress={handleKeyPress}
             placeholder="Ask anything..."
             disabled={isTyping}
-            className="w-full bg-white/5 hover:bg-white/10 focus:bg-white/10 border border-white/5 rounded-full pl-5 pr-12 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-reddit-orange/50 transition-all duration-300"
+            className="w-full bg-reddit-cardHover hover:bg-reddit-cardHover focus:bg-reddit-cardHover border border-reddit-border rounded-full pl-5 pr-12 py-3 text-sm text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:border-reddit-orange/50 transition-all duration-300"
           />
           <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
             <button
@@ -164,7 +164,7 @@ const AIChatbot = ({ topicTitle, currentSectionTitle }) => {
               w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200
               ${input.trim() && !isTyping
                   ? 'bg-reddit-orange hover:bg-reddit-orange/90 text-white shadow-lg shadow-reddit-orange/20 scale-100'
-                  : 'bg-transparent text-white/10 scale-90'
+                  : 'bg-transparent text-reddit-text scale-90'
                 }
             `}
             >

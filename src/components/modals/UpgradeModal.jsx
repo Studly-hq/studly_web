@@ -3,7 +3,7 @@ import { useUI } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
 import { X, Sparkles, Check, Loader2 } from 'lucide-react';
 import { initializePayment } from '../../api/billing';
-import { toast } from 'sonner';
+import { compatToast as toast } from '../../components/ui/toast';
 
 const UpgradeModal = () => {
   const { showUpgradeModal, setShowUpgradeModal, upgradeReason, customUpgradeMessage } = useUI();
@@ -75,7 +75,7 @@ const UpgradeModal = () => {
         {/* Close Button */}
         <button
           onClick={() => setShowUpgradeModal(false)}
-          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-reddit-bg/80 text-reddit-textMuted hover:text-white hover:bg-reddit-dark hover:rotate-90 transition-all"
+          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-reddit-bg/80 text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-dark hover:rotate-90 transition-all"
         >
           <X size={18} />
         </button>
@@ -91,7 +91,7 @@ const UpgradeModal = () => {
 
           {/* Title */}
           <div className="text-center space-y-3 mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-reddit-text">
               {heading}
             </h2>
             <p className="text-reddit-textMuted text-sm sm:text-base leading-relaxed max-w-md mx-auto">
@@ -106,20 +106,20 @@ const UpgradeModal = () => {
             {/* Pricing Box — always first */}
             <div className="order-1 bg-reddit-bg rounded-xl p-5 border border-reddit-border/50">
               <div className="flex items-center gap-2 mb-3 flex-wrap">
-                <span className="text-white font-semibold">Monthly Plan</span>
+                <span className="text-reddit-text font-semibold">Monthly Plan</span>
               </div>
               
               {hasHadSubscription ? (
                 <>
                   <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-4xl font-bold text-white">₦1500</span>
+                    <span className="text-4xl font-bold text-reddit-text">₦1500</span>
                     <span className="text-reddit-textMuted text-sm">/month</span>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-4xl font-bold text-white">₦500</span>
+                    <span className="text-4xl font-bold text-reddit-text">₦500</span>
                     <span className="text-reddit-textMuted text-sm">for the first month</span>
                   </div>
                   <p className="text-reddit-textMuted text-xs mt-2 italic">Then ₦1500/month after</p>
@@ -153,7 +153,7 @@ const UpgradeModal = () => {
 
             {/* Features — third on mobile, second on desktop */}
             <div className="order-3 md:order-2 flex flex-col justify-center">
-              <p className="text-sm font-semibold text-white mb-3">Everything you get:</p>
+              <p className="text-sm font-semibold text-reddit-text mb-3">Everything you get:</p>
               <div className="space-y-2.5">
                 {features.map((feature, idx) => (
                   <div key={idx} className="flex items-center gap-3 text-reddit-text text-sm">

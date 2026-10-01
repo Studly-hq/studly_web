@@ -169,7 +169,7 @@ export const CommentsSkeleton = ({ count = 3 }) => (
  * Skeleton for a course card in the CourseBank
  */
 export const CourseCardSkeleton = () => (
-    <div className="bg-reddit-card rounded-2xl border border-white/5 p-5">
+    <div className="bg-reddit-card rounded-2xl border border-reddit-border p-5">
         <div className="flex justify-between items-start mb-4">
             <Skeleton width="48px" height="48px" rounded="rounded-xl" />
             <Skeleton width="60px" height="24px" rounded="rounded-full" />
@@ -189,7 +189,7 @@ export const CourseCardSkeleton = () => (
 export const TopicPlayerSkeleton = () => (
     <div className="min-h-screen bg-reddit-bg">
         {/* Nav skeleton */}
-        <div className="h-16 border-b border-white/5 px-6 flex items-center justify-between">
+        <div className="h-16 border-b border-reddit-border px-6 flex items-center justify-between">
             <Skeleton width="120px" height="24px" />
             <Skeleton width="40px" height="40px" rounded="rounded-full" />
         </div>
@@ -202,7 +202,7 @@ export const TopicPlayerSkeleton = () => (
             <Skeleton height="400px" rounded="rounded-2xl" className="mb-8" />
 
             {/* Tabs placeholder */}
-            <div className="flex gap-4 mb-6 pt-4 border-t border-white/5">
+            <div className="flex gap-4 mb-6 pt-4 border-t border-reddit-border">
                 <Skeleton width="80px" height="24px" />
                 <Skeleton width="80px" height="24px" />
             </div>

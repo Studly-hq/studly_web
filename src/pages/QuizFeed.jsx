@@ -156,10 +156,10 @@ const QuizFeed = () => {
     return (
       <div className="h-screen w-full bg-black flex items-center justify-center p-4">
         <div className="text-center">
-          <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">No quizzes available</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-reddit-text mb-4">No quizzes available</h2>
           <button
             onClick={() => navigate('/upload')}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-sm sm:text-base"
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-reddit-text rounded-lg font-semibold transition-colors text-sm sm:text-base"
           >
             Create a Quiz
           </button>
@@ -180,12 +180,12 @@ const QuizFeed = () => {
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-3 sm:px-4 py-3 sm:py-4 bg-black/50 backdrop-blur-sm">
         <button
           onClick={() => navigate(-1)}
-          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 active:scale-95 transition-all"
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-reddit-text hover:bg-reddit-cardHover active:scale-95 transition-all"
         >
           <ArrowLeft size={20} />
         </button>
 
-        <span className="text-white/60 text-xs sm:text-sm font-medium">
+        <span className="text-reddit-text text-xs sm:text-sm font-medium">
           Quiz {currentQuizIndex + 1}/{quizzes.length}
         </span>
 

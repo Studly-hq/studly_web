@@ -77,9 +77,9 @@ const NotesPanel = ({ topicId, topicTitle }) => {
   };
 
   return (
-    <div className="h-1/2 flex flex-col border-b border-white/5">
+    <div className="h-1/2 flex flex-col border-b border-reddit-border">
       {/* Header */}
-      <div className="p-4 flex items-center justify-between border-b border-white/5 bg-white/[0.02]">
+      <div className="p-4 flex items-center justify-between border-b border-reddit-border bg-white/[0.02]">
         <div className="flex items-center gap-2.5">
           <div className="p-1.5 rounded-md bg-reddit-orange/10">
             <FileText className="w-3.5 h-3.5 text-reddit-orange" />
@@ -93,8 +93,8 @@ const NotesPanel = ({ topicId, topicTitle }) => {
           className={`
             flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200
             ${notes.trim()
-              ? 'bg-white/10 hover:bg-white/20 text-white'
-              : 'bg-white/5 text-reddit-textMuted/50 cursor-not-allowed'
+              ? 'bg-reddit-cardHover hover:bg-reddit-cardHover text-reddit-text'
+              : 'bg-reddit-cardHover text-reddit-textMuted/50 cursor-not-allowed'
             }
           `}
           title="Export as PDF"
@@ -110,7 +110,7 @@ const NotesPanel = ({ topicId, topicTitle }) => {
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Start typing your notes here..."
-          className="w-full h-full bg-transparent border border-transparent resize-none text-sm text-white/90 placeholder-white/20 focus:border-reddit-orange focus:ring-0 focus:outline-none p-5 leading-relaxed transition-colors"
+          className="w-full h-full bg-transparent border border-transparent resize-none text-sm text-reddit-text placeholder-reddit-textMuted focus:border-reddit-orange focus:ring-0 focus:outline-none p-5 leading-relaxed transition-colors"
           style={{ fontFamily: 'inherit' }}
         />
 

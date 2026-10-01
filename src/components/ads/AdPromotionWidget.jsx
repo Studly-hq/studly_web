@@ -16,7 +16,7 @@ const AdPromotionWidget = ({ onDismiss, hasActiveCampaigns = false }) => {
       >
         <button
           onClick={onDismiss}
-          className="absolute top-3 right-3 text-gray-500 hover:text-white transition-colors p-1 rounded-full hover:bg-gray-800"
+          className="absolute top-3 right-3 text-gray-500 hover:text-reddit-text transition-colors p-1 rounded-full hover:bg-gray-800"
         >
           <X size={18} />
         </button>
@@ -28,17 +28,17 @@ const AdPromotionWidget = ({ onDismiss, hasActiveCampaigns = false }) => {
             </div>
           </div>
 
-          <h3 className="text-white font-bold text-xl mb-2">
+          <h3 className="text-reddit-text font-bold text-xl mb-2">
             Track Your Performance
           </h3>
 
-          <p className="text-gray-400 text-[15px] leading-relaxed mb-4">
+          <p className="text-reddit-textMuted text-[15px] leading-relaxed mb-4">
             See how your ads are performing and manage your active campaigns.
           </p>
 
           <button
             onClick={() => navigate('/ads/dashboard')}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 rounded-full transition-colors text-[15px]"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-reddit-text font-bold py-2.5 rounded-full transition-colors text-[15px]"
           >
             View Dashboard
           </button>
@@ -56,7 +56,7 @@ const AdPromotionWidget = ({ onDismiss, hasActiveCampaigns = false }) => {
     >
       <button
         onClick={onDismiss}
-        className="absolute top-3 right-3 text-gray-500 hover:text-white transition-colors p-1 rounded-full hover:bg-gray-800"
+        className="absolute top-3 right-3 text-gray-500 hover:text-reddit-text transition-colors p-1 rounded-full hover:bg-gray-800"
       >
         <X size={18} />
       </button>
@@ -68,11 +68,11 @@ const AdPromotionWidget = ({ onDismiss, hasActiveCampaigns = false }) => {
           </div>
         </div>
 
-        <h3 className="text-white font-bold text-xl mb-2">
+        <h3 className="text-reddit-text font-bold text-xl mb-2">
           Create ads from ₦500/day
         </h3>
 
-        <p className="text-gray-400 text-[15px] leading-relaxed mb-4">
+        <p className="text-reddit-textMuted text-[15px] leading-relaxed mb-4">
           Reach potential new students with an ad that lets people discover your content and grow your audience.
         </p>
 

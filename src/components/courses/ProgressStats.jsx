@@ -117,23 +117,23 @@ const ProgressStats = ({ courses = [] }) => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1, duration: 0.3 }}
-            className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-3 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors"
+            className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-3 rounded-xl bg-reddit-cardHover border border-reddit-border backdrop-blur-sm hover:bg-reddit-cardHover transition-colors"
           >
             <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg ${stat.bgColor} flex items-center justify-center flex-shrink-0`}>
               <Icon className={`w-4 h-4 md:w-5 md:h-5 ${stat.color}`} />
             </div>
             <div className="text-center md:text-left min-w-0">
               {/* Desktop Label - Full Name */}
-              <p className="hidden md:block text-xs text-white/40 uppercase tracking-wider font-semibold truncate w-full">
+              <p className="hidden md:block text-xs text-reddit-text uppercase tracking-wider font-semibold truncate w-full">
                 {stat.label}
               </p>
 
               {/* Mobile Label - Short Name (One Word) */}
-              <p className="md:hidden text-[9px] text-white/40 uppercase tracking-wider font-bold">
+              <p className="md:hidden text-[9px] text-reddit-text uppercase tracking-wider font-bold">
                 {getShortLabel(stat.label)}
               </p>
 
-              <p className="text-sm md:text-lg font-bold text-white leading-tight">{stat.value}</p>
+              <p className="text-sm md:text-lg font-bold text-reddit-text leading-tight">{stat.value}</p>
             </div>
           </motion.div>
         );

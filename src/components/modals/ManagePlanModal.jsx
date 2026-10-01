@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useUI } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
 import { X, ShieldCheck, CreditCard, Calendar, AlertCircle, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { compatToast as toast } from '../../components/ui/toast';
 import client from '../../api/client';
 
 const ManagePlanModal = () => {
@@ -42,13 +42,13 @@ const ManagePlanModal = () => {
       >
         {/* Header */}
         <div className="p-6 border-b border-reddit-border flex justify-between items-center bg-reddit-orange/5">
-          <div className="flex items-center gap-2 text-white font-bold text-lg">
+          <div className="flex items-center gap-2 text-reddit-text font-bold text-lg">
             <ShieldCheck className="text-reddit-orange" size={24} />
             Manage Subscription
           </div>
           <button
             onClick={() => setShowManagePlanModal(false)}
-            className="text-reddit-textMuted hover:text-white transition-colors"
+            className="text-reddit-textMuted hover:text-reddit-text transition-colors"
           >
             <X size={20} />
           </button>
@@ -60,7 +60,7 @@ const ManagePlanModal = () => {
             <div className="flex justify-between items-start mb-6">
               <div>
                 <p className="text-reddit-textMuted text-xs uppercase font-bold tracking-wider mb-1">Current Plan</p>
-                <h3 className="text-white text-xl font-bold tracking-tight">Pro Subscription</h3>
+                <h3 className="text-reddit-text text-xl font-bold tracking-tight">Pro Subscription</h3>
               </div>
               <span className="bg-reddit-orange/10 text-reddit-orange text-[10px] font-bold px-2 py-1 rounded-full uppercase">Active</span>
             </div>
@@ -94,7 +94,7 @@ const ManagePlanModal = () => {
             </div>
           ) : (
             <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
-              <p className="text-white font-bold text-center">Are you absolutely sure?</p>
+              <p className="text-reddit-text font-bold text-center">Are you absolutely sure?</p>
               <p className="text-reddit-textMuted text-center text-sm px-4">
                 You will lose access to all premium study tools once your period ends.
               </p>

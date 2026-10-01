@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 
 const THEME_STORAGE_KEY = 'studly_theme';
 
@@ -28,15 +28,20 @@ export const ThemeProvider = ({ children }) => {
     return localStorage.getItem(THEME_STORAGE_KEY) || 'light';
   });
 
-  const setTheme = (nextTheme) => {
+  const setTheme = useCallback((nextTheme) => {
     setThemeState(nextTheme);
     localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
     applyTheme(nextTheme);
-  };
+  }, []);
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+      applyTheme(next);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     applyTheme(theme);
@@ -44,7 +49,7 @@ export const ThemeProvider = ({ children }) => {
 
   const value = useMemo(
     () => ({ theme, setTheme, toggleTheme }),
-    [theme]
+    [theme, setTheme, toggleTheme]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

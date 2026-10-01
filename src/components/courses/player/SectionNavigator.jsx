@@ -54,7 +54,7 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
         className="md:hidden fixed top-20 left-4 z-50 w-10 h-10 bg-reddit-card border border-reddit-border rounded-full flex items-center justify-center hover:bg-reddit-cardHover transition-colors shadow-lg"
         aria-label="Toggle navigation"
       >
-        <LayoutList className="w-5 h-5 text-white" />
+        <LayoutList className="w-5 h-5 text-reddit-text" />
       </button>
 
       {/* Overlay for mobile */}
@@ -73,7 +73,7 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
       {/* Navigator */}
       <aside
         className={`
-          fixed md:static top-0 left-0 h-full w-80 bg-reddit-card border-r border-white/5
+          fixed md:static top-0 left-0 h-full w-80 bg-reddit-card border-r border-reddit-border
           overflow-y-auto custom-scrollbar z-50 transition-all duration-300 ease-in-out flex-shrink-0
           ${isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full md:translate-x-0 md:w-0 md:opacity-0 md:overflow-hidden'}
         `}
@@ -82,7 +82,7 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
           {/* Header */}
           <div className="mb-8 pl-2">
             <h2 className="text-xs font-bold text-reddit-textMuted uppercase tracking-wider mb-2">Course Module</h2>
-            <p className="text-sm font-medium text-white/90">
+            <p className="text-sm font-medium text-reddit-text">
               {currentSectionIndex + 1} of {topic.sections.length} Sections
             </p>
           </div>
@@ -99,7 +99,7 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
                 <div key={section.id} className="group relative">
                   {/* Vertical line connector */}
                   {sectionIndex !== topic.sections.length - 1 && (
-                    <div className="absolute left-[19px] top-8 bottom-0 w-[2px] bg-white/5 -z-10 group-last:hidden h-[calc(100%+24px)]" />
+                    <div className="absolute left-[19px] top-8 bottom-0 w-[2px] bg-reddit-cardHover -z-10 group-last:hidden h-[calc(100%+24px)]" />
                   )}
 
                   {/* Section header */}
@@ -113,7 +113,7 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
                         ? 'bg-reddit-orange text-white border-reddit-orange shadow-[0_0_15px_rgba(255,69,0,0.3)]'
                         : isSectionCompleted
                           ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                          : 'bg-white/5 text-reddit-textMuted border-white/10 group-hover/btn:border-white/20'
+                          : 'bg-reddit-cardHover text-reddit-textMuted border-reddit-border group-hover/btn:border-reddit-border'
                       }
                     `}>
                       {isSectionCompleted ? <CheckCircle2 className="w-5 h-5" /> : <span className="text-sm font-bold">{sectionIndex + 1}</span>}
@@ -121,14 +121,14 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
 
                     <div className="flex-1 pt-1 min-w-0">
                       <div className="flex items-center justify-between gap-2 mb-1">
-                        <h3 className={`text-sm font-medium truncate transition-colors ${isCurrent ? 'text-white' : 'text-reddit-textMuted group-hover/btn:text-white'}`}>
+                        <h3 className={`text-sm font-medium truncate transition-colors ${isCurrent ? 'text-reddit-text' : 'text-reddit-textMuted group-hover/btn:text-reddit-text'}`}>
                           {section.title}
                         </h3>
                         <ChevronDown className={`w-3 h-3 text-reddit-textMuted transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div className="flex-1 h-1 bg-reddit-cardHover rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${isSectionCompleted ? 'bg-green-500' : 'bg-reddit-orange'}`}
                             style={{ width: `${sectionProgress}%` }}
@@ -173,7 +173,7 @@ const SectionNavigator = ({ topic, currentSectionIndex, currentSceneIndex, onSce
                                     w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 text-left border border-transparent
                                     ${isSceneCurrent
                                       ? 'bg-reddit-orange/10 text-white border-reddit-orange/20 font-medium'
-                                      : 'text-reddit-textMuted hover:text-white hover:bg-white/5'
+                                      : 'text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover'
                                     }
                                   `}
                                 >

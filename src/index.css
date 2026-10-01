@@ -4,19 +4,22 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-reddit-bg: hsl(240, 2%, 4%);
-  --color-reddit-card: #1A1A1B;
-  --color-reddit-cardHover: #272729;
-  --color-reddit-border: #343536;
-  --color-reddit-text: #D7DADC;
-  --color-reddit-textMuted: #818384;
-  --color-reddit-orange: #FF4500;
-  --color-reddit-blue: #0079D3;
-  --color-reddit-input: #272729;
-
   --font-sans: "DM Sans", sans-serif;
   --font-heading: "Outfit", sans-serif;
   --font-inter: "Inter", sans-serif;
+}
+
+/* Legacy reddit palette resolved at runtime so the feed is theme responsive */
+@theme inline {
+  --color-reddit-bg: var(--reddit-bg);
+  --color-reddit-card: var(--reddit-card);
+  --color-reddit-cardHover: var(--reddit-card-hover);
+  --color-reddit-border: var(--reddit-border);
+  --color-reddit-text: var(--reddit-text);
+  --color-reddit-textMuted: var(--reddit-text-muted);
+  --color-reddit-orange: #FF4500;
+  --color-reddit-blue: #0079D3;
+  --color-reddit-input: var(--reddit-input);
 }
 
 /* Semantic theme tokens — resolved at runtime so .dark overrides cascade */
@@ -47,37 +50,54 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-fg);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--ring);
+  --color-outer: var(--outer);
 }
 
-/* Light theme — matches the auth pages aesthetic */
+/* Light theme — cream base from the auth pages, rgb(255, 252, 240) */
 :root {
-  --bg: #ffffff;
+  --outer: #fffcf0;
+  --reddit-bg: #fffcf0;
+  --reddit-card: #fffcf0;
+  --reddit-card-hover: #f7f3e7;
+  --reddit-border: #ece7d8;
+  --reddit-text: #141414;
+  --reddit-text-muted: #726f6c;
+  --reddit-input: #f7f3e7;
+  --bg: #fffcf0;
   --fg: #141414;
-  --card: #ffffff;
+  --card: #fffcf0;
   --card-fg: #141414;
-  --popover: #ffffff;
+  --popover: #fffcf0;
   --popover-fg: #141414;
   --primary: #141414;
   --primary-fg: #ffffff;
-  --secondary: #f5f4f1;
+  --secondary: #f7f3e7;
   --secondary-fg: #141414;
-  --muted: #f5f4f1;
+  --muted: #f7f3e7;
   --muted-fg: #726f6c;
-  --accent: #f0efec;
+  --accent: #f2eddd;
   --accent-fg: #141414;
   --destructive: #e5484d;
-  --border: #e6e6e3;
-  --input: #e6e6e3;
+  --border: #ece7d8;
+  --input: #ece7d8;
   --ring: #141414;
-  --sidebar: #f7f6f3;
-  --sidebar-fg: #37352f;
-  --sidebar-accent: #ecebe7;
+  --sidebar: #fffcf0;
+  --sidebar-fg: #141414;
+  --sidebar-accent: #f2eddd;
   --sidebar-accent-fg: #141414;
-  --sidebar-border: #e9e8e4;
+  --sidebar-border: #ece7d8;
 }
 
 /* Dark theme — the current dashboard blacks */
 .dark {
+  --outer: hsl(240, 2%, 4%);
+  --reddit-bg: hsl(240, 2%, 4%);
+  --reddit-card: #1a1a1b;
+  --reddit-card-hover: #272729;
+  --reddit-border: #343536;
+  --reddit-text: #d7dadc;
+  --reddit-text-muted: #818384;
+  --reddit-input: #272729;
   --bg: hsl(240, 2%, 4%);
   --fg: #d7dadc;
   --card: #141415;
@@ -143,14 +163,14 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: hsl(240, 2%, 4%); /* Force dark background to prevent white track */
+    background: var(--bg);
   }
 
   ::-webkit-scrollbar-thumb {
     /* Ash-colored bar */
     background: #4a4a4b; 
     border-radius: 10px;
-    border: 1px solid hsl(240, 2%, 4%); /* Creates padding effect */
+    border: 1px solid var(--bg);
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -164,7 +184,7 @@
   /* Firefox scrollbar */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #4a4a4b hsl(240, 2%, 4%);
+    scrollbar-color: #4a4a4b var(--bg);
   }
 
   /* Smooth transitions */
@@ -174,9 +194,9 @@
 
   /* Glassmorphism for Reddit theme */
   .glass {
-    background-color: #1A1A1B;
+    background-color: var(--reddit-card);
     backdrop-filter: blur(12px);
-    border: 1px solid #343536;
+    border: 1px solid var(--reddit-border);
   }
 
   /* Text balance */

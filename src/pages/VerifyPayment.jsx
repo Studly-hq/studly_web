@@ -30,7 +30,7 @@ const VerifyPayment = () => {
                         try { await refetchUser(); } catch (e) {}
                     }
                     setTimeout(() => {
-                        navigate('/study');
+                        navigate('/home');
                     }, 3000);
                 } else {
                     setStatus('error');
@@ -51,7 +51,7 @@ const VerifyPayment = () => {
                 {status === 'verifying' && (
                     <div className="flex flex-col items-center space-y-4">
                         <Loader2 className="animate-spin text-reddit-orange w-12 h-12" />
-                        <h2 className="text-xl font-bold text-white">Verifying Payment...</h2>
+                        <h2 className="text-xl font-bold text-reddit-text">Verifying Payment...</h2>
                         <p className="text-reddit-textMuted text-sm">Please wait while we confirm your transaction securely.</p>
                     </div>
                 )}
@@ -59,7 +59,7 @@ const VerifyPayment = () => {
                 {status === 'success' && (
                     <div className="flex flex-col items-center space-y-4 animate-in fade-in zoom-in duration-300">
                         <CheckCircle2 className="text-green-500 w-16 h-16 mb-2" />
-                        <h2 className="text-2xl font-bold text-white">Welcome to Premium!</h2>
+                        <h2 className="text-2xl font-bold text-reddit-text">Welcome to Premium!</h2>
                         <p className="text-reddit-textMuted">{message}</p>
                         <p className="text-sm text-reddit-textMuted mt-4">Redirecting you to Study Hub...</p>
                     </div>
@@ -68,11 +68,11 @@ const VerifyPayment = () => {
                 {status === 'error' && (
                     <div className="flex flex-col items-center space-y-4 animate-in fade-in duration-300">
                         <XCircle className="text-red-500 w-16 h-16 mb-2" />
-                        <h2 className="text-xl font-bold text-white">Payment Failed</h2>
+                        <h2 className="text-xl font-bold text-reddit-text">Payment Failed</h2>
                         <p className="text-red-400 font-medium">{message}</p>
                         <button 
-                            onClick={() => navigate('/study')}
-                            className="mt-6 px-6 py-2 bg-reddit-dark text-white rounded-lg hover:bg-reddit-border transition-colors font-medium border border-reddit-border"
+                            onClick={() => navigate('/home')}
+                            className="mt-6 px-6 py-2 bg-reddit-dark text-reddit-text rounded-lg hover:bg-reddit-border transition-colors font-medium border border-reddit-border"
                         >
                             Return to App
                         </button>

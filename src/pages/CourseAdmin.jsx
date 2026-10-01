@@ -16,7 +16,7 @@ import {
   X
 } from 'lucide-react';
 import { createCourse } from '../api/coursebank';
-import { toast } from 'sonner';
+import { compatToast as toast } from '../components/ui/toast';
 
 const CourseAdmin = () => {
   const navigate = useNavigate();
@@ -472,7 +472,7 @@ const CourseAdmin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-reddit-dark text-white">
+    <div className="min-h-screen bg-reddit-dark text-reddit-text">
       {/* Header */}
       <div className="sticky top-0 bg-reddit-dark/95 backdrop-blur-md z-10 border-b border-reddit-border">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
@@ -499,7 +499,7 @@ const CourseAdmin = () => {
                   initial={{ scale: 0.9 }}
                   animate={{ scale: currentStep >= step.id ? 1 : 0.9 }}
                   className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all ${currentStep > step.id
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-green-500 text-reddit-text'
                     : currentStep === step.id
                       ? 'bg-reddit-orange text-white'
                       : 'bg-reddit-cardHover text-reddit-placeholder border border-reddit-border'
@@ -507,7 +507,7 @@ const CourseAdmin = () => {
                 >
                   {currentStep > step.id ? <Check size={20} /> : <step.icon size={18} />}
                 </motion.div>
-                <span className={`text-xs mt-2 font-medium ${currentStep >= step.id ? 'text-white' : 'text-reddit-placeholder'}`}>
+                <span className={`text-xs mt-2 font-medium ${currentStep >= step.id ? 'text-reddit-text' : 'text-reddit-placeholder'}`}>
                   {step.name}
                 </span>
               </div>
@@ -546,7 +546,7 @@ const CourseAdmin = () => {
                       value={courseData.name}
                       onChange={(e) => setCourseData({ ...courseData, name: e.target.value })}
                       placeholder="e.g., Introduction to Python Programming"
-                      className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
+                      className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
                     />
                   </label>
                 </div>
@@ -560,7 +560,7 @@ const CourseAdmin = () => {
                       onChange={(e) => setCourseData({ ...courseData, description: e.target.value })}
                       placeholder="Describe what students will learn in this course..."
                       rows={4}
-                      className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors resize-none"
+                      className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors resize-none"
                     />
                   </label>
                 </div>
@@ -575,7 +575,7 @@ const CourseAdmin = () => {
                       <select
                         value={courseData.category}
                         onChange={(e) => setCourseData({ ...courseData, category: e.target.value })}
-                        className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                        className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-orange transition-colors"
                       >
                         <option value="STEM">STEM</option>
                         <option value="Tech">Tech</option>
@@ -593,7 +593,7 @@ const CourseAdmin = () => {
                       <select
                         value={courseData.level}
                         onChange={(e) => setCourseData({ ...courseData, level: e.target.value })}
-                        className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                        className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-reddit-text focus:outline-none focus:border-reddit-orange transition-colors"
                       >
                         <option value="beginner">Beginner</option>
                         <option value="intermediate">Intermediate</option>
@@ -610,7 +610,7 @@ const CourseAdmin = () => {
                         value={courseData.duration_minutes || ''}
                         onChange={(e) => setCourseData({ ...courseData, duration_minutes: e.target.value ? parseInt(e.target.value) : null })}
                         placeholder="e.g., 120"
-                        className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
+                        className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
                       />
                     </label>
                   </div>
@@ -625,7 +625,7 @@ const CourseAdmin = () => {
                       value={courseData.image_url || ''}
                       onChange={(e) => setCourseData({ ...courseData, image_url: e.target.value || null })}
                       placeholder="https://example.com/image.jpg"
-                      className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
+                      className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
                     />
                   </label>
                 </div>
@@ -650,7 +650,7 @@ const CourseAdmin = () => {
                           value={tag}
                           onChange={(e) => updateTag(index, e.target.value)}
                           placeholder="e.g., Python, Programming, Beginner"
-                          className="flex-1 px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
+                          className="flex-1 px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
                         />
                         {courseData.tags.length > 1 && (
                           <button
@@ -714,7 +714,7 @@ const CourseAdmin = () => {
                           value={section.title}
                           onChange={(e) => updateSection(sectionIndex, 'title', e.target.value)}
                           placeholder="e.g., Introduction to the Course"
-                          className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
+                          className="w-full px-4 py-3 bg-reddit-cardHover border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
                         />
                       </label>
                     </div>
@@ -756,7 +756,7 @@ const CourseAdmin = () => {
                                     value={lesson.title}
                                     onChange={(e) => updateLesson(sectionIndex, lessonIndex, 'title', e.target.value)}
                                     placeholder="e.g., What is logic?"
-                                    className="w-full px-3 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                                    className="w-full px-3 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-sm text-reddit-text focus:outline-none focus:border-reddit-orange transition-colors"
                                   />
                                 </label>
                               </div>
@@ -768,7 +768,7 @@ const CourseAdmin = () => {
                                     onChange={(e) => updateLesson(sectionIndex, lessonIndex, 'content', e.target.value)}
                                     placeholder="Enter lesson content..."
                                     rows={4}
-                                    className="w-full px-3 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors resize-none"
+                                    className="w-full px-3 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-sm text-reddit-text focus:outline-none focus:border-reddit-orange transition-colors resize-none"
                                   />
                                 </label>
                               </div>
@@ -780,7 +780,7 @@ const CourseAdmin = () => {
                                     value={lesson.duration_minutes || ''}
                                     onChange={(e) => updateLesson(sectionIndex, lessonIndex, 'duration_minutes', e.target.value ? parseInt(e.target.value) : null)}
                                     placeholder="15"
-                                    className="w-full px-3 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                                    className="w-full px-3 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-sm text-reddit-text focus:outline-none focus:border-reddit-orange transition-colors"
                                   />
                                 </label>
                               </div>
@@ -846,7 +846,7 @@ const CourseAdmin = () => {
                                     value={lesson.quiz.title}
                                     onChange={(e) => updateQuizField(sectionIndex, lessonIndex, 'title', e.target.value)}
                                     placeholder="e.g., Module Assessment"
-                                    className="w-full px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
+                                    className="w-full px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
                                   />
                                 </label>
                               </div>
@@ -858,7 +858,7 @@ const CourseAdmin = () => {
                                     value={lesson.quiz.passing_score || ''}
                                     onChange={(e) => updateQuizField(sectionIndex, lessonIndex, 'passing_score', e.target.value ? parseInt(e.target.value) : null)}
                                     placeholder="70"
-                                    className="w-full px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-white placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
+                                    className="w-full px-4 py-2 bg-reddit-cardHover border border-reddit-border rounded-lg text-reddit-text placeholder-reddit-placeholder focus:outline-none focus:border-reddit-orange transition-colors"
                                   />
                                 </label>
                               </div>
@@ -895,14 +895,14 @@ const CourseAdmin = () => {
                                     onChange={(e) => updateQuestion(sectionIndex, lessonIndex, questionIndex, 'question_text', e.target.value)}
                                     placeholder="Type your question..."
                                     rows={2}
-                                    className="w-full px-4 py-2 bg-reddit-dark border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors resize-none"
+                                    className="w-full px-4 py-2 bg-reddit-dark border border-reddit-border rounded-lg text-sm text-reddit-text focus:outline-none focus:border-reddit-orange transition-colors resize-none"
                                   />
 
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <select
                                       value={question.question_type}
                                       onChange={(e) => updateQuestion(sectionIndex, lessonIndex, questionIndex, 'question_type', e.target.value)}
-                                      className="w-full px-4 py-2 bg-reddit-dark border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                                      className="w-full px-4 py-2 bg-reddit-dark border border-reddit-border rounded-lg text-sm text-reddit-text focus:outline-none focus:border-reddit-orange transition-colors"
                                     >
                                       <option value="single_choice">Single Choice</option>
                                       <option value="multiple_choice">Multiple Choice</option>
@@ -912,7 +912,7 @@ const CourseAdmin = () => {
                                       value={question.points || ''}
                                       onChange={(e) => updateQuestion(sectionIndex, lessonIndex, questionIndex, 'points', e.target.value ? parseInt(e.target.value) : null)}
                                       placeholder="Points (e.g., 10)"
-                                      className="w-full px-4 py-2 bg-reddit-dark border border-reddit-border rounded-lg text-sm text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                                      className="w-full px-4 py-2 bg-reddit-dark border border-reddit-border rounded-lg text-sm text-reddit-text focus:outline-none focus:border-reddit-orange transition-colors"
                                     />
                                   </div>
 
@@ -931,7 +931,7 @@ const CourseAdmin = () => {
                                             updateQuestion(sectionIndex, lessonIndex, questionIndex, 'answers', newAnswers);
                                           }}
                                           placeholder="Answer option..."
-                                          className="flex-1 px-3 py-1.5 bg-reddit-dark border border-reddit-border rounded-lg text-xs text-white focus:outline-none focus:border-reddit-orange transition-colors"
+                                          className="flex-1 px-3 py-1.5 bg-reddit-dark border border-reddit-border rounded-lg text-xs text-reddit-text focus:outline-none focus:border-reddit-orange transition-colors"
                                         />
                                         <input
                                           type={question.question_type === 'single_choice' ? 'radio' : 'checkbox'}
@@ -1036,7 +1036,7 @@ const CourseAdmin = () => {
                         <div className="space-y-2">
                           {section.lessons.map((lesson, li) => (
                             <div key={li} className="flex items-center justify-between py-2 border-t border-reddit-border/30 text-sm">
-                              <span className="text-white">{lesson.title}</span>
+                              <span className="text-reddit-text">{lesson.title}</span>
                               <div className="flex items-center gap-3">
                                 {lesson.quiz && lesson.quiz.questions.length > 0 && (
                                   <span className="text-[10px] text-green-500 font-bold uppercase tracking-tighter">Quiz Included</span>
@@ -1086,7 +1086,7 @@ const CourseAdmin = () => {
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-5 h-5 border-2 border-reddit-border border-t-white rounded-full animate-spin" />
                         <span>Publishing Course...</span>
                       </>
                     ) : (
@@ -1108,7 +1108,7 @@ const CourseAdmin = () => {
             onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
             className={`px-6 py-2.5 rounded-lg font-bold transition-colors ${currentStep === 1
               ? 'opacity-0 pointer-events-none'
-              : 'bg-reddit-cardHover hover:bg-reddit-border text-white border border-reddit-border'
+              : 'bg-reddit-cardHover hover:bg-reddit-border text-reddit-text border border-reddit-border'
               }`}
           >
             Previous Step

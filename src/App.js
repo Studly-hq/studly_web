@@ -5,7 +5,7 @@ import { CoursePlayerProvider } from "./context/CoursePlayerContext";
 import { CelebrationProvider } from "./context/CelebrationContext";
 import TopLoadingBar from "./components/common/TopLoadingBar";
 import { WebSocketProvider } from "./context/WebSocketContext";
-import { UIProvider, useUI } from "./context/UIContext";
+import { UIProvider } from "./context/UIContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { FeedProvider } from "./context/FeedContext";
@@ -145,7 +145,7 @@ function AppContent() {
         <ManagePlanModal />
         <CelebrationModal />
         <CommentSection />
-        <Toaster position="top-right" richColors />
+        <Toaster />
       </div>
     </>
   );

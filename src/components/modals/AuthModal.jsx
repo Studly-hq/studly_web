@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useUI } from "../../context/UIContext";
-import { toast } from "sonner";
+import { compatToast as toast } from "../../components/ui/toast";
 import LoadingSpinner from "../common/LoadingSpinner";
 
 

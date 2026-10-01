@@ -4,7 +4,7 @@ import { ArrowLeft, Globe, User, ChevronRight, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { changePassword } from "../api/auth";
-import { toast } from "sonner";
+import { compatToast as toast } from "../components/ui/toast";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const Settings = () => {

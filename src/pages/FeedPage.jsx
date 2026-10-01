@@ -76,7 +76,7 @@ const FeedPage = () => {
                         {!isUpgradeBannerVisible && (
                             <button
                                 onClick={handleUpgradeClick}
-                                className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-lg"
+                                className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95"
                             >
                                 <Sparkles className="w-3 h-3" />
                                 <span>{isPro ? "Pro" : "Upgrade"}</span>
@@ -141,7 +141,7 @@ const FeedPage = () => {
                     {!isUpgradeBannerVisible && (
                         <button
                             onClick={handleUpgradeClick}
-                            className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-lg"
+                            className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95"
                         >
                             <Sparkles className="w-3 h-3" />
                             <span>{isPro ? "Pro" : "Upgrade"}</span>

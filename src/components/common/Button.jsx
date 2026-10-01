@@ -16,7 +16,7 @@ const Button = ({
   const baseClasses = 'rounded-xl font-semibold transition-all duration-300 border focus:outline-none focus:ring-2 focus:ring-offset-2 inline-flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants = {
-    primary: 'bg-blue-600 text-white border-blue-600  hover:border-blue focus:ring-blue active:scale-95',
+    primary: 'bg-blue-600 text-reddit-text border-blue-600  hover:border-blue focus:ring-blue active:scale-95',
     secondary: 'bg-white text-blue border-blue-600  focus:ring-blue active:scale-95',
     outline: 'bg-white text-slate-700 border-slate-300 hover:border-blue hover:text-blue-600 focus:ring-blue active:scale-95',
     ghost: 'bg-transparent text-slate-600 border-transparent hover:bg-slate-100 hover:text-slate-800 focus:ring-slate-500 active:scale-95',

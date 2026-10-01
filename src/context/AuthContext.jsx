@@ -9,7 +9,7 @@ import { setAuthToken } from "../api/client";
 import { getProfile, updateProfile } from "../api/profile";
 import { supabase } from "../utils/supabase";
 import { useWebSocketContext } from "./WebSocketContext";
-import { toast } from "sonner";
+import { compatToast as toast } from "../components/ui/toast";
 
 const AuthContext = createContext();
 
@@ -55,9 +55,9 @@ export const AuthProvider = ({ children }) => {
 
             // Only redirect if we weren't already on a clean state or if specifically requested
             // This prevents the infinite reload loop when refresh fails
-            const isAtStudy = window.location.pathname === "/study";
-            if (!isAtStudy) {
-                window.location.href = "/study";
+            const isAtHome = window.location.pathname === "/home";
+            if (!isAtHome) {
+                window.location.href = "/home";
             }
         }
     }, [disconnect]);

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useNotifications } from "../context/NotificationContext"; // New import
 import LoadingSpinner from "../components/common/LoadingSpinner";
-import { toast } from "sonner";
+import { compatToast as toast } from "../components/ui/toast";
 
 const Notifications = () => {
     const navigate = useNavigate();

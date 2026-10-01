@@ -5,7 +5,7 @@ import { Image, Smile, X, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useFeed } from '../../context/FeedContext';
 import { useUI } from '../../context/UIContext';
-import { toast } from 'sonner';
+import { compatToast as toast } from '../../components/ui/toast';
 import CircularProgress from '../common/CircularProgress';
 import EmojiPicker from 'emoji-picker-react';
 import { uploadMultipleToCloudinary } from '../../utils/uploadToCloudinary';

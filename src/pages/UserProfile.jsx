@@ -321,7 +321,7 @@ const UserProfileContent = () => {
                   </div>
                 )}
                 <div className="absolute -bottom-1 md:-bottom-2 -right-1 md:-right-2 bg-reddit-orange rounded-full p-1.5 md:p-2">
-                  <Trophy size={14} className="text-white md:w-4 md:h-4" />
+                  <Trophy size={14} className="text-reddit-text md:w-4 md:h-4" />
                 </div>
               </div>
 

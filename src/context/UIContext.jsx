@@ -11,16 +11,6 @@ export const useUI = () => {
 };
 
 export const UIProvider = ({ children }) => {
-    // Sidebar Collapse States (with persistence)
-    const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(() => {
-        const saved = localStorage.getItem('isLeftSidebarCollapsed');
-        return saved ? JSON.parse(saved) : false;
-    });
-    const [isRightSidebarCollapsed, setIsRightSidebarCollapsed] = useState(() => {
-        const saved = localStorage.getItem('isRightSidebarCollapsed');
-        return saved ? JSON.parse(saved) : false;
-    });
-
     // Modal States — declared BEFORE any effect that references them
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [showCreatePostModal, setShowCreatePostModal] = useState(false);
@@ -37,15 +27,6 @@ export const UIProvider = ({ children }) => {
 
     // Lucid State
     const [isLucidDetailedMode, setIsLucidDetailedMode] = useState(false);
-
-    // Update localStorage when sidebar states change
-    useEffect(() => {
-        localStorage.setItem('isLeftSidebarCollapsed', JSON.stringify(isLeftSidebarCollapsed));
-    }, [isLeftSidebarCollapsed]);
-
-    useEffect(() => {
-        localStorage.setItem('isRightSidebarCollapsed', JSON.stringify(isRightSidebarCollapsed));
-    }, [isRightSidebarCollapsed]);
 
     // Listen for the plan:expired event fired by AuthContext when a
     // subscription_expired WebSocket event is received. Using a DOM event
@@ -114,10 +95,6 @@ export const UIProvider = ({ children }) => {
         setPendingAction,
         scrollPosition,
         setScrollPosition,
-        isLeftSidebarCollapsed,
-        setIsLeftSidebarCollapsed,
-        isRightSidebarCollapsed,
-        setIsRightSidebarCollapsed,
         isUpgradeBannerVisible,
         setIsUpgradeBannerVisible,
         isLucidDetailedMode,
@@ -137,8 +114,6 @@ export const UIProvider = ({ children }) => {
         finishLoading,
         pendingAction,
         scrollPosition,
-        isLeftSidebarCollapsed,
-        isRightSidebarCollapsed,
         isUpgradeBannerVisible,
         isLucidDetailedMode
     ]);

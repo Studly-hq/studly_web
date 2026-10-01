@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useUI } from "../context/UIContext";
-import { toast } from "../components/ui/toast";
+import { compatToast as toast } from "../components/ui/toast";
 import { Input } from "../components/ui/input";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -48,7 +48,7 @@ const LoginPage = () => {
   return (
     <section
       className="relative min-h-dvh flex flex-col items-center justify-center px-6 py-16 lg:py-24"
-      style={{ color: "#141414", fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif", backgroundColor: "rgb(255, 255, 255)" }}
+      style={{ color: "#141414", fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif", backgroundColor: "#ffffff" }}
     >
       <div className="w-full max-w-[640px] text-center">
         <h1 className="text-5xl font-normal tracking-[-0.02em]" style={{fontFamily: 'Geist, sans-serif'}}>
