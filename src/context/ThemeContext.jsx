@@ -55,4 +55,13 @@ export const ThemeProvider = ({ children }) => {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
+// Cross-tab sync: when one tab changes theme, update all others
+if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (event) => {
+        if (event.key === THEME_STORAGE_KEY && event.newValue) {
+            applyTheme(event.newValue);
+        }
+    });
+}
+
 export default ThemeContext;

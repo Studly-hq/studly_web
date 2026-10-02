@@ -8,6 +8,7 @@ import {
 import { setAuthToken } from "../api/client";
 import { getProfile, updateProfile } from "../api/profile";
 import { supabase } from "../utils/supabase";
+import { cacheClear } from "../utils/cache";
 import { useWebSocketContext } from "./WebSocketContext";
 import { compatToast as toast } from "../components/ui/toast";
 
@@ -52,6 +53,9 @@ export const AuthProvider = ({ children }) => {
             Object.keys(localStorage).forEach(key => {
                 if (key.startsWith('sb-')) localStorage.removeItem(key);
             });
+
+            // 4. Evict all cached data — prevents stale/fake data after logout
+            cacheClear();
 
             // Only redirect if we weren't already on a clean state or if specifically requested
             // This prevents the infinite reload loop when refresh fails

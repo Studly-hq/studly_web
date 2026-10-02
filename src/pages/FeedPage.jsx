@@ -7,7 +7,7 @@ import { useFeed } from '../context/FeedContext';
 import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import { useNotifications } from '../context/NotificationContext';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo.webp';
 import SEO from '../components/common/SEO';
 
 // Skeleton loader for feed

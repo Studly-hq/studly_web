@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { getLeaderboard } from "../api/coursebank";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/common/SEO";
+import { Skeleton } from "../components/ui/Skeleton";
 
 const Leaderboard = () => {
     const navigate = useNavigate();
@@ -45,24 +46,9 @@ const Leaderboard = () => {
         fetchLeaderboard();
     }, [activePeriod]);
 
-    // Handle Loading State
+    // Handle Loading State (skeleton on first mount, spinner during period switch)
     if (loading && leaderboardData.length === 0) {
-        return (
-        <div className="w-full max-w-[640px] mx-auto min-h-screen pt-4 px-4 bg-reddit-bg">
-                <div className="animate-pulse space-y-4">
-                    <div className="h-8 bg-reddit-card rounded w-48 mb-6" />
-                    <div className="flex gap-2 mb-8">
-                        <div className="h-10 bg-reddit-card rounded flex-1" />
-                        <div className="h-10 bg-reddit-card rounded flex-1" />
-                        <div className="h-10 bg-reddit-card rounded flex-1" />
-                    </div>
-                    <div className="h-64 bg-reddit-card rounded-2xl mb-6" />
-                    {[1, 2, 3, 4, 5].map(i => (
-                        <div key={i} className="h-16 bg-reddit-card rounded-xl" />
-                    ))}
-                </div>
-            </div>
-        );
+        return <LeaderboardSkeleton />;
     }
 
     const topThree = leaderboardData.slice(0, 3);
@@ -305,5 +291,68 @@ const PodiumPlace = ({ entry, place, height, color, isFirst, delay }) => {
         </motion.div>
     );
 };
+
+/* ------------------------------------------------------------------ */
+/*  LeaderboardSkeleton — shadcn-based loading UI matching page layout */
+/* ------------------------------------------------------------------ */
+
+const LeaderboardSkeleton = ({ count = 8 }) => (
+    <div className="w-full max-w-[640px] mx-auto min-h-screen pt-4 px-4 bg-reddit-bg">
+        {/* Header + Title */}
+        <div className="flex items-center gap-3 mb-8">
+            <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+            <Skeleton className="h-7 w-40" />
+        </div>
+
+        {/* Period tabs */}
+        <div className="flex p-1 bg-reddit-card border border-reddit-border rounded-xl mb-10">
+            {["Daily", "Weekly", "Overall"].map((label) => (
+                <div key={label} className="flex-1 py-2.5 text-center">
+                    <Skeleton className="h-6 mx-auto w-12 rounded" />
+                </div>
+            ))}
+        </div>
+
+        {/* Podium top-3 */}
+        <div className="flex items-end justify-center gap-2 mb-12 px-2">
+            {[
+                { cls: 'w-14 md:w-18', h: 'h-36', label: 2 },
+                { cls: 'w-16 md:w-20', h: 'h-48', label: 1 },
+                { cls: 'w-12 md:w-16', h: 'h-28', label: 3 },
+            ].map(({ cls, h, label }) => (
+                <div key={label} className={`flex flex-col items-center ${cls}`}>
+                    {/* Avatar + badge */}
+                    <div className="relative mb-4">
+                        <Skeleton className="w-12 h-12 md:w-14 md:h-14 rounded-full" />
+                        <Skeleton className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full" />
+                    </div>
+                    {/* Points placeholder */}
+                    <div className="text-center mb-3">
+                        <Skeleton className="h-5 w-14 mx-auto rounded" />
+                        <Skeleton className="h-3 w-10 mx-auto mt-1 rounded" />
+                    </div>
+                    {/* Podium bar */}
+                    <Skeleton className={`w-full ${h} rounded-t-2xl opacity-60`} />
+                </div>
+            ))}
+        </div>
+
+        {/* Rankings list */}
+        <div className="space-y-3">
+            {Array.from({ length: count }).map((_, i) => (
+                <Skeleton key={i} className="h-16 rounded-xl" />
+            ))}
+        </div>
+
+        {/* Floating My Rank Card */}
+        <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            className="fixed bottom-20 lg:bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-[500px] z-40"
+        >
+            <Skeleton className="rounded-2xl p-4 flex items-center gap-4 h-16 bg-reddit-card/80" />
+        </motion.div>
+    </div>
+);
 
 export default Leaderboard;

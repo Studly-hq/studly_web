@@ -13,7 +13,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo.webp';
 import {
   Sidebar,
   SidebarContent,
