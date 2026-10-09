@@ -7,6 +7,8 @@
   --font-sans: "DM Sans", sans-serif;
   --font-heading: "Outfit", sans-serif;
   --font-inter: "Inter", sans-serif;
+  --font-geist: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-scribble: "Caveat", "Segoe Print", cursive;
 }
 
 /* Legacy reddit palette resolved at runtime so the feed is theme responsive */
@@ -121,6 +123,11 @@
   --sidebar-accent: #1f1f21;
   --sidebar-accent-fg: #ffffff;
   --sidebar-border: #2a2a2c;
+}
+
+/* Visible skeleton bars for dark theme (muted is too close to bg) */
+.skeleton-bar {
+  background-color: #3a3a3c !important;
 }
 
 @layer base {
@@ -302,6 +309,77 @@
   animation: scaleIn 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+/*
+  Landing composer placeholder shimmer.
+
+  ::placeholder can't carry a background-clip gradient, so the composer renders
+  the hint as an overlaid span instead and keeps the input's own placeholder
+  transparent. The sweep is idle until the composer is hovered or focused,
+  rather than looping forever and fighting for attention.
+*/
+@keyframes composer-shimmer {
+  0% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -50% 0;
+  }
+}
+
+.composer-shimmer {
+  color: #726f6c;
+}
+
+.composer-shell:hover .composer-shimmer,
+.composer-shell:focus-within .composer-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    #726f6c 0%,
+    #726f6c 35%,
+    #141414 50%,
+    #726f6c 65%,
+    #726f6c 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: composer-shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .composer-shell:hover .composer-shimmer,
+  .composer-shell:focus-within .composer-shimmer {
+    animation: none;
+    background-image: none;
+    color: #726f6c;
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .animate-map-wiggle {
+    animation: none;
+  }
+}
+
+/*
+  Learning-map coin: mascot peeks from inside the coin, wiggles every 4s.
+
+  Positioning lives on the element (Tailwind's -translate-x-1/2 / translate-y-1/2
+  compile to the standalone `translate` property in v4), so these keyframes can
+  drive the separate `transform` property for the sway without fighting it.
+*/
+@keyframes map-wiggle {
+  0%, 45%, 70%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-6px, -2px) rotate(-5deg); }
+  55% { transform: translate(6px, -3px) rotate(5deg); }
+  60% { transform: translate(-4px, -1px) rotate(-3deg); }
+  65% { transform: translate(2px, 0) rotate(2deg); }
+}
+
+.animate-map-wiggle {
+  animation: map-wiggle 4s ease-in-out infinite;
+}
+
 /* Selection color */
 ::selection {
   background-color: #0079D3;
@@ -322,6 +400,57 @@
 /* Remove tap highlight on mobile */
 * {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Landing page grid-as-borders pattern (time.fyi) */
+.grid-container {
+  display: grid;
+  gap: 1px;
+  background-color: oklab(0.191251 -7.45058e-9 0 / 0.08);
+}
+
+.hero-cell {
+  min-height: 80px;
+}
+
+.hero-title {
+  min-height: 200px;
+}
+
+.hero-subtitle {
+  min-height: 120px;
+}
+
+.hero-cta,
+.hero-cta-skip {
+  min-height: 80px;
+}
+
+.header-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.header-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.header-wrapper > .nav {
+  display: flex;
+  gap: 32px;
 }
 
 /* Autofill background fix */

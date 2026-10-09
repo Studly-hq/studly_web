@@ -1,5 +1,5 @@
 import { Suspense, lazy, useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
 import { CelebrationProvider } from "./context/CelebrationContext";
@@ -56,6 +56,15 @@ const Accessibility = lazy(() => import("./pages/legal/Accessibility"));
 
 function AppContent() {
   const [viewportHeight, setViewportHeight] = useState('100vh');
+  const { pathname } = useLocation();
+
+  // The landing page is a long, scroll-driven marketing page: it needs the
+  // document itself to scroll (sticky sections, scroll-linked animations,
+  // `#features` anchor links). The app shell normally clamps every route to a
+  // viewport-height frame with overflow-hidden so dashboard layouts can own
+  // their own scroll regions, which would clip the landing page to one screen.
+  // So for `/` only, the frame grows with its content instead of clipping.
+  const isLanding = pathname === "/";
 
   useEffect(() => {
     if (!window.visualViewport) return;
@@ -81,8 +90,13 @@ function AppContent() {
 
   return (
     <>
-      <div className="flex flex-col w-full overflow-hidden" style={{ height: viewportHeight }}>
-        <div className="flex-1 min-h-0 w-full overflow-hidden relative">
+      <div
+        className={`flex flex-col w-full ${isLanding ? "" : "overflow-hidden"}`}
+        style={isLanding ? undefined : { height: viewportHeight }}
+      >
+        <div
+          className={`flex-1 min-h-0 w-full relative ${isLanding ? "" : "overflow-hidden"}`}
+        >
           <Suspense fallback={null}>
             <Routes>
               {/* Landing page (full screen, no sidebars) */}

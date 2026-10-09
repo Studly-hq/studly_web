@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xxd -u 'C:\\\\Users\\\\zion\\\\Documents\\\\GitHub\\\\studly_web\\\\src\\\\components\\\\ui\\\\solve\\\\step-list.jsx')",
+      "Bash(node -e \"require\\('@babel/parser'\\).parse\\(require\\('fs'\\).readFileSync\\(process.argv[1], 'utf8'\\), {sourceType:'module',plugins:['jsx']}\\); console.log\\('OK'\\)\" -- 'C:\\\\Users\\\\zion\\\\Documents\\\\GitHub\\\\studly_web\\\\src\\\\components\\\\ui\\\\solve\\\\step-list.jsx')",
+      "Bash(dd if='C:\\\\Users\\\\zion\\\\Documents\\\\GitHub\\\\studly_web\\\\src\\\\components\\\\ui\\\\solve\\\\step-list.jsx' bs=1 skip=4285 count=50)",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"const fs=require\\('fs'\\); const d=fs.readFileSync\\(process.argv[1]\\); for\\(let i=Math.max\\(0,4295\\);i<Math.min\\(d.length,4320\\);i++\\) process.stdout.write\\(String.fromCharCode\\(d[i]\\)\\); process.stdout.write\\('\\\\n'\\); console.log\\('---'\\); for\\(let i=Math.max\\(0,4295\\);i<Math.min\\(d.length,4320\\);i++\\) process.stdout.write\\(i+':'+d[i].toString\\(16\\).padStart\\(2,'0'\\)+' '\\);\" -- 'C:\\\\Users\\\\zion\\\\Documents\\\\GitHub\\\\studly_web\\\\src\\\\components\\\\ui\\\\solve\\\\step-list.jsx')",
+      "Bash(node -e \"const fs=require\\('fs'\\); const d=fs.readFileSync\\(process.argv[1]\\); for\\(let i=Math.max\\(0,4285\\);i<Math.min\\(d.length,4340\\);i++\\) { let c=d[i]; process.stdout.write\\(c>32&&c<127?String.fromCharCode\\(c\\):'.'\\); } process.stdout.write\\('\\\\n---hex---\\\\n'\\); for\\(let i=Math.max\\(0,4285\\);i<Math.min\\(d.length,4340\\);i++\\) process.stdout.write\\(i+':'+d[i].toString\\(16\\).padStart\\(2,'0'\\)+' '\\); console.log\\(''\\);\" -- 'C:\\\\Users\\\\zion\\\\Documents\\\\GitHub\\\\studly_web\\\\src\\\\components\\\\ui\\\\solve\\\\step-list.jsx')",
+      "Bash(node -e \"const fs=require\\('fs'\\); const d=fs.readFileSync\\(process.argv[1]\\); for\\(let i=2176;i<d.length&&i<2240;i++\\){let c=d[i];process.stdout.write\\(c>32&&c<127?String.fromCharCode\\(c\\):'<'+c+'>'\\);}\" -- 'C:\\\\Users\\\\zion\\\\Documents\\\\GitHub\\\\studly_web\\\\src\\\\components\\\\ui\\\\solve\\\\step-list.jsx')",
+      "Bash(node -e \"const fs=require\\('fs'\\); const d=fs.readFileSync\\(process.argv[1]\\); for\\(let i=4270;i<d.length&&i<4360;i++\\){let c=d[i];process.stdout.write\\(c>32&&c<127?String.fromCharCode\\(c\\):'<'+c+'>'\\);}\" -- 'C:\\\\Users\\\\zion\\\\Documents\\\\GitHub\\\\studly_web\\\\src\\\\components\\\\ui\\\\solve\\\\step-list.jsx')",
+      "Bash(node)",
+      "Bash(timeout 30 npx react-scripts start)",
+      "Bash(node -e \"console.log\\(require\\('fs'\\).existsSync\\('C:/Users/zion/Documents/GitHub/studly_web/babel.config.js'\\), require\\('fs'\\).existsSync\\('C:/Users/zion/Documents/GitHub/studly_web/.babelrc'\\), require\\('fs'\\).existsSync\\('C:/Users/zion/Documents/GitHub/studly_web/package.json'\\)\\)\")",
+      "Bash(node -e \"const p=require\\('C:/Users/zion/Documents/GitHub/studly_web/package.json'\\); console.log\\(JSON.stringify\\(p.babel, null, 2\\)\\);\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\zion\\Documents\\GitHub\\lucid\\src\\app\\api\\shares\\create",
+      "C:\\Users\\zion\\Documents\\GitHub\\lucid\\src\\app\\api\\shares\\[shareId]",
+      "C:\\Users\\zion\\Documents\\GitHub\\lucid\\src\\app\\public\\[shareId]"
+    ]
+  }
+}
