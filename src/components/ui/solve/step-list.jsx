@@ -104,7 +104,7 @@ const StepList = ({ steps, active, stepFloat, captions = {}, onSelect }) => {
                 the list down rather than by appearing over it. */}
 
             {/* Only the current row carries the bar, so the column never looks
-                like a stack of filled progress. */
+                like a stack of filled progress. */}
             {isActive && (
               <span className="absolute bottom-[-1px] left-0 h-[2px] w-full overflow-hidden bg-[#141414]/8">
                 <span
