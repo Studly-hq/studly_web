@@ -12,14 +12,25 @@ import ProblemScene from "../ui/problem-scene";
 /** Left column: the two-line copy. */
 const ProblemCopy = ({ progress }) => (
   <div className="max-w-[470px]">
-    <ScrollRevealText
-      progress={progress}
-      range={[0.06, 0.88]}
-      className="font-geist text-[22px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]"
-    >
-      <p>You have everything you need to study.</p>
-      <p className="mt-3">You just don&apos;t always know what to do with all of it.</p>
-    </ScrollRevealText>
+    {/* Text fill animation only on laptop+ (lg breakpoint). Mobile/tablet get plain text. */}
+    <div className="hidden lg:block">
+      <ScrollRevealText
+        progress={progress}
+        range={[0.06, 0.88]}
+        className="font-geist text-[32px] font-semibold leading-[1.22] tracking-[-0.03em] lg:text-[36px]"
+      >
+        <p>You have everything you need to study.</p>
+        <p className="mt-3">You just don&apos;t always know what to do with all of it.</p>
+      </ScrollRevealText>
+    </div>
+    <div className="lg:hidden">
+      <p className="font-geist text-[22px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]">
+        You have everything you need to study.
+      </p>
+      <p className="mt-3 text-[22px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]">
+        You just don&apos;t always know what to do with all of it.
+      </p>
+    </div>
   </div>
 );
 

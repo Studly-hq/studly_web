@@ -45,14 +45,25 @@ const LearningPath = () => {
       <div className="mx-auto grid w-full max-w-[1080px] grid-cols-1 gap-10 px-6 md:grid-cols-2 md:px-10">
         {/* Left column: text with scroll reveal. Sticky only on large screens. */}
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <ScrollRevealText
-            progress={progress}
-            range={[0.1, 0.78]}
-            className="font-geist text-[24px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]"
-          >
-            <p>You don&apos;t have to figure out how to study your materials.</p>
-            <p className="mt-3">Studly helps you find a way through it.</p>
-          </ScrollRevealText>
+          {/* Text fill animation only on laptop+ (lg breakpoint). Mobile/tablet get plain text. */}
+          <div className="hidden lg:block">
+            <ScrollRevealText
+              progress={progress}
+              range={[0.1, 0.78]}
+              className="font-geist text-[32px] font-semibold leading-[1.22] tracking-[-0.03em] lg:text-[36px]"
+            >
+              <p>You don&apos;t have to figure out how to study your materials.</p>
+              <p className="mt-3">Studly helps you find a way through it.</p>
+            </ScrollRevealText>
+          </div>
+          <div className="lg:hidden">
+            <p className="font-geist text-[24px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]">
+              You don&apos;t have to figure out how to study your materials.
+            </p>
+            <p className="mt-3 text-[24px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]">
+              Studly helps you find a way through it.
+            </p>
+          </div>
         </div>
 
         {/* Right column: learning path map. No connector of its own: the Problem
