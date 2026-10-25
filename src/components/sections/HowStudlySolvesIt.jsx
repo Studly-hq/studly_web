@@ -1,31 +1,22 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   useReducedMotion,
-  useScroll,
-  useSpring,
-  useTransform,
+  AnimatePresence,
+  motion,
 } from "framer-motion";
 import ContainerGrid from "./ContainerGrid";
 import SolveStage from "../ui/solve/stage";
-import StepList, { STEP_ARRIVES_AT } from "../ui/solve/step-list";
+import StepList from "../ui/solve/step-list";
 
 /**
- * "How Studly Solves It" — the V3 loop, driven by scroll.
+ * "How Studly Solves It" — time-driven loop.
  *
- * Desktop is a pinned stage, like the Problem section: the layout holds still
- * while ~560vh of scroll runs the loop. That length is the pacing dial: the
- * hop cost is proportional to (section height - viewport), so 560vh buys about
- * 657px of scroll per pill at a 760px viewport, against 357px at 350vh. At
- * today's shorter length a single trackpad flick skipped half a pill.
+ * Each step takes 10 seconds to animate through (progress bar fills, panel
+ * transitions). After 10s, it auto-advances to the next step. Scrolling does
+ * NOT control the animation — it's purely time-based.
  *
- * The right panel keeps its illustration
- * stuck while the left column lists the six steps: hairline rows, one of them
- * black with its sentence open and a 2px bar filling across its bottom edge.
- * Each time a step takes over, the panel swaps to it. Nothing travels — the
- * column is a list that changes state, which is why there is no line to keep
- * in sync with anything.
- *
- * Copy is the philosophy of the product, not a feature list. No em dashes.
+ * Clicking a step jumps to it instantly (no scroll). The progress bar restarts
+ * for that step and the timer continues from there.
  */
 const STEPS = [
   {
@@ -46,8 +37,6 @@ const STEPS = [
     id: "path",
     title: "Creates a learning path",
     scene: "path",
-    /* The same blue as "Studly understands them": both steps are Studly doing
-       the work rather than the reader, so they share one surface. */
     tint: "#eef4fb",
     alt: "The learning path being written out one section at a time, each section a row of lesson coins",
   },
@@ -83,29 +72,6 @@ const CAPTIONS = {
   keep: "The loop doesn't end. It just picks up where you left off.",
 };
 
-/**
- * A hand-drawn arrow, used to point from the annotation above the column down
- * into the first step.
- *
- * One curve, drawn twice the way a pen doubles back over itself, and one head
- * hanging off the same tip the curve ends on. The head is built from the tip
- * coordinates rather than placed as a second mark, which is what stops the two
- * parts drifting apart and the whole thing reading as two loose strokes.
- *
- * It runs down and to the right, so it starts at the end of the writing and
- * lands over the row it is naming rather than back under the writing.
- */
-/* The hand-drawn arrow under "first you...".
-
-   Drawn at 1:1 so a stroke width here is the width on screen: the old box was
-   a 80x56 viewBox in a 64x40 hole, which letterboxed it and quietly scaled the
-   strokes down.
-
-   The tail starts at x 68, which is where the writing ends, and the head is
-   placed off the tip of that same curve rather than drawn as its own stroke -
-   when the two were positioned independently they never quite met and the
-   arrow read as two loose marks. The barbs are the tip's incoming direction
-   rotated by 28 degrees either side, so the head sits square on the shaft. */
 const ScribbleArrow = ({ className = "" }) => (
   <svg
     viewBox="0 0 140 40"
@@ -123,91 +89,27 @@ const ScribbleArrow = ({ className = "" }) => (
   </svg>
 );
 
-
-
-/* The scrub window inside the pinned span, as fractions of scrollYProgress.
-   The tail is held back so the first step is already on screen before the
-   column starts changing, and so the last one lands before the pin releases.
-   Both StepList and jump() read these, so the two can never drift apart. */
-const SCRUB_FROM = 0.08;
-const SCRUB_TO = 0.94;
-
 const HowStudlySolvesIt = () => {
-  const ref = useRef(null);
   const reduced = useReducedMotion();
   const [active, setActive] = useState(0);
   const [epoch, setEpoch] = useState(0);
   const step = STEPS[active];
-  const visibleRowsRef = useRef(0);
 
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end end"],
-  });
-  const smooth = useSpring(scrollYProgress, {
-    stiffness: 90,
-    damping: 26,
-    restDelta: 0.001,
-  });
-
-  const hops = STEPS.length - 1;
-  const stepFloat = useTransform(smooth, [SCRUB_FROM, SCRUB_TO], [0, hops]);
-
-  // While the section is on screen, scroll picks the active row for the panel.
-  // The bar itself is timed and auto-advances in StepList, so we only use scroll
-  // here to decide which row is currently "in view" for panel + click jumps.
-  const visibleStepCount = Math.max(
-    3,
-    Math.round(((hops + 1) * (SCRUB_TO - SCRUB_FROM)) / 0.6)
-  );
-  visibleRowsRef.current = Math.min(
-    STEPS.length,
-    Math.max(visibleStepCount + 1, 4)
-  );
-
-  useEffect(() => {
-    if (typeof stepFloat === "number" && !Number.isNaN(stepFloat)) {
-      const onScreen =
-        stepFloat >= -0.1 && stepFloat <= hops + 0.1;
-      if (!onScreen) return;
-
-      const hop = Math.floor(stepFloat);
-      const i = Math.max(
-        0,
-        Math.min(
-          visibleRowsRef.current - 1,
-          hop + (stepFloat - hop >= STEP_ARRIVES_AT ? 1 : 0)
-        )
-      );
-      setActive(i);
-    }
-  }, [stepFloat, setActive]);
-
-  const jump = (i) => {
-    const el = ref.current;
-    if (!el || reduced) return;
-    const top = el.getBoundingClientRect().top + window.scrollY;
-    const span = el.offsetHeight - window.innerHeight;
-    const t = Math.max(0.01, i - 0.27);
-    const frac = Math.min(
-      1,
-      SCRUB_FROM + (t / hops) * (SCRUB_TO - SCRUB_FROM)
-    );
-    window.scrollTo({ top: top + span * frac, behavior: "auto" });
+  /* Click handler: jump instantly to a step, restart the timer for that step.
+     No scroll, no animation delay. The StepList timer will fill over 10s
+     from this point and auto-advance when done. */
+  const handleSelect = (i) => {
+    setActive(i);
+    setEpoch((e) => e + 1); // Replay the scene animation
   };
 
-  /* A plain click on a row should only open that step. Only stepping drives
-   * the panel, so keep the row's loop on its own clock: re-remember the scene
-   * (and bump the key) when the user steps into it, and replay it when a row
-   * is clicked directly. */
+  /* Replay handler: restart the current step's animation without changing step. */
   const replay = () => setEpoch((e) => e + 1);
 
   return (
     <section
       id="how-studly-solves-it"
-      ref={ref}
-      className={`relative border-t border-[#ece7d8] ${reduced ? "" : "md:h-[560vh]"}`}
+      className="relative border-t border-[#ece7d8] py-20 md:py-0"
     >
       <ContainerGrid />
 
@@ -237,7 +139,7 @@ const HowStudlySolvesIt = () => {
         </div>
       ) : (
         <>
-          {/* Desktop: pinned stage. Steps left, panel right, scroll drives both. */}
+          {/* Desktop: pinned stage. Steps left, panel right. Time drives both. */}
           <div className="sticky top-16 hidden h-[calc(100dvh-4rem)] md:flex md:flex-col">
             <div className="mx-auto flex h-full w-full max-w-[1080px] flex-col px-10">
               <div className="shrink-0 pt-10">
@@ -252,11 +154,7 @@ const HowStudlySolvesIt = () => {
               <div className="flex min-h-0 flex-1 items-stretch gap-12 pb-12 pt-16">
                 {/* Left: the six steps as a column of rows, one of them open. */}
                 <div className="relative h-full w-[352px] shrink-0">
-                  {/* Handwritten note pointing at the first row. It annotates
-                      the column from the page, so it lives here rather than
-                      inside StepList, and the row's top padding is the band it
-                      hangs in. The arrow starts at the end of the writing and
-                      lands over the first row's name. */}
+                  {/* Handwritten note pointing at the first row. */}
                   <div className="pointer-events-none absolute -top-[54px] left-0 z-20 h-[58px] w-[220px] text-[#141414]/55">
                     <span className="font-scribble absolute left-0 top-0 text-[20px] leading-none">
                       first you...
@@ -268,21 +166,26 @@ const HowStudlySolvesIt = () => {
                     steps={STEPS}
                     captions={CAPTIONS}
                     active={active}
-                    maxActive={visibleRowsRef.current - 1}
-                    onSelect={jump}
+                    onSelect={handleSelect}
                   />
                 </div>
 
-                {/* Right: the illustration, stuck. */}
-                <div
-                  id="solve-panel"
-                  role="tabpanel"
-                  aria-labelledby={`solve-tab-${active}`}
-                  className="relative min-w-0 flex-1 overflow-hidden rounded-2xl border border-[#ece7d8] transition-colors duration-500"
-                  style={{ backgroundColor: step.tint }}
-                >
-                  <SolveStage step={step} reduced={reduced} />
-                </div>
+                {/* Right: the illustration, animated with framer-motion. */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={step.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    role="tabpanel"
+                    aria-labelledby={`solve-tab-${active}`}
+                    className="relative min-w-0 flex-1 overflow-hidden rounded-2xl border border-[#ece7d8]"
+                    style={{ backgroundColor: step.tint }}
+                  >
+                    <SolveStage step={step} reduced={reduced} replayKey={epoch} onReplay={replay} />
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
           </div>
