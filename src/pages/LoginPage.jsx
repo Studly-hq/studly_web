@@ -21,13 +21,11 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  // removed unused error state
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // removed unused setError call
     try {
       await login(email, password);
       toast.success("Logged in successfully!");
@@ -46,26 +44,28 @@ const LoginPage = () => {
   };
 
   return (
-    <section
-      className="relative min-h-dvh flex items-center justify-center overflow-x-hidden"
-      style={{ color: "#141414", fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif", backgroundColor: "#ffffff" }}
-    >
-      <div className="grid w-full max-w-[700px] grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-        {/* Left: decorative image */}
+    <section className="min-h-dvh flex items-center justify-center px-4 md:px-8 py-16">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 max-w-[600px] w-full">
+        {/* Left: decorative image - hidden on mobile */}
         <div className="hidden md:flex justify-center items-end">
-          <img src="/auth-bottom-left.webp" alt="decorative" loading="lazy" decoding="async" className="w-[22rem] h-auto pointer-events-none" />
+          <img
+            src="/auth-bottom-left.webp"
+            alt="decorative"
+            loading="lazy"
+            className="w-[20rem] h-auto pointer-events-none"
+          />
         </div>
 
         {/* Right: form content */}
-        <div className="w-full max-w-[400px] mx-auto md:mx-0">
-          <h1 className="text-5xl font-normal tracking-[-0.02em] text-center md:text-left" style={{fontFamily: 'Geist, sans-serif'}}>
+        <div className="w-full max-w-[380px]">
+          <h1 className="text-4xl md:text-5xl font-normal tracking-[-0.02em] text-center md:text-left">
             Welcome back.
           </h1>
-          <p className="mt-4 text-[16px] text-[#726f6c] text-center md:text-left" style={{fontFamily: 'var(--font-heading)'}}>
+          <p className="mt-4 text-base text-[#726f6c] text-center md:text-left">
             Pick up where you left off.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-5 text-left max-w-[380px]">
+          <form onSubmit={handleSubmit} className="mt-5 text-left">
             <label htmlFor="login-email" className="text-sm font-medium">
               Email
             </label>
