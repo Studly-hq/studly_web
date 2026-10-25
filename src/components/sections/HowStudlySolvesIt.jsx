@@ -1,6 +1,5 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
-  useMotionValueEvent,
   useReducedMotion,
   useScroll,
   useSpring,
@@ -139,6 +138,7 @@ const HowStudlySolvesIt = () => {
   const [active, setActive] = useState(0);
   const [epoch, setEpoch] = useState(0);
   const step = STEPS[active];
+  const visibleRowsRef = useRef(0);
 
 
   const { scrollYProgress } = useScroll({
@@ -151,22 +151,38 @@ const HowStudlySolvesIt = () => {
     restDelta: 0.001,
   });
 
-  /* Scroll → one continuous float. Whole numbers are the hops, and the
-     fraction inside a hop is the line travelling that gap. The panel changes
-     over on the beat the arriving pill has finished landing, so the pill and
-     the illustration arrive together instead of on separate clocks. */
   const hops = STEPS.length - 1;
   const stepFloat = useTransform(smooth, [SCRUB_FROM, SCRUB_TO], [0, hops]);
-  useMotionValueEvent(stepFloat, "change", (v) => {
-    const hop = Math.floor(v);
-    const i = Math.max(
-      0,
-      Math.min(STEPS.length - 1, hop + (v - hop >= STEP_ARRIVES_AT ? 1 : 0))
-    );
-    setActive((prev) => (prev === i ? prev : i));
-  });
 
+  // While the section is on screen, scroll picks the active row for the panel.
+  // The bar itself is timed and auto-advances in StepList, so we only use scroll
+  // here to decide which row is currently "in view" for panel + click jumps.
+  const visibleStepCount = Math.max(
+    3,
+    Math.round(((hops + 1) * (SCRUB_TO - SCRUB_FROM)) / 0.6)
+  );
+  visibleRowsRef.current = Math.min(
+    STEPS.length,
+    Math.max(visibleStepCount + 1, 4)
+  );
 
+  useEffect(() => {
+    if (typeof stepFloat === "number" && !Number.isNaN(stepFloat)) {
+      const onScreen =
+        stepFloat >= -0.1 && stepFloat <= hops + 0.1;
+      if (!onScreen) return;
+
+      const hop = Math.floor(stepFloat);
+      const i = Math.max(
+        0,
+        Math.min(
+          visibleRowsRef.current - 1,
+          hop + (stepFloat - hop >= STEP_ARRIVES_AT ? 1 : 0)
+        )
+      );
+      setActive(i);
+    }
+  }, [stepFloat, setActive]);
 
   const jump = (i) => {
     const el = ref.current;
@@ -252,7 +268,7 @@ const HowStudlySolvesIt = () => {
                     steps={STEPS}
                     captions={CAPTIONS}
                     active={active}
-                    stepFloat={stepFloat}
+                    maxActive={visibleRowsRef.current - 1}
                     onSelect={jump}
                   />
                 </div>
