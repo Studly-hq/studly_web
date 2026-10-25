@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.webp";
-import { Button } from "../ui/button";
 
 /**
  * Header shell mirroring the design export: sticky, translucent cream with a

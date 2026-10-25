@@ -3,7 +3,6 @@ import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { Badge } from "./badge";
-import { Button } from "./button";
 
 const Changelog = ({
   title = "Changelog",
