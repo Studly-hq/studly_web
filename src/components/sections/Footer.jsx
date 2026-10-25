@@ -23,27 +23,6 @@ const smoothstep = (edge0, edge1, x) => {
   return t * t * (3 - 2 * t);
 };
 
-/** 12745012 → "12,745,012". Handles non-finite, negative or zero gracefully. */
-const formatCount = (n, sep = ",") => {
-  const v = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
-  return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, sep);
-};
-
-/** Clip polygon with four corners cut: top-left, top-right, bottom-right, bottom-left (px). */
-const chamfer = (tl, tr, br, bl) =>
-  "polygon(" +
-  [
-    tl + "px 0",
-    "calc(100% - " + tr + "px) 0",
-    "100% " + tr + "px",
-    "100% calc(100% - " + br + "px)",
-    "calc(100% - " + br + "px) 100%",
-    bl + "px 100%",
-    "0 calc(100% - " + bl + "px)",
-    "0 " + tl + "px",
-  ].join(", ") +
-  ")";
-
 /** Typewriter timing profile. */
 const TYPE = { type: 55, hold: 2600, erase: 22, gap: 420 };
 
@@ -74,21 +53,6 @@ const hash = (n) => {
   x = Math.imul(x, 0xc2b2ae35);
   x ^= x >>> 16;
   return (x >>> 0) / 4294967296;
-};
-
-const NOISE = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#%&*+=/<>";
-
-/** Blurb decoding itself: at p = 0 every letter is noise, at 1 it is the text. Length/whitespace never change. */
-const scramble = (text, p, tick) => {
-  if (!(p < 1)) return text;
-  const n = text.length;
-  let out = "";
-  for (let i = 0; i < n; i++) {
-    const ch = text[i];
-    if (/\s/.test(ch) || p * 1.3 - 0.3 > i / n) out += ch;
-    else out += NOISE[Math.floor(hash(i * 131 + tick * 7919) * NOISE.length)];
-  }
-  return out;
 };
 
 /** A point on the unit sphere: theta rounds the great circle through poles at longitude lon, tipped tilt (about x), leant roll (about view axis). z > 0 faces the viewer. */
@@ -393,163 +357,6 @@ const Eyebrow = ({ phrases, reduced, visible }) => {
   );
 };
 
-// ── Scrambling blurb ─────────────────────────────────────────────────────────
-
-const Blurb = ({ text, reduced, visible }) => {
-  const [shown, setShown] = React.useState(text);
-  const done = React.useRef(false);
-  React.useEffect(() => {
-    if (reduced || !visible || done.current) {
-      setShown(text);
-      return;
-    }
-    done.current = true;
-    let raf = 0;
-    const t0 = performance.now();
-    const step = (now) => {
-      const p = (now - t0) / 1400;
-      setShown(scramble(text, p, Math.floor((now - t0) / 45)));
-      if (p < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [text, reduced, visible]);
-  return (
-    <p className="tsf-blurb">
-      <span className="sr-only">{text}</span>
-      <span aria-hidden="true">{shown}</span>
-    </p>
-  );
-};
-
-// ── Meridian globe ───────────────────────────────────────────────────────────
-
-const MERIDIANS = 12;
-const TILT = 0.34;
-const ROLL_VAL = -1.36;
-
-const Orbit = ({ reduced, visible, pulse }) => {
-  const boxRef = React.useRef(null);
-  const svgRef = React.useRef(null);
-  const paths = React.useRef([]);
-  const dots = React.useRef([]);
-  const st = React.useRef({
-    spin: 0.4,
-    vel: 0.14,
-    drag: false,
-    lastX: 0,
-    lastT: 0,
-    w: 1,
-    h: 1,
-    packets: [{ k: 3, theta: -1.2, speed: 0.32, life: Infinity }],
-    paint: () => {},
-  });
-
-  React.useEffect(() => {
-    const s = st.current;
-    if (pulse > 0 && s.packets.length < 7) {
-      s.packets.push({ k: Math.floor(Math.random() * MERIDIANS), theta: -1.6, speed: 0.9 + Math.random() * 0.5, life: 1 });
-      s.paint();
-    }
-  }, [pulse]);
-
-  React.useEffect(() => {
-    const svg = svgRef.current;
-    const s = st.current;
-    if (!svg) return;
-    const paint = () => {
-      const { w, h } = s;
-      const cx = w * 0.56;
-      const cy = h * 1.5;
-      const r = Math.min(h * 1.42, w * 0.62);
-      for (let k = 0; k < MERIDIANS; k++) {
-        const el = paths.current[k];
-        if (el) el.setAttribute("d", meridianPath(s.spin + (k * Math.PI) / MERIDIANS, TILT, ROLL_VAL, cx, cy, r));
-      }
-      for (let i = 0; i < 7; i++) {
-        const el = dots.current[i];
-        const p = s.packets[i];
-        if (!el) { el.setAttribute("opacity", "0"); continue; }
-        if (!p) { el.setAttribute("opacity", "0"); continue; }
-        const [x, y, z] = project(p.theta, s.spin + (p.k * Math.PI) / MERIDIANS, TILT, ROLL_VAL);
-        const Y = cy - r * y;
-        el.setAttribute("cx", (cx + r * x).toFixed(1));
-        el.setAttribute("cy", Y.toFixed(1));
-        el.setAttribute("opacity", z > 0 && Y < h - 1 ? "1" : "0");
-      }
-    };
-    s.paint = paint;
-    const measure = () => {
-      s.w = svg.clientWidth || 1;
-      s.h = svg.clientHeight || 1;
-      svg.setAttribute("viewBox", "0 0 " + s.w + " " + s.h);
-      paint();
-    };
-    const ro = new ResizeObserver(measure);
-    ro.observe(svg);
-    measure();
-    if (reduced || !visible) return () => ro.disconnect();
-    let raf = 0;
-    let last = performance.now();
-    const loop = (now) => {
-      const dt = Math.min(0.05, (now - last) / 1000);
-      last = now;
-      if (!s.drag) {
-        s.vel += (0.14 - s.vel) * (1 - Math.exp(-dt * 1.6));
-        s.spin += s.vel * dt;
-      }
-      for (const p of s.packets) p.theta += p.speed * dt;
-      s.packets = s.packets.filter((p) => p.life === Infinity || p.theta < Math.PI * 1.5);
-      for (const p of s.packets) if (p.life === Infinity && p.theta > Math.PI * 1.5) p.theta -= Math.PI * 2;
-      paint();
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-    };
-  }, [reduced, visible]);
-
-  const onDown = (e) => {
-    const s = st.current;
-    s.drag = true;
-    s.lastX = e.clientX;
-    s.lastT = performance.now();
-    s.vel = 0;
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
-  const onMove = (e) => {
-    const s = st.current;
-    if (!s.drag) return;
-    const now = performance.now();
-    const d = ((e.clientX - s.lastX) / s.w) * 2.4;
-    s.spin += d;
-    s.vel = d / Math.max(0.008, (now - s.lastT) / 1000);
-    s.lastX = e.clientX;
-    s.lastT = now;
-    if (reduced || !visible) s.paint();
-  };
-  const onUp = () => {
-    const s = st.current;
-    s.drag = false;
-    s.vel = Math.max(-6, Math.min(6, s.vel));
-  };
-
-  return (
-    <div ref={boxRef} className="tsf-orbit" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} aria-hidden="true">
-      <svg ref={svgRef} preserveAspectRatio="none" focusable="false">
-        {Array.from({ length: MERIDIANS }, (_, k) => (
-          <path key={k} ref={(el) => { paths.current[k] = el; }} fill="none" stroke="var(--tsf-ink)" strokeOpacity={0.82} strokeWidth={1} vectorEffect="non-scaling-stroke" />
-        ))}
-        {Array.from({ length: 7 }, (_, i) => (
-          <circle key={i} ref={(el) => { dots.current[i] = el; }} r={i === 0 ? 2.6 : 3.2} fill="var(--tsf-accent)" opacity={0} />
-        ))}
-      </svg>
-    </div>
-  );
-};
-
 // ── Halftone wordmark (canvas) ────────────────────────────────────────────────
 
 const Wordmark = ({ word, fontSerif, weight, color, halftone, reduced, visible }) => {
@@ -842,7 +649,6 @@ const TicketStubFooter = ({
   const reduced = useReducedMotion();
   const [visible, setVisible] = React.useState(false);
   const [seen, setSeen] = React.useState(false);
-  const [section, setSection] = React.useState(defaultSection);
   const [total, setTotal] = React.useState(count);
   const [pulse, setPulse] = React.useState(0);
   const totalRef = React.useRef(count);
@@ -850,7 +656,6 @@ const TicketStubFooter = ({
 
   const word = wordmark ?? brand;
   const text = description ?? "Connect your notes, create a learning path, study one part at a time, test yourself, and keep going until it sticks.";
-  const blurbText = blurb ?? "Drag in your notes — PDFs, images, voice recordings, anything. Studly reads them, creates a structured learning path, and guides you through it one lesson at a time. No organizing required.";
 
   /* Intersection observer for triggering animations on scroll. */
   React.useEffect(() => {
@@ -886,11 +691,6 @@ const TicketStubFooter = ({
     step();
     return () => clearTimeout(id);
   }, [visible, rate]);
-
-  const pick = (i) => {
-    setSection(i);
-    onSectionChange?.(i);
-  };
 
   const toTop = () => rootRef.current?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
   const hold = (href) => (e) => {
@@ -930,39 +730,6 @@ const TicketStubFooter = ({
           <span key={"h" + r} className="tsf-hl" style={{ gridRow: r }} aria-hidden="true" />
         ))}
 
-        {/* ── Left nav index ────────────────────────────────────────── */}
-        <nav className="tsf-nav" aria-label="Sections">
-          <ol>
-            {sections.map((s, i) => {
-              const inner = (
-                <>
-                  <span>{String(i + 1).padStart(2, "0")}</span>
-                  <span>{s.label}</span>
-                </>
-              );
-              return (
-                <li key={s.label + i}>
-                  {s.href ? (
-                    <a
-                      href={s.href}
-                      className="tsf-nav-item"
-                      aria-current={section === i ? "true" : undefined}
-                      onClick={(e) => { hold(s.href)(e); pick(i); }}
-                    >
-                      {inner}
-                    </a>
-                  ) : (
-                    <button type="button" className="tsf-nav-item" aria-current={section === i ? "true" : undefined} onClick={() => pick(i)}>
-                      {inner}
-                    </button>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
-          <span className="tsf-nav-bar" style={{ "--i": section }} aria-hidden="true" />
-        </nav>
-
         {/* ── Hero section ──────────────────────────────────────────── */}
         <div className="tsf-hero">
           <Eyebrow phrases={eyebrow} reduced={reduced} visible={visible} />
@@ -985,33 +752,6 @@ const TicketStubFooter = ({
               <path d="M1 7h11M7.5 2.5 12 7l-4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
             </svg>
           </a>
-        </div>
-
-        {/* ── Side panel: globe + link columns ──────────────────────── */}
-        <div className="tsf-side">
-          <Orbit reduced={reduced} visible={visible} pulse={pulse} />
-          <div className="tsf-links" style={{ "--cols": Math.max(1, linkGroups.length) }}>
-            {linkGroups.map((g) => (
-              <div key={g.title}>
-                <h3>{g.title}</h3>
-                <ul>
-                  {g.links.map((l) => (
-                    <li key={l.label}>
-                      {l.href ? (
-                        <a href={l.href} className="tsf-link" onClick={hold(l.href)}>
-                          {l.label}
-                        </a>
-                      ) : (
-                        <span className="tsf-link" onClick={(e) => e.preventDefault()}>
-                          {l.label}
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* ── Ticket stub ───────────────────────────────────────────── */}
@@ -1045,15 +785,13 @@ const TicketStubFooter = ({
               </div>
               <div className="tsf-stat">
                 <span className="tsf-stat-v" style={{ fontSize: "clamp(16px,1.6cqw,22px)" }}>
-                  {formatCount(Object.keys(LINK_GROUPS).length * 100 + 50)}+
+                  50+
                 </span>
                 <span className="tsf-stat-c">Topics covered</span>
               </div>
             </div>
             {/* Gutters */}
             <div className="tsf-gutcell" aria-hidden="true" />
-            {/* Descriptive blurb (decodes itself on first render). */}
-            <Blurb text={blurbText} reduced={reduced} visible={visible} />
             {/* Interactive wordmark */}
             <Wordmark
               word={word}
