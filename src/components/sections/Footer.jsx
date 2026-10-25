@@ -844,7 +844,6 @@ const TicketStubFooter = ({
   const [seen, setSeen] = React.useState(false);
   const [section, setSection] = React.useState(defaultSection);
   const [total, setTotal] = React.useState(count);
-  const [_punch, setPunch] = React.useState(0);
   const [pulse, setPulse] = React.useState(0);
   const totalRef = React.useRef(count);
   totalRef.current = total;
@@ -892,13 +891,7 @@ const TicketStubFooter = ({
     setSection(i);
     onSectionChange?.(i);
   };
-  const _dispatch = () => {
-    const next = totalRef.current + 1;
-    setTotal(next);
-    setPunch((p) => p + 1);
-    setPulse((p) => p + 1);
-    onDispatch?.(next);
-  };
+
   const toTop = () => rootRef.current?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
   const hold = (href) => (e) => {
     if (!href || href === "#") e.preventDefault();
