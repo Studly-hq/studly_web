@@ -99,7 +99,7 @@ const Home = () => {
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    }, [setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage, setIsLucidDetailedMode]);
+    }, [setShowUpgradeModal, setUpgradeReason, setCustomUpgradeMessage, setIsLucidDetailedMode, setTheme]);
 
     // Send token to Lucid via postMessage when both are ready
     useEffect(() => {

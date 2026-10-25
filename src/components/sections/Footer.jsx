@@ -844,7 +844,7 @@ const TicketStubFooter = ({
   const [seen, setSeen] = React.useState(false);
   const [section, setSection] = React.useState(defaultSection);
   const [total, setTotal] = React.useState(count);
-  const [punch, setPunch] = React.useState(0);
+  const [_punch, setPunch] = React.useState(0);
   const [pulse, setPulse] = React.useState(0);
   const totalRef = React.useRef(count);
   totalRef.current = total;
@@ -892,7 +892,7 @@ const TicketStubFooter = ({
     setSection(i);
     onSectionChange?.(i);
   };
-  const dispatch = () => {
+  const _dispatch = () => {
     const next = totalRef.current + 1;
     setTotal(next);
     setPunch((p) => p + 1);
