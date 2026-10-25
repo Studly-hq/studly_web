@@ -72,7 +72,6 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://studly-server.onrender.com",
   "devDependencies": {
     "react-app-rewired": "^2.2.1",
     "sharp": "^0.34.5"

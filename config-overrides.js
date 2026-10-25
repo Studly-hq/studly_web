@@ -1,14 +1,20 @@
-// CRA ignores postcss.config.js (config: false) — point its postcss-loader at it instead
+// Tailwind v4 requires the @tailwindcss/postcss plugin (not the tailwindcss CLI)
 module.exports = function override(config) {
-  const oneOf = config.module.rules.find((rule) => rule.oneOf).oneOf;
-  for (const rule of oneOf) {
+  const oneOf = config.module.rules.find((rule) => rule.oneOf);
+  if (!oneOf) return config;
+
+  for (const rule of oneOf.oneOf) {
     if (!rule.use) continue;
-    for (const use of rule.use) {
+    const uses = Array.isArray(rule.use) ? rule.use : [rule.use];
+    for (const use of uses) {
       if (use.loader && use.loader.includes('postcss-loader')) {
-        use.options.postcssOptions.config = require('path').resolve(__dirname, 'postcss.config.js');
-        delete use.options.postcssOptions.plugins;
+        use.options.plugins = [
+          require('@tailwindcss/postcss'),
+          require('autoprefixer'),
+        ];
       }
     }
   }
+
   return config;
 };

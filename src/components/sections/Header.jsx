@@ -58,12 +58,12 @@ const Header = () => (
       </nav>
 
       <div className="col-start-3 flex justify-end">
-        <Button
-          asChild
-          className="h-9 rounded-full bg-[#141414] px-4 text-[14px] font-medium text-white transition-opacity hover:bg-[#141414]/85"
+        <Link
+          to="/login"
+          className="inline-flex h-9 items-center justify-center rounded-full bg-[#141414] px-4 text-[14px] font-medium text-white transition-opacity hover:bg-[#141414]/85"
         >
-          <Link to="/login">Log in</Link>
-        </Button>
+          Log in
+        </Link>
       </div>
     </div>
   </header>

@@ -107,11 +107,14 @@ const Changelog = ({
                 )}
 
                 {entry.button && (
-                  <Button variant="link" className="mt-4 self-start gap-1 px-0 text-reddit-textMuted hover:text-reddit-text" asChild>
-                    <a href={entry.button.url} target="_blank" rel="noopener noreferrer">
-                      {entry.button.text} <ArrowUpRight className="h-4 w-4" />
-                    </a>
-                  </Button>
+                  <a
+                    href={entry.button.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex self-start items-center gap-1 px-0 text-reddit-textMuted hover:text-reddit-text"
+                  >
+                    {entry.button.text} <ArrowUpRight className="h-4 w-4" />
+                  </a>
                 )}
 
                 {/* Separator — hide after last entry */}
