@@ -8,10 +8,12 @@ module.exports = function override(config) {
     const uses = Array.isArray(rule.use) ? rule.use : [rule.use];
     for (const use of uses) {
       if (use.loader && use.loader.includes('postcss-loader')) {
-        use.options.plugins = [
-          require('@tailwindcss/postcss'),
-          require('autoprefixer'),
-        ];
+        use.options.postcssOptions = {
+          plugins: [
+            require('@tailwindcss/postcss'),
+            require('autoprefixer'),
+          ],
+        };
       }
     }
   }

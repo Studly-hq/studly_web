@@ -3,7 +3,9 @@
 // We keep this file minimal to avoid conflicts — only autoprefixer runs here
 // (if at all); the real work is done by the v4 plugin in config-overrides.js.
 module.exports = {
-  plugins: {
-    autoprefixer: {},
+  postcssOptions: {
+    plugins: {
+      autoprefixer: {},
+    },
   },
 };
