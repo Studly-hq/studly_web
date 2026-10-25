@@ -196,26 +196,27 @@ const HowStudlySolvesIt = () => {
       <ContainerGrid />
 
       {reduced ? (
-        <div className="mx-auto w-full max-w-[1080px] px-6 py-20 md:px-10">
-          <h2 className="mx-auto max-w-[680px] text-center font-geist text-[36px] font-semibold leading-[1.05] tracking-[-0.035em] text-[#141414] sm:text-[48px]">
+        <div className="mx-auto w-full max-w-[1080px] px-6 py-16 md:px-10">
+          <h2 className="mx-auto max-w-[680px] text-center font-geist text-[24px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#141414] sm:text-[28px]">
             Here&apos;s how we do it
           </h2>
-          <p className="mx-auto mt-3 max-w-[560px] text-center font-geist text-[15px] leading-[1.45] tracking-[-0.02em] text-[#726f6c] sm:text-[16px]">
+          <p className="mx-auto mt-3 max-w-[560px] text-center font-geist text-[14px] leading-[1.45] tracking-[-0.02em] text-[#726f6c] sm:text-[16px]">
             Studly doesn&apos;t study for you. It shows you the way through.
           </p>
-          <div className="mt-12 flex flex-col gap-14">            {STEPS.map((s) => (
-              <div key={s.id} className="flex flex-col gap-4">
-                <span className="text-center font-geist text-[16px] font-semibold tracking-[-0.01em] text-[#141414]">
+          <div className="mt-10 flex flex-col gap-8">
+            {STEPS.map((s) => (
+              <div key={s.id} className="flex flex-col gap-3">
+                <span className="text-center font-geist text-[15px] font-semibold tracking-[-0.01em] text-[#141414]">
                   {s.title}
                 </span>
-                <div>
-                    className="h-[380px] w-full overflow-hidden rounded-2xl border border-[#ece7d8] px-5 pt-5 pb-4"
-                    style={{ backgroundColor: s.tint }}
-                  >
-                    <SolveStage step={{ ...s, id: s.id }} reduced play={false} replayKey={epoch} onReplay={replay} />
-                  </div>
+                <div
+                  className="h-[320px] w-full overflow-hidden rounded-2xl border border-[#ece7d8] px-5 pt-5 pb-4"
+                  style={{ backgroundColor: s.tint }}
+                >
+                  <SolveStage step={{ ...s, id: s.id }} reduced play={false} replayKey={epoch} onReplay={replay} />
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         </div>
       ) : (
@@ -272,22 +273,22 @@ const HowStudlySolvesIt = () => {
 
           {/* Mobile: no pinning, each step on its own. */}
           <div className="md:hidden">
-            <div className="mx-auto w-full max-w-[1080px] px-6 py-20 md:px-10">
-              <h2 className="mx-auto max-w-[680px] text-center font-geist text-[28px] font-semibold leading-[1.08] tracking-[-0.03em] text-[#141414]">
+            <div className="mx-auto w-full max-w-[1080px] px-6 py-16 md:px-10">
+              <h2 className="mx-auto max-w-[680px] text-center font-geist text-[24px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#141414] sm:text-[28px]">
                 Here&apos;s how we do it
               </h2>
-              <p className="mx-auto mt-3 max-w-[560px] text-center font-geist text-[15px] leading-[1.4] tracking-[-0.02em] text-[#726f6c] sm:text-[16px]">
+              <p className="mx-auto mt-3 max-w-[560px] text-center font-geist text-[14px] leading-[1.45] tracking-[-0.02em] text-[#726f6c] sm:text-[16px]">
                 Studly doesn&apos;t study for you. It shows you the way through.
               </p>
             </div>
-            <div className="flex flex-col gap-14 px-6 pb-20 pt-10">
+            <div className="flex flex-col gap-10 px-6 pb-16 pt-8">
               {STEPS.map((s) => (
                 <div key={s.id} className="flex flex-col gap-3">
-                  <span className="text-center font-geist text-[16px] font-semibold tracking-[-0.01em] text-[#141414]">
+                  <span className="text-center font-geist text-[15px] font-semibold tracking-[-0.01em] text-[#141414]">
                     {s.title}
                   </span>
                   <div
-                    className="h-[380px] w-full overflow-hidden rounded-2xl border border-[#ece7d8] px-5 pt-5 pb-4"
+                    className="h-[320px] w-full overflow-hidden rounded-2xl border border-[#ece7d8] px-5 pt-5 pb-4"
                     style={{ backgroundColor: s.tint }}
                   >
                     <SolveStage step={{ ...s, id: s.id }} reduced play={false} replayKey={epoch} onReplay={replay} />

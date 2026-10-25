@@ -43,21 +43,22 @@ const LearningPath = () => {
       <ContainerGrid />
 
       <div className="mx-auto grid w-full max-w-[1080px] grid-cols-1 gap-10 px-6 md:grid-cols-2 md:px-10">
+        {/* Left column: text with scroll reveal. Sticky only on large screens. */}
         <div className="lg:sticky lg:top-28 lg:self-start">
           <ScrollRevealText
             progress={progress}
             range={[0.1, 0.78]}
-            className="font-geist text-[26px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[32px] lg:text-[36px]"
+            className="font-geist text-[24px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]"
           >
             <p>You don&apos;t have to figure out how to study your materials.</p>
             <p className="mt-3">Studly helps you find a way through it.</p>
           </ScrollRevealText>
         </div>
 
-        {/* Right column. No connector of its own: the Problem section's single
-            curve overhangs past the section seam and lands on the map, so a
-            second curve here would double the line and leave a kink. The
-            `pt-16` is what the connector's overhang was measured against. */}
+        {/* Right column: learning path map. No connector of its own: the Problem
+            section's single curve overhangs past the section seam and lands on
+            the map, so a second curve here would double the line and leave a kink.
+            The `pt-16` is what the connector's overhang was measured against. */}
         <div className="relative">
           <LearningPathMap className="pt-16" />
         </div>

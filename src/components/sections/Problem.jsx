@@ -15,7 +15,7 @@ const ProblemCopy = ({ progress }) => (
     <ScrollRevealText
       progress={progress}
       range={[0.06, 0.88]}
-      className="font-geist text-[26px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[32px] lg:text-[36px]"
+      className="font-geist text-[22px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]"
     >
       <p>You have everything you need to study.</p>
       <p className="mt-3">You just don&apos;t always know what to do with all of it.</p>
