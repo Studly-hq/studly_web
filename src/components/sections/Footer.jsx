@@ -67,15 +67,6 @@ const typeFrame = (phrases, ms, k = TYPE) => {
   return { index: i, text: "", phase: "gap" };
 };
 
-/** Deterministic hash → [0, 1). */
-const hash = (n) => {
-  let x = Math.imul((n | 0) ^ 0x9e3779b9, 0x85ebca6b);
-  x ^= x >>> 13;
-  x = Math.imul(x, 0xc2b2ae35);
-  x ^= x >>> 16;
-  return (x >>> 0) / 4294967296;
-};
-
 /** A point on the unit sphere: theta rounds the great circle through poles at longitude lon, tipped tilt (about x), leant roll (about view axis). z > 0 faces the viewer. */
 const project = (theta, lon, tilt, roll) => {
   const x0 = Math.cos(theta) * Math.sin(lon);
@@ -88,19 +79,6 @@ const project = (theta, lon, tilt, roll) => {
   const cr = Math.cos(roll);
   const sr = Math.sin(roll);
   return [x0 * cr - y1 * sr, x0 * sr + y1 * cr, z1];
-};
-
-/** Visible half of one meridian as SVG path data, screen space. */
-const meridianPath = (lon, tilt, roll, cx, cy, r, steps = 96) => {
-  let d = "";
-  let pen = false;
-  for (let i = 0; i <= steps; i++) {
-    const [x, y, z] = project((i / steps) * Math.PI * 2, lon, tilt, roll);
-    if (z < 0) { pen = false; continue; }
-    d += (pen ? "L" : "M") + (cx + r * x).toFixed(1) + " " + (cy - r * y).toFixed(1);
-    pen = true;
-  }
-  return d;
 };
 
 /** Max ascender height as fraction of wordmark width. */
@@ -671,7 +649,6 @@ const TicketStubFooter = ({
   const [visible, setVisible] = React.useState(false);
   const [seen, setSeen] = React.useState(false);
   const [total, setTotal] = React.useState(count);
-  const [pulse, setPulse] = React.useState(0);
   const totalRef = React.useRef(count);
   totalRef.current = total;
 
@@ -766,7 +743,7 @@ const TicketStubFooter = ({
             href={cta.href ?? "#"}
             className="tsf-cta"
             style={{ clipPath: chamfer(0, 0, 12, 0) }}
-            onClick={(e) => { hold(cta.href)(e); setPulse((p) => p + 1); onCtaClick?.(); }}
+            onClick={(e) => { hold(cta.href)(e); onCtaClick?.(); }}
           >
             <span>{cta.label}</span>
             <svg viewBox="0 0 14 14" aria-hidden="true" focusable="false">

@@ -12,7 +12,6 @@ import {
   Presentation01Icon,
 } from "@hugeicons/core-free-icons";
 import { SCENE } from "./scene-style";
-import logo from "../../assets/logo.webp";
 
 const { ink, strokeSoft, muted, paper, paperLine, surfaceRaised } = SCENE.colors;
 
