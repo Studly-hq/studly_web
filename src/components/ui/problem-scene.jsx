@@ -117,16 +117,6 @@ const StudlyCard = ({ progress }) => {
         }}
         className="w-[240px] rounded-2xl p-4"
       >
-        <div className="flex items-center gap-1.5">
-          <img src={logo} alt="" draggable="false" className="h-4 w-auto" />
-          <span
-            className="font-geist text-[13px] font-semibold tracking-[-0.02em]"
-            style={{ color: ink }}
-          >
-            Studly
-          </span>
-        </div>
-
         <p
           className="mt-3 font-geist text-[15px] font-semibold leading-[1.25] tracking-[-0.02em]"
           style={{ color: ink }}

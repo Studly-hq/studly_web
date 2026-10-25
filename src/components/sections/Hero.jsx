@@ -34,7 +34,7 @@ const Hero = () => (
     <ContainerGrid />
 
     <div className="relative z-40 mx-auto flex w-full max-w-[1080px] -translate-y-10 flex-col items-center px-6 text-center md:px-10">
-      <h1 className="font-geist text-[30px] font-semibold leading-[1.1] tracking-[-0.035em] text-[#141414] sm:text-[38px] lg:text-[44px]">
+      <h1 className="hero-headline font-geist font-semibold leading-[1.1] tracking-[-0.035em] text-[#141414]">
         The{" "}
         <HeroImage src={heroTasks} alt="" tilt="-6deg" />
         {" "}

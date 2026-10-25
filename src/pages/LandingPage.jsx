@@ -1,7 +1,6 @@
 import React from "react";
 import Header from "../components/sections/Header";
 import Hero from "../components/sections/Hero";
-import SocialProof from "../components/sections/SocialProof";
 import Problem from "../components/sections/Problem";
 import LearningPath from "../components/sections/LearningPath";
 import HowStudlySolvesIt from "../components/sections/HowStudlySolvesIt";
@@ -17,7 +16,6 @@ const LandingPage = () => {
     <div className="relative min-h-dvh overflow-x-clip bg-[#fffcf0] text-[#141414] [color-scheme:light]">
       <Header />
       <Hero />
-      <SocialProof />
       <Problem />
       <LearningPath />
       <HowStudlySolvesIt />

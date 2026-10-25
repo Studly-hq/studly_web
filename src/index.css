@@ -426,6 +426,118 @@
   min-height: 80px;
 }
 
+/* Landing hero headline — always one line, scaled to the space available.
+   The sentence (with its two inline illustrations) measures ~19.83em in Geist
+   600 at -0.035em tracking; dividing by 21 keeps ~6% headroom for the fallback
+   font before Geist loads, so it can never wrap or overflow on any screen. */
+.hero-headline {
+  white-space: nowrap;
+  font-size: clamp(10px, calc((100vw - 3rem) / 21), 44px);
+}
+
+@media (min-width: 768px) {
+  .hero-headline {
+    /* md:px-10 wrapper + 1080px max width, so fit against that content box */
+    font-size: clamp(10px, calc((min(100vw, 1080px) - 5rem) / 21), 44px);
+  }
+}
+
+/* Composer placeholder — also one straight line at every width.
+   It shares its row with the mic + send buttons (56px), 20px of row padding and
+   8px of gaps, so below the sm breakpoint it has (100vw - 132px) to live in.
+   The hint measures 14.21em in DM Sans, so dividing by 15.2 leaves ~7% headroom
+   and caps at the original 14px (above ~352px it is already full size). */
+.composer-hint {
+  white-space: nowrap;
+  font-size: clamp(9.5px, calc((100vw - 132px) / 15.2), 0.875rem);
+}
+
+/* Auth pages — fluid from small phones to wide desktops. Every size below is a
+   clamp(), so the page scales continuously instead of stepping at breakpoints. */
+.auth-page {
+  padding: clamp(24px, 6vh, 112px) clamp(14px, 4vw, 32px);
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.auth-page * {
+  min-width: 0;
+}
+
+.auth-title {
+  font-size: clamp(24px, 4vw + 4px, 56px);
+  line-height: clamp(1.06, 1.02 + 0.04vw, 1.08);
+  letter-spacing: clamp(-0.025em, -0.01em - 0.015vw, -0.02em);
+  padding-inline: clamp(8px, 2vw, 16px);
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.auth-lead {
+  margin-top: clamp(6px, 1.4vw, 18px);
+  font-size: clamp(13px, 0.4vw + 12px, 17px);
+  line-height: clamp(1.45, 1.4 + 0.05vw, 1.55);
+  padding-inline: clamp(8px, 2vw, 16px);
+}
+
+.auth-form {
+  width: min(100%, clamp(300px, 60vw, 380px));
+  margin: clamp(12px, 2.4vw, 24px) auto 0;
+}
+
+.auth-label {
+  display: block;
+  font-size: clamp(12px, 0.3vw + 11px, 14px);
+  line-height: clamp(1.3, 1.25 + 0.05vw, 1.4);
+}
+
+.auth-label:not(:first-child) {
+  margin-top: clamp(10px, 1.6vw, 18px);
+}
+
+.auth-field {
+  width: 100%;
+  height: clamp(38px, 2.2vw + 32px, 46px);
+  margin-top: clamp(4px, 0.8vw, 10px);
+  padding-inline: clamp(10px, 1.2vw, 16px);
+  font-size: clamp(13px, 0.3vw + 12px, 15px);
+  border-radius: clamp(8px, 0.9vw, 14px);
+}
+
+.auth-field-password {
+  padding-right: clamp(32px, 3.2vw, 44px);
+}
+
+.auth-eye {
+  right: clamp(8px, 1.2vw, 14px);
+}
+
+.auth-eye svg {
+  width: clamp(15px, 1.3vw, 19px);
+  height: auto;
+}
+
+.auth-submit {
+  height: clamp(38px, 2.2vw + 32px, 46px);
+  margin-top: clamp(8px, 1.4vw, 14px);
+  font-size: clamp(13px, 0.3vw + 12px, 15px);
+  border-radius: clamp(8px, 0.9vw, 14px);
+}
+
+.auth-switch {
+  margin-top: clamp(12px, 2vw, 18px);
+  font-size: clamp(12.5px, 0.25vw + 11.8px, 14px);
+  line-height: clamp(1.4, 1.35 + 0.05vw, 1.5);
+  padding-inline: clamp(8px, 2vw, 16px);
+}
+
+/* Decorative corner art: a transparent webp, painted behind the content.
+   Its width is fluid, so it shrinks with the viewport instead of masking text. */
+.auth-art {
+  width: clamp(150px, 30vw, 448px);
+  height: auto;
+}
+
 .header-wrapper {
   max-width: 1200px;
   margin: 0 auto;

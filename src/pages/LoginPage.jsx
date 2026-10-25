@@ -44,24 +44,23 @@ const LoginPage = () => {
   };
 
   return (
-    <section className="min-h-dvh flex items-center justify-center px-4 md:px-8 py-16">
-      <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 max-w-[600px] w-full">
-        {/* Left: decorative image - hidden on mobile */}
-        <div className="hidden md:flex justify-center items-end">
-          <img
-            src="/auth-bottom-left.webp"
-            alt="decorative"
-            loading="lazy"
-            className="w-[20rem] h-auto pointer-events-none"
-          />
-        </div>
+    <section className="min-h-dvh bg-[#fffcf0] relative flex items-center justify-center p-6 md:p-12 lg:p-16">
+      {/* Left: decorative image - bottom-left on desktop, hidden on mobile */}
+      <div className="hidden md:block absolute bottom-0 left-0 p-8 pointer-events-none">
+        <img
+          src="/auth-bottom-left.webp"
+          alt="decorative"
+          loading="lazy"
+          className="w-[320px] h-auto"
+        />
+      </div>
 
-        {/* Right: form content */}
-        <div className="w-full max-w-[380px]">
-          <h1 className="text-4xl md:text-5xl font-normal tracking-[-0.02em] text-center md:text-left">
+      {/* Right: form content - centered in full viewport */}
+      <div className="w-full max-w-[400px] relative z-10">
+          <h1 className="text-4xl md:text-5xl font-normal tracking-[-0.02em] text-center">
             Welcome back.
           </h1>
-          <p className="mt-4 text-base text-[#726f6c] text-center md:text-left">
+          <p className="mt-4 text-base text-[#726f6c] text-center">
             Pick up where you left off.
           </p>
 
@@ -121,7 +120,6 @@ const LoginPage = () => {
             New to Studly? <Link to="/signup" className="underline underline-offset-2 cursor-pointer">Create an account</Link>
           </div>
         </div>
-      </div>
     </section>
   );
 };

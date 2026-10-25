@@ -59,7 +59,7 @@ const UploadComposer = ({ className = "", isDragActive = false }) => {
               strokeWidth={1.5}
               className="mb-1 size-6 text-[#726f6c]/60 sm:size-7"
             />
-            <span className="text-xs font-medium text-[#726f6c] sm:text-sm">
+            <span className="whitespace-nowrap text-xs font-medium text-[#726f6c] sm:text-sm">
               Click or drag files to upload
             </span>
           </div>
@@ -92,7 +92,7 @@ const UploadComposer = ({ className = "", isDragActive = false }) => {
               {!hasContent && (
                 <span
                   aria-hidden="true"
-                  className="composer-shimmer pointer-events-none absolute inset-y-0 left-0 flex items-center text-sm"
+                  className="composer-shimmer composer-hint pointer-events-none absolute inset-y-0 left-0 flex items-center"
                 >
                   or type what you want to learn
                 </span>

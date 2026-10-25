@@ -22,7 +22,9 @@ const SCENES = {
 /**
  * SolveStage — the tinted panel on the right. Holds one evolving illustration:
  * each cross-fades into the next while the panel tint shifts with it.
- * `replayKey` remounts the active scene so the Replay button restarts it.
+ * The swap is a pure opacity cross-fade: no positional slide, which paired
+ * with the incoming scene's own entrance animations read as a small jump.
+ * `replayKey` remounts the active scene so re-selecting a step restarts it.
  */
 const SolveStage = ({ step, reduced = false, play = true, replayKey = 0 }) => {
   const Scene = SCENES[step.scene] || SceneBring;
@@ -40,10 +42,10 @@ const SolveStage = ({ step, reduced = false, play = true, replayKey = 0 }) => {
         <motion.div
           key={`${step.id}-${replayKey}`}
           className="absolute inset-0"
-          initial={reduced ? false : { opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -18 }}
-          transition={{ duration: 0.45 * SWAP_PACE, ease: EASE }}
+          initial={reduced ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 * SWAP_PACE, ease: "linear" }}
         >
           <Scene reduced={reduced} active={play} />
         </motion.div>
