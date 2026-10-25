@@ -26,6 +26,27 @@ const smoothstep = (edge0, edge1, x) => {
 /** Typewriter timing profile. */
 const TYPE = { type: 55, hold: 2600, erase: 22, gap: 420 };
 
+/** 12745012 → "12,745,012". Handles non-finite, negative or zero gracefully. */
+const formatCount = (n, sep = ",") => {
+  const v = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+  return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+};
+
+/** Clip polygon with four corners cut: top-left, top-right, bottom-right, bottom-left (px). */
+const chamfer = (tl, tr, br, bl) =>
+  "polygon(" +
+  [
+    tl + "px 0",
+    "calc(100% - " + tr + "px) 0",
+    "100% " + tr + "px",
+    "100% calc(100% - " + br + "px)",
+    "calc(100% - " + br + "px) 100%",
+    bl + "px 100%",
+    "0 calc(100% - " + bl + "px)",
+    "0 " + tl + "px",
+  ].join(", ") +
+  ")";
+
 /** Where a looping typewriter is after `ms`: type → hold → erase → pause → next phrase. */
 const typeFrame = (phrases, ms, k = TYPE) => {
   const list = phrases.filter((p) => p.length > 0);
