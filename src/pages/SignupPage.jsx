@@ -44,13 +44,13 @@ const SignupPage = () => {
 
   return (
     <section
-      className="relative min-h-dvh flex items-center justify-center px-6 py-16 lg:py-24"
+      className="relative min-h-dvh flex items-center justify-center overflow-x-hidden"
       style={{ color: "#141414", fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif", backgroundColor: "#ffffff" }}
     >
-      <div className="grid w-full max-w-[900px] grid-cols-1 gap-8 md:grid-cols-2 md:gap-16 items-center">
+      <div className="grid w-full max-w-[700px] grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
         {/* Left: decorative image */}
         <div className="hidden md:flex justify-center items-end">
-          <img src="/auth-bottom-left-signup.webp" alt="decorative" loading="lazy" decoding="async" width="448" className="w-[28rem] h-auto pointer-events-none" />
+          <img src="/auth-bottom-left-signup.webp" alt="decorative" loading="lazy" decoding="async" className="w-[22rem] h-auto pointer-events-none" />
         </div>
 
         {/* Right: form content */}
