@@ -120,7 +120,7 @@ const StepList = ({ steps, active, maxActive, captions = {}, onSelect }) => {
             {isActive && (
               <div
                 ref={fillRef}
-                className="absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-[#141414] transition-none"
+                className="absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-[#fffcf0] transition-none"
                 style={{ transform: `scaleX(${0})` }}
               />
             )}
