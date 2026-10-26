@@ -70,22 +70,35 @@ const MONO = '"JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, M
 // ── Inline CSS ────────────────────────────────────────────────────────────────
 
 const CSS =
-  ".tsf{position:relative;background:var(--tsf-bg);color:var(--tsf-ink);font-family:var(--tsf-sans);overflow:visible;isolation:isolate;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}" +
+  ".tsf{position:relative;container-type:inline-size;background:var(--tsf-bg);color:var(--tsf-ink);font-family:var(--tsf-sans);overflow:visible;isolation:isolate;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}" +
   ".tsf *,.tsf *::before,.tsf *::after{box-sizing:border-box}" +
   ":where(.tsf) a{color:inherit;text-decoration:none}" +
   ":where(.tsf) button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit}" +
   ":where(.tsf) :focus-visible{outline:1px solid var(--tsf-accent);outline-offset:3px}" +
-  // main container
-  ".tsf-wrap{position:relative;max-width:1080px;margin:0 auto;padding:clamp(40px,6cqw,80px) clamp(16px,3cqw,40px)}" +
-  // orange panel
-  ".tsf-panel{position:relative;background:var(--tsf-accent);border-radius:12px;overflow:hidden}" +
-  ".tsf-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding:clamp(24px,4cqw,48px) clamp(16px,3cqw,32px)}" +
+  // grid scaffold — vertical guide rails
+  ".tsf-grid{--rail:clamp(16px,2.5cqw,36px);--nav:clamp(116px,12.5cqw,180px);--line:color-mix(in srgb,var(--tsf-ink) 11%,transparent);--oline:color-mix(in srgb,var(--tsf-aink) 16%,transparent);position:relative;display:grid;" +
+  "grid-template-columns:var(--rail) var(--nav) var(--rail) minmax(0,1fr) var(--rail) minmax(0,1fr) var(--rail);" +
+  "grid-template-rows:auto auto var(--rail) auto}" +
+  ".tsf-vl{grid-row:1/-1;justify-self:start;width:0;border-left:1px solid var(--line);pointer-events:none}" +
+  // ticket stub
+  ".tsf-ticket{grid-column:2/7;grid-row:4;position:relative;z-index:1;display:grid;grid-template-columns:var(--nav) minmax(0,1fr);color:var(--tsf-aink)}" +
+  ".tsf-stub{position:relative;display:flex;align-items:center;justify-content:center;background-color:var(--tsf-deep);" +
+  "background-image:repeating-linear-gradient(135deg,color-mix(in srgb,var(--tsf-aink) 7%,transparent) 0 1px,transparent 1px 5px);transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .3s;transform-origin:100% 100%}" +
+  ".tsf-stub::after{content:'';position:absolute;right:0;top:14px;bottom:14px;width:1px;background-image:linear-gradient(to bottom,color-mix(in srgb,var(--tsf-aink) 45%,transparent) 50%,transparent 50%);background-size:1px 7px}" +
+  ".tsf-stub:hover{transform:rotate(-1.4deg) translateY(-2px);filter:brightness(1.06)}" +
+  ".tsf-stub:active{transform:rotate(-3deg) translateY(3px)}" +
+  ".tsf-stub svg{width:clamp(30px,4.2cqw,54px);height:clamp(30px,4.2cqw,54px);max-width:none;transition:transform .7s cubic-bezier(.3,1.5,.4,1)}" +
+  ".tsf-stub-tip{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-family:var(--tsf-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s}" +
+  ".tsf-stub:hover .tsf-stub-tip,.tsf-stub:focus-visible .tsf-stub-tip{opacity:.7;transform:none}" +
+  ".tsf-main{position:relative;display:grid;grid-template-columns:var(--rail) minmax(0,1fr) var(--rail) minmax(0,1fr);background:var(--tsf-accent);min-width:0}" +
+  ".tsf-stats{grid-column:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding:clamp(18px,2.4cqw,32px) 0 clamp(18px,2.3cqw,30px) clamp(12px,2.3cqw,28px)}" +
   ".tsf-stat{display:flex;flex-direction:column;gap:4px;min-width:0}" +
   ".tsf-stat-v{display:flex;align-items:center;gap:10px;font-size:clamp(20px,2.2cqw,31px);line-height:1.1;letter-spacing:-.035em;font-variant-numeric:tabular-nums;white-space:nowrap}" +
   ".tsf-stat-c{font-size:clamp(11.5px,1.12cqw,14.5px);color:color-mix(in srgb,var(--tsf-aink) 62%,transparent)}" +
   ".tsf-pulse{position:relative;flex:none;width:7px;height:7px;background:var(--tsf-aink);transform:rotate(45deg)}" +
   ".tsf-pulse::after{content:'';position:absolute;inset:-3px;border:1px solid var(--tsf-aink);animation:tsf-ping 1.8s cubic-bezier(0,0,.2,1) infinite}" +
-  ".tsf-word{position:relative;border-top:1px solid color-mix(in srgb,var(--tsf-aink) 20%,transparent);min-height:120px}" +
+  ".tsf-gutcell{grid-column:3;border-left:1px solid var(--oline);border-right:1px solid var(--oline)}" +
+  ".tsf-word{grid-column:2/-1;position:relative;border-top:1px solid var(--oline);cursor:crosshair;touch-action:pan-y}" +
   ".tsf-word canvas{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;display:block}" +
   ".tsf-odo{display:inline-flex}" +
   ".tsf-odo-d{display:inline-block;height:1.1em;overflow:hidden}" +
@@ -93,7 +106,18 @@ const CSS =
   ".tsf-odo-s span{display:block;height:1.1em;line-height:1.1em}" +
   ".tsf-bump{animation:tsf-bump .5s cubic-bezier(.2,.8,.2,1)}" +
   "@keyframes tsf-ping{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.9);opacity:0}}" +
-  "@keyframes tsf-bump{0%{transform:translateY(0)}35%{transform:translateY(-3px)}100%{transform:translateY(0)}}";
+  "@keyframes tsf-bump{0%{transform:translateY(0)}35%{transform:translateY(-3px)}100%{transform:translateY(0)}}" +
+  // narrow: ticket stacks into single column
+  "@container (max-width: 860px){" +
+  ".tsf-grid{grid-template-columns:var(--rail) minmax(0,1fr) var(--rail)}" +
+  ".tsf-vl{display:none}" +
+  ".tsf-ticket{grid-column:2;grid-row:auto;grid-template-columns:clamp(44px,12cqw,72px) minmax(0,1fr)}" +
+  ".tsf-stub-tip{display:none}" +
+  ".tsf-main{grid-template-columns:minmax(0,1fr)}" +
+  ".tsf-stats,.tsf-word{grid-column:1}" +
+  ".tsf-stats{padding-left:16px;padding-right:16px}" +
+  ".tsf-gutcell{display:none}" +
+  "}";
 
 // ── Reduced motion helper ─────────────────────────────────────────────────────
 
@@ -356,7 +380,7 @@ const TicketStubFooter = ({
   fontSerif = '"GT Super Display", Canela, Didot, "Bodoni 72", "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif',
   fontMono = MONO,
   serifWeight = 500,
-  halftone = false, // Disable halftone animation by default
+  halftone = true, // Keep halftone visual, disable animation
   className = "",
 }) => {
   const rootRef = React.useRef(null);
@@ -413,6 +437,8 @@ const TicketStubFooter = ({
     "--tsf-mono": fontMono,
   };
 
+  const stubClip = chamfer(9, 9, 9, 9);
+
   return (
     <section
       ref={rootRef}
@@ -421,26 +447,39 @@ const TicketStubFooter = ({
       aria-label={brand}
     >
       <style>{CSS}</style>
-      <div className="tsf-wrap">
-        <div className="tsf-panel">
-          {/* Stats */}
-          <div className="tsf-stats">
-            <div className="tsf-stat">
-              <span className="tsf-stat-v">
-                <span className="tsf-pulse" />
-                <Odometer value={total} />
-              </span>
-              <span className="tsf-stat-c">{countLabel}</span>
-            </div>
-            <div className="tsf-stat">
-              <span className="tsf-stat-v" style={{ fontSize: "clamp(16px,1.6cqw,22px)" }}>
-                50+
-              </span>
-              <span className="tsf-stat-c">Topics covered</span>
-            </div>
+      <div className="tsf-grid">
+        {/* Vertical guide rails. */}
+        {[2, 3, 4, 5, 6, 7].map((c) => (
+          <span key={"v" + c} className="tsf-vl" style={{ gridColumn: c }} aria-hidden="true" />
+        ))}
+
+        {/* ── Ticket stub ───────────────────────────────────────────── */}
+        <div className="tsf-ticket" style={{ clipPath: stubClip }}>
+          {/* Left stub — decorative only, now empty */}
+          <div className="tsf-stub" style={{ clipPath: stubClip }}>
+            {/* Left stub content removed: Mark, social icons, "Click me" tip */}
           </div>
-          {/* Wordmark */}
-          <div className="tsf-word">
+          {/* Right panel — stats + wordmark */}
+          <div className="tsf-main" style={{ clipPath: stubClip }}>
+            {/* Stats */}
+            <div className="tsf-stats">
+              <div className="tsf-stat">
+                <span className="tsf-stat-v">
+                  <span className="tsf-pulse" />
+                  <Odometer value={total} />
+                </span>
+                <span className="tsf-stat-c">{countLabel}</span>
+              </div>
+              <div className="tsf-stat">
+                <span className="tsf-stat-v" style={{ fontSize: "clamp(16px,1.6cqw,22px)" }}>
+                  50+
+                </span>
+                <span className="tsf-stat-c">Topics covered</span>
+              </div>
+            </div>
+            {/* Gutters */}
+            <div className="tsf-gutcell" aria-hidden="true" />
+            {/* Wordmark */}
             <Wordmark
               word={word}
               fontSerif={fontSerif}
