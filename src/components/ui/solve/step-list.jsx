@@ -45,7 +45,7 @@ const StepList = ({ steps, active, maxActive, captions = {}, onSelect }) => {
       const elapsed = now - startRef.current;
       const p = clamp01(elapsed / STEP_MS);
       if (fillRef.current) {
-        fillRef.current.style.transform = `scaleX(${p})`;
+        fillRef.current.style.width = `${p * 100}%`;
       }
       if (p < 1) {
         timerRef.current = requestAnimationFrame(raf);
@@ -120,8 +120,8 @@ const StepList = ({ steps, active, maxActive, captions = {}, onSelect }) => {
             {isActive && (
               <div
                 ref={fillRef}
-                className="absolute bottom-0 left-0 h-[2px] w-full origin-left bg-[#fffcf0] z-10"
-                style={{ transform: `scaleX(${0})` }}
+                className="absolute bottom-0 left-0 h-[2px] w-full overflow-hidden bg-[#fffcf0]"
+                style={{ width: `${0}%` }}
               />
             )}
           </button>

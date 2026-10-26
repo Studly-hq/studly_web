@@ -4,18 +4,28 @@ import {
   useReducedMotion,
   useScroll,
   useSpring,
+  useTransform,
+  motion,
+  AnimatePresence,
 } from "framer-motion";
 import ContainerGrid from "./ContainerGrid";
-import ScrollRevealText from "../ui/scroll-reveal-text";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AiChat01Icon, Quiz01Icon, Chart01Icon, FileIcon } from "@hugeicons/core-free-icons";
 
 /**
- * Features — what's inside Studly.
+ * Features — horizontal scroll carousel.
  *
- * Doubles down on the value prop after HowStudlySolvesIt shows the flow.
- * Four numbered feature cards, each with a visual mockup and colored tint.
- * Scroll-triggered reveal animation (same pattern as LearningPath/Problem).
+ * Doubles down on the value prop after HowStudlySolvesIt.
+ * Four feature cards in a horizontal row that slide left as user scrolls down.
+ * Uses framer-motion scroll-driven animation with signature ease.
+ *
+ * Design rules followed:
+ * - NO shadows/glows (depth via borders)
+ * - Signature ease [0.16, 1, 0.3, 1]
+ * - Motion durations 150-600ms
+ * - Hugeicons only (verified names)
+ * - Generous rounded corners (xl=12px, xxl=16px)
+ * - Reduced motion support
  */
 const FEATURES = [
   {
@@ -52,15 +62,26 @@ const FEATURES = [
   },
 ];
 
+// Card dimensions and layout constants
+const CARD_WIDTH = 400; // px
+const CARD_GAP = 24; // px
+const TOTAL_CARDS = FEATURES.length;
+const CONTAINER_WIDTH = TOTAL_CARDS * CARD_WIDTH + (TOTAL_CARDS - 1) * CARD_GAP;
+const VIEWPORT_WIDTH = 1080; // max-w container
+const SCROLL_RANGE = CONTAINER_WIDTH - VIEWPORT_WIDTH; // ~592px
+
+// Motion constants (from DESIGN.md)
+const SIGNATURE_EASE = [0.16, 1, 0.3, 1];
+const CARD_ENTER_DURATION = 400; // ms
+const CARD_EXIT_DURATION = 300; // ms
+
 const ChatMockup = () => (
   <div className="flex flex-col gap-3 p-6">
-    {/* User message */}
     <div className="flex justify-end">
       <div className="max-w-[80%] rounded-2xl rounded-br-md bg-[#141414] px-4 py-2.5 text-sm text-white">
         Explain quantum computing like I'm a beginner
       </div>
     </div>
-    {/* AI response */}
     <div className="flex justify-start">
       <div className="max-w-[85%] rounded-2xl rounded-bl-md border border-[#ece7d8] bg-white px-4 py-3 text-sm text-[#141414]">
         <p className="font-medium">Sure! Think of it like this:</p>
@@ -85,15 +106,13 @@ const ChatMockup = () => (
 
 const FlashcardMockup = () => (
   <div className="flex flex-col items-center justify-center p-8">
-    {/* Card */}
-    <div className="relative h-48 w-72 perspective-1000">
-      <div className="absolute inset-0 flex items-center justify-center rounded-2xl border border-[#ece7d8] bg-white p-6 shadow-sm transition-transform duration-500 hover:rotate-y-12">
+    <div className="relative h-48 w-72">
+      <div className="absolute inset-0 flex items-center justify-center rounded-2xl border border-[#ece7d8] bg-white p-6">
         <div className="text-center">
           <p className="text-xs uppercase tracking-wider text-[#726f6c]">Front</p>
           <p className="mt-2 text-lg font-medium text-[#141414]">What is superposition?</p>
         </div>
       </div>
-      {/* Flip indicator */}
       <div className="absolute -bottom-3 left-1/2 -translate-x-1/2">
         <div className="flex items-center gap-1 rounded-full bg-[#fbf4e3] px-3 py-1">
           <HugeiconsIcon icon={AiChat01Icon} size={14} color="#141414" strokeWidth={1.5} />
@@ -107,7 +126,6 @@ const FlashcardMockup = () => (
 const QuizMockup = () => (
   <div className="flex flex-col gap-4 p-6">
     <p className="text-sm font-medium text-[#141414]">What is quantum entanglement?</p>
-    {/* Options */}
     <div className="flex flex-col gap-2">
       <button className="flex items-center gap-3 rounded-xl border-2 border-[#141414] bg-[#eef6f1] px-4 py-3 text-left text-sm">
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#141414] text-xs text-white">
@@ -124,7 +142,6 @@ const QuizMockup = () => (
         <span>A type of encryption for quantum networks</span>
       </button>
     </div>
-    {/* Progress */}
     <div className="mt-2 flex items-center gap-2">
       <div className="h-1.5 flex-1 rounded-full bg-[#ece7d8]">
         <div className="h-full w-2/3 rounded-full bg-[#141414]"></div>
@@ -136,7 +153,6 @@ const QuizMockup = () => (
 
 const ProgressMockup = () => (
   <div className="flex flex-col gap-4 p-6">
-    {/* Stats row */}
     <div className="grid grid-cols-3 gap-3">
       <div className="rounded-xl bg-white p-3 text-center">
         <p className="text-xl font-semibold text-[#141414]">12</p>
@@ -151,7 +167,6 @@ const ProgressMockup = () => (
         <p className="text-xs text-[#726f6c]">Streak</p>
       </div>
     </div>
-    {/* Progress bar */}
     <div className="rounded-xl bg-white p-4">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-[#141414]">Quantum Physics</span>
@@ -161,7 +176,6 @@ const ProgressMockup = () => (
         <div className="h-full w-3/4 rounded-full bg-gradient-to-r from-[#141414] to-[#726f6c]"></div>
       </div>
     </div>
-    {/* Next up */}
     <div className="rounded-xl border border-[#ece7d8] p-3">
       <p className="text-xs uppercase tracking-wider text-[#726f6c]">Next up</p>
       <p className="mt-1 text-sm font-medium text-[#141414]">Wave-Particle Duality</p>
@@ -184,14 +198,93 @@ const FeatureMockup = ({ mockup }) => {
   }
 };
 
+/**
+ * Custom hook to compute per-card transform values (opacity + x position).
+ * Called once per card index at the top level of Features component.
+ */
+function useCardTransform(index, progress, containerX) {
+  const cardLeft = index * (CARD_WIDTH + CARD_GAP);
+
+  // Card's left edge in viewport (after container translation)
+  const cardLeftInViewport = useTransform(
+    progress,
+    [0, 1],
+    [cardLeft, cardLeft - SCROLL_RANGE]
+  );
+
+  // Fade in when card enters from right, fade out when card exits left
+  const opacity = useTransform(
+    cardLeftInViewport,
+    [VIEWPORT_WIDTH - CARD_WIDTH, VIEWPORT_WIDTH - 50, 50, 0],
+    [0, 1, 1, 0]
+  );
+
+  // Card's x position = cardLeft + containerX
+  const x = useTransform(
+    [progress, containerX],
+    ([p, cx]) => cardLeft + cx
+  );
+
+  return { opacity, x };
+}
+
+const FeatureCard = ({ feature, index, opacity, x }) => {
+  const Icon = feature.icon;
+
+  return (
+    <motion.div
+      style={{ opacity, x }}
+      className="relative flex-shrink-0 w-[400px] rounded-2xl border border-[#ece7d8] bg-white"
+    >
+      {/* Number badge */}
+      <div className="absolute left-6 top-6 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-[#141414] text-sm font-medium text-white">
+        {index + 1}
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
+        <div className="flex items-start gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f7f3e7]">
+            <HugeiconsIcon
+              icon={Icon}
+              size={20}
+              color="#141414"
+              strokeWidth={1.5}
+            />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-[#141414]">
+              {feature.title}
+            </h3>
+            <p className="mt-1 text-sm text-[#726f6c]">
+              {feature.description}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Mockup */}
+      <div
+        className="relative h-56 overflow-hidden"
+        style={{ backgroundColor: feature.tint }}
+      >
+        <FeatureMockup mockup={feature.mockup} />
+      </div>
+    </motion.div>
+  );
+};
+
 const Features = () => {
   const ref = useRef(null);
   const reduced = useReducedMotion();
 
+  // Scroll tracking for the entire section
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
   });
+
+  // Smooth the scroll progress
   const smooth = useSpring(scrollYProgress, {
     stiffness: 90,
     damping: 26,
@@ -200,6 +293,59 @@ const Features = () => {
 
   const settled = useMotionValue(1);
   const progress = reduced ? settled : smooth;
+
+  // Calculate container translation based on scroll
+  // As user scrolls from 0 to 1 (section fully in view), container moves from 0 to -SCROLL_RANGE
+  const containerX = useTransform(
+    progress,
+    [0, 1],
+    [0, -SCROLL_RANGE]
+  );
+
+  // Per-card transforms: each card has its own opacity and x position
+  const card0 = useCardTransform(0, progress, containerX);
+  const card1 = useCardTransform(1, progress, containerX);
+  const card2 = useCardTransform(2, progress, containerX);
+  const card3 = useCardTransform(3, progress, containerX);
+
+  if (reduced) {
+    // Fallback: 2x2 grid for reduced motion
+    return (
+      <section
+        id="features"
+        ref={ref}
+        className="relative py-24 md:py-28"
+      >
+        <ContainerGrid />
+
+        <div className="mx-auto w-full max-w-[1080px] px-6 md:px-10">
+          {/* Header */}
+          <div className="mx-auto max-w-[680px] text-center">
+            <h2 className="text-4xl font-normal tracking-[-0.02em] text-[#141414] md:text-5xl">
+              Everything you need to study smart.
+            </h2>
+            <p className="mt-4 text-base text-[#726f6c]">
+              Not just another flashcard app. Studly is a complete study system
+              that adapts to how you learn.
+            </p>
+          </div>
+
+          {/* Feature cards — 2x2 grid fallback */}
+          <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2">
+            {FEATURES.map((feature, index) => (
+              <FeatureCard
+                key={feature.id}
+                feature={feature}
+                index={index}
+                opacity={1}
+                x={0}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -212,66 +358,39 @@ const Features = () => {
       <div className="mx-auto w-full max-w-[1080px] px-6 md:px-10">
         {/* Header */}
         <div className="mx-auto max-w-[680px] text-center">
-          <ScrollRevealText progress={progress} range={[0.05, 0.3]}>
-            <p className="mb-3 text-sm font-medium uppercase tracking-wider text-[#726f6c]">
-              What's inside
-            </p>
-            <h2 className="text-4xl font-normal tracking-[-0.02em] text-[#141414] md:text-5xl">
-              Everything you need to study smart.
-            </h2>
-            <p className="mt-4 text-base text-[#726f6c]">
-              Not just another flashcard app. Studly is a complete study system
-              that adapts to how you learn.
-            </p>
-          </ScrollRevealText>
+          <h2 className="text-4xl font-normal tracking-[-0.02em] text-[#141414] md:text-5xl">
+            Everything you need to study smart.
+          </h2>
+          <p className="mt-4 text-base text-[#726f6c]">
+            Not just another flashcard app. Studly is a complete study system
+            that adapts to how you learn.
+          </p>
         </div>
 
-        {/* Feature cards */}
-        <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2">
-          {FEATURES.map((feature, index) => {
-            const Icon = feature.icon;
-            return (
-              <div
-                key={feature.id}
-                className="group relative overflow-hidden rounded-2xl border border-[#ece7d8] bg-white transition-shadow hover:shadow-lg"
-              >
-                {/* Number badge */}
-                <div className="absolute left-6 top-6 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-[#141414] text-sm font-medium text-white">
-                  {index + 1}
-                </div>
+        {/* Horizontal scroll carousel */}
+        <div className="relative mt-16 overflow-hidden">
+          {/* Fade edges */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-[#fffcf0] to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-[#fffcf0] to-transparent" />
 
-                {/* Content */}
-                <div className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f7f3e7]">
-                      <HugeiconsIcon
-                        icon={Icon}
-                        size={20}
-                        color="#141414"
-                        strokeWidth={1.5}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-[#141414]">
-                        {feature.title}
-                      </h3>
-                      <p className="mt-1 text-sm text-[#726f6c]">
-                        {feature.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Mockup */}
-                <div
-                  className="relative h-56 overflow-hidden"
-                  style={{ backgroundColor: feature.tint }}
-                >
-                  <FeatureMockup mockup={feature.mockup} />
-                </div>
-              </div>
-            );
-          })}
+          {/* Scroll container with all cards */}
+          <motion.div
+            style={{ x: containerX }}
+            className="flex gap-6"
+          >
+            {FEATURES.map((feature, index) => {
+              const cardTransforms = [card0, card1, card2, card3][index];
+              return (
+                <FeatureCard
+                  key={feature.id}
+                  feature={feature}
+                  index={index}
+                  opacity={cardTransforms.opacity}
+                  x={cardTransforms.x}
+                />
+              );
+            })}
+          </motion.div>
         </div>
       </div>
     </section>
