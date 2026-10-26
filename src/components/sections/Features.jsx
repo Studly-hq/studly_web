@@ -8,7 +8,7 @@ import {
 import ContainerGrid from "./ContainerGrid";
 import ScrollRevealText from "../ui/scroll-reveal-text";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { AiChat01Icon, ChatIcon, Quiz01Icon, Chart01Icon, FileIcon } from "@hugeicons/core-free-icons";
+import { AiChat01Icon, Quiz01Icon, Chart01Icon, FileIcon } from "@hugeicons/core-free-icons";
 
 /**
  * Features — what's inside Studly.
