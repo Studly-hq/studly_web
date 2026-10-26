@@ -116,6 +116,14 @@ const StepList = ({ steps, active, maxActive, captions = {}, onSelect }) => {
                 {step.title}
               </span>
             </span>
+            {/* Progress bar — only on active step */}
+            {isActive && (
+              <div
+                ref={fillRef}
+                className="absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-[#141414] transition-none"
+                style={{ transform: `scaleX(${0})` }}
+              />
+            )}
           </button>
         );
       })}
