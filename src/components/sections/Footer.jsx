@@ -70,7 +70,7 @@ const MONO = '"JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, M
 // ── Inline CSS ────────────────────────────────────────────────────────────────
 
 const CSS =
-  ".tsf{position:relative;container-type:inline-size;background:var(--tsf-bg);color:var(--tsf-ink);font-family:var(--tsf-sans);overflow:clip;isolation:isolate;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}" +
+  ".tsf{position:relative;container-type:inline-size;background:var(--tsf-bg);color:var(--tsf-ink);font-family:var(--tsf-sans);overflow:visible;isolation:isolate;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}" +
   ".tsf *,.tsf *::before,.tsf *::after{box-sizing:border-box}" +
   ":where(.tsf) a{color:inherit;text-decoration:none}" +
   ":where(.tsf) button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit}" +
@@ -81,7 +81,7 @@ const CSS =
   "grid-template-rows:auto auto var(--rail) auto}" +
   ".tsf-vl{grid-row:1/-1;justify-self:start;width:0;border-left:1px solid var(--line);pointer-events:none}" +
   // ticket stub
-  ".tsf-ticket{grid-column:2/7;grid-row:3;position:relative;z-index:1;display:grid;grid-template-columns:var(--nav) minmax(0,1fr);color:var(--tsf-aink)}" +
+  ".tsf-ticket{grid-column:2/7;grid-row:4;position:relative;z-index:1;display:grid;grid-template-columns:var(--nav) minmax(0,1fr);color:var(--tsf-aink)}" +
   ".tsf-stub{position:relative;display:flex;align-items:center;justify-content:center;background-color:var(--tsf-deep);" +
   "background-image:repeating-linear-gradient(135deg,color-mix(in srgb,var(--tsf-aink) 7%,transparent) 0 1px,transparent 1px 5px);transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .3s;transform-origin:100% 100%}" +
   ".tsf-stub::after{content:'';position:absolute;right:0;top:14px;bottom:14px;width:1px;background-image:linear-gradient(to bottom,color-mix(in srgb,var(--tsf-aink) 45%,transparent) 50%,transparent 50%);background-size:1px 7px}" +
