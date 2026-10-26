@@ -55,7 +55,7 @@ const SignupPage = () => {
 
       {/* Right: form content - centered in full viewport */}
       <div className="w-full max-w-[400px] relative z-10">
-          <h1 className="text-4xl md:text-5xl font-normal tracking-[-0.02em] text-center">
+          <h1 className="text-4xl md:text-5xl font-normal tracking-[-0.02em] text-center whitespace-nowrap">
             Let's get you started.
           </h1>
           <p className="mt-4 text-base text-[#726f6c] text-center">

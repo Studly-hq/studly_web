@@ -4,6 +4,7 @@ import Hero from "../components/sections/Hero";
 import Problem from "../components/sections/Problem";
 import LearningPath from "../components/sections/LearningPath";
 import HowStudlySolvesIt from "../components/sections/HowStudlySolvesIt";
+import Features from "../components/sections/Features";
 import Footer from "../components/sections/Footer";
 import useSmoothScroll from "../hooks/useSmoothScroll";
 
@@ -19,6 +20,7 @@ const LandingPage = () => {
       <Problem />
       <LearningPath />
       <HowStudlySolvesIt />
+      <Features />
       <Footer />
     </div>
   );
