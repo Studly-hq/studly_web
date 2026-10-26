@@ -70,35 +70,22 @@ const MONO = '"JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, M
 // ── Inline CSS ────────────────────────────────────────────────────────────────
 
 const CSS =
-  ".tsf{position:relative;container-type:inline-size;background:var(--tsf-bg);color:var(--tsf-ink);font-family:var(--tsf-sans);overflow:visible;isolation:isolate;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}" +
+  ".tsf{position:relative;background:var(--tsf-bg);color:var(--tsf-ink);font-family:var(--tsf-sans);overflow:visible;isolation:isolate;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}" +
   ".tsf *,.tsf *::before,.tsf *::after{box-sizing:border-box}" +
   ":where(.tsf) a{color:inherit;text-decoration:none}" +
   ":where(.tsf) button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit}" +
   ":where(.tsf) :focus-visible{outline:1px solid var(--tsf-accent);outline-offset:3px}" +
-  // grid scaffold — vertical guide rails
-  ".tsf-grid{--rail:clamp(16px,2.5cqw,36px);--nav:clamp(116px,12.5cqw,180px);--line:color-mix(in srgb,var(--tsf-ink) 11%,transparent);--oline:color-mix(in srgb,var(--tsf-aink) 16%,transparent);position:relative;display:grid;" +
-  "grid-template-columns:var(--rail) var(--nav) var(--rail) minmax(0,1fr) var(--rail) minmax(0,1fr) var(--rail);" +
-  "grid-template-rows:auto auto var(--rail) auto}" +
-  ".tsf-vl{grid-row:1/-1;justify-self:start;width:0;border-left:1px solid var(--line);pointer-events:none}" +
-  // ticket stub
-  ".tsf-ticket{grid-column:2/7;grid-row:4;position:relative;z-index:1;display:grid;grid-template-columns:var(--nav) minmax(0,1fr);color:var(--tsf-aink)}" +
-  ".tsf-stub{position:relative;display:flex;align-items:center;justify-content:center;background-color:var(--tsf-deep);" +
-  "background-image:repeating-linear-gradient(135deg,color-mix(in srgb,var(--tsf-aink) 7%,transparent) 0 1px,transparent 1px 5px);transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .3s;transform-origin:100% 100%}" +
-  ".tsf-stub::after{content:'';position:absolute;right:0;top:14px;bottom:14px;width:1px;background-image:linear-gradient(to bottom,color-mix(in srgb,var(--tsf-aink) 45%,transparent) 50%,transparent 50%);background-size:1px 7px}" +
-  ".tsf-stub:hover{transform:rotate(-1.4deg) translateY(-2px);filter:brightness(1.06)}" +
-  ".tsf-stub:active{transform:rotate(-3deg) translateY(3px)}" +
-  ".tsf-stub svg{width:clamp(30px,4.2cqw,54px);height:clamp(30px,4.2cqw,54px);max-width:none;transition:transform .7s cubic-bezier(.3,1.5,.4,1)}" +
-  ".tsf-stub-tip{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-family:var(--tsf-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s}" +
-  ".tsf-stub:hover .tsf-stub-tip,.tsf-stub:focus-visible .tsf-stub-tip{opacity:.7;transform:none}" +
-  ".tsf-main{position:relative;display:grid;grid-template-columns:var(--rail) minmax(0,1fr) var(--rail) minmax(0,1fr);background:var(--tsf-accent);min-width:0}" +
-  ".tsf-stats{grid-column:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding:clamp(18px,2.4cqw,32px) 0 clamp(18px,2.3cqw,30px) clamp(12px,2.3cqw,28px)}" +
+  // main container
+  ".tsf-wrap{position:relative;max-width:1080px;margin:0 auto;padding:clamp(40px,6cqw,80px) clamp(16px,3cqw,40px)}" +
+  // orange panel
+  ".tsf-panel{position:relative;background:var(--tsf-accent);border-radius:12px;overflow:hidden}" +
+  ".tsf-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding:clamp(24px,4cqw,48px) clamp(16px,3cqw,32px)}" +
   ".tsf-stat{display:flex;flex-direction:column;gap:4px;min-width:0}" +
   ".tsf-stat-v{display:flex;align-items:center;gap:10px;font-size:clamp(20px,2.2cqw,31px);line-height:1.1;letter-spacing:-.035em;font-variant-numeric:tabular-nums;white-space:nowrap}" +
   ".tsf-stat-c{font-size:clamp(11.5px,1.12cqw,14.5px);color:color-mix(in srgb,var(--tsf-aink) 62%,transparent)}" +
   ".tsf-pulse{position:relative;flex:none;width:7px;height:7px;background:var(--tsf-aink);transform:rotate(45deg)}" +
   ".tsf-pulse::after{content:'';position:absolute;inset:-3px;border:1px solid var(--tsf-aink);animation:tsf-ping 1.8s cubic-bezier(0,0,.2,1) infinite}" +
-  ".tsf-gutcell{grid-column:3;border-left:1px solid var(--oline);border-right:1px solid var(--oline)}" +
-  ".tsf-word{grid-column:2/-1;position:relative;border-top:1px solid var(--oline);cursor:crosshair;touch-action:pan-y}" +
+  ".tsf-word{position:relative;border-top:1px solid color-mix(in srgb,var(--tsf-aink) 20%,transparent);min-height:120px}" +
   ".tsf-word canvas{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;display:block}" +
   ".tsf-odo{display:inline-flex}" +
   ".tsf-odo-d{display:inline-block;height:1.1em;overflow:hidden}" +
@@ -106,26 +93,7 @@ const CSS =
   ".tsf-odo-s span{display:block;height:1.1em;line-height:1.1em}" +
   ".tsf-bump{animation:tsf-bump .5s cubic-bezier(.2,.8,.2,1)}" +
   "@keyframes tsf-ping{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.9);opacity:0}}" +
-  "@keyframes tsf-bump{0%{transform:translateY(0)}35%{transform:translateY(-3px)}100%{transform:translateY(0)}}" +
-  // narrow: ticket stacks into single column
-  "@container (max-width: 860px){" +
-  ".tsf-grid{grid-template-columns:var(--rail) minmax(0,1fr) var(--rail)}" +
-  ".tsf-vl{display:none}" +
-  ".tsf-ticket{grid-column:2;grid-row:auto;grid-template-columns:clamp(44px,12cqw,72px) minmax(0,1fr)}" +
-  ".tsf-stub-tip{display:none}" +
-  ".tsf-main{grid-template-columns:minmax(0,1fr)}" +
-  ".tsf-stats,.tsf-word{grid-column:1}" +
-  ".tsf-stats{padding-left:16px;padding-right:16px}" +
-  ".tsf-gutcell{display:none}" +
-  "}";
-
-// ── Diamond mark (brand icon) ────────────────────────────────────────────────
-
-const Mark = ({ className, style }) => (
-  <svg viewBox="0 0 48 48" className={className} style={style} aria-hidden="true" focusable="false">
-    <path fillRule="evenodd" fill="currentColor" d="M24 1.5 46.5 24 24 46.5 1.5 24Z M19.5 15.5 32 24 19.5 32.5Z" />
-  </svg>
-);
+  "@keyframes tsf-bump{0%{transform:translateY(0)}35%{transform:translateY(-3px)}100%{transform:translateY(0)}}";
 
 // ── Reduced motion helper ─────────────────────────────────────────────────────
 
@@ -161,25 +129,6 @@ const Odometer = ({ value }) => {
           <span key={"s" + (s.length - i)}>{ch}</span>
         ),
       )}
-    </span>
-  );
-};
-
-// ── Social icon helpers ───────────────────────────────────────────────────────
-
-const SocialIcon = ({ children, href, label }) => {
-  const targetProps = href ? { as: "a", href } : { as: "button", type: "button" };
-  const props = {
-    ...targetProps,
-    className: "inline-flex items-center justify-center w-8 h-8 rounded-full border border-[var(--tsf-aink)]/20 text-[var(--tsf-aink)]/50 hover:text-[var(--tsf-aink)]/80 hover:border-[var(--tsf-aink)]/40 hover:scale-110 transition-all cursor-pointer",
-    "aria-label": label,
-    target: "_blank",
-    rel: "noopener noreferrer",
-    ...(href ? {} : { onClick: (e) => e.preventDefault() }),
-  };
-  return (
-    <span {...props}>
-      {children}
     </span>
   );
 };
@@ -377,35 +326,11 @@ const Wordmark = ({ word, fontSerif, weight, color, halftone, reduced, visible }
     };
   }, [shown, iAt, fontSerif, weight, color, halftone, reduced, visible]);
 
-  const local = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    return [e.clientX - r.left, e.clientY - r.top];
-  };
-  const onMove = (e) => {
-    const s = st.current;
-    const [x, y] = local(e);
-    s.lx = x;
-    s.ly = y;
-    s.lensTarget = halftone && e.pointerType !== "touch" ? 1 : 0;
-    s.kick();
-  };
-  const onLeave = () => { st.current.lensTarget = 0; st.current.kick(); };
-  const onClick = (e) => {
-    const s = st.current;
-    const r = e.currentTarget.getBoundingClientRect();
-    if (halftone && !reduced) s.rings.push({ x: e.clientX - r.left, y: e.clientY - r.top, r: 0, a: 0.9 });
-    s.rotTarget += Math.PI / 2;
-    s.kick();
-  };
-
   return (
     <div
       ref={boxRef}
       className="tsf-word"
       style={{ height: height === null ? undefined : height, aspectRatio: height === null ? "1000 / 240" : undefined }}
-      onPointerMove={onMove}
-      onPointerLeave={onLeave}
-      onClick={onClick}
       aria-hidden="true"
     >
       <canvas ref={canvasRef} />
@@ -431,7 +356,7 @@ const TicketStubFooter = ({
   fontSerif = '"GT Super Display", Canela, Didot, "Bodoni 72", "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif',
   fontMono = MONO,
   serifWeight = 500,
-  halftone = true,
+  halftone = false, // Disable halftone animation by default
   className = "",
 }) => {
   const rootRef = React.useRef(null);
@@ -488,8 +413,6 @@ const TicketStubFooter = ({
     "--tsf-mono": fontMono,
   };
 
-  const stubClip = chamfer(9, 9, 9, 9);
-
   return (
     <section
       ref={rootRef}
@@ -498,51 +421,26 @@ const TicketStubFooter = ({
       aria-label={brand}
     >
       <style>{CSS}</style>
-      <div className="tsf-grid">
-        {/* Vertical guide rails. */}
-        {[2, 3, 4, 5, 6, 7].map((c) => (
-          <span key={"v" + c} className="tsf-vl" style={{ gridColumn: c }} aria-hidden="true" />
-        ))}
-
-        {/* ── Ticket stub ───────────────────────────────────────────── */}
-        <div className="tsf-ticket" style={{ clipPath: stubClip }}>
-          {/* Decorative stub with brand mark and social links. */}
-          <div className="tsf-stub" style={{ clipPath: stubClip }}>
-            <Mark className="size-6 text-[var(--tsf-aink)]/[.65]" />
-            <div className="absolute left-0 right-0 bottom-3 flex items-center justify-center gap-2">
-              <SocialIcon href="#" label="Discord">
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.036c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.036A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.318.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.096.246.196.373.318a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.158-1.085-2.158-2.419 0-1.333.956-2.419 2.158-2.419 1.21 0 2.176 1.096 2.158 2.42 0 1.333-.956 2.418-2.158 2.418zm7.975 0c-1.183 0-2.158-1.085-2.158-2.419 0-1.333.955-2.419 2.158-2.419 1.21 0 2.176 1.096 2.158 2.42 0 1.333-.947 2.418-2.158 2.418z"/></svg>
-              </SocialIcon>
-              <SocialIcon href="#" label="Twitter / X">
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-              </SocialIcon>
-              <SocialIcon href="#" label="LinkedIn">
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-              </SocialIcon>
+      <div className="tsf-wrap">
+        <div className="tsf-panel">
+          {/* Stats */}
+          <div className="tsf-stats">
+            <div className="tsf-stat">
+              <span className="tsf-stat-v">
+                <span className="tsf-pulse" />
+                <Odometer value={total} />
+              </span>
+              <span className="tsf-stat-c">{countLabel}</span>
             </div>
-            <span className="tsf-stub-tip">Click me</span>
+            <div className="tsf-stat">
+              <span className="tsf-stat-v" style={{ fontSize: "clamp(16px,1.6cqw,22px)" }}>
+                50+
+              </span>
+              <span className="tsf-stat-c">Topics covered</span>
+            </div>
           </div>
-          {/* Main content area */}
-          <div className="tsf-main" style={{ clipPath: stubClip }}>
-            {/* Stats */}
-            <div className="tsf-stats">
-              <div className="tsf-stat">
-                <span className="tsf-stat-v">
-                  <span className="tsf-pulse" />
-                  <Odometer value={total} />
-                </span>
-                <span className="tsf-stat-c">{countLabel}</span>
-              </div>
-              <div className="tsf-stat">
-                <span className="tsf-stat-v" style={{ fontSize: "clamp(16px,1.6cqw,22px)" }}>
-                  50+
-                </span>
-                <span className="tsf-stat-c">Topics covered</span>
-              </div>
-            </div>
-            {/* Gutters */}
-            <div className="tsf-gutcell" aria-hidden="true" />
-            {/* Interactive wordmark */}
+          {/* Wordmark */}
+          <div className="tsf-word">
             <Wordmark
               word={word}
               fontSerif={fontSerif}
