@@ -1,12 +1,10 @@
 import React, { useRef } from "react";
 import {
-  useMotionValue,
   useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
   motion,
-  AnimatePresence,
 } from "framer-motion";
 import ContainerGrid from "./ContainerGrid";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -16,8 +14,8 @@ import { AiChat01Icon, Quiz01Icon, Chart01Icon, FileIcon } from "@hugeicons/core
  * Features — horizontal scroll carousel.
  *
  * Doubles down on the value prop after HowStudlySolvesIt.
- * Four feature cards in a horizontal row that slide left as user scrolls down.
- * Uses framer-motion scroll-driven animation with signature ease.
+ * Four feature cards in a horizontal row. Initially 2 visible, as user scrolls
+ * down the row slides left: cards 1-2 → 2-3 → 3-4 → section ends.
  *
  * Design rules followed:
  * - NO shadows/glows (depth via borders)
@@ -66,14 +64,12 @@ const FEATURES = [
 const CARD_WIDTH = 400; // px
 const CARD_GAP = 24; // px
 const TOTAL_CARDS = FEATURES.length;
-const CONTAINER_WIDTH = TOTAL_CARDS * CARD_WIDTH + (TOTAL_CARDS - 1) * CARD_GAP;
+const CONTAINER_WIDTH = TOTAL_CARDS * CARD_WIDTH + (TOTAL_CARDS - 1) * CARD_GAP; // 1672px
 const VIEWPORT_WIDTH = 1080; // max-w container
-const SCROLL_RANGE = CONTAINER_WIDTH - VIEWPORT_WIDTH; // ~592px
+const SCROLL_RANGE = CONTAINER_WIDTH - VIEWPORT_WIDTH; // 592px
 
 // Motion constants (from DESIGN.md)
 const SIGNATURE_EASE = [0.16, 1, 0.3, 1];
-const CARD_ENTER_DURATION = 400; // ms
-const CARD_EXIT_DURATION = 300; // ms
 
 const ChatMockup = () => (
   <div className="flex flex-col gap-3 p-6">
@@ -198,44 +194,11 @@ const FeatureMockup = ({ mockup }) => {
   }
 };
 
-/**
- * Custom hook to compute per-card transform values (opacity + x position).
- * Called once per card index at the top level of Features component.
- */
-function useCardTransform(index, progress, containerX) {
-  const cardLeft = index * (CARD_WIDTH + CARD_GAP);
-
-  // Card's left edge in viewport (after container translation)
-  const cardLeftInViewport = useTransform(
-    progress,
-    [0, 1],
-    [cardLeft, cardLeft - SCROLL_RANGE]
-  );
-
-  // Fade in when card enters from right, fade out when card exits left
-  const opacity = useTransform(
-    cardLeftInViewport,
-    [VIEWPORT_WIDTH - CARD_WIDTH, VIEWPORT_WIDTH - 50, 50, 0],
-    [0, 1, 1, 0]
-  );
-
-  // Card's x position = cardLeft + containerX
-  const x = useTransform(
-    [progress, containerX],
-    ([p, cx]) => cardLeft + cx
-  );
-
-  return { opacity, x };
-}
-
-const FeatureCard = ({ feature, index, opacity, x }) => {
+const FeatureCard = ({ feature, index }) => {
   const Icon = feature.icon;
 
   return (
-    <motion.div
-      style={{ opacity, x }}
-      className="relative flex-shrink-0 w-[400px] rounded-2xl border border-[#ece7d8] bg-white"
-    >
+    <div className="relative flex-shrink-0 w-[400px] rounded-2xl border border-[#ece7d8] bg-white">
       {/* Number badge */}
       <div className="absolute left-6 top-6 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-[#141414] text-sm font-medium text-white">
         {index + 1}
@@ -270,7 +233,7 @@ const FeatureCard = ({ feature, index, opacity, x }) => {
       >
         <FeatureMockup mockup={feature.mockup} />
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -294,19 +257,12 @@ const Features = () => {
   const settled = useMotionValue(1);
   const progress = reduced ? settled : smooth;
 
-  // Calculate container translation based on scroll
-  // As user scrolls from 0 to 1 (section fully in view), container moves from 0 to -SCROLL_RANGE
+  // Container translation: as user scrolls 0→1, container moves 0→-592px
   const containerX = useTransform(
     progress,
     [0, 1],
     [0, -SCROLL_RANGE]
   );
-
-  // Per-card transforms: each card has its own opacity and x position
-  const card0 = useCardTransform(0, progress, containerX);
-  const card1 = useCardTransform(1, progress, containerX);
-  const card2 = useCardTransform(2, progress, containerX);
-  const card3 = useCardTransform(3, progress, containerX);
 
   if (reduced) {
     // Fallback: 2x2 grid for reduced motion
@@ -337,8 +293,6 @@ const Features = () => {
                 key={feature.id}
                 feature={feature}
                 index={index}
-                opacity={1}
-                x={0}
               />
             ))}
           </div>
@@ -369,27 +323,22 @@ const Features = () => {
 
         {/* Horizontal scroll carousel */}
         <div className="relative mt-16 overflow-hidden">
-          {/* Fade edges */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-[#fffcf0] to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-[#fffcf0] to-transparent" />
+          {/* Fade edges — subtle gradient to hide card transitions at viewport edges */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-[#fffcf0] to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-[#fffcf0] to-transparent" />
 
-          {/* Scroll container with all cards */}
+          {/* Scroll container — slides left as user scrolls */}
           <motion.div
             style={{ x: containerX }}
             className="flex gap-6"
           >
-            {FEATURES.map((feature, index) => {
-              const cardTransforms = [card0, card1, card2, card3][index];
-              return (
-                <FeatureCard
-                  key={feature.id}
-                  feature={feature}
-                  index={index}
-                  opacity={cardTransforms.opacity}
-                  x={cardTransforms.x}
-                />
-              );
-            })}
+            {FEATURES.map((feature, index) => (
+              <FeatureCard
+                key={feature.id}
+                feature={feature}
+                index={index}
+              />
+            ))}
           </motion.div>
         </div>
       </div>
