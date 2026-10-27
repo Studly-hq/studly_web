@@ -120,7 +120,7 @@ const StepList = ({ steps, active, maxActive, captions = {}, onSelect }) => {
             {isActive && (
               <div
                 ref={fillRef}
-                className="absolute bottom-[3px] left-0 h-[2px] bg-[#fffcf0] z-10"
+                className="absolute bottom-[3px] left-0 h-[2px] w-full bg-[#fffcf0] z-10"
               />
             )}
           </button>
