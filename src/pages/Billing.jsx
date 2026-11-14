@@ -7,13 +7,11 @@ import {
   CheckmarkCircle02Icon,
   InformationCircleIcon,
   Loading03Icon,
-  SparklesIcon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { useAuth } from "../context/AuthContext";
 import { useUI } from "../context/UIContext";
-import { useCelebration } from "../context/CelebrationContext";
 import { initializePayment, getBillingOverview } from "../api/billing";
 import { compatToast as toast } from "../components/ui/toast";
 
@@ -95,8 +93,6 @@ const Row = ({ label, detail, children }) => (
 const Billing = () => {
   const { isAuthenticated, isAuthLoading, currentUser } = useAuth();
   const { openPaywall } = useUI();
-  const { triggerCelebration } = useCelebration();
-  const { openGiveawayWinModal } = useUI();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const reduce = useReducedMotion();
@@ -261,26 +257,6 @@ const Billing = () => {
               {isPro ? "Pro active" : expired ? "Expired" : "Free plan"}
             </Badge>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePreviewPaywall}
-            className="rounded-full font-geist"
-          >
-            Preview paywall
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => openGiveawayWinModal({
-              ticket_number: 3,
-              login_position: 15,
-              message: "🎉 Congratulations! You are login #15 and won Ticket #3! DM t.me/zee_mp4 to claim your movie ticket."
-            })}
-            className="rounded-full font-geist text-amber-500 border-amber-500/30 hover:bg-amber-500/10"
-          >
-            Test Giveaway Modal
-          </Button>
         </div>
       </div>
 
@@ -369,13 +345,6 @@ const Billing = () => {
                     <HugeiconsIcon icon={Loading03Icon} size={16} strokeWidth={2} className="animate-spin" />
                   )}
                   {primaryLabel}
-                </Button>
-                <Button
-                  onClick={() => triggerCelebration("aura", 50, "You earned 50 aura points!")}
-                  className="h-10 rounded-full border border-border px-5 text-[13.5px] font-medium text-foreground hover:bg-secondary transition-colors"
-                >
-                  <HugeiconsIcon icon={SparklesIcon} size={16} strokeWidth={2} />
-                  Celebration
                 </Button>
               </Row>
 

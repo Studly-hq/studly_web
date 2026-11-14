@@ -12,7 +12,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { FeedProvider } from "./context/FeedContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import ComingSoon from "./components/common/ComingSoon";
-import { PublicOnly, PrivateOnly } from "./components/auth/AuthGate";
+import { PublicOnly } from "./components/auth/AuthGate";
 
 import AuthModal from "./components/modals/AuthModal";
 import CreatePostModal from "./components/modals/CreatePostModal";

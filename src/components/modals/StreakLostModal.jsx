@@ -8,7 +8,7 @@ import {
   ArrowRight02Icon,
   FlameIcon,
 } from "@hugeicons/core-free-icons";
-import { RotateCcw, Shield, Lock, Crown } from "lucide-react";
+import { RotateCcw, Lock, Crown } from "lucide-react";
 import { useStreak } from "../../context/StreakContext";
 import StreakCalendar from "../../components/ui/StreakCalendar";
 
@@ -37,7 +37,6 @@ const StreakLostModal = () => {
   const calendarData = React.useMemo(() => {
     if (!streakLostData?.lostAt) return {};
     const data = {};
-    const endDate = new Date();
     for (let i = 29; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
@@ -86,7 +85,6 @@ const StreakLostModal = () => {
     graceExpiresAt,
     isPro,
     restoresRemaining,
-    restoresUsedThisMonth,
     lostAt,
   } = streakLostData;
 

@@ -90,8 +90,6 @@ const GiveawayWinModal = () => {
 
     if (!showGiveawayWinModal || !giveawayWinData) return null;
 
-    const { ticket_number, login_position, message } = giveawayWinData;
-
     const handleSendScreenshot = () => {
         window.open("https://t.me/zee_mp4", "_blank", "noopener,noreferrer");
         closeGiveawayWinModal();
