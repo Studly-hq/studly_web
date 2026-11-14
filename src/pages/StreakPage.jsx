@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useStreak } from "../context/StreakContext";
-import { useAuth } from "../context/AuthContext";
 import StreakCalendar from "../components/ui/StreakCalendar";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -20,7 +19,6 @@ const MILESTONES = [1, 3, 7, 14, 30, 60, 100, 200, 365, 500, 750, 1000];
 
 const StreakPage = () => {
   const { streakData, calendarData, fetchStreakStatus, fetchStreakCalendar } = useStreak();
-  const { isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

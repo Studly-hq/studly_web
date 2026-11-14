@@ -72,7 +72,7 @@ export function useCachedQuery(fetcher, options = {}) {
                 if (!hasDataRef.current && mountedRef.current) setLoading(false);
             }
         }
-    }, [cacheKey]);
+    }, [cacheKey, fetcher]);
 
     // Initial load
     useEffect(() => {

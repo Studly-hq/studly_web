@@ -426,7 +426,7 @@ export default function HalftoneWordmarkFooter(props) {
           )}
         </div>
       )}
-      {backToTop || (columns.length > 0) && (
+      {(backToTop || columns.length > 0) && (
         <div className="hwf-rule">
           {backToTop ? (
             <button type="button" className="hwf-up" onClick={toTop}>

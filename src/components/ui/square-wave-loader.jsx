@@ -57,7 +57,7 @@ export function SquareWaveLoader({
 `;
       })
       .join("");
-  }, [count, size, gap, duration, easing, instanceId, squares, halfBounceHeight, halfScale, effectiveBounceHeight, maxScale]);
+  }, [size, duration, easing, instanceId, squares, halfBounceHeight, halfScale, effectiveBounceHeight, maxScale]);
 
   return (
     <svg

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -11,7 +11,6 @@ import {
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { useAuth } from "../context/AuthContext";
-import { useUI } from "../context/UIContext";
 import { initializePayment, getBillingOverview } from "../api/billing";
 import { compatToast as toast } from "../components/ui/toast";
 
@@ -92,7 +91,6 @@ const Row = ({ label, detail, children }) => (
 
 const Billing = () => {
   const { isAuthenticated, isAuthLoading, currentUser } = useAuth();
-  const { openPaywall } = useUI();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const reduce = useReducedMotion();
@@ -105,16 +103,6 @@ const Billing = () => {
 
   const justUpgraded = searchParams.get("upgraded") === "1";
   const reasonParam = searchParams.get("reason");
-
-  // Preview helper. Every click opens the paywall with the next reason so each
-  // variant can be inspected without hitting a real limit.
-  const PAYWALL_PREVIEWS = ["generic", "upload", "ai", "feature", "expired"];
-  const previewCounter = useRef(0);
-  const handlePreviewPaywall = () => {
-    const reason = PAYWALL_PREVIEWS[previewCounter.current % PAYWALL_PREVIEWS.length];
-    previewCounter.current += 1;
-    openPaywall(reason);
-  };
 
   const loadBilling = useCallback(async () => {
     try {
