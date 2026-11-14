@@ -241,7 +241,16 @@ export const AuthProvider = ({ children }) => {
                     }
                 }
             } finally {
-                if (isMounted) setIsAuthLoading(false);
+                if (isMounted) {
+                    setIsAuthLoading(false);
+                    // Safety net: guarantee public pages are never authenticated
+                    // (handles any race condition from Supabase session restore)
+                    const isPublicPage = ['/login', '/signup', '/', '/giveaway'].includes(window.location.pathname);
+                    if (isPublicPage) {
+                        setIsAuthenticated(false);
+                        setCurrentUser(null);
+                    }
+                }
             }
         };
 
@@ -254,6 +263,10 @@ export const AuthProvider = ({ children }) => {
                 // Don't auto-authenticate on public pages
                 if (!isPublicPage) {
                     await syncWithBackendRef.current(session.access_token, session.refresh_token);
+                } else {
+                    // Explicitly clear auth state on public pages if Supabase fires SIGNED_IN
+                    setIsAuthenticated(false);
+                    setCurrentUser(null);
                 }
             } else if (event === 'SIGNED_OUT') {
                 setIsAuthenticated(false);
