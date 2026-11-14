@@ -12,16 +12,13 @@ import {
     Award,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { compatToast as toast } from "../components/ui/toast";
 import SEO from "../components/common/SEO";
 import client from "../api/client";
 
 const Giveaway = () => {
     const navigate = useNavigate();
-    const { currentUser, isAuthenticated } = useAuth();
+    const { isAuthenticated } = useAuth();
     
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [giveawayStatus, setGiveawayStatus] = useState(null);
 
     // Fetch giveaway status (admin only endpoint, but we'll try)
@@ -36,8 +33,6 @@ const Giveaway = () => {
             if (err.response?.status !== 403) {
                 console.error("Failed to fetch giveaway status:", err);
             }
-        } finally {
-            setLoading(false);
         }
     }, [isAuthenticated]);
 
@@ -73,12 +68,6 @@ const Giveaway = () => {
             </div>
 
             <div className="px-4 pt-6">
-                {error && (
-                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400">
-                        {error}
-                    </div>
-                )}
-
                 {/* Hero Card */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

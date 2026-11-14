@@ -12,7 +12,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { FeedProvider } from "./context/FeedContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import ComingSoon from "./components/common/ComingSoon";
-import { PublicOnly, PrivateOnly } from "./components/auth/AuthGate";
+import { PublicOnly } from "./components/auth/AuthGate";
 
 import AuthModal from "./components/modals/AuthModal";
 import CreatePostModal from "./components/modals/CreatePostModal";
@@ -28,6 +28,9 @@ import { Analytics } from '@vercel/analytics/react';
 import "./App.css";
 
 // Pages (Lazy loaded for better performance)
+import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 const FeedPage = lazy(() => import("./pages/FeedPage"));
 // PostsPage removed - /posts now redirects to /feed
 const Explore = lazy(() => import("./pages/Explore"));
@@ -49,14 +52,8 @@ const CUHUB = lazy(() => import("./pages/CUHUB"));
 const Billing = lazy(() => import("./pages/Billing"));
 const VerifyPayment = lazy(() => import("./pages/VerifyPayment"));
 const ReleaseNotes = lazy(() => import("./pages/ReleaseNotes"));
-// LandingPage eager-loaded — it's the entry point; Suspense fallback={null} would show blank while chunk loads
-import LandingPage from "./pages/LandingPage";
 const StreakPage = lazy(() => import("./pages/StreakPage"));
 const Giveaway = lazy(() => import("./pages/Giveaway"));
-
-// Auth pages - eager loaded for immediate rendering (no Suspense fallback issues)
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
 
 // Legal Pages (Lazy loaded)
 const TermsOfService = lazy(() => import("./pages/legal/TermsOfService"));

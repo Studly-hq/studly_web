@@ -8,7 +8,7 @@ import {
   ArrowRight02Icon,
   FlameIcon,
 } from "@hugeicons/core-free-icons";
-import { RotateCcw, Shield, Lock, Crown } from "lucide-react";
+import { RotateCcw, Lock, Crown } from "lucide-react";
 import { useStreak } from "../../context/StreakContext";
 import StreakCalendar from "../../components/ui/StreakCalendar";
 
@@ -32,6 +32,31 @@ const StreakLostModal = () => {
   } = useStreak();
   const reduce = useReducedMotion();
   const panelRef = useRef(null);
+
+  // Build mini calendar data for last 30 days (must be before early return for hooks rules)
+  const calendarData = React.useMemo(() => {
+    if (!streakLostData?.lostAt) return {};
+    const data = {};
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = formatDate(date);
+
+      // Mark the lost day and surrounding days
+      let active = true;
+      let level = 1;
+
+      const lostDate = new Date(streakLostData.lostAt);
+      const diffDays = Math.floor((date - lostDate) / (1000 * 60 * 60 * 24));
+      if (diffDays >= 0) {
+        active = false;
+        level = 0;
+      }
+
+      data[dateStr] = { level, active };
+    }
+    return data;
+  }, [streakLostData?.lostAt]);
 
   React.useEffect(() => {
     if (!showStreakLost) return;
@@ -60,7 +85,6 @@ const StreakLostModal = () => {
     graceExpiresAt,
     isPro,
     restoresRemaining,
-    restoresUsedThisMonth,
     lostAt,
   } = streakLostData;
 
@@ -74,33 +98,6 @@ const StreakLostModal = () => {
 
   const graceDays = Math.floor(graceHoursLeft / 24);
   const graceHours = graceHoursLeft % 24;
-
-  // Build mini calendar data for last 30 days
-  const calendarData = React.useMemo(() => {
-    const data = {};
-    const endDate = new Date();
-    for (let i = 29; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const dateStr = formatDate(date);
-
-      // Mark the lost day and surrounding days
-      let active = true;
-      let level = 1;
-
-      if (lostAt) {
-        const lostDate = new Date(lostAt);
-        const diffDays = Math.floor((date - lostDate) / (1000 * 60 * 60 * 24));
-        if (diffDays >= 0) {
-          active = false;
-          level = 0;
-        }
-      }
-
-      data[dateStr] = { level, active };
-    }
-    return data;
-  }, [lostAt]);
 
   const handleRestore = async () => {
     await triggerRestore();

@@ -97,7 +97,7 @@ export const StreakProvider = ({ children }) => {
     }
 
     await fetchStreakCalendar();
-  }, [fetchStreakStatus, fetchStreakCalendar]);
+  }, [fetchStreakStatus, fetchStreakCalendar, lastKnownStreak]);
 
   // Load last known streak from localStorage on init
   useEffect(() => {
@@ -119,7 +119,7 @@ export const StreakProvider = ({ children }) => {
     if (!isAuthenticated) return;
 
     const unsubscribeIncremented = subscribe("StreakIncremented", (data) => {
-      const { new_streak, is_milestone, milestone_type } = data;
+      const { new_streak, is_milestone } = data;
       setStreakData((prev) => ({ ...prev, current_streak: new_streak }));
       setLastKnownStreak(new_streak);
       localStorage.setItem("lastKnownStreak", String(new_streak));
@@ -149,7 +149,7 @@ export const StreakProvider = ({ children }) => {
     });
 
     const unsubscribeLost = subscribe("StreakLost", (data) => {
-      const { previous_streak, grace_expires_at, can_restore, message } = data;
+      const { previous_streak, grace_expires_at, can_restore } = data;
       setStreakData((prev) => ({
         ...prev,
         current_streak: 1,

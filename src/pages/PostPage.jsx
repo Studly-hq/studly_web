@@ -13,7 +13,6 @@ import { useAuth } from "../context/AuthContext";
 import { useFeed } from "../context/FeedContext";
 import { useUI } from "../context/UIContext";
 import Comment from "../components/comments/Comment";
-import LoadingSpinner from "../components/common/LoadingSpinner";
 import { PostCardSkeleton } from "../components/common/Skeleton";
 
 const PostPage = () => {
@@ -74,7 +73,6 @@ const PostPage = () => {
   };
 
   const handleFormatTimestamp = (timestamp) => {
-    const date = new Date(timestamp);
     return (
       <div className="min-h-screen text-reddit-text">
         {/* Sticky Header */}

@@ -444,13 +444,13 @@
    font before Geist loads, so it can never wrap or overflow on any screen. */
 .hero-headline {
   white-space: nowrap;
-  font-size: clamp(10px, calc((100vw - 3rem) / 21), 44px);
+  font-size: clamp(10px,calc((100vw - 3rem) / 21), 44px);
 }
 
 @media (min-width: 768px) {
   .hero-headline {
     /* md:px-10 wrapper + 1080px max width, so fit against that content box */
-    font-size: clamp(10px, calc((min(100vw, 1080px) - 5rem) / 21), 44px);
+    font-size: clamp(10px,calc((min(100vw,1080px) - 5rem) / 21), 44px);
   }
 }
 
@@ -461,13 +461,13 @@
    and caps at the original 14px (above ~352px it is already full size). */
 .composer-hint {
   white-space: nowrap;
-  font-size: clamp(9.5px, calc((100vw - 132px) / 15.2), 0.875rem);
+  font-size: clamp(9.5px,calc((100vw - 132px) / 15.2), 0.875rem);
 }
 
 /* Auth pages — fluid from small phones to wide desktops. Every size below is a
    clamp(), so the page scales continuously instead of stepping at breakpoints. */
 .auth-page {
-  padding: clamp(24px, 6vh, 112px) clamp(14px, 4vw, 32px);
+  padding: clamp(24px,6vh,112px) clamp(14px,4vw,32px);
   width: 100%;
   overflow-x: hidden;
 }
@@ -477,76 +477,76 @@
 }
 
 .auth-title {
-  font-size: clamp(24px, 4vw + 4px, 56px);
-  line-height: clamp(1.06, 1.02 + 0.04vw, 1.08);
-  letter-spacing: clamp(-0.025em, -0.01em - 0.015vw, -0.02em);
-  padding-inline: clamp(8px, 2vw, 16px);
+  font-size: clamp(24px,4vw + 4px,56px);
+  line-height: clamp(1.06,1.02 + 0.04vw,1.08);
+  letter-spacing: clamp(-0.025em,-0.01em - 0.015vw,-0.02em);
+  padding-inline: clamp(8px,2vw,16px);
   word-break: break-word;
   hyphens: auto;
 }
 
 .auth-lead {
-  margin-top: clamp(6px, 1.4vw, 18px);
-  font-size: clamp(13px, 0.4vw + 12px, 17px);
-  line-height: clamp(1.45, 1.4 + 0.05vw, 1.55);
-  padding-inline: clamp(8px, 2vw, 16px);
+  margin-top: clamp(6px,1.4vw,18px);
+  font-size: clamp(13px,0.4vw + 12px,17px);
+  line-height: clamp(1.45,1.4 + 0.05vw,1.55);
+  padding-inline: clamp(8px,2vw,16px);
 }
 
 .auth-form {
-  width: min(100%, clamp(300px, 60vw, 380px));
-  margin: clamp(12px, 2.4vw, 24px) auto 0;
+  width: min(100%, clamp(300px,60vw,380px));
+  margin: clamp(12px,2.4vw,24px) auto 0;
 }
 
 .auth-label {
   display: block;
-  font-size: clamp(12px, 0.3vw + 11px, 14px);
-  line-height: clamp(1.3, 1.25 + 0.05vw, 1.4);
+  font-size: clamp(12px,0.3vw + 11px,14px);
+  line-height: clamp(1.3,1.25 + 0.05vw,1.4);
 }
 
 .auth-label:not(:first-child) {
-  margin-top: clamp(10px, 1.6vw, 18px);
+  margin-top: clamp(10px,1.6vw,18px);
 }
 
 .auth-field {
   width: 100%;
-  height: clamp(38px, 2.2vw + 32px, 46px);
-  margin-top: clamp(4px, 0.8vw, 10px);
-  padding-inline: clamp(10px, 1.2vw, 16px);
-  font-size: clamp(13px, 0.3vw + 12px, 15px);
-  border-radius: clamp(8px, 0.9vw, 14px);
+  height: clamp(38px,2.2vw + 32px,46px);
+  margin-top: clamp(4px,0.8vw,10px);
+  padding-inline: clamp(10px,1.2vw,16px);
+  font-size: clamp(13px,0.3vw + 12px,15px);
+  border-radius: clamp(8px,0.9vw,14px);
 }
 
 .auth-field-password {
-  padding-right: clamp(32px, 3.2vw, 44px);
+  padding-right: clamp(32px,3.2vw,44px);
 }
 
 .auth-eye {
-  right: clamp(8px, 1.2vw, 14px);
+  right: clamp(8px,1.2vw,14px);
 }
 
 .auth-eye svg {
-  width: clamp(15px, 1.3vw, 19px);
+  width: clamp(15px,1.3vw,19px);
   height: auto;
 }
 
 .auth-submit {
-  height: clamp(38px, 2.2vw + 32px, 46px);
-  margin-top: clamp(8px, 1.4vw, 14px);
-  font-size: clamp(13px, 0.3vw + 12px, 15px);
-  border-radius: clamp(8px, 0.9vw, 14px);
+  height: clamp(38px,2.2vw + 32px,46px);
+  margin-top: clamp(8px,1.4vw,14px);
+  font-size: clamp(13px,0.3vw + 12px,15px);
+  border-radius: clamp(8px,0.9vw,14px);
 }
 
 .auth-switch {
-  margin-top: clamp(12px, 2vw, 18px);
-  font-size: clamp(12.5px, 0.25vw + 11.8px, 14px);
-  line-height: clamp(1.4, 1.35 + 0.05vw, 1.5);
-  padding-inline: clamp(8px, 2vw, 16px);
+  margin-top: clamp(12px,2vw,18px);
+  font-size: clamp(12.5px,0.25vw + 11.8px,14px);
+  line-height: clamp(1.4,1.35 + 0.05vw,1.5);
+  padding-inline: clamp(8px,2vw,16px);
 }
 
 /* Decorative corner art: a transparent webp, painted behind the content.
    Its width is fluid, so it shrinks with the viewport instead of masking text. */
 .auth-art {
-  width: clamp(150px, 30vw, 448px);
+  width: clamp(150px,30vw,448px);
   height: auto;
 }
 
@@ -617,11 +617,11 @@
    Custom properties used via var() in Tailwind arbitrary classes,
    e.g. `max-w-[var(--fluid-container-wide)]`, `p-[clamp(1rem,4vw,2rem)]`.
    ── */
---fluid-container-wide: clamp(20rem, 94vw, 72rem);
---fluid-container: clamp(20rem, 92vw, 68rem);
---fluid-measure: clamp(20rem, 90vw, 48rem);
---fluid-measure-narrow: clamp(16rem, 88vw, 42rem);
---fluid-measure-wide: clamp(24rem, 92vw, 56rem);
+--fluid-container-wide: clamp(20rem,94vw,72rem);
+--fluid-container: clamp(20rem,92vw,68rem);
+--fluid-measure: clamp(20rem,90vw,48rem);
+--fluid-measure-narrow: clamp(16rem,88vw,42rem);
+--fluid-measure-wide: clamp(24rem,92vw,56rem);
 
 /* ── Utility classes using inline clamp() values ──
    Tailwind's parser can't handle clamp() inside @layer arbitrary values,
@@ -633,56 +633,56 @@
    from the smallest phone to wide desktop using clamp().
    -- */
 
---fluid-text-xs: clamp(0.7rem, 0.7rem + 0.15vw, 0.875rem);
---fluid-text-sm: clamp(0.8rem, 0.8rem + 0.2vw, 1rem);
---fluid-text-base: clamp(0.9rem, 0.9rem + 0.25vw, 1.125rem);
---fluid-text-lg: clamp(1rem, 1rem + 0.3vw, 1.25rem);
---fluid-text-xl: clamp(1.1rem, 1.1rem + 0.4vw, 1.5rem);
---fluid-text-2xl: clamp(1.25rem, 1.25rem + 0.6vw, 2rem);
---fluid-text-3xl: clamp(1.5rem, 1.5rem + 0.8vw, 2.25rem);
---fluid-text-4xl: clamp(1.75rem, 1.75rem + 1.2vw, 3rem);
---fluid-text-5xl: clamp(2rem, 2rem + 1.5vw, 3.75rem);
---fluid-text-6xl: clamp(2.5rem, 2.5rem + 2vw, 5rem);
+--fluid-text-xs: clamp(0.7rem,0.7rem+0.15vw,0.875rem);
+--fluid-text-sm: clamp(0.8rem,0.8rem+0.2vw,1rem);
+--fluid-text-base: clamp(0.9rem,0.9rem+0.25vw,1.125rem);
+--fluid-text-lg: clamp(1rem,1rem+0.3vw,1.25rem);
+--fluid-text-xl: clamp(1.1rem,1.1rem+0.4vw,1.5rem);
+--fluid-text-2xl: clamp(1.25rem,1.25rem+0.6vw,2rem);
+--fluid-text-3xl: clamp(1.5rem,1.5rem+0.8vw,2.25rem);
+--fluid-text-4xl: clamp(1.75rem,1.75rem+1.2vw,3rem);
+--fluid-text-5xl: clamp(2rem,2rem+1.5vw,3.75rem);
+--fluid-text-6xl: clamp(2.5rem,2.5rem+2vw,5rem);
 
---fluid-leading-tight: clamp(1.1, 1.1 + 0.02vw, 1.2);
---fluid-leading-normal: clamp(1.4, 1.4 + 0.03vw, 1.6);
---fluid-leading-loose: clamp(1.55, 1.55 + 0.04vw, 1.8);
+--fluid-leading-tight: clamp(1.1,1.1+0.02vw,1.2);
+--fluid-leading-normal: clamp(1.4,1.4+0.03vw,1.6);
+--fluid-leading-loose: clamp(1.55,1.55+0.04vw,1.8);
 
---fluid-track-tight: clamp(-0.04em, -0.03em - 0.01vw, -0.02em);
---fluid-track-normal: clamp(-0.02em, -0.015em, -0.01em);
---fluid-track-wide: clamp(0.02em, 0.02em + 0.01vw, 0.04em);
+--fluid-track-tight: clamp(-0.04em,-0.03em-0.01vw,-0.02em);
+--fluid-track-normal: clamp(-0.02em,-0.015em,-0.01em);
+--fluid-track-wide: clamp(0.02em,0.02em+0.01vw,0.04em);
 
---fluid-space-0: clamp(0rem, 0rem, 0rem);
---fluid-space-1: clamp(0.2rem, 0.2rem + 0.08vw, 0.4rem);
---fluid-space-2: clamp(0.4rem, 0.4rem + 0.12vw, 0.6rem);
---fluid-space-3: clamp(0.6rem, 0.6rem + 0.16vw, 0.9rem);
---fluid-space-4: clamp(0.8rem, 0.8rem + 0.2vw, 1.2rem);
---fluid-space-5: clamp(1rem, 1rem + 0.25vw, 1.5rem);
---fluid-space-6: clamp(1.2rem, 1.2rem + 0.3vw, 1.8rem);
---fluid-space-8: clamp(1.6rem, 1.6rem + 0.4vw, 2.4rem);
---fluid-space-10: clamp(2rem, 2rem + 0.5vw, 3rem);
---fluid-space-12: clamp(2.4rem, 2.4rem + 0.6vw, 3.6rem);
---fluid-space-16: clamp(3rem, 3rem + 0.8vw, 4.5rem);
---fluid-space-20: clamp(3.5rem, 3.5rem + 1vw, 5rem);
---fluid-space-24: clamp(4rem, 4rem + 1.2vw, 6rem);
---fluid-space-28: clamp(4.5rem, 4.5rem + 1.4vw, 7rem);
---fluid-space-32: clamp(5rem, 5rem + 1.6vw, 8rem);
+--fluid-space-0: clamp(0rem,0rem,0rem);
+--fluid-space-1: clamp(0.2rem,0.2rem+0.08vw,0.4rem);
+--fluid-space-2: clamp(0.4rem,0.4rem+0.12vw,0.6rem);
+--fluid-space-3: clamp(0.6rem,0.6rem+0.16vw,0.9rem);
+--fluid-space-4: clamp(0.8rem,0.8rem+0.2vw,1.2rem);
+--fluid-space-5: clamp(1rem,1rem+0.25vw,1.5rem);
+--fluid-space-6: clamp(1.2rem,1.2rem+0.3vw,1.8rem);
+--fluid-space-8: clamp(1.6rem,1.6rem+0.4vw,2.4rem);
+--fluid-space-10: clamp(2rem,2rem+0.5vw,3rem);
+--fluid-space-12: clamp(2.4rem,2.4rem+0.6vw,3.6rem);
+--fluid-space-16: clamp(3rem,3rem+0.8vw,4.5rem);
+--fluid-space-20: clamp(3.5rem,3.5rem+1vw,5rem);
+--fluid-space-24: clamp(4rem,4rem+1.2vw,6rem);
+--fluid-space-28: clamp(4.5rem,4.5rem+1.4vw,7rem);
+--fluid-space-32: clamp(5rem,5rem+1.6vw,8rem);
 
---fluid-container: clamp(20rem, 92vw, 68rem);
---fluid-container-wide: clamp(20rem, 94vw, 72rem);
---fluid-measure-narrow: clamp(16rem, 88vw, 42rem);
---fluid-measure: clamp(20rem, 90vw, 48rem);
---fluid-measure-wide: clamp(24rem, 92vw, 56rem);
+--fluid-container: clamp(20rem,92vw,68rem);
+--fluid-container-wide: clamp(20rem,94vw,72rem);
+--fluid-measure-narrow: clamp(16rem,88vw,42rem);
+--fluid-measure: clamp(20rem,90vw,48rem);
+--fluid-measure-wide: clamp(24rem,92vw,56rem);
 
---fluid-btn-h: clamp(2.6rem, 2.6rem + 0.5vw, 3rem);
---fluid-btn-px: clamp(1rem, 1rem + 0.3vw, 1.75rem);
---fluid-icon-sm: clamp(0.85rem, 0.85rem + 0.15vw, 1rem);
---fluid-icon-md: clamp(1rem, 1rem + 0.2vw, 1.25rem);
---fluid-icon-lg: clamp(1.25rem, 1.25rem + 0.3vw, 1.5rem);
---fluid-card-radius: clamp(10px, 10px + 0.4vw, 16px);
+--fluid-btn-h: clamp(2.6rem,2.6rem+0.5vw,3rem);
+--fluid-btn-px: clamp(1rem,1rem+0.3vw,1.75rem);
+--fluid-icon-sm: clamp(0.85rem,0.85rem+0.15vw,1rem);
+--fluid-icon-md: clamp(1rem,1rem+0.2vw,1.25rem);
+--fluid-icon-lg: clamp(1.25rem,1.25rem+0.3vw,1.5rem);
+--fluid-card-radius: clamp(10px,10px+0.4vw,16px);
 
---fluid-section-py: clamp(3rem, 3rem + 1vw, 5rem);
---fluid-section-px: clamp(1rem, 1rem + 0.4vw, 2.5rem);
+--fluid-section-py: clamp(3rem,3rem+1vw,5rem);
+--fluid-section-px: clamp(1rem,1rem+0.4vw,2.5rem);
 
 @layer utilities {
   .text-fluid-xs { font-size: var(--fluid-text-xs); }

@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { useStreak } from "../context/StreakContext";
-import { useAuth } from "../context/AuthContext";
 import StreakCalendar from "../components/ui/StreakCalendar";
-import { StreakBadge } from "../components/ui/StreakBadge";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   FlameIcon,
   TrophyIcon,
-  CalendarIcon,
   ArrowRight02Icon,
 } from "@hugeicons/core-free-icons";
 import {
@@ -23,9 +19,7 @@ const MILESTONES = [1, 3, 7, 14, 30, 60, 100, 200, 365, 500, 750, 1000];
 
 const StreakPage = () => {
   const { streakData, calendarData, fetchStreakStatus, fetchStreakCalendar } = useStreak();
-  const { currentUser } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const [showProTooltip, setShowProTooltip] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -43,7 +37,6 @@ const StreakPage = () => {
   const isPro = streakData.is_pro ?? false;
   const canRestore = streakData.can_restore ?? false;
   const graceExpiresAt = streakData.grace_expires_at;
-  const previousStreak = streakData.previous_streak;
 
   const getMilestoneProgress = (milestone) => {
     if (currentStreak >= milestone) return 100;

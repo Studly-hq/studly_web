@@ -36,6 +36,8 @@ const ChatMockup = () => (
       <div className="max-w-[80%] rounded-2xl rounded-br-md bg-[#141414] px-4 py-2.5 text-sm text-white">
         Explain quantum computing like I'm a beginner
       </div>
+
+      
     </div>
     <div className="flex justify-start">
       <div className="max-w-[85%] rounded-2xl rounded-bl-md border border-[#ece7d8] bg-white px-4 py-3 text-sm text-[#141414]">

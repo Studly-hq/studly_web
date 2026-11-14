@@ -17,7 +17,6 @@ import ContainerGrid from "./ContainerGrid";
  */
 
 const PLAN_PRICE = "₦2,000";
-const FIRST_MONTH_PRICE = "₦1,000";
 const PLAN_PERIOD = "per 30 days";
 const SIGNUP_HREF = "/signup";
 
