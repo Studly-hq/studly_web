@@ -15,6 +15,13 @@ export const PublicOnly = ({ children, redirectTo = "/home" }) => {
     return null;
   }
 
+  // Hard guard: never redirect off public pages regardless of auth state
+  // This handles any race condition where isAuthenticated might be stale/incorrect
+  const isPublicPage = ['/login', '/signup', '/', '/giveaway'].includes(location.pathname);
+  if (isPublicPage) {
+    return children;
+  }
+
   if (isAuthenticated) {
     // Preserve the intended destination if coming from a deep link
     const from = location.state?.from?.pathname || redirectTo;
