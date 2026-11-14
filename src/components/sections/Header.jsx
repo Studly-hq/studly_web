@@ -2,32 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.webp";
 
-/**
- * Header shell mirroring the design export: sticky, translucent cream with a
- * backdrop blur, a hairline bottom border, and a 1080px / h-16 row using the
- * standard inline padding scale.
- *
- * Two things make this actually work, and neither is enough alone:
- *
- *  - The blur has to be strong enough to destroy the content passing through.
- *    At 12px a 32px headline is still readable behind the bar, so the header
- *    never feels clear of it. 20px smears passing text into an indistinct wash,
- *    which is what keeps the logo / nav / CTA legible on top.
- *  - The tint stays fairly opaque (70%). The blur does the work of hiding what
- *    is behind; the cream does the work of guaranteeing contrast for the
- *    header's own content. Going more transparent makes the header text
- *    *less* readable, which is the opposite of the goal.
- *
- * `z-50` is load-bearing, not cosmetic. `backdrop-filter` only blurs what is
- * painted *below* the element, and the hero's content wrapper is itself `z-40`
- * (it needs to clear the `z-30` ContainerGrid). At an equal z-index the later
- * element in the DOM wins, so the headline painted straight over the header and
- * the blur had nothing left to do — the headline stayed razor sharp. The header
- * has to outrank the page content for the effect to exist at all.
- *
- * Light-only for now: colors are pinned to the app's light palette rather
- * than theme tokens, so this stays stable while the page is a bare shell.
- */
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
   { label: "Pricing", href: "#pricing" },

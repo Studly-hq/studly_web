@@ -36,7 +36,7 @@ const Leaderboard = () => {
                 const data = await getLeaderboard(activePeriod);
                 setLeaderboardData(data);
             } catch (err) {
-                console.error("Failed to fetch leaderboard:", err);
+                console.error("Failed to load leaderboard:", err);
                 setError("Unable to load leaderboard. Please try again later.");
             } finally {
                 setLoading(false);
@@ -50,6 +50,38 @@ const Leaderboard = () => {
     const remainingRanks = leaderboardData.slice(3);
     const userEntry = leaderboardData.find(entry => entry.user_id === currentUser?.id);
 
+    // Single unified loading state — one skeleton, not scattered across sections.
+    if (loading && leaderboardData.length === 0) {
+        return (
+            <div className="w-full max-w-[640px] mx-auto min-h-screen bg-reddit-bg pb-24 px-4">
+                <SEO
+                    title="Leaderboard"
+                    description="See who is leading the way in knowledge sharing and earning aura points on the Studly leaderboard."
+                    canonical="/leaderboard"
+                />
+                <div className="sticky top-0 z-30 bg-reddit-bg/95 backdrop-blur-md border-b border-reddit-border px-4 py-4 flex items-center gap-4">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors"
+                    >
+                        <ArrowLeft size={20} className="text-reddit-text" />
+                    </button>
+                    <h1 className="text-xl font-bold text-reddit-text font-righteous tracking-wide flex items-center gap-2">
+                        <Trophy className="text-yellow-500" size={24} />
+                        Leaderboard
+                    </h1>
+                </div>
+
+                <div className="px-4 pt-20">
+                    <div className="flex flex-col items-center gap-4">
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <Skeleton className="h-7 w-48" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="w-full max-w-[640px] mx-auto min-h-screen bg-reddit-bg pb-24">
             <SEO
@@ -59,57 +91,40 @@ const Leaderboard = () => {
             />
             {/* Header */}
             <div className="sticky top-0 z-30 bg-reddit-bg/95 backdrop-blur-md border-b border-reddit-border px-4 py-4 flex items-center gap-4">
-                {loading && leaderboardData.length === 0 ? (
-                    <>
-                        <Skeleton className="h-10 w-10 rounded-full shrink-0" />
-                        <Skeleton className="h-7 w-40" />
-                    </>
-                ) : (
-                    <>
-                        <button
-                            onClick={() => navigate(-1)}
-                            className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors"
-                        >
-                            <ArrowLeft size={20} className="text-reddit-text" />
-                        </button>
-                        <h1 className="text-xl font-bold text-reddit-text font-righteous tracking-wide flex items-center gap-2">
-                            <Trophy className="text-yellow-500" size={24} />
-                            Leaderboard
-                        </h1>
-                    </>
-                )}
+                <button
+                    onClick={() => navigate(-1)}
+                    className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors"
+                >
+                    <ArrowLeft size={20} className="text-reddit-text" />
+                </button>
+                <h1 className="text-xl font-bold text-reddit-text font-righteous tracking-wide flex items-center gap-2">
+                    <Trophy className="text-yellow-500" size={24} />
+                    Leaderboard
+                </h1>
             </div>
 
             <div className="px-4 pt-6">
                 {/* Period Selector - Modern Segmented Control */}
                 <div className="flex p-1 bg-reddit-card border border-reddit-border rounded-xl mb-10">
-                    {loading && leaderboardData.length === 0 ? (
-                        ["Daily", "Weekly", "Overall"].map((label) => (
-                            <div key={label} className="flex-1 py-2.5 text-center">
-                                <Skeleton className="h-6 mx-auto w-12 rounded" />
-                            </div>
-                        ))
-                    ) : (
-                        periods.map((period) => (
-                            <button
-                                key={period.id}
-                                onClick={() => setActivePeriod(period.id)}
-                                className={`relative flex-1 py-2.5 text-sm font-bold transition-all duration-300 rounded-lg ${activePeriod === period.id
-                                    ? "text-reddit-text"
-                                    : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover/50"
-                                    }`}
-                            >
-                                {activePeriod === period.id && (
-                                    <motion.div
-                                        layoutId="activePeriod"
-                                        className="absolute inset-0 bg-reddit-orange rounded-lg"
-                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                    />
-                                )}
-                                <span className="relative z-10">{period.label}</span>
-                            </button>
-                        ))
-                    )}
+                    {periods.map((period) => (
+                        <button
+                            key={period.id}
+                            onClick={() => setActivePeriod(period.id)}
+                            className={`relative flex-1 py-2.5 text-sm font-bold transition-all duration-300 rounded-lg ${activePeriod === period.id
+                                ? "text-reddit-text"
+                                : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover/50"
+                                }`}
+                        >
+                            {activePeriod === period.id && (
+                                <motion.div
+                                    layoutId="activePeriod"
+                                    className="absolute inset-0 bg-reddit-orange rounded-lg"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                />
+                            )}
+                            <span className="relative z-10">{period.label}</span>
+                        </button>
+                    ))}
                 </div>
 
                 {/* Loading indicator when switching periods */}
@@ -120,146 +135,108 @@ const Leaderboard = () => {
                 )}
 
                 {/* Podium for Top 3 */}
-                {loading && leaderboardData.length === 0 ? (
-                    <div className="flex items-end justify-center gap-2 mb-12 mt-4 px-2">
-                        {[
-                            { cls: 'w-14 md:w-18', h: 'h-36' },
-                            { cls: 'w-16 md:w-20', h: 'h-48' },
-                            { cls: 'w-12 md:w-16', h: 'h-28' },
-                        ].map(({ cls, h }, idx) => (
-                            <div key={idx} className={`flex flex-col items-center ${cls}`}>
-                                <div className="relative mb-4">
-                                    <Skeleton className="w-12 h-12 md:w-14 md:h-14 rounded-full" />
-                                    <Skeleton className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full" />
-                                </div>
-                                <div className="text-center mb-4">
-                                    <Skeleton className="h-5 w-14 mx-auto rounded" />
-                                    <Skeleton className="h-3 w-10 mx-auto mt-1 rounded" />
-                                </div>
-                                <Skeleton className={`w-full ${h} rounded-t-2xl mt-4`} />
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <>
-                        {!error && topThree.length > 0 && (
-                            <div className={`flex items-end justify-center gap-2 mb-12 mt-4 px-2 transition-opacity duration-300 ${loading ? 'opacity-50' : ''}`}>
-                                {/* Rank 2 */}
-                                {topThree[1] && (
-                                    <PodiumPlace
-                                        entry={topThree[1]}
-                                        place={2}
-                                        height="h-32"
-                                        color="bg-slate-400"
-                                        delay={0.2}
-                                    />
-                                )}
-                                {/* Rank 1 */}
-                                {topThree[0] && (
-                                    <PodiumPlace
-                                        entry={topThree[0]}
-                                        place={1}
-                                        height="h-44"
-                                        color="bg-yellow-500"
-                                        isFirst
-                                        delay={0}
-                                    />
-                                )}
-                                {/* Rank 3 */}
-                                {topThree[2] && (
-                                    <PodiumPlace
-                                        entry={topThree[2]}
-                                        place={3}
-                                        height="h-24"
-                                        color="bg-amber-700"
-                                        delay={0.4}
-                                    />
-                                )}
-                            </div>
+                {!error && topThree.length > 0 && (
+                    <div className={`flex items-end justify-center gap-2 mb-12 mt-4 px-2 transition-opacity duration-300 ${loading ? 'opacity-50' : ''}`}>
+                        {/* Rank 2 */}
+                        {topThree[1] && (
+                            <PodiumPlace
+                                entry={topThree[1]}
+                                place={2}
+                                height="h-32"
+                                color="bg-slate-400"
+                                delay={0.2}
+                            />
                         )}
-                    </>
+                        {/* Rank 1 */}
+                        {topThree[0] && (
+                            <PodiumPlace
+                                entry={topThree[0]}
+                                place={1}
+                                height="h-44"
+                                color="bg-yellow-500"
+                                isFirst
+                                delay={0}
+                            />
+                        )}
+                        {/* Rank 3 */}
+                        {topThree[2] && (
+                            <PodiumPlace
+                                entry={topThree[2]}
+                                place={3}
+                                height="h-24"
+                                color="bg-amber-700"
+                                delay={0.4}
+                            />
+                        )}
+                    </div>
                 )}
 
                 {/* Rankings List */}
                 <div className="space-y-3">
-                    {loading && leaderboardData.length === 0 ? (
-                        Array.from({ length: 8 }).map((_, i) => (
-                            <Skeleton key={i} className="h-16 rounded-xl" />
-                        ))
-                    ) : (
-                        <AnimatePresence initial={false}>
-                            {remainingRanks.map((entry, index) => (
-                                <motion.div
-                                    key={entry.user_id}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.2 }}
-                                    className={`flex items-center gap-4 p-4 rounded-2xl glass transition-all duration-300 ${entry.user_id === currentUser?.id ? "border-reddit-orange/50 bg-reddit-orange/5" : ""
-                                        }`}
-                                >
-                                    <div className="w-8 text-center font-bold text-reddit-textMuted text-sm">
-                                        {entry.rank}
-                                    </div>
+                    <AnimatePresence initial={false}>
+                        {remainingRanks.map((entry, index) => (
+                            <motion.div
+                                key={entry.user_id}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className={`flex items-center gap-4 p-4 rounded-2xl glass transition-all duration-300 ${entry.user_id === currentUser?.id ? "border-reddit-orange/50 bg-reddit-orange/5" : ""
+                                    }`}
+                            >
+                                <div className="w-8 text-center font-bold text-reddit-textMuted text-sm">
+                                    {entry.rank}
+                                </div>
 
-                                    <div className="relative group cursor-pointer" onClick={() => navigate(`/profile/${entry.username}`)}>
-                                        {entry.avatar_url ? (
-                                            <img
-                                                src={entry.avatar_url}
-                                                alt={entry.display_name}
-                                                className="w-10 h-10 rounded-full object-cover border border-reddit-border"
-                                            />
-                                        ) : (
-                                            <div className="w-10 h-10 rounded-full bg-reddit-cardHover flex items-center justify-center border border-reddit-border">
-                                                <User size={20} className="text-reddit-textMuted" />
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex-1 min-w-0" onClick={() => navigate(`/profile/${entry.username}`)}>
-                                        <h3 className="font-bold text-reddit-text truncate group-hover:text-reddit-orange transition-colors">
-                                            {entry.display_name}
-                                        </h3>
-                                        <p className="text-xs text-reddit-textMuted truncate">@{entry.username}</p>
-                                    </div>
-
-                                    <div className="text-right">
-                                        <div className="flex items-center justify-end gap-1 text-reddit-orange font-bold">
-                                            <span>{entry.points}</span>
-                                            <Flame size={14} fill="currentColor" />
+                                <div className="relative group cursor-pointer" onClick={() => navigate(`/profile/${entry.username}`)}>
+                                    {entry.avatar_url ? (
+                                        <img
+                                            src={entry.avatar_url}
+                                            alt={entry.display_name}
+                                            className="w-10 h-10 rounded-full object-cover border border-reddit-border"
+                                        />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-reddit-cardHover flex items-center justify-center border border-reddit-border">
+                                            <User size={20} className="text-reddit-textMuted" />
                                         </div>
-                                        <p className="text-[10px] uppercase tracking-wider text-reddit-textMuted font-bold">Aura</p>
+                                    )}
+                                </div>
+
+                                <div className="flex-1 min-w-0" onClick={() => navigate(`/profile/${entry.username}`)}>
+                                    <h3 className="font-bold text-reddit-text truncate group-hover:text-reddit-orange transition-colors">
+                                        {entry.display_name}
+                                    </h3>
+                                    <p className="text-xs text-reddit-textMuted truncate">@{entry.username}</p>
+                                </div>
+
+                                <div className="text-right">
+                                    <div className="flex items-center justify-end gap-1 text-reddit-orange font-bold">
+                                        <span>{entry.points}</span>
+                                        <Flame size={14} fill="currentColor" />
                                     </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    )}
-
-                    {!loading && leaderboardData.length === 0 && !error && (
-                        <div className="text-center py-20 bg-reddit-card/50 rounded-3xl border border-dashed border-reddit-border">
-                            <Award size={48} className="mx-auto text-reddit-textMuted mb-4 opacity-20" />
-                            <p className="text-reddit-textMuted">No rankings available for this period yet.</p>
-                        </div>
-                    )}
-
-                    {error && (
-                        <div className="text-center py-20 text-red-400">
-                            <p>{error}</p>
-                        </div>
-                    )}
+                                    <p className="text-[10px] uppercase tracking-wider text-reddit-textMuted font-bold">Aura</p>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                 </div>
+
+                {!loading && leaderboardData.length === 0 && !error && (
+                    <div className="text-center py-20 bg-reddit-card/50 rounded-3xl border border-dashed border-reddit-border">
+                        <Award size={48} className="mx-auto text-reddit-textMuted mb-4 opacity-20" />
+                        <p className="text-reddit-textMuted">No rankings available for this period yet.</p>
+                    </div>
+                )}
+
+                {error && (
+                    <div className="text-center py-20 text-red-400">
+                        <p>{error}</p>
+                    </div>
+                )}
             </div>
 
             {/* Floating My Rank Card */}
-            {loading && leaderboardData.length === 0 ? (
-                <motion.div
-                    initial={{ y: 100 }}
-                    animate={{ y: 0 }}
-                    className="fixed bottom-20 lg:bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-[500px] z-40"
-                >
-                    <Skeleton className="rounded-2xl p-4 flex items-center gap-4 h-16 bg-reddit-card/80" />
-                </motion.div>
-            ) : userEntry && (
+            {userEntry && (
                 <motion.div
                     initial={{ y: 100 }}
                     animate={{ y: 0 }}

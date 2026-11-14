@@ -5,7 +5,14 @@ import Problem from "../components/sections/Problem";
 import LearningPath from "../components/sections/LearningPath";
 import HowStudlySolvesIt from "../components/sections/HowStudlySolvesIt";
 import Features from "../components/sections/Features";
-import Footer from "../components/sections/Footer";
+import BossSessions from "../components/sections/BossSessions";
+import MeetWobble from "../components/sections/MeetWobble";
+import Testimonials from "../components/sections/Testimonials";
+import Pricing from "../components/sections/Pricing";
+import FAQ from "../components/sections/FAQ";
+import CTA from "../components/sections/CTA";
+import FooterNav from "../components/sections/FooterNav";
+import HalftoneWordmarkFooter from "../components/ui/halftone-wordmark-footer";
 import useSmoothScroll from "../hooks/useSmoothScroll";
 
 const LandingPage = () => {
@@ -21,7 +28,17 @@ const LandingPage = () => {
       <LearningPath />
       <HowStudlySolvesIt />
       <Features />
-      <Footer />
+      <BossSessions />
+      <MeetWobble />
+      <Testimonials />
+      <Pricing />
+      <FAQ />
+      <CTA />
+      <FooterNav />
+      <HalftoneWordmarkFooter
+        columns={[]}
+        backToTop={true}
+      />
     </div>
   );
 };

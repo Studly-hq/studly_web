@@ -24,12 +24,19 @@ const OPTIONS = [
  * and answer rows, then the answered state with the explanation card. Hairline
  * borders only, no shadows.
  */
-const SceneQuiz = ({ reduced = false, active = true }) => {
+const SceneQuiz = ({ reduced = false, active = true, onDone }) => {
   const [scope, animateAt] = useAnimate();
 
   useEffect(() => {
     if (reduced || !active) return;
     let cancelled = false;
+
+    /* This scene plays once and holds, so the end of the chain is the end of
+       the step: the section moves on the moment the explanation lands. */
+    const report = () => {
+      if (cancelled) return;
+      onDone?.();
+    };
 
     /* The durations written below are the ones this scene was tuned at. */
     const animate = (target, keyframes, options = {}) =>
@@ -60,6 +67,7 @@ const SceneQuiz = ({ reduced = false, active = true }) => {
       );
       await animate(".qcheck", { opacity: 1, scale: 1 }, { duration: 0.3, ease: EASE });
       await animate(".qexplain", { opacity: 1, y: 0 }, { duration: 0.45, ease: EASE });
+      report();
       } catch {
         /* scene unmounted mid-sequence */
       }
@@ -69,7 +77,7 @@ const SceneQuiz = ({ reduced = false, active = true }) => {
     return () => {
       cancelled = true;
     };
-  }, [reduced, active, animateAt]);
+  }, [reduced, active, animateAt, onDone]);
 
   return (
     <div ref={scope} className="h-full w-full bg-[#fffcf0]">

@@ -37,7 +37,14 @@ export const WebSocketProvider = ({ children }) => {
                 const { data: { session } } = await supabase.auth.getSession();
                 token = session?.access_token;
             } catch (err) {
-                console.warn("WS: Failed to get session", err);
+                // getSession can abort when supabase's own recovery is still in
+                // flight on page load. Fall back to the stored Studly token.
+                const stored = localStorage.getItem("token");
+                if (stored) {
+                    token = stored;
+                } else {
+                    console.warn("WS: Failed to get session", err);
+                }
             }
         }
 

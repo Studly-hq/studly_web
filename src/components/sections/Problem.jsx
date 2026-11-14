@@ -11,23 +11,23 @@ import ProblemScene from "../ui/problem-scene";
 
 /** Left column: the two-line copy. */
 const ProblemCopy = ({ progress }) => (
-  <div className="max-w-[470px]">
+  <div className="mx-auto max-w-[470px]">
     {/* Text fill animation only on laptop+ (lg breakpoint). Mobile/tablet get plain text. */}
     <div className="hidden lg:block">
       <ScrollRevealText
         progress={progress}
         range={[0.06, 0.88]}
-        className="font-geist text-[32px] font-semibold leading-[1.22] tracking-[-0.03em] lg:text-[36px]"
+        className="font-geist text-[clamp(22px,3.2vw,32px)] font-semibold leading-[1.22] tracking-[-0.03em] md:text-[clamp(26px,3.6vw,36px)]"
       >
         <p>You have everything you need to study.</p>
         <p className="mt-3">You just don&apos;t always know what to do with all of it.</p>
       </ScrollRevealText>
     </div>
     <div className="lg:hidden">
-      <p className="font-geist text-[22px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]">
+      <p className="font-geist text-[clamp(20px,2.8vw,24px)] font-semibold leading-[1.22] tracking-[-0.03em] md:text-[clamp(24px,3.2vw,32px)]">
         You have everything you need to study.
       </p>
-      <p className="mt-3 text-[22px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]">
+      <p className="mt-3 text-[clamp(20px,2.8vw,24px)] font-semibold leading-[1.22] tracking-[-0.03em] md:text-[clamp(24px,3.2vw,32px)]">
         You just don&apos;t always know what to do with all of it.
       </p>
     </div>
@@ -36,18 +36,13 @@ const ProblemCopy = ({ progress }) => (
 
 /**
  * One column pair: copy on the left, converging scene on the right.
- *
- * The right column stretches to the full stage height on `md+` so the scene's
- * connector can run all the way to the bottom edge of the pinned stage, and
- * the left copy stays vertically centred. Both sections reuse this same
- * 2-column grid so the seam between them lines up exactly.
  */
 const ProblemBody = ({ progress }) => (
   <div className="mx-auto grid w-full max-w-[1080px] grid-cols-1 gap-10 px-6 md:h-full md:grid-cols-2 md:px-10">
     <div className="md:flex md:items-center">
       <ProblemCopy progress={progress} />
     </div>
-    <div className="relative h-[320px] sm:h-[420px] md:h-full">
+    <div className="relative h-[clamp(260px,32vw,320px)] sm:h-[clamp(320px,40vw,420px)] md:h-full">
       <ProblemScene progress={progress} />
     </div>
   </div>
@@ -55,12 +50,6 @@ const ProblemBody = ({ progress }) => (
 
 /**
  * The Problem — establishes the mess before Studly creates structure.
- *
- * Desktop (and everything above `md`) runs a tall pinned stage: the copy and
- * scene hold still while ~300vh of scroll drives the wipe and the convergence.
- * Below `md` we skip the choreography and show the settled end state so small
- * screens never fight a pinned animation. `prefers-reduced-motion` collapses
- * the whole thing to a single static block.
  */
 const Problem = () => {
   const ref = useRef(null);
@@ -83,11 +72,11 @@ const Problem = () => {
     <section
       id="problem"
       ref={ref}
-      className={`relative border-t border-[#ece7d8] ${
+      className={`relative border-t border-[#ece7d8] py-20 md:py-28 ${
         reduced ? "" : "md:h-[300vh]"
       }`}
     >
-      <ContainerGrid />
+      <ContainerGrid dots />
 
       {reduced ? (
         <div className="py-24">

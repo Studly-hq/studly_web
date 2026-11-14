@@ -89,8 +89,25 @@ client.interceptors.response.use(
     // If 401 Unauthorized and not already retrying
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Skip refresh if we are already doing something auth-relevant
-      // or if it's an initialization call that should just fail gracefully
-      if ((originalRequest.url?.includes('/auth/') && !originalRequest.url?.includes('/auth/study-token')) || originalRequest.url?.includes('/profile/profile')) {
+      // or if it's an initialization call that should just fail gracefully.
+      // These endpoints are safe to fail on: retrying them with a refresh
+      // token that may also be dead just triggers the logout path, and on
+      // public pages that logout does a full page reload to /login, which
+      // re-mounts the app and re-fires the same failing request — an
+      // infinite reload loop.
+      const noRefreshPaths = [
+        '/auth/study-token',
+        '/profile/profile',
+        '/giveaway/',
+        '/aura/summary',
+        '/aura/history',
+        '/streak/',
+      ];
+      const shouldSkipRefresh =
+        (originalRequest.url?.includes('/auth/') && !originalRequest.url?.includes('/auth/study-token')) ||
+        noRefreshPaths.some((path) => originalRequest.url?.includes(path));
+
+      if (shouldSkipRefresh) {
         return Promise.reject(error);
       }
 
@@ -122,6 +139,12 @@ client.interceptors.response.use(
           if (newRefreshToken) localStorage.setItem("refresh_token", newRefreshToken);
           
           setAuthToken(token);
+
+          // Notify app listeners (e.g. the Lucid iframe token relay in Home)
+          // so embedded surfaces keep a fresh access token for their own
+          // authenticated calls.
+          window.dispatchEvent(new CustomEvent("auth:token", { detail: token }));
+
           processQueue(null, token);
 
           originalRequest.headers.Authorization = `Bearer ${token}`;

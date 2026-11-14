@@ -9,7 +9,7 @@ import { getAllQuizzes } from '../data/quizData';
 
 const QuizFeed = () => {
   const navigate = useNavigate();
-  const { setShowUpgradeModal, setShowAuthModal, setShowManagePlanModal, setPendingAction, isUpgradeBannerVisible } = useUI();
+  const { setShowAuthModal, setPendingAction, isUpgradeBannerVisible } = useUI();
   const { isAuthenticated, currentUser } = useAuth();
   const isPro = currentUser?.planType === 'pro';
   const [quizzes] = useState(getAllQuizzes());
@@ -27,12 +27,10 @@ const QuizFeed = () => {
 
   const handleUpgradeClick = () => {
     if (!isAuthenticated) {
-      setPendingAction({ type: 'SHOW_UPGRADE_MODAL' });
+      setPendingAction({ type: 'GO_BILLING' });
       setShowAuthModal(true);
-    } else if (isPro) {
-      setShowManagePlanModal(true);
     } else {
-      setShowUpgradeModal(true);
+      navigate('/billing');
     }
   };
 

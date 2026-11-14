@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -8,8 +9,9 @@ import LoadingSpinner from "../common/LoadingSpinner";
 
 
 const AuthModal = () => {
-  const { showAuthModal, setShowAuthModal, pendingAction, setPendingAction, setShowUpgradeModal } = useUI();
+  const { showAuthModal, setShowAuthModal, pendingAction, setPendingAction } = useUI();
   const { login, signup } = useAuth();
+  const navigate = useNavigate();
   /*
    * Updated state to include loading and error handling.
    * This is important for real API calls because they take time and can fail.
@@ -49,9 +51,9 @@ const AuthModal = () => {
         setShowAuthModal(false);
         setFormData({ name: "", email: "", password: "" });
         
-        if (pendingAction?.type === 'SHOW_UPGRADE_MODAL') {
-          setTimeout(() => setShowUpgradeModal(true), 300);
+        if (pendingAction?.type === 'GO_BILLING' || pendingAction?.type === 'SHOW_UPGRADE_MODAL') {
           setPendingAction(null);
+          navigate('/billing');
         }
       } else {
         // Signup
@@ -66,9 +68,9 @@ const AuthModal = () => {
         setShowAuthModal(false);
         setFormData({ name: "", email: "", password: "" });
         
-        if (pendingAction?.type === 'SHOW_UPGRADE_MODAL') {
-          setTimeout(() => setShowUpgradeModal(true), 300);
+        if (pendingAction?.type === 'GO_BILLING' || pendingAction?.type === 'SHOW_UPGRADE_MODAL') {
           setPendingAction(null);
+          navigate('/billing');
         }
       }
     } catch (err) {
@@ -105,7 +107,7 @@ const AuthModal = () => {
           exit={{ scale: 0.96, opacity: 0 }}
           transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-reddit-card border border-reddit-border rounded-xl w-full max-w-md overflow-hidden shadow-2xl"
+          className="bg-reddit-card border border-reddit-border rounded-xl w-full max-w-xl overflow-hidden shadow-2xl"
         >
           {/* Header */}
           <div className="relative p-6 pb-5 border-b border-reddit-border">

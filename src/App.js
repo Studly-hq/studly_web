@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import { StudyGramProvider } from "./context/StudyGramContext";
 import { CoursePlayerProvider } from "./context/CoursePlayerContext";
 import { CelebrationProvider } from "./context/CelebrationContext";
+import { StreakProvider } from "./context/StreakContext";
 import TopLoadingBar from "./components/common/TopLoadingBar";
 import { WebSocketProvider } from "./context/WebSocketContext";
 import { UIProvider } from "./context/UIContext";
@@ -11,12 +12,15 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { FeedProvider } from "./context/FeedContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import ComingSoon from "./components/common/ComingSoon";
+import { PublicOnly, PrivateOnly } from "./components/auth/AuthGate";
 
 import AuthModal from "./components/modals/AuthModal";
 import CreatePostModal from "./components/modals/CreatePostModal";
 import CelebrationModal from "./components/modals/CelebrationModal";
-import UpgradeModal from "./components/modals/UpgradeModal";
-import ManagePlanModal from "./components/modals/ManagePlanModal";
+import DailyStreakModal from "./components/modals/DailyStreakModal";
+import StreakLostModal from "./components/modals/StreakLostModal";
+import PaywallModal from "./components/modals/PaywallModal";
+import GiveawayWinModal from "./components/modals/GiveawayWinModal";
 import CommentSection from "./components/comments/CommentSection";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import { Toaster } from "./components/ui/toast";
@@ -42,11 +46,17 @@ const Notifications = lazy(() => import("./pages/Notifications"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Home = lazy(() => import("./pages/Home"));
 const CUHUB = lazy(() => import("./pages/CUHUB"));
+const Billing = lazy(() => import("./pages/Billing"));
 const VerifyPayment = lazy(() => import("./pages/VerifyPayment"));
 const ReleaseNotes = lazy(() => import("./pages/ReleaseNotes"));
-const LandingPage = lazy(() => import("./pages/LandingPage"));
-const LoginPage = lazy(() => import("./pages/LoginPage"));
-const SignupPage = lazy(() => import("./pages/SignupPage"));
+// LandingPage eager-loaded — it's the entry point; Suspense fallback={null} would show blank while chunk loads
+import LandingPage from "./pages/LandingPage";
+const StreakPage = lazy(() => import("./pages/StreakPage"));
+const Giveaway = lazy(() => import("./pages/Giveaway"));
+
+// Auth pages - eager loaded for immediate rendering (no Suspense fallback issues)
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 
 // Legal Pages (Lazy loaded)
 const TermsOfService = lazy(() => import("./pages/legal/TermsOfService"));
@@ -99,12 +109,33 @@ function AppContent() {
         >
           <Suspense fallback={null}>
             <Routes>
-              {/* Landing page (full screen, no sidebars) */}
-              <Route path="/" element={<LandingPage />} />
+              {/* Landing page (full screen, no sidebars) - redirect authenticated users to /home */}
+              <Route
+                path="/"
+                element={
+                  <PublicOnly redirectTo="/home">
+                    <LandingPage />
+                  </PublicOnly>
+                }
+              />
 
-              {/* Auth pages (full screen) */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
+              {/* Auth pages (full screen) - redirect authenticated users to /home */}
+              <Route
+                path="/login"
+                element={
+                  <PublicOnly redirectTo="/home">
+                    <LoginPage />
+                  </PublicOnly>
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <PublicOnly redirectTo="/home">
+                    <SignupPage />
+                  </PublicOnly>
+                }
+              />
 
               {/* Course Bank routes (full screen, no header/sidebars) */}
               <Route path="/courses" element={<CourseBank />} />
@@ -114,6 +145,9 @@ function AppContent() {
               {/* Admin Dashboard (full screen) */}
               <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+              {/* Paystack callback (full screen, never inside the shell) */}
+              <Route path="/verify-payment" element={<VerifyPayment />} />
 
               {/* v3 Dashboard shell (sidebar + rounded canvas) */}
               <Route element={<DashboardLayout />}>
@@ -137,9 +171,11 @@ function AppContent() {
                 <Route path="/profile/edit" element={<EditProfile />} />
                 <Route path="/profile/:username" element={<UserProfile />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/billing" element={<Billing />} />
                 <Route path="/cuhub" element={<CUHUB />} />
-                <Route path="/verify-payment" element={<VerifyPayment />} />
                 <Route path="/releases" element={<ReleaseNotes />} />
+                <Route path="/streak" element={<StreakPage />} />
+                <Route path="/giveaway" element={<Giveaway />} />
                 <Route path="/ads/*" element={<ComingSoon title="Ads Dashboard" description="Our advertising platform is currently under construction. Check back soon for updates!" />} />
 
                 {/* Legal Routes */}
@@ -155,9 +191,11 @@ function AppContent() {
         {/* Global Modals & Components (Shared across all routes including /courses) */}
         <AuthModal />
         <CreatePostModal />
-        <UpgradeModal />
-        <ManagePlanModal />
+        <PaywallModal />
+        <GiveawayWinModal />
         <CelebrationModal />
+        <DailyStreakModal />
+        <StreakLostModal />
         <CommentSection />
         <Toaster />
       </div>
@@ -167,30 +205,34 @@ function AppContent() {
 
 
 function App() {
+  // NOTE: <Router> must wrap every provider. AuthProvider calls useNavigate()
+  // for SPA logout navigation, and React Router hooks throw outside a router.
   return (
-    <ThemeProvider>
-      <WebSocketProvider>
-        <UIProvider>
-          <AuthProvider>
-            <FeedProvider>
-              <NotificationProvider>
-                <StudyGramProvider>
-                  <CoursePlayerProvider>
-                    <CelebrationProvider>
-                      <Router>
-                        <TopLoadingBar />
-                        <AppContent />
-                        <Analytics />
-                      </Router>
-                    </CelebrationProvider>
-                  </CoursePlayerProvider>
-                </StudyGramProvider>
-              </NotificationProvider>
-            </FeedProvider>
-          </AuthProvider>
-        </UIProvider>
-      </WebSocketProvider>
-    </ThemeProvider>
+    <Router>
+      <ThemeProvider>
+        <WebSocketProvider>
+          <UIProvider>
+            <AuthProvider>
+              <FeedProvider>
+                <NotificationProvider>
+                  <StudyGramProvider>
+                    <CoursePlayerProvider>
+                      <CelebrationProvider>
+                        <StreakProvider>
+                          <TopLoadingBar />
+                          <AppContent />
+                          <Analytics />
+                        </StreakProvider>
+                      </CelebrationProvider>
+                    </CoursePlayerProvider>
+                  </StudyGramProvider>
+                </NotificationProvider>
+              </FeedProvider>
+            </AuthProvider>
+          </UIProvider>
+        </WebSocketProvider>
+      </ThemeProvider>
+    </Router>
   );
 }
 

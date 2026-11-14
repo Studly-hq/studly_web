@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   useReducedMotion,
   AnimatePresence,
@@ -91,9 +91,38 @@ const ScribbleArrow = ({ className = "" }) => (
 
 const HowStudlySolvesIt = () => {
   const reduced = useReducedMotion();
+  const sectionRef = useRef(null);
+  const [inView, setInView] = useState(false);
   const [active, setActive] = useState(0);
   const [epoch, setEpoch] = useState(0);
   const step = STEPS[active];
+
+  /* Only start the timer once the section enters the viewport, so the
+     progress bar doesn't advance while the user is still scrolling past. */
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || reduced) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.35 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
+
+  /* When the section comes into view, reset to step 1 so the animation
+     starts from the beginning rather than mid-loop. */
+  useEffect(() => {
+    if (reduced) return;
+    if (inView) {
+      setActive(0);
+      setEpoch((e) => e + 1);
+    }
+  }, [inView, reduced]);
 
   /* Click handler: jump instantly to a step, restart the timer for that step.
      No scroll, no animation delay. The StepList timer will fill over 10s
@@ -109,6 +138,7 @@ const HowStudlySolvesIt = () => {
   return (
     <section
       id="how-studly-solves-it"
+      ref={sectionRef}
       className="relative border-t border-[#ece7d8] py-20 md:py-0"
     >
       <ContainerGrid />
@@ -162,12 +192,14 @@ const HowStudlySolvesIt = () => {
                     <ScribbleArrow className="absolute left-[2px] top-[4px] h-[40px] w-[140px]" />
                   </div>
 
-                  <StepList
-                    steps={STEPS}
-                    captions={CAPTIONS}
-                    active={active}
-                    onSelect={handleSelect}
-                  />
+                  {inView && (
+                    <StepList
+                      steps={STEPS}
+                      captions={CAPTIONS}
+                      active={active}
+                      onSelect={handleSelect}
+                    />
+                  )}
                 </div>
 
                 {/* Right: the illustration, animated with framer-motion. */}

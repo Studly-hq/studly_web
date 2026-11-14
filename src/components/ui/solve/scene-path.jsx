@@ -23,13 +23,22 @@ const GROUPS = PATH.sections.map((_, sIdx) => sectionNodes(sIdx));
  * waves, a beat to read the finished path, then it starts over. The cursor
  * never moves: the path is being made, not studied.
  */
-const ScenePath = ({ reduced = false, active = true }) => {
+const ScenePath = ({ reduced = false, active = true, onDone }) => {
   const [revealed, setRevealed] = useState(reduced ? PATH.sections.length : 0);
   const [generating, setGenerating] = useState([]);
 
   useEffect(() => {
     if (reduced || !active) return undefined;
     let cancelled = false;
+    let reported = false;
+
+    /* One pass is all three sections written plus the beat to read them. That
+       is the length of the step, and it reports it once. */
+    const report = () => {
+      if (reported || cancelled) return;
+      reported = true;
+      onDone?.();
+    };
 
     const run = async () => {
       while (!cancelled) {
@@ -47,6 +56,8 @@ const ScenePath = ({ reduced = false, active = true }) => {
         if (cancelled) return;
         setRevealed(1);
         await wait(620);
+        if (cancelled) return;
+        report();
       }
     };
 
@@ -54,7 +65,7 @@ const ScenePath = ({ reduced = false, active = true }) => {
     return () => {
       cancelled = true;
     };
-  }, [reduced, active]);
+  }, [reduced, active, onDone]);
 
   return (
     <FittedMap>

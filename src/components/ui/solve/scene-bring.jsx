@@ -64,7 +64,7 @@ const Cursor = () => (
  * Geometry is measured from the rendered DOM rather than hardcoded, so the
  * selection box lands on the notes at any stage size.
  */
-const SceneBring = ({ reduced = false, active = true }) => {
+const SceneBring = ({ reduced = false, active = true, onDone }) => {
   const [scope, animateAt] = useAnimate();
   const listRef = useRef(null);
   const groupRef = useRef(null);
@@ -96,6 +96,16 @@ const SceneBring = ({ reduced = false, active = true }) => {
   useEffect(() => {
     if (reduced || !geo || !active) return;
     let cancelled = false;
+    let reported = false;
+
+    /* One pass of the clip is the unit the section counts down. It reports the
+       end of the first pass only; the loops after that are for scrolling back
+       to look at, not for waiting on. */
+    const report = () => {
+      if (reported || cancelled) return;
+      reported = true;
+      onDone?.();
+    };
 
     /* The durations written below are the ones this scene was tuned at. */
     const animate = (target, keyframes, options = {}) =>
@@ -176,6 +186,8 @@ const SceneBring = ({ reduced = false, active = true }) => {
           if (cancelled) return;
           await reset();
           await wait(180);
+          if (cancelled) return;
+          report();
         }
       } catch {
         /* scene unmounted mid-sequence */
@@ -186,7 +198,7 @@ const SceneBring = ({ reduced = false, active = true }) => {
     return () => {
       cancelled = true;
     };
-  }, [reduced, geo, active, animateAt]);
+  }, [reduced, geo, active, animateAt, onDone]);
 
   return (
     <div ref={scope} className="relative h-full w-full">

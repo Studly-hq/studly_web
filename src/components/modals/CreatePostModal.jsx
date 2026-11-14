@@ -268,7 +268,7 @@ const CreatePostModal = () => {
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-reddit-card border border-reddit-border rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden relative"
+          className="bg-reddit-card border border-reddit-border rounded-lg w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden relative"
         >
           {/* Progress Overlay */}
           <AnimatePresence>

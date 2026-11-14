@@ -1,15 +1,51 @@
 import React, { useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Flame, Sparkles, Star } from "lucide-react";
+import { createPortal } from "react-dom";
+import { motion, useReducedMotion } from "framer-motion";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Cancel01Icon,
+  CheckmarkCircle02Icon,
+  ArrowRight02Icon,
+  TrophyIcon,
+  FlameIcon,
+} from "@hugeicons/core-free-icons";
 import confetti from "canvas-confetti";
 import { useCelebration } from "../../context/CelebrationContext";
+
+const EASE = [0.16, 1, 0.3, 1];
 
 const STREAK_MILESTONES = [1, 2, 3, 4, 5, 6, 7, 10, 14, 21, 30, 50, 75, 100, 200, 365];
 const AURA_MILESTONES = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000];
 
+const ICONS = {
+  aura: TrophyIcon,
+  streak: FlameIcon,
+  "streak-lost": FlameIcon,
+};
+
+const VARIANTS = {
+  aura: {
+    title: "Aura Unlocked!",
+    subtitle: (v) => `${v.toLocaleString()} aura points earned`,
+    color: "#EAB308",
+  },
+  streak: {
+    title: "Streak Milestone!",
+    subtitle: (v) => `${v.toLocaleString()} day streak — keep it going`,
+    color: "#FF4500",
+  },
+  "streak-lost": {
+    title: "Streak Reset",
+    subtitle: (v) => `Your ${v.toLocaleString()} day streak has ended. Start a new one today.`,
+    color: "#6366F1",
+  },
+};
+
 const CelebrationModal = () => {
     const { showCelebration, celebrationData, closeCelebration } = useCelebration();
     const lastCelebrationId = useRef(null);
+    const panelRef = useRef(null);
+    const reduce = useReducedMotion();
 
     // Fire confetti when a NEW celebration starts
     useEffect(() => {
@@ -25,9 +61,7 @@ const CelebrationModal = () => {
     const fireConfetti = () => {
         const colors = ['#FF4500', '#FFD700', '#FF6B35', '#FFA500', '#FFFFFF'];
 
-        // Slight delay to ensure modal is visible
         setTimeout(() => {
-            // Side cannons
             confetti({
                 particleCount: 80,
                 angle: 60,
@@ -46,7 +80,6 @@ const CelebrationModal = () => {
             });
         }, 100);
 
-        // Center burst
         setTimeout(() => {
             confetti({
                 particleCount: 150,
@@ -59,174 +92,128 @@ const CelebrationModal = () => {
         }, 500);
     };
 
-    const isAura = celebrationData?.type === 'aura';
-    const isStreakLost = celebrationData?.type === 'streak-lost';
+    // Escape to dismiss, lock background scroll while open.
+    useEffect(() => {
+        if (!showCelebration) return;
 
-    const getTitle = () => {
-        if (isStreakLost) return "Streak Lost 💔";
-        if (isAura) return `${celebrationData.value.toLocaleString()} Aura!`;
-        if (celebrationData.value === 1) return "First Milestone!";
-        return `${celebrationData.value} Day Streak!`;
-    };
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        const focusTimer = window.setTimeout(() => panelRef.current?.focus(), 40);
+
+        const onKeyDown = (event) => {
+            if (event.key === "Escape") closeCelebration();
+        };
+        window.addEventListener("keydown", onKeyDown);
+
+        return () => {
+            window.clearTimeout(focusTimer);
+            window.removeEventListener("keydown", onKeyDown);
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [showCelebration, closeCelebration]);
+
+    if (!showCelebration || !celebrationData) return null;
+
+    const type = celebrationData.type || "streak";
+    const variant = VARIANTS[type] || VARIANTS.streak;
+    const Icon = ICONS[type] || FlameIcon;
+    const value = celebrationData.value ?? 0;
 
     const getNextMilestone = () => {
-        const milestones = isAura ? AURA_MILESTONES : STREAK_MILESTONES;
-        return milestones.find(m => m > celebrationData.value);
+        const milestones = type === 'aura' ? AURA_MILESTONES : STREAK_MILESTONES;
+        return milestones.find((m) => m > value);
     };
 
-    const nextMilestone = celebrationData ? getNextMilestone() : null;
-    const progress = (nextMilestone && celebrationData) ? (celebrationData.value / nextMilestone) * 100 : 100;
+    const nextMilestone = getNextMilestone();
+    const progress = (nextMilestone && value) ? (value / nextMilestone) * 100 : 100;
 
-    const Icon = isStreakLost ? Flame : (isAura ? Trophy : Flame);
-    const themeColor = isStreakLost ? "#6366F1" : (isAura ? "#EAB308" : "#FF4500"); // Indigo for lost, Yellow for aura, Orange for streak
-    const bgGradient = isStreakLost
-        ? "from-indigo-500/20 via-reddit-card to-slate-900/10"
-        : (isAura
-            ? "from-yellow-400/20 via-reddit-card to-yellow-900/10"
-            : "from-orange-500/20 via-reddit-card to-red-900/10");
-
-    return (
-        <AnimatePresence mode="wait">
-            {showCelebration && celebrationData && (
-                <motion.div
-                    key="backdrop"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
-                    onClick={closeCelebration}
+    return createPortal(
+        <div
+          className="fixed inset-0 z-[120] flex items-end justify-center bg-black/45 p-0 backdrop-blur-[2px] sm:items-center sm:p-6"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeCelebration();
+          }}
+        >
+          <motion.div
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            tabIndex={-1}
+            initial={{ opacity: 0, y: reduce ? 0 : 24, scale: reduce ? 1 : 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.34, ease: EASE }}
+            className="relative w-full max-w-[520px] overflow-hidden rounded-t-[26px] border border-border bg-card text-foreground outline-none sm:rounded-[26px]"
+          >
+            <div className="flex flex-col p-6 sm:p-8 md:p-10">
+              {/* Close button (mobile visible, desktop hidden in artwork column) */}
+              <div className="flex items-center justify-end md:hidden">
+                <button
+                  type="button"
+                  onClick={closeCelebration}
+                  aria-label="Close"
+                  className="-mr-1 flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
+                  <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={1.8} />
+                </button>
+              </div>
+
+              {/* Header: title + icon */}
+              <div className="mt-6 flex items-center gap-3">
+                <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-secondary">
+                  <HugeiconsIcon icon={Icon} size={28} strokeWidth={2} className={`text-[#141414]`} />
+                </div>
+                <div>
+                  <h2
+                    className="font-heading text-[22px] font-medium leading-[1.12] tracking-[-0.025em] sm:text-[28px]"
+                  >
+                    {variant.title}
+                  </h2>
+                  <p className="mt-1 font-geist text-[14px] leading-[1.65] text-muted-foreground sm:text-[15px]">
+                    {variant.subtitle(value)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Progress bar (for streak & aura milestones) */}
+              {nextMilestone && (
+                <div className="mt-8 px-4">
+                  <div className="flex justify-between text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-2">
+                    <span>Current: {value}</span>
+                    <span>Next: {nextMilestone}</span>
+                  </div>
+                  <div className="h-2 w-full bg-secondary rounded-full overflow-hidden border border-border p-[1px]">
                     <motion.div
-                        key={`${celebrationData.type}-${celebrationData.value}`}
-                        initial={{ scale: 0.8, opacity: 0, y: 40, rotate: -2 }}
-                        animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}
-                        exit={{ scale: 1.1, opacity: 0, y: -40, rotate: 2 }}
-                        transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                        onClick={(e) => e.stopPropagation()}
-                        className={`relative bg-gradient-to-br ${bgGradient} bg-reddit-card border border-white/10 rounded-[2.5rem] w-full max-w-[400px] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]`}
-                    >
-                        {/* Glowing background effect */}
-                        <div
-                            className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 blur-[100px] opacity-20 pointer-events-none"
-                            style={{ backgroundColor: themeColor }}
-                        />
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ delay: 0.2, duration: 1, ease: "circOut" }}
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: variant.color }}
+                    />
+                  </div>
+                </div>
+              )}
 
-                        {/* Content */}
-                        <div className="p-10 text-center relative z-10">
-                            {/* Milestone Badge */}
-                            <motion.div
-                                initial={{ y: -20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.1 }}
-                                className="inline-block px-4 py-1.5 rounded-full bg-reddit-cardHover border border-reddit-border text-[10px] uppercase font-black tracking-[0.2em] text-reddit-textMuted mb-8"
-                            >
-                                Achievement Unlocked
-                            </motion.div>
+              <div className="mt-8 border-t border-border pt-5">
+                <button
+                  type="button"
+                  onClick={closeCelebration}
+                  className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 font-geist text-[14px] font-medium text-background transition-opacity hover:opacity-85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
+                  {type === 'streak-lost' ? "Start Fresh" : "Claim Achievement"}
+                  <HugeiconsIcon icon={ArrowRight02Icon} size={17} strokeWidth={2} />
+                </button>
 
-                            {/* main Icon */}
-                            <div className="relative mx-auto mb-10">
-                                <motion.div
-                                    animate={{
-                                        scale: [1, 1.1, 1],
-                                        rotate: [0, 5, -5, 0]
-                                    }}
-                                    transition={{ duration: 4, repeat: Infinity }}
-                                    className={`w-36 h-36 rounded-[2rem] bg-reddit-cardHover border border-reddit-border flex items-center justify-center mx-auto relative overflow-hidden backdrop-blur-xl`}
-                                >
-                                    <Icon size={72} strokeWidth={1.5} style={{ color: themeColor }} />
-
-                                    {/* Inner glow */}
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none" />
-                                </motion.div>
-
-                                {/* Decorative Sparkles */}
-                                {[...Array(6)].map((_, i) => (
-                                    <motion.div
-                                        key={i}
-                                        className="absolute"
-                                        initial={{ opacity: 0 }}
-                                        animate={{
-                                            opacity: [0, 1, 0],
-                                            scale: [0, 1.2, 0],
-                                            x: Math.cos(i * 60 * Math.PI / 180) * 80,
-                                            y: Math.sin(i * 60 * Math.PI / 180) * 80
-                                        }}
-                                        transition={{
-                                            duration: 2,
-                                            repeat: Infinity,
-                                            delay: i * 0.3,
-                                            ease: "circOut"
-                                        }}
-                                    >
-                                        <Star size={12 + i % 3 * 4} fill={themeColor} className="text-transparent" />
-                                    </motion.div>
-                                ))}
-                            </div>
-
-                            {/* Text */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="space-y-4 mb-8"
-                            >
-                                <h2 className="text-4xl font-black text-reddit-text leading-tight font-righteous">
-                                    {getTitle()}
-                                </h2>
-                                <p className="text-lg text-reddit-textMuted font-medium px-4 leading-relaxed">
-                                    {celebrationData.message}
-                                </p>
-                            </motion.div>
-
-                            {/* Progress Bar (if applicable) */}
-                            {!isStreakLost && nextMilestone && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="mb-10 px-4"
-                                >
-                                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-reddit-textMuted mb-2">
-                                        <span>Current: {celebrationData.value}</span>
-                                        <span>Next: {nextMilestone}</span>
-                                    </div>
-                                    <div className="h-2 w-full bg-reddit-cardHover rounded-full overflow-hidden border border-reddit-border p-[1px]">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${progress}%` }}
-                                            transition={{ delay: 0.6, duration: 1, ease: "circOut" }}
-                                            className="h-full rounded-full"
-                                            style={{ backgroundColor: themeColor }}
-                                        />
-                                    </div>
-                                </motion.div>
-                            )}
-
-                            {/* Actions */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                            >
-                                <button
-                                    onClick={closeCelebration}
-                                    className="group relative w-full overflow-hidden rounded-2xl p-[1px] transition-all"
-                                >
-                                    <div
-                                        className="absolute inset-0 animate-[spin_3s_linear_infinite] opacity-50"
-                                        style={{ background: `conic-gradient(from 0deg, transparent, ${themeColor}, transparent)` }}
-                                    />
-                                    <div className="relative bg-reddit-card hover:bg-[#272729] rounded-2xl py-4 flex items-center justify-center gap-2 transition-colors">
-                                        <span className="text-reddit-text font-black text-lg">{isStreakLost ? "Start Fresh" : "Claim Achievement"}</span>
-                                        <Sparkles size={20} style={{ color: themeColor }} />
-                                    </div>
-                                </button>
-                            </motion.div>
-                        </div>
-                    </motion.div>
-                </motion.div>
-            )}
-        </AnimatePresence>
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <span className="font-geist text-[11px] text-muted-foreground">
+                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={13} strokeWidth={2} />
+                    Achievement saved
+                  </span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>,
+        document.body,
     );
 };
 

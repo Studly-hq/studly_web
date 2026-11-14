@@ -380,6 +380,18 @@
   animation: map-wiggle 4s ease-in-out infinite;
 }
 
+/* Reader mascot nudge: one double-sway every 60s, pausing in between. */
+@keyframes mascot-nudge {
+  0%, 4%, 10%, 100% { transform: rotate(0deg) translateY(0); }
+  5% { transform: rotate(-7deg) translateY(-2px); }
+  7% { transform: rotate(6deg) translateY(-1px); }
+  9% { transform: rotate(-3deg) translateY(0); }
+}
+
+.animate-mascot-nudge {
+  animation: mascot-nudge 60s ease-in-out infinite;
+}
+
 /* Selection color */
 ::selection {
   background-color: #0079D3;
@@ -565,7 +577,216 @@
   gap: 32px;
 }
 
-/* Autofill background fix */
+/* ── Testimonials: 3D marquee wall ───────────────────────────────────────────
+ * Registered through @theme so Tailwind generates `animate-marquee` and
+ * `animate-marquee-vertical`. Speed comes from the per-instance `--duration`
+ * custom property; the loop distance is one full copy plus the gap, which is
+ * what keeps the seam invisible.
+ */
+@theme inline {
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+
+@keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+  }
+}
+
+/* ── Landing page: clamp-based fluid responsive system ──
+   Use inline clamp() values directly in Tailwind arbitrary classes,
+   e.g. `text-[clamp(1rem,2vw,2rem)]`, `p-[clamp(1rem,4vw,2rem)]`.
+   This keeps Tailwind's parser happy while giving fluid, proportional
+   scaling from the smallest phone to wide desktop.
+   ── */
+
+/* ── Landing page: clamp-based fluid responsive system ──
+   Custom properties used via var() in Tailwind arbitrary classes,
+   e.g. `max-w-[var(--fluid-container-wide)]`, `p-[clamp(1rem,4vw,2rem)]`.
+   ── */
+--fluid-container-wide: clamp(20rem, 94vw, 72rem);
+--fluid-container: clamp(20rem, 92vw, 68rem);
+--fluid-measure: clamp(20rem, 90vw, 48rem);
+--fluid-measure-narrow: clamp(16rem, 88vw, 42rem);
+--fluid-measure-wide: clamp(24rem, 92vw, 56rem);
+
+/* ── Utility classes using inline clamp() values ──
+   Tailwind's parser can't handle clamp() inside @layer arbitrary values,
+   so we use inline clamp() directly in className brackets instead.
+   ── */
+
+/* -- Landing page: clamp-based fluid responsive system --
+   CSS custom properties + utility classes. Everything scales continuously
+   from the smallest phone to wide desktop using clamp().
+   -- */
+
+--fluid-text-xs: clamp(0.7rem, 0.7rem + 0.15vw, 0.875rem);
+--fluid-text-sm: clamp(0.8rem, 0.8rem + 0.2vw, 1rem);
+--fluid-text-base: clamp(0.9rem, 0.9rem + 0.25vw, 1.125rem);
+--fluid-text-lg: clamp(1rem, 1rem + 0.3vw, 1.25rem);
+--fluid-text-xl: clamp(1.1rem, 1.1rem + 0.4vw, 1.5rem);
+--fluid-text-2xl: clamp(1.25rem, 1.25rem + 0.6vw, 2rem);
+--fluid-text-3xl: clamp(1.5rem, 1.5rem + 0.8vw, 2.25rem);
+--fluid-text-4xl: clamp(1.75rem, 1.75rem + 1.2vw, 3rem);
+--fluid-text-5xl: clamp(2rem, 2rem + 1.5vw, 3.75rem);
+--fluid-text-6xl: clamp(2.5rem, 2.5rem + 2vw, 5rem);
+
+--fluid-leading-tight: clamp(1.1, 1.1 + 0.02vw, 1.2);
+--fluid-leading-normal: clamp(1.4, 1.4 + 0.03vw, 1.6);
+--fluid-leading-loose: clamp(1.55, 1.55 + 0.04vw, 1.8);
+
+--fluid-track-tight: clamp(-0.04em, -0.03em - 0.01vw, -0.02em);
+--fluid-track-normal: clamp(-0.02em, -0.015em, -0.01em);
+--fluid-track-wide: clamp(0.02em, 0.02em + 0.01vw, 0.04em);
+
+--fluid-space-0: clamp(0rem, 0rem, 0rem);
+--fluid-space-1: clamp(0.2rem, 0.2rem + 0.08vw, 0.4rem);
+--fluid-space-2: clamp(0.4rem, 0.4rem + 0.12vw, 0.6rem);
+--fluid-space-3: clamp(0.6rem, 0.6rem + 0.16vw, 0.9rem);
+--fluid-space-4: clamp(0.8rem, 0.8rem + 0.2vw, 1.2rem);
+--fluid-space-5: clamp(1rem, 1rem + 0.25vw, 1.5rem);
+--fluid-space-6: clamp(1.2rem, 1.2rem + 0.3vw, 1.8rem);
+--fluid-space-8: clamp(1.6rem, 1.6rem + 0.4vw, 2.4rem);
+--fluid-space-10: clamp(2rem, 2rem + 0.5vw, 3rem);
+--fluid-space-12: clamp(2.4rem, 2.4rem + 0.6vw, 3.6rem);
+--fluid-space-16: clamp(3rem, 3rem + 0.8vw, 4.5rem);
+--fluid-space-20: clamp(3.5rem, 3.5rem + 1vw, 5rem);
+--fluid-space-24: clamp(4rem, 4rem + 1.2vw, 6rem);
+--fluid-space-28: clamp(4.5rem, 4.5rem + 1.4vw, 7rem);
+--fluid-space-32: clamp(5rem, 5rem + 1.6vw, 8rem);
+
+--fluid-container: clamp(20rem, 92vw, 68rem);
+--fluid-container-wide: clamp(20rem, 94vw, 72rem);
+--fluid-measure-narrow: clamp(16rem, 88vw, 42rem);
+--fluid-measure: clamp(20rem, 90vw, 48rem);
+--fluid-measure-wide: clamp(24rem, 92vw, 56rem);
+
+--fluid-btn-h: clamp(2.6rem, 2.6rem + 0.5vw, 3rem);
+--fluid-btn-px: clamp(1rem, 1rem + 0.3vw, 1.75rem);
+--fluid-icon-sm: clamp(0.85rem, 0.85rem + 0.15vw, 1rem);
+--fluid-icon-md: clamp(1rem, 1rem + 0.2vw, 1.25rem);
+--fluid-icon-lg: clamp(1.25rem, 1.25rem + 0.3vw, 1.5rem);
+--fluid-card-radius: clamp(10px, 10px + 0.4vw, 16px);
+
+--fluid-section-py: clamp(3rem, 3rem + 1vw, 5rem);
+--fluid-section-px: clamp(1rem, 1rem + 0.4vw, 2.5rem);
+
+@layer utilities {
+  .text-fluid-xs { font-size: var(--fluid-text-xs); }
+  .text-fluid-sm { font-size: var(--fluid-text-sm); }
+  .text-fluid-base { font-size: var(--fluid-text-base); }
+  .text-fluid-lg { font-size: var(--fluid-text-lg); }
+  .text-fluid-xl { font-size: var(--fluid-text-xl); }
+  .text-fluid-2xl { font-size: var(--fluid-text-2xl); }
+  .text-fluid-3xl { font-size: var(--fluid-text-3xl); }
+  .text-fluid-4xl { font-size: var(--fluid-text-4xl); }
+  .text-fluid-5xl { font-size: var(--fluid-text-5xl); }
+  .text-fluid-6xl { font-size: var(--fluid-text-6xl); }
+
+  .leading-fluid-tight { line-height: var(--fluid-leading-tight); }
+  .leading-fluid-normal { line-height: var(--fluid-leading-normal); }
+  .leading-fluid-loose { line-height: var(--fluid-leading-loose); }
+
+  .track-fluid-tight { letter-spacing: var(--fluid-track-tight); }
+  .track-fluid-normal { letter-spacing: var(--fluid-track-normal); }
+  .track-fluid-wide { letter-spacing: var(--fluid-track-wide); }
+
+  .p-fluid-1 { padding: var(--fluid-space-1); }
+  .p-fluid-2 { padding: var(--fluid-space-2); }
+  .p-fluid-3 { padding: var(--fluid-space-3); }
+  .p-fluid-4 { padding: var(--fluid-space-4); }
+  .p-fluid-5 { padding: var(--fluid-space-5); }
+  .p-fluid-6 { padding: var(--fluid-space-6); }
+  .p-fluid-8 { padding: var(--fluid-space-8); }
+  .p-fluid-10 { padding: var(--fluid-space-10); }
+
+  .px-fluid-4 { padding-inline: var(--fluid-space-4); }
+  .px-fluid-6 { padding-inline: var(--fluid-space-6); }
+  .px-fluid-8 { padding-inline: var(--fluid-space-8); }
+  .px-fluid-10 { padding-inline: var(--fluid-space-10); }
+
+  .py-fluid-4 { padding-block: var(--fluid-space-4); }
+  .py-fluid-6 { padding-block: var(--fluid-space-6); }
+  .py-fluid-8 { padding-block: var(--fluid-space-8); }
+  .py-fluid-10 { padding-block: var(--fluid-space-10); }
+  .py-fluid-12 { padding-block: var(--fluid-space-12); }
+  .py-fluid-16 { padding-block: var(--fluid-space-16); }
+  .py-fluid-20 { padding-block: var(--fluid-space-20); }
+  .py-fluid-24 { padding-block: var(--fluid-space-24); }
+  .py-fluid-28 { padding-block: var(--fluid-space-28); }
+  .py-fluid-32 { padding-block: var(--fluid-space-32); }
+
+  .m-fluid-0 { margin: var(--fluid-space-0); }
+  .m-fluid-4 { margin: var(--fluid-space-4); }
+  .m-fluid-6 { margin: var(--fluid-space-6); }
+  .m-fluid-8 { margin: var(--fluid-space-8); }
+
+  .mx-fluid-auto { margin-inline: auto; }
+
+  .mt-fluid-2 { margin-top: var(--fluid-space-2); }
+  .mt-fluid-3 { margin-top: var(--fluid-space-3); }
+  .mt-fluid-4 { margin-top: var(--fluid-space-4); }
+  .mt-fluid-6 { margin-top: var(--fluid-space-6); }
+  .mt-fluid-8 { margin-top: var(--fluid-space-8); }
+  .mt-fluid-10 { margin-top: var(--fluid-space-10); }
+  .mt-fluid-12 { margin-top: var(--fluid-space-12); }
+  .mt-fluid-16 { margin-top: var(--fluid-space-16); }
+  .mt-fluid-20 { margin-top: var(--fluid-space-20); }
+  .mt-fluid-24 { margin-top: var(--fluid-space-24); }
+
+  .mb-fluid-2 { margin-bottom: var(--fluid-space-2); }
+  .mb-fluid-3 { margin-bottom: var(--fluid-space-3); }
+  .mb-fluid-4 { margin-bottom: var(--fluid-space-4); }
+  .mb-fluid-6 { margin-bottom: var(--fluid-space-6); }
+  .mb-fluid-8 { margin-bottom: var(--fluid-space-8); }
+  .mb-fluid-10 { margin-bottom: var(--fluid-space-10); }
+  .mb-fluid-12 { margin-bottom: var(--fluid-space-12); }
+  .mb-fluid-16 { margin-bottom: var(--fluid-space-16); }
+
+  .gap-fluid-1 { gap: var(--fluid-space-1); }
+  .gap-fluid-2 { gap: var(--fluid-space-2); }
+  .gap-fluid-3 { gap: var(--fluid-space-3); }
+  .gap-fluid-4 { gap: var(--fluid-space-4); }
+  .gap-fluid-6 { gap: var(--fluid-space-6); }
+  .gap-fluid-8 { gap: var(--fluid-space-8); }
+  .gap-fluid-10 { gap: var(--fluid-space-10); }
+  .gap-fluid-12 { gap: var(--fluid-space-12); }
+  .gap-fluid-16 { gap: var(--fluid-space-16); }
+  .gap-fluid-20 { gap: var(--fluid-space-20); }
+  .gap-fluid-24 { gap: var(--fluid-space-24); }
+
+  .max-w-fluid-container { max-width: var(--fluid-container); }
+  .max-w-fluid-container-wide { max-width: var(--fluid-container-wide); }
+  .max-w-fluid-measure-narrow { max-width: var(--fluid-measure-narrow); }
+  .max-w-fluid-measure { max-width: var(--fluid-measure); }
+  .max-w-fluid-measure-wide { max-width: var(--fluid-measure-wide); }
+
+  .h-fluid-btn { height: var(--fluid-btn-h); }
+  .h-fluid-icon-sm { height: var(--fluid-icon-sm); }
+  .h-fluid-icon-md { height: var(--fluid-icon-md); }
+  .h-fluid-icon-lg { height: var(--fluid-icon-lg); }
+
+  .w-fluid-icon-sm { width: var(--fluid-icon-sm); }
+  .w-fluid-icon-md { width: var(--fluid-icon-md); }
+  .w-fluid-icon-lg { width: var(--fluid-icon-lg); }
+
+  .rounded-fluid-card { border-radius: var(--fluid-card-radius); }
+}
+
+/* Autofill background fix *//* Autofill background fix */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -574,3 +795,5 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: #141414 !important;
   transition: background-color 0s 600000s, color 600000s 0s !important;
 }
+
+

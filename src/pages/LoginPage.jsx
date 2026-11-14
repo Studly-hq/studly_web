@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useUI } from "../context/UIContext";
 import { compatToast as toast } from "../components/ui/toast";
@@ -15,8 +15,10 @@ const LoginPage = () => {
     img.src = "/auth-bottom-left-signup.webp";
   }, []);
   const { login } = useAuth();
-  const { pendingAction, setPendingAction, setShowUpgradeModal } = useUI();
+  const { pendingAction, setPendingAction } = useUI();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextPath = searchParams.get("next");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,11 +31,11 @@ const LoginPage = () => {
     try {
       await login(email, password);
       toast.success("Logged in successfully!");
-      if (pendingAction?.type === "SHOW_UPGRADE_MODAL") {
-        setTimeout(() => setShowUpgradeModal(true), 300);
+      if (pendingAction?.type === "GO_BILLING" || pendingAction?.type === "SHOW_UPGRADE_MODAL") {
         setPendingAction(null);
+        navigate("/billing");
       } else {
-        navigate("/home");
+        navigate(nextPath && nextPath.startsWith("/") ? nextPath : "/home");
       }
     } catch (err) {
       const serverError = err.response?.data?.error || err.response?.data?.message;
@@ -57,7 +59,7 @@ const LoginPage = () => {
 
       {/* Right: form content - centered in full viewport */}
       <div className="w-full max-w-[400px] relative z-10">
-          <h1 className="text-4xl md:text-5xl font-normal tracking-[-0.02em] text-center whitespace-nowrap">
+          <h1 className="text-4xl md:text-5xl font-normal tracking-[-0.02em] text-center whitespace-nowrap text-[#141414]">
             Welcome back.
           </h1>
           <p className="mt-4 text-base text-[#726f6c] text-center">
@@ -65,7 +67,7 @@ const LoginPage = () => {
           </p>
 
           <form onSubmit={handleSubmit} className="mt-5 text-left">
-            <label htmlFor="login-email" className="text-sm font-medium">
+            <label htmlFor="login-email" className="text-sm font-medium text-[#141414]">
               Email
             </label>
             <Input
@@ -78,7 +80,7 @@ const LoginPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="mt-2 h-11 rounded-xl border-[#e6e6e3] bg-white px-3.5 text-[15px] text-[#37352f] placeholder:text-[#726f6c] focus-visible:border-[#141414] focus-visible:ring-0 outline-none focus-visible:outline-none"
             />
-            <label htmlFor="login-password" className="mt-4 block text-sm font-medium">
+            <label htmlFor="login-password" className="mt-4 block text-sm font-medium text-[#141414]">
               Password
             </label>
             <div className="relative">

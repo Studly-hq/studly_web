@@ -114,7 +114,7 @@ const SETTLE_STAGGER = 0.045;
  * Driven imperatively, like the other scenes in this folder: the declarative
  * animate prop does not reliably update opacity through this stage.
  */
-const SceneUnderstand = ({ reduced = false, active = true }) => {
+const SceneUnderstand = ({ reduced = false, active = true, onDone }) => {
   const [scope, animateAt] = useAnimate();
   const box = useRef(0);
 
@@ -137,6 +137,15 @@ const SceneUnderstand = ({ reduced = false, active = true }) => {
     const root = scope.current;
     if (!root) return undefined;
     let cancelled = false;
+    let reported = false;
+
+    /* The end of one full pass: read, settle, let go, back to the heap. That
+       is what the section's bar counts down, so it reports it once. */
+    const report = () => {
+      if (reported || cancelled) return;
+      reported = true;
+      onDone?.();
+    };
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms * PACE));
 
     /* The durations and holds written below are the ones this scene was tuned
@@ -316,8 +325,10 @@ const SceneUnderstand = ({ reduced = false, active = true }) => {
           await wait(380);
           if (cancelled) return;
 
-          animate(".sweep", { x: -60, opacity: 0 }, { duration: 0 });
+                    animate(".sweep", { x: -60, opacity: 0 }, { duration: 0 });
           await wait(260);
+          if (cancelled) return;
+          report();
         }
       } catch {
         /* scene unmounted mid-sequence */
@@ -328,7 +339,7 @@ const SceneUnderstand = ({ reduced = false, active = true }) => {
     return () => {
       cancelled = true;
     };
-  }, [reduced, active, animateAt, scope]);
+  }, [reduced, active, animateAt, scope, onDone]);
 
   return (
     <div

@@ -1,0 +1,76 @@
+
+> studly@0.1.0 build
+> react-app-rewired build
+
+Creating an optimized production build...
+Compiled with warnings.
+
+[eslint] 
+src\components\sections\BossSessions.jsx
+  Line 4:10:  'HugeiconsIcon' is defined but never used  no-unused-vars
+
+src\components\sections\Footer.jsx
+  Line 19:7:  'chamfer' is assigned a value but never used  no-unused-vars
+
+src\components\sections\Header.jsx
+  Line 4:10:  'Button' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+File sizes after gzip:
+
+  389.15 kB  build\static\js\492.752eaf07.chunk.js
+  275.44 kB  build\static\js\main.cc0cb619.js
+  143.86 kB  build\static\js\277.7cc72853.chunk.js
+  113.26 kB  build\static\js\715.ba710745.chunk.js
+  63.67 kB   build\static\js\586.e4a2c1c1.chunk.js
+  46.35 kB   build\static\js\239.75e043d9.chunk.js
+  33.38 kB   build\static\js\455.8ddf3cd5.chunk.js
+  27.09 kB   build\static\js\812.bbd67d05.chunk.js
+  25.38 kB   build\static\css\main.39bb7184.css
+  23.79 kB   build\static\js\215.8f523ddd.chunk.js
+  11 kB      build\static\js\135.1335aed5.chunk.js
+  8.7 kB     build\static\js\977.38a3c56d.chunk.js
+  8.6 kB     build\static\js\359.9f91d997.chunk.js
+  6.29 kB    build\static\js\765.1baabbbc.chunk.js
+  5.89 kB    build\static\js\728.8df035f6.chunk.js
+  5.65 kB    build\static\js\369.cf62bde6.chunk.js
+  5.58 kB    build\static\js\548.bad9acf1.chunk.js
+  4.88 kB    build\static\js\978.63d5d807.chunk.js
+  4.82 kB    build\static\js\9.709b646b.chunk.js
+  4.56 kB    build\static\js\319.96f8a6be.chunk.js
+  4.34 kB    build\static\css\492.64e81348.chunk.css
+  3.85 kB    build\static\js\371.e80d7f5c.chunk.js
+  3.73 kB    build\static\js\136.022e82b9.chunk.js
+  3.58 kB    build\static\js\424.91843652.chunk.js
+  3.37 kB    build\static\js\998.e952e059.chunk.js
+  2.98 kB    build\static\js\180.5f9c0014.chunk.js
+  2.92 kB    build\static\js\391.1e23cfdf.chunk.js
+  2.22 kB    build\static\js\477.b9fb0c37.chunk.js
+  2.08 kB    build\static\js\230.5446f9e9.chunk.js
+  2 kB       build\static\js\536.22b2b733.chunk.js
+  1.98 kB    build\static\js\31.da14aed5.chunk.js
+  1.51 kB    build\static\js\732.e774caa9.chunk.js
+  1.48 kB    build\static\js\264.bb3e693b.chunk.js
+  1.28 kB    build\static\js\32.40f939f1.chunk.js
+  1.27 kB    build\static\js\194.b54fd15e.chunk.js
+  1.15 kB    build\static\js\91.4cb98185.chunk.js
+  1.09 kB    build\static\js\523.b0ba1d72.chunk.js
+  1.07 kB    build\static\js\741.2ed2f07b.chunk.js
+  905 B      build\static\css\369.073d578c.chunk.css
+  534 B      build\static\js\268.9aa42b4e.chunk.js
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  npm install -g serve
+  serve -s build
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+

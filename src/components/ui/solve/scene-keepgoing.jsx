@@ -11,12 +11,21 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms * PACE));
  * so on down the path, then the whole thing resets and runs again. The map
  * itself is unchanged: only where the cursor sits moves.
  */
-const SceneKeepGoing = ({ reduced = false, active = true }) => {
+const SceneKeepGoing = ({ reduced = false, active = true, onDone }) => {
   const [cursor, setCursor] = useState(reduced ? TOTAL - 1 : 0);
 
   useEffect(() => {
     if (reduced || !active) return undefined;
     let cancelled = false;
+    let reported = false;
+
+    /* One pass walks all nine coins and returns the cursor to the start. That
+       is the length of the step, and it reports it once. */
+    const report = () => {
+      if (reported || cancelled) return;
+      reported = true;
+      onDone?.();
+    };
 
     const run = async () => {
       while (!cancelled) {
@@ -29,6 +38,8 @@ const SceneKeepGoing = ({ reduced = false, active = true }) => {
         await wait(1150);
         setCursor(0);
         await wait(300);
+        if (cancelled) return;
+        report();
       }
     };
 
@@ -36,7 +47,7 @@ const SceneKeepGoing = ({ reduced = false, active = true }) => {
     return () => {
       cancelled = true;
     };
-  }, [reduced, active]);
+  }, [reduced, active, onDone]);
 
   return (
     <FittedMap>

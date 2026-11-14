@@ -11,11 +11,6 @@ import LearningPathMap from "../ui/learning-path-map";
 
 /**
  * LearningPath — the destination the Problem section's connector leads into.
- *
- * Shares the exact same 2-column grid as `Problem` (max-w-[1080px], gap-10,
- * px-6 / md:px-10), so the hairline entering at the top of the right column
- * sits directly under the connector that exited the Studly card. The left copy
- * reuses the same scroll wipe; the map cascades in from the line via variants.
  */
 const LearningPath = () => {
   const ref = useRef(null);
@@ -50,26 +45,23 @@ const LearningPath = () => {
             <ScrollRevealText
               progress={progress}
               range={[0.1, 0.78]}
-              className="font-geist text-[32px] font-semibold leading-[1.22] tracking-[-0.03em] lg:text-[36px]"
+              className="font-geist text-[clamp(22px,3.2vw,32px)] font-semibold leading-[1.22] tracking-[-0.03em] md:text-[clamp(26px,3.6vw,36px)]"
             >
               <p>You don&apos;t have to figure out how to study your materials.</p>
               <p className="mt-3">Studly helps you find a way through it.</p>
             </ScrollRevealText>
           </div>
           <div className="lg:hidden">
-            <p className="font-geist text-[24px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]">
+            <p className="font-geist text-[clamp(22px,3vw,26px)] font-semibold leading-[1.22] tracking-[-0.03em] md:text-[clamp(26px,3.4vw,32px)]">
               You don&apos;t have to figure out how to study your materials.
             </p>
-            <p className="mt-3 text-[24px] font-semibold leading-[1.22] tracking-[-0.03em] sm:text-[28px] md:text-[32px] lg:text-[36px]">
+            <p className="mt-3 text-[clamp(22px,3vw,26px)] font-semibold leading-[1.22] tracking-[-0.03em] md:text-[clamp(26px,3.4vw,32px)]">
               Studly helps you find a way through it.
             </p>
           </div>
         </div>
 
-        {/* Right column: learning path map. No connector of its own: the Problem
-            section's single curve overhangs past the section seam and lands on
-            the map, so a second curve here would double the line and leave a kink.
-            The `pt-16` is what the connector's overhang was measured against. */}
+        {/* Right column: learning path map. */}
         <div className="relative">
           <LearningPathMap className="pt-16" />
         </div>

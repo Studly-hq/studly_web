@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -10,9 +10,14 @@ import {
   Logout03Icon,
   Settings02Icon,
   ArrowUp01Icon,
+  CreditCardIcon,
+  CalendarIcon,
 } from '@hugeicons/core-free-icons';
+import { Flame, Trophy } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useWebSocket } from '../../hooks/useWebSocket';
+import client from '../../api/client';
 import logo from '../../assets/logo.webp';
 import {
   Sidebar,
@@ -34,6 +39,7 @@ const NAV_ITEMS = [
   { label: 'Home', icon: Home04Icon, path: '/home', match: ['/home', '/study'] },
   { label: 'Community', icon: UsersIcon, path: '/feed', match: ['/feed', '/explore', '/saved', '/post'] },
   { label: 'Leaderboard', icon: TrophyIcon, path: '/leaderboard', match: ['/leaderboard'] },
+  { label: 'Streak', icon: CalendarIcon, path: '/streak', match: ['/streak'] },
   { label: 'Profile', icon: UserIcon, path: '/profile', match: ['/profile'] },
 ];
 
@@ -46,7 +52,7 @@ const getInitials = (name) =>
     .join('')
     .toUpperCase();
 
-const AccountMenu = ({ displayName, email, avatarUrl, onLogout, onNavigate }) => {
+const AccountMenu = ({ displayName, email, avatarUrl, isPro, onLogout, onNavigate }) => {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
 
@@ -73,6 +79,7 @@ const AccountMenu = ({ displayName, email, avatarUrl, onLogout, onNavigate }) =>
   }, [open]);
 
   const menuItems = [
+    { label: 'Billing', icon: CreditCardIcon, action: () => onNavigate('/billing') },
     { label: 'Settings', icon: Settings02Icon, action: () => onNavigate('/settings') },
     { label: 'Log out', icon: Logout03Icon, action: onLogout, destructive: true },
   ];
@@ -112,6 +119,22 @@ const AccountMenu = ({ displayName, email, avatarUrl, onLogout, onNavigate }) =>
             {typeof email === 'string' && email ? (
               <p className="truncate text-xs text-muted-foreground">{email}</p>
             ) : null}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onNavigate('/billing');
+              }}
+              className="mt-2 flex w-full items-center justify-between gap-2 rounded-full border border-border px-2.5 py-1 text-left transition-colors hover:bg-secondary"
+            >
+              <span className="flex items-center gap-1.5 text-[11px] font-medium">
+                <span className={`size-1.5 rounded-full ${isPro ? 'bg-[#2e9b5f]' : 'bg-muted-foreground/50'}`} />
+                {isPro ? 'Studly Pro' : 'Free plan'}
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {isPro ? 'Active' : 'Upgrade'}
+              </span>
+            </button>
           </div>
           <div className="my-1 h-px bg-border" />
           {menuItems.map((item) => (
@@ -139,6 +162,84 @@ const AccountMenu = ({ displayName, email, avatarUrl, onLogout, onNavigate }) =>
   );
 };
 
+/**
+ * Sidebar stat: aura wallet + streak flame.
+ * Loads once per mount via GET /aura/summary (which ticks the daily streak
+ * server-side), then stays live via WebSocket aura_point_update pushes.
+ */
+const AuraStreakStat = () => {
+  const { currentUser } = useAuth();
+  const [stats, setStats] = useState({ aura_points: 0, current_streak: 0, highest_streak: 0 });
+  const [fetching, setFetching] = useState(false);
+  const hasFetchedRef = useRef(false);
+
+  const fetchSummary = useCallback(async () => {
+    if (fetching) return;
+    if (hasFetchedRef.current) return;
+
+    setFetching(true);
+    try {
+      const res = await client.get(`/aura/summary`);
+      console.log('[AuraStreakStat] Response:', res.data);
+      const { aura_points, current_streak, highest_streak } = res.data || {};
+      setStats({ aura_points, current_streak, highest_streak });
+      hasFetchedRef.current = true;
+    } catch (e) {
+      console.error('[AuraStreakStat] Fetch failed:', e?.response?.status, e?.message);
+    } finally {
+      setFetching(false);
+    }
+  }, [fetching]);
+
+  useEffect(() => {
+    fetchSummary();
+  }, [fetchSummary]);
+
+  // Live updates when points land elsewhere (study, feed, quiz...)
+  useWebSocket('aura_point_update', (data) => {
+    if (currentUser && data.user_id === currentUser.id) {
+      setStats((prev) => ({ ...prev, aura_points: data.points }));
+    }
+  });
+
+  // Streak resets arrive via WS; refresh to show the new streak + highest
+  useWebSocket('streak_lost', (data) => {
+    if (currentUser && data.user_id === currentUser.id) {
+      hasFetchedRef.current = false;
+      fetchSummary();
+    }
+  });
+
+  return (
+    <div className="mx-2 mb-1.5 p-2 rounded-xl bg-sidebar-accent border border-sidebar-border group-data-[state=collapsed]:hidden">
+      <div className="flex items-center justify-between gap-1.5">
+        <div className="flex items-center gap-1">
+          <Flame size={13} className="text-reddit-orange shrink-0" />
+          <div className="min-w-0 flex flex-col">
+            <span className="text-[10px] font-semibold text-sidebar-foreground truncate leading-tight">
+              Streak
+            </span>
+            <span className="text-[10px] font-bold text-sidebar-foreground leading-tight">
+              {stats.current_streak} day{stats.current_streak !== 1 ? 's' : ''}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <Trophy size={13} className="text-amber-400 shrink-0" />
+          <div className="min-w-0 flex flex-col">
+            <span className="text-[10px] font-semibold text-sidebar-foreground truncate leading-tight">
+              Aura
+            </span>
+            <span className="text-[10px] font-bold text-sidebar-foreground leading-tight">
+              {stats.aura_points}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const DashboardSidebar = (props) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -155,7 +256,6 @@ export const DashboardSidebar = (props) => {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/login');
   };
 
   return (
@@ -199,6 +299,8 @@ export const DashboardSidebar = (props) => {
 
       <SidebarFooter>
         <SidebarMenu>
+          <AuraStreakStat />
+
           <SidebarMenuItem>
             <SidebarMenuButton
               render={<Link to="/releases" />}
@@ -233,6 +335,7 @@ export const DashboardSidebar = (props) => {
               displayName={displayName}
               email={currentUser?.email}
               avatarUrl={avatarUrl}
+              isPro={currentUser?.planType === 'pro'}
               onLogout={handleLogout}
               onNavigate={navigate}
             />

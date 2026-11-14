@@ -5,9 +5,7 @@ import heroTasks from "../../assets/hero-tasks.webp";
 import heroCheck from "../../assets/hero-check.webp";
 
 /**
- * Inline hero illustration. Mirrors the design export's .image rules: sized
- * relative to the font (0.92em), nudged onto the baseline (vertical-align
- * -0.16em), and tilted so it reads as hand-placed rather than typeset.
+ * Inline hero illustration. Sized relative to the font, fluidly.
  */
 const HeroImage = ({ src, alt, tilt }) => (
   <img
@@ -21,13 +19,6 @@ const HeroImage = ({ src, alt, tilt }) => (
 
 /**
  * Hero — centred headline on a single line, with the composer beneath it.
- *
- * Follows the reference layout: everything centred horizontally and vertically,
- * headline first, then the wide composer box. No line break in the headline, so
- * it stays on one line at every breakpoint.
- *
- * The folder/upload illustration now lives in HeroIllustration.jsx and the trust
- * row in SocialProof.jsx; both are detached and can be re-mounted later.
  */
 const Hero = () => (
   <section className="relative flex min-h-dvh w-full items-center justify-center">

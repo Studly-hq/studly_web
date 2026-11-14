@@ -1,4 +1,4 @@
-import { CLOUDINARY_UPLOAD_URL, CLOUDINARY_API_KEY, validateCloudinaryConfig } from './cloudinaryConfig';
+import { CLOUDINARY_UPLOAD_URL, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, validateCloudinaryConfig } from './cloudinaryConfig';
 
 const generateSignature = async (paramsToSign, apiSecret) => {
   const sortedParams = Object.keys(paramsToSign)
@@ -21,8 +21,7 @@ export const uploadAvatarToCloudinary = async (file) => {
   try {
     validateCloudinaryConfig();
 
-    const apiSecret = process.env.REACT_APP_CLOUDINARY_API_SECRET;
-    if (!apiSecret) {
+    if (!CLOUDINARY_API_SECRET) {
       throw new Error('Cloudinary API secret is not configured');
     }
 
@@ -33,7 +32,7 @@ export const uploadAvatarToCloudinary = async (file) => {
       folder: 'studly/avatars'
     };
 
-    const signature = await generateSignature(paramsToSign, apiSecret);
+    const signature = await generateSignature(paramsToSign, CLOUDINARY_API_SECRET);
 
     const formData = new FormData();
     formData.append('file', file);

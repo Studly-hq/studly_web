@@ -61,6 +61,11 @@ export const CelebrationProvider = ({ children }) => {
         setActiveCelebration(null);
     }, [activeCelebration]);
 
+    // Manually trigger a celebration (e.g. from a button).
+    const triggerCelebration = useCallback((type, value, message) => {
+        pushToQueue({ type, value, message });
+    }, [pushToQueue]);
+
     // Subscribe to WebSocket celebration events from backend
     useEffect(() => {
         if (!isAuthenticated) return;
@@ -101,7 +106,8 @@ export const CelebrationProvider = ({ children }) => {
         showCelebration: !!activeCelebration,
         celebrationData: activeCelebration,
         closeCelebration,
-    }), [activeCelebration, closeCelebration]);
+        triggerCelebration,
+    }), [activeCelebration, closeCelebration, triggerCelebration]);
 
     return (
         <CelebrationContext.Provider value={value}>

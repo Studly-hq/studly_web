@@ -1,5 +1,5 @@
 import React from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import SceneBring from "./scene-bring";
 import SceneUnderstand from "./scene-understand";
 import ScenePath from "./scene-path";
@@ -38,18 +38,16 @@ const SolveStage = ({ step, reduced = false, play = true, replayKey = 0 }) => {
       animate={{ backgroundColor: step.tint }}
       transition={{ duration: 0.6 * SWAP_PACE, ease: EASE }}
     >
-      <AnimatePresence>
-        <motion.div
-          key={`${step.id}-${replayKey}`}
-          className="absolute inset-0"
-          initial={reduced ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 * SWAP_PACE, ease: "linear" }}
-        >
-          <Scene reduced={reduced} active={play} />
-        </motion.div>
-      </AnimatePresence>
+      <motion.div
+        key={step.id}
+        className="absolute inset-0"
+        initial={reduced ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 * SWAP_PACE, ease: "linear" }}
+      >
+        <Scene reduced={reduced} active={play} />
+      </motion.div>
     </motion.div>
   );
 };
