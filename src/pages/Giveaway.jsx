@@ -68,12 +68,6 @@ const Giveaway = () => {
             </div>
 
             <div className="px-4 pt-6">
-                {error && (
-                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400">
-                        {error}
-                    </div>
-                )}
-
                 {/* Hero Card */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
