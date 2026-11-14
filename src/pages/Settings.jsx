@@ -4,7 +4,7 @@ import { ArrowLeft, Globe, User, ChevronRight, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { changePassword } from "../api/auth";
-import { toast } from "sonner";
+import { compatToast as toast } from "../components/ui/toast";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const Settings = () => {
@@ -127,9 +127,23 @@ const Settings = () => {
               </div>
               <ChevronRight size={20} className="text-reddit-textMuted" />
             </button>
+            <button
+              onClick={() => navigate("/billing")}
+              className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover rounded-xl transition-colors w-full"
+            >
+              <div className="flex-1 text-left">
+                <p className="text-reddit-text font-medium mb-1">
+                  Billing and plan
+                </p>
+                <p className="text-sm text-reddit-textMuted">
+                  {currentUser?.planType === "pro"
+                    ? "Pro is active. View your access window and receipts."
+                    : "You are on the free plan. See what Pro adds."}
+                </p>
+              </div>
+              <ChevronRight size={20} className="text-reddit-textMuted" />
+            </button>
           </SettingSection>
-
-          {/* About */}
           <SettingSection title="About" icon={Globe}>
             <button className="px-4 py-4 flex items-center justify-between hover:bg-reddit-cardHover rounded-xl transition-colors w-full">
               <div className="flex-1 text-left">
@@ -170,7 +184,7 @@ const Settings = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-reddit-card w-full max-w-md rounded-xl border border-reddit-border p-6"
+            className="bg-reddit-card w-full max-w-lg rounded-xl border border-reddit-border p-6"
           >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-reddit-text tracking-tight">

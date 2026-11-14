@@ -7,7 +7,7 @@ import { useFeed } from '../context/FeedContext';
 import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import { useNotifications } from '../context/NotificationContext';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo.webp';
 import SEO from '../components/common/SEO';
 
 // Skeleton loader for feed
@@ -35,17 +35,15 @@ const FeedPage = () => {
     const navigate = useNavigate();
     const { initializeFeed, loadingState } = useFeed();
     const { isAuthLoading, isAuthenticated, currentUser } = useAuth();
-    const { setShowAuthModal, setShowUpgradeModal, setShowManagePlanModal, setPendingAction, isUpgradeBannerVisible } = useUI();
+    const { setShowAuthModal, setPendingAction, isUpgradeBannerVisible } = useUI();
     const isPro = currentUser?.planType === 'pro';
 
     const handleUpgradeClick = () => {
         if (!isAuthenticated) {
-            setPendingAction({ type: 'SHOW_UPGRADE_MODAL' });
+            setPendingAction({ type: 'GO_BILLING' });
             setShowAuthModal(true);
-        } else if (isPro) {
-            setShowManagePlanModal(true);
         } else {
-            setShowUpgradeModal(true);
+            navigate('/billing');
         }
     };
     const { unreadCount } = useNotifications();
@@ -67,16 +65,13 @@ const FeedPage = () => {
     if (isAuthLoading || loadingState === 'idle' || loadingState === 'loading') {
         return (
             <div>
-                {/* Mobile Header */}
-                <div className="lg:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                        <img src={logo} alt="Studly" className="w-8 h-8 object-contain" />
-                    </div>
+                {/* Mobile Header — logo lives in the sidebar, no duplicate here */}
+                <div className="lg:hidden sticky top-0 z-40 bg-reddit-bg/95 backdrop-blur-sm border-b border-reddit-border px-4 py-3 flex items-center justify-end">
                     <div className="flex items-center gap-2">
                         {!isUpgradeBannerVisible && (
                             <button
                                 onClick={handleUpgradeClick}
-                                className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-lg"
+                                className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95"
                             >
                                 <Sparkles className="w-3 h-3" />
                                 <span>{isPro ? "Pro" : "Upgrade"}</span>
@@ -141,7 +136,7 @@ const FeedPage = () => {
                     {!isUpgradeBannerVisible && (
                         <button
                             onClick={handleUpgradeClick}
-                            className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-lg"
+                            className="flex items-center gap-1 bg-gradient-to-r from-reddit-orange to-yellow-500 hover:opacity-90 text-white px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95"
                         >
                             <Sparkles className="w-3 h-3" />
                             <span>{isPro ? "Pro" : "Upgrade"}</span>

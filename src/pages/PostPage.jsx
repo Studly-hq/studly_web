@@ -76,7 +76,7 @@ const PostPage = () => {
   const handleFormatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
     return (
-      <div className="min-h-screen text-white">
+      <div className="min-h-screen text-reddit-text">
         {/* Sticky Header */}
         <div className="sticky top-0 bg-reddit-bg/95 backdrop-blur-md z-10 px-4 py-3 flex items-center gap-6 border-b border-reddit-border">
           <button
@@ -103,7 +103,7 @@ const PostPage = () => {
                 <span className="text-gray-500 text-sm">@{post.user.username}</span>
               </div>
             </div>
-            <button className="text-gray-500 hover:text-white p-2 rounded-full hover:bg-gray-800/50">
+            <button className="text-gray-500 hover:text-reddit-text p-2 rounded-full hover:bg-gray-800/50">
               <MoreHorizontal size={20} />
             </button>
           </div>
@@ -124,14 +124,14 @@ const PostPage = () => {
           <div className="py-4 text-gray-500 text-[15px] border-b border-gray-800">
             <span className="hover:underline cursor-pointer">{handleFormatTimestamp(post.timestamp)}</span>
             <span className="mx-1">·</span>
-            <span className="text-white font-bold">34K</span> <span className="mr-1">Views</span>
+            <span className="text-reddit-text font-bold">34K</span> <span className="mr-1">Views</span>
           </div>
 
           {/* Stats / Counts (Only if non-zero, mimicking X's detailed stat row if needed, but often X hides this here and shows below actions) */}
           {(post.likeCount > 0 || post.commentCount > 0) && (
             <div className="py-3 text-gray-500 text-sm border-b border-gray-800 flex gap-4">
-              {post.likeCount > 0 && <div><span className="text-white font-bold">{post.likeCount}</span> Likes</div>}
-              {post.commentCount > 0 && <div><span className="text-white font-bold">{post.commentCount}</span> Quotes</div>}
+              {post.likeCount > 0 && <div><span className="text-reddit-text font-bold">{post.likeCount}</span> Likes</div>}
+              {post.commentCount > 0 && <div><span className="text-reddit-text font-bold">{post.commentCount}</span> Quotes</div>}
             </div>
           )}
 
@@ -190,7 +190,7 @@ const PostPage = () => {
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 onClick={() => !isAuthenticated && setShowAuthModal(true)}
-                className="w-full bg-transparent text-xl placeholder-gray-500 text-white outline-none py-2"
+                className="w-full bg-transparent text-xl placeholder-gray-500 text-reddit-text outline-none py-2"
               />
             </div>
             {commentText && (
@@ -241,7 +241,7 @@ const PostPage = () => {
 
   if (!post) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-white">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-reddit-text">
         <h2 className="text-xl font-bold mb-2">Post not found</h2>
         <p className="text-gray-500 mb-4">
           The post you are looking for doesn't exist.
@@ -257,7 +257,7 @@ const PostPage = () => {
   }
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="min-h-screen text-reddit-text">
       {/* Sticky Header */}
       <div className="sticky top-0 bg-reddit-bg/95 backdrop-blur-md z-10 px-4 py-3 flex items-center gap-6 border-b border-reddit-border">
         <button
@@ -291,7 +291,7 @@ const PostPage = () => {
               </span>
             </div>
           </div>
-          <button className="text-gray-500 hover:text-white p-2 rounded-full hover:bg-gray-800/50">
+          <button className="text-gray-500 hover:text-reddit-text p-2 rounded-full hover:bg-gray-800/50">
             <MoreHorizontal size={20} />
           </button>
         </div>
@@ -318,7 +318,7 @@ const PostPage = () => {
             {handleFormatTimestamp(post.timestamp)}
           </span>
           <span className="mx-1">·</span>
-          <span className="text-white font-bold">34K</span>{" "}
+          <span className="text-reddit-text font-bold">34K</span>{" "}
           <span className="mr-1">Views</span>
         </div>
 
@@ -327,13 +327,13 @@ const PostPage = () => {
           <div className="py-3 text-gray-500 text-sm border-b border-gray-800 flex gap-4">
             {post.likeCount > 0 && (
               <div>
-                <span className="text-white font-bold">{post.likeCount}</span>{" "}
+                <span className="text-reddit-text font-bold">{post.likeCount}</span>{" "}
                 Likes
               </div>
             )}
             {post.commentCount > 0 && (
               <div>
-                <span className="text-white font-bold">
+                <span className="text-reddit-text font-bold">
                   {post.commentCount}
                 </span>{" "}
                 Quotes
@@ -408,7 +408,7 @@ const PostPage = () => {
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               onClick={() => !isAuthenticated && setShowAuthModal(true)}
-              className="w-full bg-transparent text-xl placeholder-gray-500 text-white outline-none py-2"
+              className="w-full bg-transparent text-xl placeholder-gray-500 text-reddit-text outline-none py-2"
             />
           </div>
           {commentText && (

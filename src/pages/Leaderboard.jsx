@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { getLeaderboard } from "../api/coursebank";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/common/SEO";
+import { Skeleton } from "../components/ui/skeleton";
 
 const Leaderboard = () => {
     const navigate = useNavigate();
@@ -35,7 +36,7 @@ const Leaderboard = () => {
                 const data = await getLeaderboard(activePeriod);
                 setLeaderboardData(data);
             } catch (err) {
-                console.error("Failed to fetch leaderboard:", err);
+                console.error("Failed to load leaderboard:", err);
                 setError("Unable to load leaderboard. Please try again later.");
             } finally {
                 setLoading(false);
@@ -45,34 +46,46 @@ const Leaderboard = () => {
         fetchLeaderboard();
     }, [activePeriod]);
 
-    // Handle Loading State
+    const topThree = leaderboardData.slice(0, 3);
+    const remainingRanks = leaderboardData.slice(3);
+    const userEntry = leaderboardData.find(entry => entry.user_id === currentUser?.id);
+
+    // Single unified loading state — one skeleton, not scattered across sections.
     if (loading && leaderboardData.length === 0) {
         return (
-            <div className="max-w-[640px] mx-auto min-h-screen pt-4 px-4 bg-reddit-bg overflow-hidden">
-                <div className="animate-pulse space-y-4">
-                    <div className="h-8 bg-reddit-card rounded w-48 mb-6" />
-                    <div className="flex gap-2 mb-8">
-                        <div className="h-10 bg-reddit-card rounded flex-1" />
-                        <div className="h-10 bg-reddit-card rounded flex-1" />
-                        <div className="h-10 bg-reddit-card rounded flex-1" />
+            <div className="w-full max-w-[640px] mx-auto min-h-screen bg-reddit-bg pb-24 px-4">
+                <SEO
+                    title="Leaderboard"
+                    description="See who is leading the way in knowledge sharing and earning aura points on the Studly leaderboard."
+                    canonical="/leaderboard"
+                />
+                <div className="sticky top-0 z-30 bg-reddit-bg/95 backdrop-blur-md border-b border-reddit-border px-4 py-4 flex items-center gap-4">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="p-2 hover:bg-reddit-cardHover rounded-full transition-colors"
+                    >
+                        <ArrowLeft size={20} className="text-reddit-text" />
+                    </button>
+                    <h1 className="text-xl font-bold text-reddit-text font-righteous tracking-wide flex items-center gap-2">
+                        <Trophy className="text-yellow-500" size={24} />
+                        Leaderboard
+                    </h1>
+                </div>
+
+                <div className="px-4 pt-20">
+                    <div className="flex flex-col items-center gap-4">
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <Skeleton className="h-7 w-48" />
                     </div>
-                    <div className="h-64 bg-reddit-card rounded-2xl mb-6" />
-                    {[1, 2, 3, 4, 5].map(i => (
-                        <div key={i} className="h-16 bg-reddit-card rounded-xl" />
-                    ))}
                 </div>
             </div>
         );
     }
 
-    const topThree = leaderboardData.slice(0, 3);
-    const remainingRanks = leaderboardData.slice(3);
-    const userEntry = leaderboardData.find(entry => entry.user_id === currentUser?.id);
-
     return (
-        <div className="max-w-[640px] mx-auto min-h-screen bg-reddit-bg pb-24">
-            <SEO 
-                title="Leaderboard" 
+        <div className="w-full max-w-[640px] mx-auto min-h-screen bg-reddit-bg pb-24">
+            <SEO
+                title="Leaderboard"
                 description="See who is leading the way in knowledge sharing and earning aura points on the Studly leaderboard."
                 canonical="/leaderboard"
             />
@@ -98,14 +111,14 @@ const Leaderboard = () => {
                             key={period.id}
                             onClick={() => setActivePeriod(period.id)}
                             className={`relative flex-1 py-2.5 text-sm font-bold transition-all duration-300 rounded-lg ${activePeriod === period.id
-                                ? "text-white"
+                                ? "text-reddit-text"
                                 : "text-reddit-textMuted hover:text-reddit-text hover:bg-reddit-cardHover/50"
                                 }`}
                         >
                             {activePeriod === period.id && (
                                 <motion.div
                                     layoutId="activePeriod"
-                                    className="absolute inset-0 bg-reddit-orange rounded-lg shadow-[0_0_15px_rgba(255,69,0,0.3)]"
+                                    className="absolute inset-0 bg-reddit-orange rounded-lg"
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                 />
                             )}
@@ -160,15 +173,14 @@ const Leaderboard = () => {
 
                 {/* Rankings List */}
                 <div className="space-y-3">
-                    <AnimatePresence mode="popLayout">
+                    <AnimatePresence initial={false}>
                         {remainingRanks.map((entry, index) => (
                             <motion.div
                                 key={entry.user_id}
-                                layout
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ delay: index * 0.05 }}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
                                 className={`flex items-center gap-4 p-4 rounded-2xl glass transition-all duration-300 ${entry.user_id === currentUser?.id ? "border-reddit-orange/50 bg-reddit-orange/5" : ""
                                     }`}
                             >
@@ -207,20 +219,20 @@ const Leaderboard = () => {
                             </motion.div>
                         ))}
                     </AnimatePresence>
-
-                    {leaderboardData.length === 0 && !loading && !error && (
-                        <div className="text-center py-20 bg-reddit-card/50 rounded-3xl border border-dashed border-reddit-border">
-                            <Award size={48} className="mx-auto text-reddit-textMuted mb-4 opacity-20" />
-                            <p className="text-reddit-textMuted">No rankings available for this period yet.</p>
-                        </div>
-                    )}
-
-                    {error && (
-                        <div className="text-center py-20 text-red-400">
-                            <p>{error}</p>
-                        </div>
-                    )}
                 </div>
+
+                {!loading && leaderboardData.length === 0 && !error && (
+                    <div className="text-center py-20 bg-reddit-card/50 rounded-3xl border border-dashed border-reddit-border">
+                        <Award size={48} className="mx-auto text-reddit-textMuted mb-4 opacity-20" />
+                        <p className="text-reddit-textMuted">No rankings available for this period yet.</p>
+                    </div>
+                )}
+
+                {error && (
+                    <div className="text-center py-20 text-red-400">
+                        <p>{error}</p>
+                    </div>
+                )}
             </div>
 
             {/* Floating My Rank Card */}
@@ -230,13 +242,13 @@ const Leaderboard = () => {
                     animate={{ y: 0 }}
                     className="fixed bottom-20 lg:bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-[500px] z-40"
                 >
-                    <div className="bg-[#1A1A1B] border border-reddit-orange/30 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl p-4 flex items-center gap-4 ring-1 ring-reddit-orange/20">
-                        <div className="w-10 h-10 bg-reddit-orange rounded-full flex items-center justify-center font-bold text-white shadow-lg shadow-reddit-orange/20">
+                    <div className="bg-popover border border-border ring-1 ring-reddit-orange/20 rounded-2xl p-4 flex items-center gap-4">
+                        <div className="w-10 h-10 bg-reddit-orange rounded-full flex items-center justify-center font-bold text-white">
                             #{userEntry.rank}
                         </div>
                         <div className="flex-1">
                             <p className="text-[10px] uppercase font-bold text-reddit-textMuted tracking-widest">Your Ranking</p>
-                            <h4 className="font-bold text-base text-white">Keep going, {currentUser?.displayName}!</h4>
+                            <h4 className="font-bold text-base text-reddit-text">Keep going, {currentUser?.displayName}!</h4>
                         </div>
                         <div className="text-right">
                             <div className="text-lg font-black text-reddit-orange leading-none">{userEntry.points}</div>
@@ -275,10 +287,10 @@ const PodiumPlace = ({ entry, place, height, color, isFirst, delay }) => {
                     <img
                         src={entry.avatar_url}
                         alt={entry.display_name}
-                        className={`rounded-full object-cover border-4 ${isFirst ? 'w-16 h-16 md:w-20 md:h-20 border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.3)]' : 'w-12 h-12 md:w-16 md:h-16 border-reddit-border'}`}
+                        className={`rounded-full object-cover border-4 ${isFirst ? 'w-16 h-16 md:w-20 md:h-20 border-yellow-500' : 'w-12 h-12 md:w-16 md:h-16 border-reddit-border'}`}
                     />
                 ) : (
-                    <div className={`rounded-full bg-reddit-cardHover flex items-center justify-center border-4 ${isFirst ? 'w-16 h-16 md:w-20 md:h-20 border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.3)]' : 'w-12 h-12 md:w-16 md:h-16 border-reddit-border'}`}>
+                    <div className={`rounded-full bg-reddit-cardHover flex items-center justify-center border-4 ${isFirst ? 'w-16 h-16 md:w-20 md:h-20 border-yellow-500' : 'w-12 h-12 md:w-16 md:h-16 border-reddit-border'}`}>
                         <User size={isFirst ? 32 : 24} className="text-reddit-textMuted" />
                     </div>
                 )}
@@ -296,7 +308,7 @@ const PodiumPlace = ({ entry, place, height, color, isFirst, delay }) => {
                 initial={{ height: 0 }}
                 animate={{ height }}
                 transition={{ delay: delay + 0.3, duration: 0.8, ease: "easeOut" }}
-                className={`w-full ${color} rounded-t-2xl relative overflow-hidden group shadow-lg`}
+                className={`w-full ${color} rounded-t-2xl relative overflow-hidden group`}
             >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 <div className="absolute inset-x-0 bottom-4 text-center font-black text-black/20 text-4xl select-none">

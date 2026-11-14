@@ -29,4 +29,25 @@ module.exports = function (app) {
             changeOrigin: true,
         })
     );
+    app.use(
+        '/billing',
+        createProxyMiddleware({
+            target: 'https://studly-server.onrender.com',
+            changeOrigin: true,
+        })
+    );
+    app.use(
+        '/aura',
+        createProxyMiddleware({
+            target: 'https://studly-server.onrender.com',
+            changeOrigin: true,
+        })
+    );
+    app.use(
+        '/streak',
+        createProxyMiddleware({
+            target: 'https://studly-server.onrender.com',
+            changeOrigin: true,
+        })
+    );
 };

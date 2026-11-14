@@ -96,19 +96,19 @@ export default function InstallBanner() {
         >
             {/* Icon */}
             <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-reddit-orange flex items-center justify-center">
-                <Download size={22} className="text-white" />
+                <Download size={22} className="text-reddit-text" />
             </div>
 
             {/* Text */}
             <div className="flex-1 min-w-0">
-                <p className="text-[15px] font-bold text-white leading-tight">Install Studly</p>
+                <p className="text-[15px] font-bold text-reddit-text leading-tight">Install Studly</p>
                 <p className="text-[13px] text-reddit-textMuted leading-tight mt-1 font-medium">Add to home screen for the best experience</p>
             </div>
 
             {/* Actions */}
             <div className="flex items-center gap-2">
                 {showSafariHint ? (
-                    <div className="flex flex-col items-center justify-center bg-white/5 border border-reddit-border rounded-xl px-2.5 py-1.5 min-w-[100px]">
+                    <div className="flex flex-col items-center justify-center bg-reddit-cardHover border border-reddit-border rounded-xl px-2.5 py-1.5 min-w-[100px]">
                         <div className="flex items-center gap-1.5">
                             <span className="text-[11px] text-reddit-textMuted font-semibold">Tap</span>
                             <Share size={14} className="text-blue-400" />
@@ -126,15 +126,15 @@ export default function InstallBanner() {
                            active:scale-95 transition-all duration-150
                            disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer"
                     >
-                        {installing ? <Loader2 size={18} className="animate-spin text-white" /> : 'Install'}
+                        {installing ? <Loader2 size={18} className="animate-spin text-reddit-text" /> : 'Install'}
                     </motion.button>
                 )}
 
                 <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={handleDismiss}
-                    className="flex-shrink-0 p-1.5 rounded-xl text-reddit-textMuted hover:text-white
-                       hover:bg-white/5 transition-all touch-manipulation cursor-pointer"
+                    className="flex-shrink-0 p-1.5 rounded-xl text-reddit-textMuted hover:text-reddit-text
+                       hover:bg-reddit-cardHover transition-all touch-manipulation cursor-pointer"
                     aria-label="Dismiss install banner"
                 >
                     <X size={18} />

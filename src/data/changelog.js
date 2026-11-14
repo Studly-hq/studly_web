@@ -1,5 +1,53 @@
 export const changelogData = [
   {
+    version: "v3.0.0",
+    date: "14 November 2026",
+    title: "Lucid v3 — Learning Paths, AI Tutor Chat & Session Sharing",
+    description: "The biggest Lucid update yet. Completely rebuilt study experience with visual learning paths, conversational AI tutoring, session merging, and public sharing.",
+    sections: [
+      {
+        title: "Learning Path System",
+        items: [
+          "Visual Learning Path Map: Interactive snake-pattern node layout showing sections and sub-sections with progress tracking.",
+          "Node State Management: Five states — completed, current (with animated mascot), available, locked, and generating — with automatic reconciliation on load.",
+          "Quiz Nodes: Special \"coin\" badges for section-level quiz assessments.",
+          "Failed Generation Recovery: Inline retry buttons directly on failed nodes.",
+          "Section Overview: Expandable outline view for each section."
+        ]
+      },
+      {
+        title: "Chat-Based AI Tutor Lessons",
+        items: [
+          "AI Tutor Chat Interface: Replaces step-by-step reader with conversational, streaming chat experience.",
+          "Progressive Teaching Steps: Structured lesson flow — Orient → Explain → Example → Connect → Recap.",
+          "Thinking Orbs Animation: Visual feedback during AI generation with smooth orb animations.",
+          "Action Chips: Quick-response buttons for common learner actions (\"Continue\", \"Explain more\", \"Give example\").",
+          "Inline Lesson Quizzes: Embedded checkpoint questions within the chat stream.",
+          "End-of-Lesson Quiz: Summary assessment unlocking next sub-section."
+        ]
+      },
+      {
+        title: "Session Persistence & Sharing",
+        items: [
+          "Boss Session Merging: Automatic detection of similar past sessions with similarity scoring and one-click merge.",
+          "Share Session Modal: Generate public, read-only links for any study session (path structure, content, and chat history).",
+          "Continue Previous Session: Landing page surfaces most recent session for instant resume.",
+          "Debounced Auto-save: Unified session state persisted across reloads without blocking UI."
+        ]
+      },
+      {
+        title: "Upload & Document Processing",
+        items: [
+          "Unified Upload Pipeline: Single continuous loader for extract → save note → generate path.",
+          "Multi-format Support: PDF, DOC, DOCX, TXT, PPTX, images (JPG/PNG/WebP), and audio (MP3/WAV/M4A/OGG/WebM).",
+          "Streaming Extraction: Real-time content preview as files process.",
+          "Text & Voice Input: Direct topic entry or voice recording for audio notes.",
+          "File Limits: Configurable per-session caps with Pro tier increases."
+        ]
+      }
+    ]
+  },
+  {
     version: "v2.2.1",
     date: "3 July 2026",
     title: "Bug Fixes & AI Improvements",

@@ -23,24 +23,24 @@ const PrivacyPolicy = () => {
             <div className="">
                 <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
 
-                <div className="space-y-6 text-gray-300">
+                <div className="space-y-6 text-reddit-textMuted">
                     <section>
-                        <h2 className="text-xl font-semibold text-white mb-3">1. Information We Collect</h2>
+                        <h2 className="text-xl font-semibold text-reddit-text mb-3">1. Information We Collect</h2>
                         <p>We collect information you provide directly to us, such as when you create an account, update your profile, post content, or communicate with us.</p>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold text-white mb-3">2. How We Use Your Information</h2>
+                        <h2 className="text-xl font-semibold text-reddit-text mb-3">2. How We Use Your Information</h2>
                         <p>We use the information we collect to operate, maintain, and provide the features and functionality of the Service, to analyze how the Service is used, and to communicate with you.</p>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold text-white mb-3">3. Sharing of Your Information</h2>
+                        <h2 className="text-xl font-semibold text-reddit-text mb-3">3. Sharing of Your Information</h2>
                         <p>We do not sell, trade, or otherwise transfer to outside parties your Personally Identifiable Information unless we provide users with advance notice.</p>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold text-white mb-3">4. Data Security</h2>
+                        <h2 className="text-xl font-semibold text-reddit-text mb-3">4. Data Security</h2>
                         <p>We implement a variety of security measures to maintain the safety of your personal information when you enter, submit, or access your personal information.</p>
                     </section>
 

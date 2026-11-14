@@ -19,7 +19,7 @@ const CircularProgress = ({ progress = 0, size = 80, strokeWidth = 6 }) => {
                     cy={size / 2}
                     r={radius}
                     fill="none"
-                    stroke="rgba(255, 255, 255, 0.1)"
+                    className="stroke-reddit-border"
                     strokeWidth={strokeWidth}
                 />
                 {/* Progress circle */}
@@ -45,7 +45,7 @@ const CircularProgress = ({ progress = 0, size = 80, strokeWidth = 6 }) => {
             </svg>
             {/* Center text */}
             <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">
+                <span className="text-reddit-text font-bold text-lg">
                     {Math.floor(progress)}%
                 </span>
             </div>

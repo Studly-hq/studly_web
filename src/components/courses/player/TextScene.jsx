@@ -38,26 +38,26 @@ const TextScene = ({ content, typedContent, showCursor, isTyping }) => {
                 style={vscDarkPlus}
                 language={match[1]}
                 PreTag="div"
-                className="rounded-lg !bg-white/5 !my-6"
+                className="rounded-lg !bg-reddit-cardHover !my-6"
                 {...props}
               >
                 {String(children).replace(/\n$/, '')}
               </SyntaxHighlighter>
             ) : (
-              <code className="bg-white/10 px-1.5 py-0.5 rounded text-reddit-orange font-mono" {...props}>
+              <code className="bg-reddit-cardHover px-1.5 py-0.5 rounded text-reddit-orange font-mono" {...props}>
                 {children}
               </code>
             );
           },
           // Headings
           h1: ({ children }) => (
-            <h1 className="text-3xl font-bold text-white mb-6 mt-8 tracking-tight">{children}</h1>
+            <h1 className="text-3xl font-bold text-reddit-text mb-6 mt-8 tracking-tight">{children}</h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-2xl font-bold text-white/95 mb-4 mt-6 tracking-tight">{children}</h2>
+            <h2 className="text-2xl font-bold text-reddit-text mb-4 mt-6 tracking-tight">{children}</h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-xl font-semibold text-white/90 mb-3 mt-5">{children}</h3>
+            <h3 className="text-xl font-semibold text-reddit-text mb-3 mt-5">{children}</h3>
           ),
           // Paragraphs
           p: ({ children }) => (
@@ -75,7 +75,7 @@ const TextScene = ({ content, typedContent, showCursor, isTyping }) => {
           ),
           // Strong and emphasis
           strong: ({ children }) => (
-            <strong className="text-white font-semibold">{children}</strong>
+            <strong className="text-reddit-text font-semibold">{children}</strong>
           ),
           em: ({ children }) => (
             <em className="text-reddit-orange not-italic">{children}</em>
@@ -86,14 +86,14 @@ const TextScene = ({ content, typedContent, showCursor, isTyping }) => {
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-reddit-orange hover:text-white transition-colors underline decoration-reddit-orange/30 hover:decoration-white/50"
+              className="text-reddit-orange hover:text-reddit-text transition-colors underline decoration-reddit-orange/30 hover:decoration-white/50"
             >
               {children}
             </a>
           ),
           // Blockquotes
           blockquote: ({ children }) => (
-            <blockquote className="border-l-2 border-reddit-orange pl-6 my-6 italic text-white/70">
+            <blockquote className="border-l-2 border-reddit-orange pl-6 my-6 italic text-reddit-text">
               {children}
             </blockquote>
           )

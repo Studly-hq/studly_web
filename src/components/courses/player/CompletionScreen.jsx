@@ -35,7 +35,7 @@ const CompletionScreen = ({ topic, progress }) => {
                 >
                     <div className="absolute inset-0 bg-reddit-orange/20 rounded-full blur-xl animate-pulse" />
                     <div className="relative bg-gradient-to-tr from-reddit-orange to-yellow-500 rounded-full p-6 shadow-2xl shadow-reddit-orange/30">
-                        <Trophy className="w-full h-full text-white" />
+                        <Trophy className="w-full h-full text-reddit-text" />
                     </div>
 
                     {/* Floating stars */}
@@ -61,11 +61,11 @@ const CompletionScreen = ({ topic, progress }) => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                 >
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+                    <h1 className="text-4xl md:text-5xl font-bold text-reddit-text mb-4 tracking-tight">
                         Course Completed!
                     </h1>
                     <p className="text-xl text-reddit-textMuted mb-8 max-w-lg mx-auto">
-                        You've successfully mastered <span className="text-white font-semibold">{topic?.title}</span>.
+                        You've successfully mastered <span className="text-reddit-text font-semibold">{topic?.title}</span>.
                     </p>
                 </motion.div>
 
@@ -74,17 +74,17 @@ const CompletionScreen = ({ topic, progress }) => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-10 max-w-lg mx-auto backdrop-blur-sm"
+                    className="bg-reddit-cardHover border border-reddit-border rounded-2xl p-6 mb-10 max-w-lg mx-auto backdrop-blur-sm"
                 >
                     <div className="grid grid-cols-2 gap-8">
                         <div className="text-center">
                             <p className="text-sm text-reddit-textMuted uppercase tracking-wider font-medium mb-1">Total Score</p>
-                            <div className="text-3xl font-bold text-white flex items-center justify-center gap-2">
+                            <div className="text-3xl font-bold text-reddit-text flex items-center justify-center gap-2">
                                 {progress?.score || 0}
                             </div>
                         </div>
                         <div className="text-center relative">
-                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[1px] h-8 bg-white/10" />
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[1px] h-8 bg-reddit-cardHover" />
                             <p className="text-sm text-reddit-textMuted uppercase tracking-wider font-medium mb-1">Aura Earned</p>
                             <div className="text-3xl font-bold text-reddit-orange flex items-center justify-center gap-2">
                                 <Zap className="w-5 h-5 fill-current" />
@@ -109,7 +109,7 @@ const CompletionScreen = ({ topic, progress }) => {
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.9 + (i * 0.1) }}
-                                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/90 text-sm"
+                                className="flex items-center gap-2 px-4 py-2 rounded-full bg-reddit-cardHover border border-reddit-border text-reddit-text text-sm"
                             >
                                 <CheckCircle className="w-4 h-4 text-green-500" />
                                 {ability}

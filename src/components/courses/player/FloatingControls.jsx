@@ -69,7 +69,7 @@ const FloatingControls = ({ onPlayPause, onSkip, isPlaying, canPlay, playerState
             transition={{ duration: 0.2 }}
             className="fixed bottom-24 right-6 bg-reddit-card border border-reddit-border rounded-lg p-4 shadow-xl z-50 min-w-[200px]"
           >
-            <h3 className="text-sm font-semibold text-white mb-3">Playback Settings</h3>
+            <h3 className="text-sm font-semibold text-reddit-text mb-3">Playback Settings</h3>
 
             {/* Speed control */}
             <div className="mb-4">
@@ -151,7 +151,7 @@ const FloatingControls = ({ onPlayPause, onSkip, isPlaying, canPlay, playerState
                 transition-colors shadow-lg
                 ${showSettings
                   ? 'bg-reddit-orange text-white'
-                  : 'bg-reddit-card border border-reddit-border text-white hover:bg-reddit-cardHover'
+                  : 'bg-reddit-card border border-reddit-border text-reddit-text hover:bg-reddit-cardHover'
                 }
               `}
               aria-label="Settings"
@@ -192,7 +192,7 @@ const FloatingControls = ({ onPlayPause, onSkip, isPlaying, canPlay, playerState
                     exit={{ scale: 0, rotate: 180 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <Pause className="w-6 h-6 text-white fill-white" />
+                    <Pause className="w-6 h-6 text-reddit-text fill-white" />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -202,7 +202,7 @@ const FloatingControls = ({ onPlayPause, onSkip, isPlaying, canPlay, playerState
                     exit={{ scale: 0, rotate: 180 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+                    <Play className="w-6 h-6 text-reddit-text fill-white ml-0.5" />
                   </motion.div>
                 )}
               </AnimatePresence>

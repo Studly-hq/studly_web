@@ -1,92 +1,54 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Trophy, GraduationCap, User, Loader2 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { useUI } from '../../context/UIContext';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Home04Icon, UsersIcon, TrophyIcon, UserIcon } from '@hugeicons/core-free-icons';
+
+const navItems = [
+  { icon: Home04Icon, label: 'Home', path: '/home', match: ['/home', '/study'] },
+  { icon: UsersIcon, label: 'Community', path: '/feed', match: ['/feed', '/explore', '/saved', '/post'] },
+  { icon: TrophyIcon, label: 'Ranking', path: '/leaderboard', match: ['/leaderboard'] },
+  { icon: UserIcon, label: 'Profile', path: '/profile', match: ['/profile'] }
+];
 
 const MobileBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-  const { setShowAuthModal, isLucidDetailedMode } = useUI();
-  const [isStudyLoading] = useState(false);
 
-  const navItems = [
-    { icon: Home, label: 'Home', path: '/feed', id: 'home' },
-    { icon: Trophy, label: 'Ranking', path: '/leaderboard', id: 'leaderboard' },
-    { icon: GraduationCap, label: 'Study', id: 'study', isStudy: true },
-    { icon: User, label: 'Profile', path: '/profile', id: 'profile', requiresAuth: true }
-  ];
-
-  const handleStudyClick = async () => {
-    navigate('/study');
-  };
-
-  const handleNavClick = (item) => {
-    if (item.isStudy) {
-      handleStudyClick();
-      return;
-    }
-    if (item.requiresAuth && !isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-    navigate(item.path);
-  };
-
-  if (isLucidDetailedMode) {
-    return null;
-  }
-
-  return (
-    <motion.nav
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-      className="lg:hidden fixed bottom-2 sm:bottom-4 left-0 right-0 px-2 sm:px-0 flex justify-center z-40 pointer-events-none"
+  // Portal to body: no ancestor overflow/transform can clip or offset the nav
+  return createPortal(
+    <nav
+      className="md:hidden fixed bottom-0 left-0 right-0 z-[100] flex justify-center px-4 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pointer-events-none"
     >
-      <div className="bg-reddit-card rounded-xl sm:rounded-full border border-reddit-border shadow-xl w-full sm:w-[400px] pointer-events-auto">
-        <div className="flex items-center justify-around px-2 sm:px-4 py-2 sm:py-2.5">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path ||
-              (item.isStudy && location.pathname === '/study') ||
-              (item.id === 'courses' && location.pathname.startsWith('/courses')) ||
-              (item.id === 'progress' && location.pathname === '/profile');
-            const Icon = item.icon;
-            const isLoading = item.isStudy && isStudyLoading;
+      <div className="pointer-events-auto flex w-full max-w-[260px] items-center justify-between gap-0.5 rounded-xl border border-border bg-popover p-1 ring-1 ring-foreground/5">
+        {navItems.map((item) => {
+          const active = item.match.some((route) => location.pathname.startsWith(route));
 
-            return (
-              <motion.button
-                key={item.id}
-                id={item.isStudy ? 'tour-study-mobile' : undefined}
-                onClick={() => handleNavClick(item)}
-                disabled={isLoading}
-                whileTap={isLoading ? {} : { scale: 0.95 }}
-                className={`flex flex-col items-center gap-0.5 sm:gap-1 px-3 sm:px-5 py-0.5 ${isLoading ? 'opacity-50' : ''
-                  }`}
-              >
-                {/* Icon */}
-                <div className={`transition-colors duration-200 ${isActive ? 'text-reddit-orange' : 'text-white/50'
-                  }`}>
-                  {isLoading ? (
-                    <Loader2 size={18} className="sm:w-5 sm:h-5 animate-spin" />
-                  ) : (
-                    <Icon size={18} className="sm:w-5 sm:h-5" strokeWidth={1.5} />
-                  )}
-                </div>
-
-                {/* Label */}
-                <span className={`text-[9px] sm:text-[10px] font-semibold tracking-wider transition-colors duration-200 ${isActive ? 'text-reddit-orange' : 'text-white/50'
-                  }`}>
-                  {item.label}
-                </span>
-              </motion.button>
-            );
-          })}
-        </div>
+          return (
+            <button
+              key={item.path}
+              type="button"
+              onClick={() => navigate(item.path)}
+              aria-label={item.label}
+              aria-current={active ? 'page' : undefined}
+              className={`relative flex flex-1 flex-col items-center gap-0.5 rounded-lg px-1.5 py-1.5 outline-none transition-colors duration-200 ${
+                active
+                  ? 'text-reddit-text'
+                  : 'text-reddit-textMuted hover:text-reddit-text'
+              }`}
+            >
+              {active && (
+                <span className="absolute inset-0 rounded-xl bg-accent" />
+              )}
+              <HugeiconsIcon icon={item.icon} size={18} strokeWidth={1.8} className="relative z-10" />
+              <span className="relative z-10 text-[10px] font-medium leading-none">
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
-    </motion.nav>
+    </nav>,
+    document.body
   );
 };
 

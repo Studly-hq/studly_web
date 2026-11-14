@@ -112,7 +112,7 @@ const PostDetail = () => {
       const postDescription = post.content?.substring(0, 160) || 'Check out this post on Studly!';
       const postImage = post.images && post.images.length > 0
         ? post.images[0].url
-        : `${siteUrl}/logo.png`;
+        : `${siteUrl}/logo.webp`;
 
       // Open Graph
       updateMetaTag('property', 'og:title', postTitle);

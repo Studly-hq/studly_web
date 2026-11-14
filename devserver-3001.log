@@ -1,0 +1,208 @@
+
+> studly@0.1.0 dev
+> react-app-rewired start
+
+(node:6230) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[HPM] Proxy created: /  -> https://studly-server.onrender.com
+[HPM] Proxy created: /  -> https://studly-server.onrender.com
+[HPM] Proxy created: /  -> https://studly-server.onrender.com
+[HPM] Proxy created: /  -> https://studly-server.onrender.com
+(node:6230) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:6230) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/Home.jsx
+  Line 102:8:  React Hook useEffect has a missing dependency: 'setTheme'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning

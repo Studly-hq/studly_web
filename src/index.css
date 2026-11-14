@@ -1,11 +1,140 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Class-based dark mode (html.dark), driven by ThemeContext + no-flash script */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "DM Sans", sans-serif;
+  --font-heading: "Outfit", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --font-geist: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-scribble: "Caveat", "Segoe Print", cursive;
+}
+
+/* Legacy reddit palette resolved at runtime so the feed is theme responsive */
+@theme inline {
+  --color-reddit-bg: var(--reddit-bg);
+  --color-reddit-card: var(--reddit-card);
+  --color-reddit-cardHover: var(--reddit-card-hover);
+  --color-reddit-border: var(--reddit-border);
+  --color-reddit-text: var(--reddit-text);
+  --color-reddit-textMuted: var(--reddit-text-muted);
+  --color-reddit-orange: #FF4500;
+  --color-reddit-blue: #0079D3;
+  --color-reddit-input: var(--reddit-input);
+}
+
+/* Semantic theme tokens — resolved at runtime so .dark overrides cascade */
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-fg);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-fg);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-fg);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-fg);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-fg);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-fg);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-fg);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: var(--primary-fg);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-fg);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--ring);
+  --color-outer: var(--outer);
+}
+
+/* Light theme — cream base from the auth pages, rgb(255, 252, 240) */
+:root {
+  --outer: #fffcf0;
+  --reddit-bg: #fffcf0;
+  --reddit-card: #fffcf0;
+  --reddit-card-hover: #f7f3e7;
+  --reddit-border: #ece7d8;
+  --reddit-text: #141414;
+  --reddit-text-muted: #726f6c;
+  --reddit-input: #f7f3e7;
+  --bg: #fffcf0;
+  --fg: #141414;
+  --card: #fffcf0;
+  --card-fg: #141414;
+  --popover: #fffcf0;
+  --popover-fg: #141414;
+  --primary: #141414;
+  --primary-fg: #ffffff;
+  --secondary: #f7f3e7;
+  --secondary-fg: #141414;
+  --muted: #f7f3e7;
+  --muted-fg: #726f6c;
+  --accent: #f2eddd;
+  --accent-fg: #141414;
+  --destructive: #e5484d;
+  --border: #ece7d8;
+  --input: #ece7d8;
+  --ring: #141414;
+  --sidebar: #fffcf0;
+  --sidebar-fg: #141414;
+  --sidebar-accent: #f2eddd;
+  --sidebar-accent-fg: #141414;
+  --sidebar-border: #ece7d8;
+}
+
+/* Dark theme — the current dashboard blacks */
+.dark {
+  --outer: hsl(240, 2%, 4%);
+  --reddit-bg: hsl(240, 2%, 4%);
+  --reddit-card: #1a1a1b;
+  --reddit-card-hover: #272729;
+  --reddit-border: #343536;
+  --reddit-text: #d7dadc;
+  --reddit-text-muted: #818384;
+  --reddit-input: #272729;
+  --bg: hsl(240, 2%, 4%);
+  --fg: #d7dadc;
+  --card: #141415;
+  --card-fg: #d7dadc;
+  --popover: #1a1a1b;
+  --popover-fg: #d7dadc;
+  --primary: #ff4500;
+  --primary-fg: #ffffff;
+  --secondary: #272729;
+  --secondary-fg: #d7dadc;
+  --muted: #272729;
+  --muted-fg: #818384;
+  --accent: #272729;
+  --accent-fg: #d7dadc;
+  --destructive: #ff5c5c;
+  --border: #343536;
+  --input: #343536;
+  --ring: #d7dadc;
+  --sidebar: hsl(240, 2%, 4%);
+  --sidebar-fg: #d7dadc;
+  --sidebar-accent: #1f1f21;
+  --sidebar-accent-fg: #ffffff;
+  --sidebar-border: #2a2a2c;
+}
+
+/* Visible skeleton bars for dark theme (muted is too close to bg) */
+.skeleton-bar {
+  background-color: #3a3a3c !important;
+}
 
 @layer base {
   body {
-    @apply font-sans antialiased text-white;
-    background-color: hsl(240, 2%, 4%);
+    @apply font-sans antialiased;
+    background-color: var(--bg);
+    color: var(--fg);
     margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -21,14 +150,14 @@
   h4,
   h5,
   h6 {
-    font-family: theme('fontFamily.heading'), serif;
+    font-family: var(--font-heading), serif;
     letter-spacing: -0.025em;
   }
 
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
-    background-color: hsl(240, 2%, 4%);
+    background-color: var(--bg);
   }
 }
 
@@ -41,14 +170,14 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: hsl(240, 2%, 4%); /* Force dark background to prevent white track */
+    background: var(--bg);
   }
 
   ::-webkit-scrollbar-thumb {
     /* Ash-colored bar */
     background: #4a4a4b; 
     border-radius: 10px;
-    border: 1px solid hsl(240, 2%, 4%); /* Creates padding effect */
+    border: 1px solid var(--bg);
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -62,7 +191,7 @@
   /* Firefox scrollbar */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #4a4a4b hsl(240, 2%, 4%);
+    scrollbar-color: #4a4a4b var(--bg);
   }
 
   /* Smooth transitions */
@@ -72,9 +201,9 @@
 
   /* Glassmorphism for Reddit theme */
   .glass {
-    background-color: #1A1A1B;
+    background-color: var(--reddit-card);
     backdrop-filter: blur(12px);
-    border: 1px solid #343536;
+    border: 1px solid var(--reddit-border);
   }
 
   /* Text balance */
@@ -180,6 +309,89 @@
   animation: scaleIn 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+/*
+  Landing composer placeholder shimmer.
+
+  ::placeholder can't carry a background-clip gradient, so the composer renders
+  the hint as an overlaid span instead and keeps the input's own placeholder
+  transparent. The sweep is idle until the composer is hovered or focused,
+  rather than looping forever and fighting for attention.
+*/
+@keyframes composer-shimmer {
+  0% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -50% 0;
+  }
+}
+
+.composer-shimmer {
+  color: #726f6c;
+}
+
+.composer-shell:hover .composer-shimmer,
+.composer-shell:focus-within .composer-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    #726f6c 0%,
+    #726f6c 35%,
+    #141414 50%,
+    #726f6c 65%,
+    #726f6c 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: composer-shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .composer-shell:hover .composer-shimmer,
+  .composer-shell:focus-within .composer-shimmer {
+    animation: none;
+    background-image: none;
+    color: #726f6c;
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .animate-map-wiggle {
+    animation: none;
+  }
+}
+
+/*
+  Learning-map coin: mascot peeks from inside the coin, wiggles every 4s.
+
+  Positioning lives on the element (Tailwind's -translate-x-1/2 / translate-y-1/2
+  compile to the standalone `translate` property in v4), so these keyframes can
+  drive the separate `transform` property for the sway without fighting it.
+*/
+@keyframes map-wiggle {
+  0%, 45%, 70%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-6px, -2px) rotate(-5deg); }
+  55% { transform: translate(6px, -3px) rotate(5deg); }
+  60% { transform: translate(-4px, -1px) rotate(-3deg); }
+  65% { transform: translate(2px, 0) rotate(2deg); }
+}
+
+.animate-map-wiggle {
+  animation: map-wiggle 4s ease-in-out infinite;
+}
+
+/* Reader mascot nudge: one double-sway every 60s, pausing in between. */
+@keyframes mascot-nudge {
+  0%, 4%, 10%, 100% { transform: rotate(0deg) translateY(0); }
+  5% { transform: rotate(-7deg) translateY(-2px); }
+  7% { transform: rotate(6deg) translateY(-1px); }
+  9% { transform: rotate(-3deg) translateY(0); }
+}
+
+.animate-mascot-nudge {
+  animation: mascot-nudge 60s ease-in-out infinite;
+}
+
 /* Selection color */
 ::selection {
   background-color: #0079D3;
@@ -202,12 +414,386 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Autofill background fix */
+/* Landing page grid-as-borders pattern (time.fyi) */
+.grid-container {
+  display: grid;
+  gap: 1px;
+  background-color: oklab(0.191251 -7.45058e-9 0 / 0.08);
+}
+
+.hero-cell {
+  min-height: 80px;
+}
+
+.hero-title {
+  min-height: 200px;
+}
+
+.hero-subtitle {
+  min-height: 120px;
+}
+
+.hero-cta,
+.hero-cta-skip {
+  min-height: 80px;
+}
+
+/* Landing hero headline — always one line, scaled to the space available.
+   The sentence (with its two inline illustrations) measures ~19.83em in Geist
+   600 at -0.035em tracking; dividing by 21 keeps ~6% headroom for the fallback
+   font before Geist loads, so it can never wrap or overflow on any screen. */
+.hero-headline {
+  white-space: nowrap;
+  font-size: clamp(10px, calc((100vw - 3rem) / 21), 44px);
+}
+
+@media (min-width: 768px) {
+  .hero-headline {
+    /* md:px-10 wrapper + 1080px max width, so fit against that content box */
+    font-size: clamp(10px, calc((min(100vw, 1080px) - 5rem) / 21), 44px);
+  }
+}
+
+/* Composer placeholder — also one straight line at every width.
+   It shares its row with the mic + send buttons (56px), 20px of row padding and
+   8px of gaps, so below the sm breakpoint it has (100vw - 132px) to live in.
+   The hint measures 14.21em in DM Sans, so dividing by 15.2 leaves ~7% headroom
+   and caps at the original 14px (above ~352px it is already full size). */
+.composer-hint {
+  white-space: nowrap;
+  font-size: clamp(9.5px, calc((100vw - 132px) / 15.2), 0.875rem);
+}
+
+/* Auth pages — fluid from small phones to wide desktops. Every size below is a
+   clamp(), so the page scales continuously instead of stepping at breakpoints. */
+.auth-page {
+  padding: clamp(24px, 6vh, 112px) clamp(14px, 4vw, 32px);
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.auth-page * {
+  min-width: 0;
+}
+
+.auth-title {
+  font-size: clamp(24px, 4vw + 4px, 56px);
+  line-height: clamp(1.06, 1.02 + 0.04vw, 1.08);
+  letter-spacing: clamp(-0.025em, -0.01em - 0.015vw, -0.02em);
+  padding-inline: clamp(8px, 2vw, 16px);
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.auth-lead {
+  margin-top: clamp(6px, 1.4vw, 18px);
+  font-size: clamp(13px, 0.4vw + 12px, 17px);
+  line-height: clamp(1.45, 1.4 + 0.05vw, 1.55);
+  padding-inline: clamp(8px, 2vw, 16px);
+}
+
+.auth-form {
+  width: min(100%, clamp(300px, 60vw, 380px));
+  margin: clamp(12px, 2.4vw, 24px) auto 0;
+}
+
+.auth-label {
+  display: block;
+  font-size: clamp(12px, 0.3vw + 11px, 14px);
+  line-height: clamp(1.3, 1.25 + 0.05vw, 1.4);
+}
+
+.auth-label:not(:first-child) {
+  margin-top: clamp(10px, 1.6vw, 18px);
+}
+
+.auth-field {
+  width: 100%;
+  height: clamp(38px, 2.2vw + 32px, 46px);
+  margin-top: clamp(4px, 0.8vw, 10px);
+  padding-inline: clamp(10px, 1.2vw, 16px);
+  font-size: clamp(13px, 0.3vw + 12px, 15px);
+  border-radius: clamp(8px, 0.9vw, 14px);
+}
+
+.auth-field-password {
+  padding-right: clamp(32px, 3.2vw, 44px);
+}
+
+.auth-eye {
+  right: clamp(8px, 1.2vw, 14px);
+}
+
+.auth-eye svg {
+  width: clamp(15px, 1.3vw, 19px);
+  height: auto;
+}
+
+.auth-submit {
+  height: clamp(38px, 2.2vw + 32px, 46px);
+  margin-top: clamp(8px, 1.4vw, 14px);
+  font-size: clamp(13px, 0.3vw + 12px, 15px);
+  border-radius: clamp(8px, 0.9vw, 14px);
+}
+
+.auth-switch {
+  margin-top: clamp(12px, 2vw, 18px);
+  font-size: clamp(12.5px, 0.25vw + 11.8px, 14px);
+  line-height: clamp(1.4, 1.35 + 0.05vw, 1.5);
+  padding-inline: clamp(8px, 2vw, 16px);
+}
+
+/* Decorative corner art: a transparent webp, painted behind the content.
+   Its width is fluid, so it shrinks with the viewport instead of masking text. */
+.auth-art {
+  width: clamp(150px, 30vw, 448px);
+  height: auto;
+}
+
+.header-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.header-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.header-wrapper > .nav {
+  display: flex;
+  gap: 32px;
+}
+
+/* ── Testimonials: 3D marquee wall ───────────────────────────────────────────
+ * Registered through @theme so Tailwind generates `animate-marquee` and
+ * `animate-marquee-vertical`. Speed comes from the per-instance `--duration`
+ * custom property; the loop distance is one full copy plus the gap, which is
+ * what keeps the seam invisible.
+ */
+@theme inline {
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+
+@keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+  }
+}
+
+/* ── Landing page: clamp-based fluid responsive system ──
+   Use inline clamp() values directly in Tailwind arbitrary classes,
+   e.g. `text-[clamp(1rem,2vw,2rem)]`, `p-[clamp(1rem,4vw,2rem)]`.
+   This keeps Tailwind's parser happy while giving fluid, proportional
+   scaling from the smallest phone to wide desktop.
+   ── */
+
+/* ── Landing page: clamp-based fluid responsive system ──
+   Custom properties used via var() in Tailwind arbitrary classes,
+   e.g. `max-w-[var(--fluid-container-wide)]`, `p-[clamp(1rem,4vw,2rem)]`.
+   ── */
+--fluid-container-wide: clamp(20rem, 94vw, 72rem);
+--fluid-container: clamp(20rem, 92vw, 68rem);
+--fluid-measure: clamp(20rem, 90vw, 48rem);
+--fluid-measure-narrow: clamp(16rem, 88vw, 42rem);
+--fluid-measure-wide: clamp(24rem, 92vw, 56rem);
+
+/* ── Utility classes using inline clamp() values ──
+   Tailwind's parser can't handle clamp() inside @layer arbitrary values,
+   so we use inline clamp() directly in className brackets instead.
+   ── */
+
+/* -- Landing page: clamp-based fluid responsive system --
+   CSS custom properties + utility classes. Everything scales continuously
+   from the smallest phone to wide desktop using clamp().
+   -- */
+
+--fluid-text-xs: clamp(0.7rem, 0.7rem + 0.15vw, 0.875rem);
+--fluid-text-sm: clamp(0.8rem, 0.8rem + 0.2vw, 1rem);
+--fluid-text-base: clamp(0.9rem, 0.9rem + 0.25vw, 1.125rem);
+--fluid-text-lg: clamp(1rem, 1rem + 0.3vw, 1.25rem);
+--fluid-text-xl: clamp(1.1rem, 1.1rem + 0.4vw, 1.5rem);
+--fluid-text-2xl: clamp(1.25rem, 1.25rem + 0.6vw, 2rem);
+--fluid-text-3xl: clamp(1.5rem, 1.5rem + 0.8vw, 2.25rem);
+--fluid-text-4xl: clamp(1.75rem, 1.75rem + 1.2vw, 3rem);
+--fluid-text-5xl: clamp(2rem, 2rem + 1.5vw, 3.75rem);
+--fluid-text-6xl: clamp(2.5rem, 2.5rem + 2vw, 5rem);
+
+--fluid-leading-tight: clamp(1.1, 1.1 + 0.02vw, 1.2);
+--fluid-leading-normal: clamp(1.4, 1.4 + 0.03vw, 1.6);
+--fluid-leading-loose: clamp(1.55, 1.55 + 0.04vw, 1.8);
+
+--fluid-track-tight: clamp(-0.04em, -0.03em - 0.01vw, -0.02em);
+--fluid-track-normal: clamp(-0.02em, -0.015em, -0.01em);
+--fluid-track-wide: clamp(0.02em, 0.02em + 0.01vw, 0.04em);
+
+--fluid-space-0: clamp(0rem, 0rem, 0rem);
+--fluid-space-1: clamp(0.2rem, 0.2rem + 0.08vw, 0.4rem);
+--fluid-space-2: clamp(0.4rem, 0.4rem + 0.12vw, 0.6rem);
+--fluid-space-3: clamp(0.6rem, 0.6rem + 0.16vw, 0.9rem);
+--fluid-space-4: clamp(0.8rem, 0.8rem + 0.2vw, 1.2rem);
+--fluid-space-5: clamp(1rem, 1rem + 0.25vw, 1.5rem);
+--fluid-space-6: clamp(1.2rem, 1.2rem + 0.3vw, 1.8rem);
+--fluid-space-8: clamp(1.6rem, 1.6rem + 0.4vw, 2.4rem);
+--fluid-space-10: clamp(2rem, 2rem + 0.5vw, 3rem);
+--fluid-space-12: clamp(2.4rem, 2.4rem + 0.6vw, 3.6rem);
+--fluid-space-16: clamp(3rem, 3rem + 0.8vw, 4.5rem);
+--fluid-space-20: clamp(3.5rem, 3.5rem + 1vw, 5rem);
+--fluid-space-24: clamp(4rem, 4rem + 1.2vw, 6rem);
+--fluid-space-28: clamp(4.5rem, 4.5rem + 1.4vw, 7rem);
+--fluid-space-32: clamp(5rem, 5rem + 1.6vw, 8rem);
+
+--fluid-container: clamp(20rem, 92vw, 68rem);
+--fluid-container-wide: clamp(20rem, 94vw, 72rem);
+--fluid-measure-narrow: clamp(16rem, 88vw, 42rem);
+--fluid-measure: clamp(20rem, 90vw, 48rem);
+--fluid-measure-wide: clamp(24rem, 92vw, 56rem);
+
+--fluid-btn-h: clamp(2.6rem, 2.6rem + 0.5vw, 3rem);
+--fluid-btn-px: clamp(1rem, 1rem + 0.3vw, 1.75rem);
+--fluid-icon-sm: clamp(0.85rem, 0.85rem + 0.15vw, 1rem);
+--fluid-icon-md: clamp(1rem, 1rem + 0.2vw, 1.25rem);
+--fluid-icon-lg: clamp(1.25rem, 1.25rem + 0.3vw, 1.5rem);
+--fluid-card-radius: clamp(10px, 10px + 0.4vw, 16px);
+
+--fluid-section-py: clamp(3rem, 3rem + 1vw, 5rem);
+--fluid-section-px: clamp(1rem, 1rem + 0.4vw, 2.5rem);
+
+@layer utilities {
+  .text-fluid-xs { font-size: var(--fluid-text-xs); }
+  .text-fluid-sm { font-size: var(--fluid-text-sm); }
+  .text-fluid-base { font-size: var(--fluid-text-base); }
+  .text-fluid-lg { font-size: var(--fluid-text-lg); }
+  .text-fluid-xl { font-size: var(--fluid-text-xl); }
+  .text-fluid-2xl { font-size: var(--fluid-text-2xl); }
+  .text-fluid-3xl { font-size: var(--fluid-text-3xl); }
+  .text-fluid-4xl { font-size: var(--fluid-text-4xl); }
+  .text-fluid-5xl { font-size: var(--fluid-text-5xl); }
+  .text-fluid-6xl { font-size: var(--fluid-text-6xl); }
+
+  .leading-fluid-tight { line-height: var(--fluid-leading-tight); }
+  .leading-fluid-normal { line-height: var(--fluid-leading-normal); }
+  .leading-fluid-loose { line-height: var(--fluid-leading-loose); }
+
+  .track-fluid-tight { letter-spacing: var(--fluid-track-tight); }
+  .track-fluid-normal { letter-spacing: var(--fluid-track-normal); }
+  .track-fluid-wide { letter-spacing: var(--fluid-track-wide); }
+
+  .p-fluid-1 { padding: var(--fluid-space-1); }
+  .p-fluid-2 { padding: var(--fluid-space-2); }
+  .p-fluid-3 { padding: var(--fluid-space-3); }
+  .p-fluid-4 { padding: var(--fluid-space-4); }
+  .p-fluid-5 { padding: var(--fluid-space-5); }
+  .p-fluid-6 { padding: var(--fluid-space-6); }
+  .p-fluid-8 { padding: var(--fluid-space-8); }
+  .p-fluid-10 { padding: var(--fluid-space-10); }
+
+  .px-fluid-4 { padding-inline: var(--fluid-space-4); }
+  .px-fluid-6 { padding-inline: var(--fluid-space-6); }
+  .px-fluid-8 { padding-inline: var(--fluid-space-8); }
+  .px-fluid-10 { padding-inline: var(--fluid-space-10); }
+
+  .py-fluid-4 { padding-block: var(--fluid-space-4); }
+  .py-fluid-6 { padding-block: var(--fluid-space-6); }
+  .py-fluid-8 { padding-block: var(--fluid-space-8); }
+  .py-fluid-10 { padding-block: var(--fluid-space-10); }
+  .py-fluid-12 { padding-block: var(--fluid-space-12); }
+  .py-fluid-16 { padding-block: var(--fluid-space-16); }
+  .py-fluid-20 { padding-block: var(--fluid-space-20); }
+  .py-fluid-24 { padding-block: var(--fluid-space-24); }
+  .py-fluid-28 { padding-block: var(--fluid-space-28); }
+  .py-fluid-32 { padding-block: var(--fluid-space-32); }
+
+  .m-fluid-0 { margin: var(--fluid-space-0); }
+  .m-fluid-4 { margin: var(--fluid-space-4); }
+  .m-fluid-6 { margin: var(--fluid-space-6); }
+  .m-fluid-8 { margin: var(--fluid-space-8); }
+
+  .mx-fluid-auto { margin-inline: auto; }
+
+  .mt-fluid-2 { margin-top: var(--fluid-space-2); }
+  .mt-fluid-3 { margin-top: var(--fluid-space-3); }
+  .mt-fluid-4 { margin-top: var(--fluid-space-4); }
+  .mt-fluid-6 { margin-top: var(--fluid-space-6); }
+  .mt-fluid-8 { margin-top: var(--fluid-space-8); }
+  .mt-fluid-10 { margin-top: var(--fluid-space-10); }
+  .mt-fluid-12 { margin-top: var(--fluid-space-12); }
+  .mt-fluid-16 { margin-top: var(--fluid-space-16); }
+  .mt-fluid-20 { margin-top: var(--fluid-space-20); }
+  .mt-fluid-24 { margin-top: var(--fluid-space-24); }
+
+  .mb-fluid-2 { margin-bottom: var(--fluid-space-2); }
+  .mb-fluid-3 { margin-bottom: var(--fluid-space-3); }
+  .mb-fluid-4 { margin-bottom: var(--fluid-space-4); }
+  .mb-fluid-6 { margin-bottom: var(--fluid-space-6); }
+  .mb-fluid-8 { margin-bottom: var(--fluid-space-8); }
+  .mb-fluid-10 { margin-bottom: var(--fluid-space-10); }
+  .mb-fluid-12 { margin-bottom: var(--fluid-space-12); }
+  .mb-fluid-16 { margin-bottom: var(--fluid-space-16); }
+
+  .gap-fluid-1 { gap: var(--fluid-space-1); }
+  .gap-fluid-2 { gap: var(--fluid-space-2); }
+  .gap-fluid-3 { gap: var(--fluid-space-3); }
+  .gap-fluid-4 { gap: var(--fluid-space-4); }
+  .gap-fluid-6 { gap: var(--fluid-space-6); }
+  .gap-fluid-8 { gap: var(--fluid-space-8); }
+  .gap-fluid-10 { gap: var(--fluid-space-10); }
+  .gap-fluid-12 { gap: var(--fluid-space-12); }
+  .gap-fluid-16 { gap: var(--fluid-space-16); }
+  .gap-fluid-20 { gap: var(--fluid-space-20); }
+  .gap-fluid-24 { gap: var(--fluid-space-24); }
+
+  .max-w-fluid-container { max-width: var(--fluid-container); }
+  .max-w-fluid-container-wide { max-width: var(--fluid-container-wide); }
+  .max-w-fluid-measure-narrow { max-width: var(--fluid-measure-narrow); }
+  .max-w-fluid-measure { max-width: var(--fluid-measure); }
+  .max-w-fluid-measure-wide { max-width: var(--fluid-measure-wide); }
+
+  .h-fluid-btn { height: var(--fluid-btn-h); }
+  .h-fluid-icon-sm { height: var(--fluid-icon-sm); }
+  .h-fluid-icon-md { height: var(--fluid-icon-md); }
+  .h-fluid-icon-lg { height: var(--fluid-icon-lg); }
+
+  .w-fluid-icon-sm { width: var(--fluid-icon-sm); }
+  .w-fluid-icon-md { width: var(--fluid-icon-md); }
+  .w-fluid-icon-lg { width: var(--fluid-icon-lg); }
+
+  .rounded-fluid-card { border-radius: var(--fluid-card-radius); }
+}
+
+/* Autofill background fix *//* Autofill background fix */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #272729 inset !important;
-  -webkit-text-fill-color: #D7DADC !important;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  -webkit-text-fill-color: #141414 !important;
   transition: background-color 0s 600000s, color 600000s 0s !important;
 }
+
+

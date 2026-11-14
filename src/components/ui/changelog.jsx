@@ -3,11 +3,10 @@ import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { Badge } from "./badge";
-import { Button } from "./button";
 
 const Changelog = ({
   title = "Changelog",
-  description = "Get the latest updates and improvements to our platform.",
+  description,
   entries = [],
 }) => {
   const totalEntries = entries.length;
@@ -26,9 +25,11 @@ const Changelog = ({
           >
             {title}
           </h1>
-          <p className="mb-6 text-base text-reddit-textMuted md:text-lg leading-relaxed">
-            {description}
-          </p>
+          {description && (
+            <p className="mb-6 text-base text-reddit-textMuted md:text-lg leading-relaxed">
+              {description}
+            </p>
+          )}
         </motion.div>
 
         <div className="mx-auto mt-16 max-w-3xl space-y-16 md:mt-24 md:space-y-24">
@@ -105,11 +106,14 @@ const Changelog = ({
                 )}
 
                 {entry.button && (
-                  <Button variant="link" className="mt-4 self-start gap-1 px-0 text-reddit-textMuted hover:text-white" asChild>
-                    <a href={entry.button.url} target="_blank" rel="noopener noreferrer">
-                      {entry.button.text} <ArrowUpRight className="h-4 w-4" />
-                    </a>
-                  </Button>
+                  <a
+                    href={entry.button.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex self-start items-center gap-1 px-0 text-reddit-textMuted hover:text-reddit-text"
+                  >
+                    {entry.button.text} <ArrowUpRight className="h-4 w-4" />
+                  </a>
                 )}
 
                 {/* Separator — hide after last entry */}

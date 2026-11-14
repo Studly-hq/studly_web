@@ -161,7 +161,7 @@ const Explore = () => {
                   key={filter.id}
                   onClick={() => setSortBy(filter.id)}
                   className={`relative flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium transition-all duration-300 rounded-md ${isActive
-                      ? 'text-white'
+                      ? 'text-reddit-text'
                       : 'text-reddit-textMuted hover:text-reddit-text'
                     }`}
                 >
@@ -306,10 +306,10 @@ const Explore = () => {
                         }`}
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <Hash size={14} className={selectedTag === tag ? 'text-white' : 'text-reddit-orange'} />
-                        <span className={`text-sm font-medium truncate ${selectedTag === tag ? 'text-white' : 'text-reddit-text'}`}>{tag}</span>
+                        <Hash size={14} className={selectedTag === tag ? 'text-reddit-text' : 'text-reddit-orange'} />
+                        <span className={`text-sm font-medium truncate ${selectedTag === tag ? 'text-reddit-text' : 'text-reddit-text'}`}>{tag}</span>
                       </div>
-                      <span className={`text-xs ${selectedTag === tag ? 'text-white/80' : 'text-reddit-textMuted'}`}>
+                      <span className={`text-xs ${selectedTag === tag ? 'text-reddit-text' : 'text-reddit-textMuted'}`}>
                         {count} {count === 1 ? 'post' : 'posts'}
                       </span>
                     </motion.button>

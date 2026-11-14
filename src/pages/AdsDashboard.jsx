@@ -68,7 +68,7 @@ const AdsDashboard = () => {
             case 'active': return 'bg-green-500/10 text-green-400';
             case 'paused': return 'bg-yellow-500/10 text-yellow-400';
             case 'completed': return 'bg-blue-500/10 text-blue-400';
-            default: return 'bg-gray-500/10 text-gray-400';
+            default: return 'bg-gray-500/10 text-reddit-textMuted';
         }
     };
 
@@ -82,14 +82,14 @@ const AdsDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-reddit-bg text-white">
+        <div className="min-h-screen bg-reddit-bg text-reddit-text">
             {/* Header */}
             <div className="sticky top-0 bg-reddit-bg/95 backdrop-blur-md z-20 border-b border-reddit-border">
                 <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => navigate(-1)}
-                            className="p-2 -ml-2 hover:bg-reddit-cardHover rounded-full transition-colors text-reddit-textMuted hover:text-white"
+                            className="p-2 -ml-2 hover:bg-reddit-cardHover rounded-full transition-colors text-reddit-textMuted hover:text-reddit-text"
                         >
                             <ArrowLeft size={20} />
                         </button>
@@ -181,13 +181,13 @@ const AdsDashboard = () => {
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold">Campaigns</h2>
                     <div className="flex items-center gap-1 bg-reddit-card border border-reddit-border rounded-lg p-1">
-                        <button className="text-sm text-white px-3 py-1.5 rounded-md bg-reddit-cardHover">
+                        <button className="text-sm text-reddit-text px-3 py-1.5 rounded-md bg-reddit-cardHover">
                             All
                         </button>
-                        <button className="text-sm text-reddit-textMuted hover:text-white px-3 py-1.5 rounded-md hover:bg-reddit-cardHover transition-colors">
+                        <button className="text-sm text-reddit-textMuted hover:text-reddit-text px-3 py-1.5 rounded-md hover:bg-reddit-cardHover transition-colors">
                             Active
                         </button>
-                        <button className="text-sm text-reddit-textMuted hover:text-white px-3 py-1.5 rounded-md hover:bg-reddit-cardHover transition-colors">
+                        <button className="text-sm text-reddit-textMuted hover:text-reddit-text px-3 py-1.5 rounded-md hover:bg-reddit-cardHover transition-colors">
                             Paused
                         </button>
                     </div>
@@ -237,7 +237,7 @@ const AdsDashboard = () => {
                                         <td className="py-4 px-4 text-right relative">
                                             <button
                                                 onClick={() => setShowMenu(showMenu === campaign.id ? null : campaign.id)}
-                                                className="p-1.5 hover:bg-reddit-border rounded transition-colors text-reddit-textMuted hover:text-white"
+                                                className="p-1.5 hover:bg-reddit-border rounded transition-colors text-reddit-textMuted hover:text-reddit-text"
                                             >
                                                 <MoreHorizontal size={16} />
                                             </button>

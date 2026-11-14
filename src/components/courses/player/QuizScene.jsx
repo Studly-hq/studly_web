@@ -101,7 +101,7 @@ const QuizScene = ({ scene, typedQuestion, isQuestionTyped, onComplete }) => {
           )}
         </div>
 
-        <h3 className="text-2xl font-bold text-white leading-relaxed tracking-tight">
+        <h3 className="text-2xl font-bold text-reddit-text leading-relaxed tracking-tight">
           {typedQuestion}
           {!isQuestionTyped && (
             <motion.span
@@ -143,10 +143,10 @@ const QuizScene = ({ scene, typedQuestion, isQuestionTyped, onComplete }) => {
                           : 'bg-red-500/10 border-red-500/50'
                         : isCorrect
                           ? 'bg-green-500/5 border-green-500/30'
-                          : 'bg-white/5 border-transparent opacity-50'
+                          : 'bg-reddit-cardHover border-transparent opacity-50'
                       : isSelected
-                        ? 'bg-white/10 border-reddit-orange'
-                        : 'bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10'
+                        ? 'bg-reddit-cardHover border-reddit-orange'
+                        : 'bg-reddit-cardHover border-transparent hover:bg-reddit-cardHover hover:border-reddit-border'
                     }
                   `}
                 >
@@ -157,18 +157,18 @@ const QuizScene = ({ scene, typedQuestion, isQuestionTyped, onComplete }) => {
                           ${submitted
                           ? showCorrectness
                             ? isCorrect ? 'bg-green-500 border-green-500' : 'bg-red-500 border-red-500'
-                            : isSelected ? 'border-reddit-orange' : 'border-white/20'
+                            : isSelected ? 'border-reddit-orange' : 'border-reddit-border'
                           : isSelected ? 'bg-reddit-orange border-reddit-orange' : 'border-white/20 group-hover:border-white/40'
                         }
                        `}>
                         {submitted && showCorrectness && (
-                          isCorrect ? <Check className="w-3.5 h-3.5 text-white" /> : <X className="w-3.5 h-3.5 text-white" />
+                          isCorrect ? <Check className="w-3.5 h-3.5 text-reddit-text" /> : <X className="w-3.5 h-3.5 text-reddit-text" />
                         )}
                         {!submitted && isSelected && (
                           <div className="w-2 h-2 rounded-full bg-white" />
                         )}
                       </div>
-                      <span className={`text-base font-medium transition-colors ${isSelected ? 'text-white' : 'text-reddit-textMuted group-hover:text-white'}`}>
+                      <span className={`text-base font-medium transition-colors ${isSelected ? 'text-reddit-text' : 'text-reddit-textMuted group-hover:text-reddit-text'}`}>
                         {choice.text}
                       </span>
                     </div>
@@ -195,7 +195,7 @@ const QuizScene = ({ scene, typedQuestion, isQuestionTyped, onComplete }) => {
                w-full py-4 rounded-xl font-bold tracking-wide transition-all duration-300 flex items-center justify-center gap-2
                ${selectedChoices.length > 0
                 ? 'bg-reddit-orange hover:bg-reddit-orange/90 text-white translate-y-0'
-                : 'bg-white/5 text-white/20 cursor-not-allowed'
+                : 'bg-reddit-cardHover text-reddit-text cursor-not-allowed'
               }
              `}
           >
@@ -225,13 +225,13 @@ const QuizScene = ({ scene, typedQuestion, isQuestionTyped, onComplete }) => {
                       w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
                       ${result.isCorrect ? 'bg-green-500' : 'bg-red-500'}
                    `}>
-                  {result.isCorrect ? <Check className="w-6 h-6 text-white" /> : <X className="w-6 h-6 text-white" />}
+                  {result.isCorrect ? <Check className="w-6 h-6 text-reddit-text" /> : <X className="w-6 h-6 text-reddit-text" />}
                 </div>
                 <div>
                   <h4 className={`text-lg font-bold mb-1 ${result.alreadyCompleted ? 'text-reddit-orange' : result.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
                     {result.alreadyCompleted ? 'Previously Completed' : result.isCorrect ? 'Correct!' : 'Incorrect'}
                   </h4>
-                  <p className="text-white/80 leading-relaxed text-sm">
+                  <p className="text-reddit-text leading-relaxed text-sm">
                     {scene.explanation}
                   </p>
                 </div>

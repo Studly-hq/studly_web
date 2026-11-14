@@ -34,7 +34,7 @@ const VideoScene = ({ scene }) => {
                 {/* Content Below Video */}
                 <div className="space-y-4 px-1">
                     {title && (
-                        <h1 className="text-3xl font-bold text-white tracking-tight">{title}</h1>
+                        <h1 className="text-3xl font-bold text-reddit-text tracking-tight">{title}</h1>
                     )}
                     {description && (
                         <p className="text-reddit-textMuted text-lg leading-relaxed max-w-3xl">{description}</p>

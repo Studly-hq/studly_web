@@ -113,33 +113,33 @@ const CourseBank = () => {
   }, [activeCategory, searchQuery, apiCourses]);
 
   return (
-    <div className="min-h-screen bg-reddit-bg text-white overflow-x-hidden">
+    <div className="min-h-screen bg-reddit-bg text-reddit-text overflow-x-hidden">
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Sticky Header */}
-        <div className="sticky top-0 z-40 bg-reddit-dark/80 backdrop-blur-xl border-b border-white/5 px-4 sm:px-6 lg:px-8 transition-all duration-300">
+        <div className="sticky top-0 z-40 bg-reddit-dark/80 backdrop-blur-xl border-b border-reddit-border px-4 sm:px-6 lg:px-8 transition-all duration-300">
           <div className="py-6 max-w-7xl mx-auto">
             <div className="flex items-center gap-4 mb-8">
               <button
                 onClick={() => navigate("/")}
-                className="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center transition-all duration-300 group"
+                className="w-10 h-10 rounded-full hover:bg-reddit-cardHover flex items-center justify-center transition-all duration-300 group"
                 aria-label="Go back"
               >
-                <ArrowLeft className="w-5 h-5 text-white/50 group-hover:text-white" />
+                <ArrowLeft className="w-5 h-5 text-reddit-text group-hover:text-reddit-text" />
               </button>
               <div className="flex-1">
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white mb-1">Course Bank</h1>
-                <p className="text-base text-white/40 font-medium">Explore and enroll in interactive learning modules</p>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-reddit-text mb-1">Course Bank</h1>
+                <p className="text-base text-reddit-text font-medium">Explore and enroll in interactive learning modules</p>
               </div>
             </div>
 
             <div className="relative mb-8 max-w-2xl">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-reddit-text" />
               <input
                 type="text"
                 placeholder="Search for a course..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-6 py-4 bg-white/5 border border-white/5 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:bg-white/10 focus:border-white/10 transition-all duration-300 shadow-none text-lg"
+                className="w-full pl-12 pr-6 py-4 bg-reddit-cardHover border border-reddit-border rounded-2xl text-reddit-text placeholder-reddit-textMuted focus:outline-none focus:bg-reddit-cardHover focus:border-reddit-border transition-all duration-300 shadow-none text-lg"
               />
             </div>
 

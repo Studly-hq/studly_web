@@ -47,16 +47,16 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
 
         {/* Top - Course info */}
         <div className="space-y-1 mb-4">
-          <h2 className="text-base sm:text-lg font-bold text-white truncate pr-16">
+          <h2 className="text-base sm:text-lg font-bold text-reddit-text truncate pr-16">
             {quiz.courseTitle}
           </h2>
-          <p className="text-gray-400 text-xs sm:text-sm">@{quiz.creator}</p>
+          <p className="text-reddit-textMuted text-xs sm:text-sm">@{quiz.creator}</p>
         </div>
 
         {/* Center - Question */}
         <div className="flex-1 flex items-center px-14 sm:px-16 overflow-y-auto w-full">
           <div className="w-full">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight text-center leading-tight mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-reddit-text tracking-tight text-center leading-tight mb-4 sm:mb-6">
               {question.question}
             </h1>
 
@@ -76,7 +76,7 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
                     const showResult = selectedAnswer !== null;
 
                     let bgColor = 'bg-reddit-cardHover border-reddit-border';
-                    let textColor = 'text-white';
+                    let textColor = 'text-reddit-text';
 
                     if (showResult) {
                       if (isCorrectAnswer) {
@@ -108,12 +108,12 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
                           </span>
                           {showResult && isCorrectAnswer && (
                             <div className="bg-green-500 rounded-full p-0.5 flex-shrink-0">
-                              <Check size={12} className="text-white" strokeWidth={3} />
+                              <Check size={12} className="text-reddit-text" strokeWidth={3} />
                             </div>
                           )}
                           {showResult && isSelected && !isCorrectAnswer && (
                             <div className="bg-red-500 rounded-full p-0.5 flex-shrink-0">
-                              <X size={12} className="text-white" strokeWidth={3} />
+                              <X size={12} className="text-reddit-text" strokeWidth={3} />
                             </div>
                           )}
                         </div>
@@ -139,20 +139,20 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
                       {isCorrect ? (
                         <>
                           <div className="bg-green-500 rounded-full p-1 flex-shrink-0">
-                            <Check size={10} className="text-white" strokeWidth={3} />
+                            <Check size={10} className="text-reddit-text" strokeWidth={3} />
                           </div>
                           <h3 className="text-sm sm:text-base font-bold text-green-400">Correct!</h3>
                         </>
                       ) : (
                         <>
                           <div className="bg-red-500 rounded-full p-1 flex-shrink-0">
-                            <X size={10} className="text-white" strokeWidth={3} />
+                            <X size={10} className="text-reddit-text" strokeWidth={3} />
                           </div>
                           <h3 className="text-sm sm:text-base font-bold text-red-400">Incorrect</h3>
                         </>
                       )}
                     </div>
-                    <p className="text-gray-300 text-xs leading-relaxed">{question.explanation}</p>
+                    <p className="text-reddit-textMuted text-xs leading-relaxed">{question.explanation}</p>
                   </div>
                 </motion.div>
               )}
@@ -161,8 +161,8 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
         </div>
 
         {/* Bottom - Question counter & Next button */}
-        <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
-          <div className="text-white/50 text-xs sm:text-sm font-medium">
+        <div className="flex items-center justify-between mt-4 pt-3 border-t border-reddit-border">
+          <div className="text-reddit-text text-xs sm:text-sm font-medium">
             {questionIndex + 1}/{quiz.questions.length}
           </div>
 
@@ -195,7 +195,7 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
               strokeWidth={2}
             />
           </div>
-          <span className="text-white text-[10px] sm:text-xs font-semibold">
+          <span className="text-reddit-text text-[10px] sm:text-xs font-semibold">
             {quiz.likeCount + (isLiked ? 1 : 0)}
           </span>
         </motion.button>
@@ -214,7 +214,7 @@ const QuizCard = ({ quiz, questionIndex, onNext, showOptions, onToggleOptions })
               strokeWidth={2}
             />
           </div>
-          <span className="text-white text-[10px] sm:text-xs font-semibold">
+          <span className="text-reddit-text text-[10px] sm:text-xs font-semibold">
             {isSaved ? 'Saved' : 'Save'}
           </span>
         </motion.button>

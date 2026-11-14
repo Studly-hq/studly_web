@@ -20,7 +20,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useFeed } from "../../context/FeedContext";
 import { editPost, deletePost, getPostLikes } from "../../api/contents";
 import UserListModal from "../common/UserListModal";
-import { toast } from "sonner";
+import { compatToast as toast } from "../../components/ui/toast";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { formatContent } from "../../utils/textUtils";
 
@@ -251,7 +251,7 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
         onClick={handleCardClick}
-        className="border-b border-reddit-border hover:bg-white/5 transition-all cursor-pointer"
+        className="border-b border-reddit-border hover:bg-reddit-cardHover transition-all cursor-pointer"
       >
         {/* Post Header */}
         <div className="flex items-center justify-between p-3">
@@ -334,11 +334,10 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
                   transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                  className="absolute right-0 top-full mt-1 w-44 bg-reddit-card border border-reddit-border rounded shadow-xl overflow-hidden z-50"
+                  className="absolute right-0 top-full mt-1 w-44 bg-reddit-card border border-reddit-border rounded overflow-hidden z-50"
                 >
                   {isOwnPost && (
                     <motion.button
-                      whileHover={{ backgroundColor: "#272729" }}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleMenuAction("edit");
@@ -352,7 +351,6 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
                   {isOwnPost && (
                     <motion.button
-                      whileHover={{ backgroundColor: "#272729" }}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleMenuAction("delete");
@@ -365,7 +363,6 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                   )}
 
                   <motion.button
-                    whileHover={{ backgroundColor: "#272729" }}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleMenuAction("share");
@@ -378,7 +375,6 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
                   {!isOwnPost && (
                     <motion.button
-                      whileHover={{ backgroundColor: "#272729" }}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleMenuAction("report");
@@ -482,7 +478,7 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                       }}
                       className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${index === currentImageIndex
                         ? "bg-white w-6"
-                        : "bg-white/50 w-2 hover:bg-white/75"
+                        : "bg-reddit-cardHover w-2 hover:bg-reddit-cardHover"
                         }`}
                     />
                   ))}
@@ -504,7 +500,6 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             <div className="flex items-center gap-1">
               {/* Like Button */}
               <motion.button
-                whileHover={{ backgroundColor: "#272729" }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ duration: 0.15 }}
                 onClick={(e) => {
@@ -527,7 +522,6 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
               {/* Comment Button */}
               <motion.button
-                whileHover={{ backgroundColor: "#272729" }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ duration: 0.15 }}
                 onClick={(e) => {
@@ -543,7 +537,6 @@ const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
             {/* Bookmark Button */}
             <motion.button
-              whileHover={{ backgroundColor: "#272729" }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}
               onClick={(e) => {

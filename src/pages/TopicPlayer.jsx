@@ -108,7 +108,7 @@ const TopicPlayer = () => {
   );
 
   return (
-    <div className="min-h-screen bg-reddit-bg text-white overflow-x-hidden">
+    <div className="min-h-screen bg-reddit-bg text-reddit-text overflow-x-hidden">
       <Toaster
         position="top-right"
         toastOptions={{
@@ -131,18 +131,18 @@ const TopicPlayer = () => {
       </div>
 
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-reddit-bg/80 backdrop-blur-xl border-b border-white/5">
+      <div className="fixed top-0 left-0 right-0 z-40 bg-reddit-bg/80 backdrop-blur-xl border-b border-reddit-border">
         <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1 min-w-0">
             <button
               onClick={() => navigate('/courses')}
-              className="group flex items-center justify-center w-8 h-8 rounded-full hover:bg-white/10 transition-all duration-300"
+              className="group flex items-center justify-center w-8 h-8 rounded-full hover:bg-reddit-cardHover transition-all duration-300"
               aria-label="Back to courses"
             >
-              <ArrowLeft className="w-5 h-5 text-reddit-textMuted group-hover:text-white transition-colors" />
+              <ArrowLeft className="w-5 h-5 text-reddit-textMuted group-hover:text-reddit-text transition-colors" />
             </button>
             <div className="min-w-0 flex flex-col justify-center">
-              <h1 className="text-sm font-medium text-white/90 tracking-wide truncate">{activeTopic?.title}</h1>
+              <h1 className="text-sm font-medium text-reddit-text tracking-wide truncate">{activeTopic?.title}</h1>
               <div className="flex items-center gap-2 text-xs text-reddit-textMuted">
                 <span className="truncate">{currentSection?.title}</span>
                 <span className="w-1 h-1 rounded-full bg-reddit-textMuted/50" />
@@ -154,7 +154,7 @@ const TopicPlayer = () => {
           <div className="flex items-center gap-6">
             <div className="hidden sm:flex flex-col items-end">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-white">{progressPercentage}%</span>
+                <span className="text-xs font-medium text-reddit-text">{progressPercentage}%</span>
                 <span className="text-xs text-reddit-textMuted">Complete</span>
               </div>
             </div>
@@ -193,7 +193,7 @@ const TopicPlayer = () => {
               className={`
                   w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300
                   ${canGoPrevious
-                  ? 'hover:bg-white/10 text-reddit-textMuted hover:text-white'
+                  ? 'hover:bg-reddit-cardHover text-reddit-textMuted hover:text-reddit-text'
                   : 'opacity-0 pointer-events-none'
                 }
                 `}
@@ -209,7 +209,7 @@ const TopicPlayer = () => {
                   h-10 px-6 rounded-full flex items-center gap-2 transition-all duration-300
                   ${playerState !== 'completed'
                   ? 'bg-reddit-orange hover:bg-reddit-orange/90 text-white translate-y-0'
-                  : 'bg-white/5 text-reddit-textMuted cursor-not-allowed'
+                  : 'bg-reddit-cardHover text-reddit-textMuted cursor-not-allowed'
                 }
                 `}
               aria-label={!canGoNext ? "Finish course" : "Next scene"}

@@ -15,7 +15,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { useFeed } from "../../context/FeedContext";
 import { editComment, deleteComment } from "../../api/contents";
-import { toast } from "sonner";
+import { compatToast as toast } from "../../components/ui/toast";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { formatContent } from "../../utils/textUtils";
 
@@ -232,7 +232,6 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
                       >
                         {isOwnComment && (
                           <motion.button
-                            whileHover={{ backgroundColor: "#272729" }}
                             onClick={() => handleMenuAction("edit")}
                             className="w-full flex items-center gap-3 px-3 py-2 text-left text-reddit-text hover:text-reddit-orange transition-colors text-sm"
                           >
@@ -243,7 +242,6 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
 
                         {isOwnComment && (
                           <motion.button
-                            whileHover={{ backgroundColor: "#272729" }}
                             onClick={() => handleMenuAction("delete")}
                             className="w-full flex items-center gap-3 px-3 py-2 text-left text-reddit-text hover:text-red-500 transition-colors text-sm"
                           >
@@ -254,7 +252,6 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
 
                         {!isOwnComment && (
                           <motion.button
-                            whileHover={{ backgroundColor: "#272729" }}
                             onClick={() => handleMenuAction("report")}
                             className="w-full flex items-center gap-3 px-3 py-2 text-left text-reddit-text hover:text-red-500 transition-colors text-sm"
                           >
@@ -291,19 +288,19 @@ const Comment = ({ comment, postId, isReply = false, onReply, onCommentDeleted, 
                       )}
                     </div>
                     <div className="flex-1">
-                      <div className="bg-reddit-input rounded border border-white/10 focus-within:border-white/20 transition-colors flex items-center pr-2">
+                      <div className="bg-reddit-input rounded border border-reddit-border focus-within:border-reddit-textMuted transition-colors flex items-center pr-2">
                         <input
                           type="text"
                           value={replyContent}
                           onChange={(e) => setReplyContent(e.target.value)}
                           placeholder={`Reply to ${commentUser?.username}...`}
-                          className="flex-1 bg-transparent border-none text-sm text-white placeholder-white/20 px-3 py-2 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 ring-0"
+                          className="flex-1 bg-transparent border-none text-sm text-reddit-text placeholder-reddit-textMuted px-3 py-2 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 ring-0"
                           autoFocus
                         />
                         <button
                           type="submit"
                           disabled={!replyContent.trim() || isSubmittingReply}
-                          className="p-1.5 rounded-full hover:bg-white/10 text-reddit-orange disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          className="p-1.5 rounded-full hover:bg-reddit-cardHover text-reddit-orange disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                           {isSubmittingReply ? (
                             <LoadingSpinner size={14} color="#FF4500" />

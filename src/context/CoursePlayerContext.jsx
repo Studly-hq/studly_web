@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { completeLesson, completeSection, submitQuiz } from '../api/coursebank';
+import client from '../api/client';
+import { useWebSocket } from '../hooks/useWebSocket';
+import { useAuth } from './AuthContext';
 
 
 const CoursePlayerContext = createContext();
@@ -13,6 +16,8 @@ export const useCoursePlayer = () => {
 };
 
 export const CoursePlayerProvider = ({ children }) => {
+
+  const { isAuthenticated } = useAuth();
 
   // Player state machine
   const [playerState, setPlayerState] = useState('idle'); // idle, typing, paused, awaiting_input, validating, showing_feedback, transitioning, completed
@@ -34,11 +39,10 @@ export const CoursePlayerProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : {};
   });
 
-  // Aura points
-  const [auraPoints, setAuraPoints] = useState(() => {
-    const saved = localStorage.getItem('auraPoints');
-    return saved ? parseInt(saved) : 0;
-  });
+  // Aura points & streak — server is the source of truth (GET /aura/summary).
+  // localStorage fake awards are replaced with real POST /aura/award calls.
+  const [auraPoints, setAuraPoints] = useState(0);
+  const [streak, setStreak] = useState(0);
 
   // Event queue for offline sync
   const [eventQueue, setEventQueue] = useState([]);
@@ -86,11 +90,6 @@ export const CoursePlayerProvider = ({ children }) => {
     localStorage.setItem('courseProgress', JSON.stringify(progress));
   }, [progress]);
 
-  // Persist aura points
-  useEffect(() => {
-    localStorage.setItem('auraPoints', auraPoints.toString());
-  }, [auraPoints]);
-
   // Persist notes
   useEffect(() => {
     localStorage.setItem('courseNotes', JSON.stringify(notes));
@@ -106,6 +105,35 @@ export const CoursePlayerProvider = ({ children }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
+
+  // Load the viewer's aura + streak from the server (ticks the daily streak),
+  // then stay live via WebSocket aura_point_update / streak_lost pushes.
+  const fetchAuraSummary = useCallback(async () => {
+    try {
+      const res = await client.get('/aura/summary');
+      const { aura_points, current_streak } = res.data || {};
+      setAuraPoints(aura_points ?? 0);
+      setStreak(current_streak ?? 0);
+    } catch (e) {
+      console.warn('Failed to fetch aura summary:', e);
+    }
+  }, []);
+
+  // Only fetch the aura summary when authenticated. Firing it while logged
+  // out produces a 401, which used to trigger the token-refresh → logout
+  // path and a full page reload loop on public pages.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetchAuraSummary();
+  }, [isAuthenticated, fetchAuraSummary]);
+
+  useWebSocket('aura_point_update', (data) => {
+    setAuraPoints(data.points ?? data.aura_points ?? 0);
+  });
+
+  useWebSocket('streak_lost', () => {
+    fetchAuraSummary();
+  });
 
   // Load topic
   const loadTopic = useCallback((topic) => {
@@ -297,9 +325,20 @@ export const CoursePlayerProvider = ({ children }) => {
       };
     });
 
-    // Award aura points locally
-    if (isCorrect) {
-      setAuraPoints(prev => prev + points);
+    // Award aura via server (quiz pass → +10 aura, once per quiz per day).
+    // Dedupe is enforced server-side on source_id, so replaying is safe.
+    if (isCorrect && quizId) {
+      try {
+        const res = await client.post('/aura/award', {
+          event_type: 'quiz_pass',
+          source_id: quizId,
+        });
+        if (res.data?.aura_points !== undefined) {
+          setAuraPoints(res.data.aura_points);
+        }
+      } catch (e) {
+        console.warn('Failed to award quiz aura:', e);
+      }
     }
 
     emitEvent('quiz_attempt', {
@@ -387,6 +426,7 @@ export const CoursePlayerProvider = ({ children }) => {
     reducedMotion,
     progress,
     auraPoints,
+    streak,
 
     // Methods
     loadTopic,

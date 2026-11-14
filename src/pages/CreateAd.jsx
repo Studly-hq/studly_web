@@ -102,12 +102,12 @@ const CreateAd = () => {
             case 'blue': return 'bg-blue-500/20 text-blue-400';
             case 'orange': return 'bg-reddit-orange/20 text-reddit-orange';
             case 'purple': return 'bg-purple-500/20 text-purple-400';
-            default: return 'bg-gray-500/20 text-gray-400';
+            default: return 'bg-gray-500/20 text-reddit-textMuted';
         }
     };
 
     return (
-        <div className="min-h-screen bg-reddit-bg text-white">
+        <div className="min-h-screen bg-reddit-bg text-reddit-text">
             {/* Header */}
             <div className="sticky top-0 bg-reddit-bg/95 backdrop-blur-md z-10 border-b border-reddit-border">
                 <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
@@ -134,7 +134,7 @@ const CreateAd = () => {
                                     initial={{ scale: 0.9 }}
                                     animate={{ scale: currentStep >= step.id ? 1 : 0.9 }}
                                     className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all ${currentStep > step.id
-                                        ? 'bg-green-500 text-white'
+                                        ? 'bg-green-500 text-reddit-text'
                                         : currentStep === step.id
                                             ? 'bg-reddit-orange text-white'
                                             : 'bg-reddit-cardHover text-reddit-textMuted border border-reddit-border'
@@ -142,7 +142,7 @@ const CreateAd = () => {
                                 >
                                     {currentStep > step.id ? <Check size={20} /> : <step.icon size={18} />}
                                 </motion.div>
-                                <span className={`text-xs mt-2 font-medium ${currentStep >= step.id ? 'text-white' : 'text-reddit-textMuted'
+                                <span className={`text-xs mt-2 font-medium ${currentStep >= step.id ? 'text-reddit-text' : 'text-reddit-textMuted'
                                     }`}>
                                     {step.name}
                                 </span>

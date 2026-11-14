@@ -19,7 +19,7 @@ const CourseFilter = ({ activeCategory, onCategoryChange }) => {
               relative px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap border
               ${isActive
                 ? 'text-white border-reddit-orange bg-reddit-orange/10'
-                : 'text-white/60 border-white/10 hover:border-white/30 hover:text-white bg-transparent'
+                : 'text-reddit-text border-reddit-border hover:border-reddit-border hover:text-reddit-text bg-transparent'
               }
             `}
           >

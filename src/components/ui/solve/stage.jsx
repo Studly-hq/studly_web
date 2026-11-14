@@ -1,0 +1,56 @@
+import React from "react";
+import { motion } from "framer-motion";
+import SceneBring from "./scene-bring";
+import SceneUnderstand from "./scene-understand";
+import ScenePath from "./scene-path";
+import SceneReader from "./scene-reader";
+import SceneQuiz from "./scene-quiz";
+import SceneKeepGoing from "./scene-keepgoing";
+import { SWAP_PACE } from "./pace";
+
+const EASE = [0.16, 1, 0.3, 1];
+
+const SCENES = {
+  bring: SceneBring,
+  understand: SceneUnderstand,
+  path: ScenePath,
+  reader: SceneReader,
+  quiz: SceneQuiz,
+  keep: SceneKeepGoing,
+};
+
+/**
+ * SolveStage — the tinted panel on the right. Holds one evolving illustration:
+ * each cross-fades into the next while the panel tint shifts with it.
+ * The swap is a pure opacity cross-fade: no positional slide, which paired
+ * with the incoming scene's own entrance animations read as a small jump.
+ * `replayKey` remounts the active scene so re-selecting a step restarts it.
+ */
+const SolveStage = ({ step, reduced = false, play = true, replayKey = 0 }) => {
+  const Scene = SCENES[step.scene] || SceneBring;
+
+  return (
+    <motion.div
+      role="img"
+      aria-label={step.alt}
+      className="relative h-full w-full overflow-hidden rounded-2xl border border-[#ece7d8]"
+      initial={false}
+      animate={{ backgroundColor: step.tint }}
+      transition={{ duration: 0.6 * SWAP_PACE, ease: EASE }}
+    >
+      <motion.div
+        key={step.id}
+        className="absolute inset-0"
+        initial={reduced ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 * SWAP_PACE, ease: "linear" }}
+      >
+        <Scene reduced={reduced} active={play} />
+      </motion.div>
+    </motion.div>
+  );
+};
+
+export default SolveStage;
+
