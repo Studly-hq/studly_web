@@ -4,13 +4,6 @@
     "buildCommand": "npm run build",
     "outputDirectory": "build",
 
-    "redirects": [
-        {
-            "source": "/",
-            "destination": "/study",
-            "permanent": false
-        }
-    ],
     "rewrites": [
         {
             "source": "/post/:postId",
