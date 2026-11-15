@@ -98,7 +98,7 @@ client.interceptors.response.use(
       const noRefreshPaths = [
         '/auth/study-token',
         '/profile/profile',
-        '/giveaway/',
+        '/giveaway/today/',
         '/aura/summary',
         '/aura/history',
         '/streak/',

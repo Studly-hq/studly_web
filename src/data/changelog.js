@@ -1,7 +1,7 @@
 export const changelogData = [
   {
     version: "v3.0.0",
-    date: "14 November 2026",
+    date: "15 November 2026",
     title: "Lucid v3 — Learning Paths, AI Tutor Chat & Session Sharing",
     description: "The biggest Lucid update yet. Completely rebuilt study experience with visual learning paths, conversational AI tutoring, session merging, and public sharing.",
     sections: [
