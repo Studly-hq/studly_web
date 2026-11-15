@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     // Check giveaway win after login (fire and forget)
     const checkGiveawayWin = useCallback(async () => {
         try {
-            const response = await client.post("/giveaway/today-check", {});
+            const response = await client.post("/giveaway/today/today-check", {});
             const data = response.data;
             
             if (data.won) {

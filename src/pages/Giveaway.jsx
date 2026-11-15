@@ -26,7 +26,7 @@ const Giveaway = () => {
         if (!isAuthenticated) return;
         
         try {
-            const response = await client.get("/giveaway/today-status");
+            const response = await client.get("/giveaway/today/today-status");
             setGiveawayStatus(response.data);
         } catch (err) {
             // Non-admin users get 403, that's fine
